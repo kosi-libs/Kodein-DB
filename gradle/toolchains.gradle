@@ -1,0 +1,6 @@
+
+model {
+    toolChains {
+        clang(Clang)
+    }
+}

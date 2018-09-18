@@ -1,0 +1,8 @@
+headers = leveldb/c.h
+headerFilter = leveldb/*
+linkerOpts.linux = -lleveldb -lstdc++ -lc
+noStringConversion = leveldb_put leveldb_delete leveldb_get \
+                     leveldb_approximate_sizes leveldb_compact_range \
+                     leveldb_iter_seek leveldb_iter_key leveldb_iter_value \
+                     leveldb_writebatch_put leveldb_writebatch_delete leveldb_writebatch_iterate \
+                     leveldb_comparator_create leveldb_filterpolicy_create
