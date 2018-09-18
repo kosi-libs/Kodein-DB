@@ -30,14 +30,14 @@ fun newBuffer(vararg values: Any): Allocation {
     return buffer
 }
 
-private fun toString(bytes: ByteArray): String {
-    if (bytes.isEmpty())
+private fun ByteArray.description(): String {
+    if (isEmpty())
         return "\"\""
 
     var type = 0 // 0 = start, 1 = chars, 2 = ints
 
     val sb = StringBuilder()
-    for (b in bytes) {
+    for (b in this) {
         val newType = if (b in 32..126) 1 else 2
         if (type != newType && type == 1)
             sb.append("\"")
@@ -58,7 +58,7 @@ private fun toString(bytes: ByteArray): String {
 
 fun assertBytesEquals(expected: ByteArray, actual: ByteArray) {
     if (!expected.contentEquals(actual))
-        fail("Bytes are not equal: ${toString(expected)} != ${toString(actual)}")
+        fail("Bytes are not equal: ${expected.description()} != ${actual.description()}")
 }
 
 fun assertBytesEquals(expected: ByteArray, actual: Allocation) =

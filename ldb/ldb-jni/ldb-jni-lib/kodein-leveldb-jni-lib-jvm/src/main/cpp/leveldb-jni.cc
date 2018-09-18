@@ -152,18 +152,6 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *jvm, void *) {
 	env->DeleteGlobalRef(LevelDBExceptionClass);
 }
 
-class NoCache : public leveldb::Cache {
-    uint64_t _id;
-public:
-    NoCache() : _id(0) {}
-    Handle *Insert(const leveldb::Slice&, void*, size_t, void (*)(const leveldb::Slice&, void*)) { return NULL; }
-    Handle *Lookup(const leveldb::Slice&) { return NULL; }
-    void Release(Handle*) {}
-    void *Value(Handle*) { return NULL; }
-    void Erase(const leveldb::Slice&) {}
-    uint64_t NewId() { return _id++; }
-};
-
 
 ////////////////////////////////////////////// LEVELDB //////////////////////////////////////////
 
@@ -191,11 +179,10 @@ JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1NewOptions 
     options->paranoid_checks = paranoidChecks;
     options->write_buffer_size = writeBufferSize;
     options->max_open_files = maxOpenFiles;
-    options->block_cache = (cacheSize <= 0) ? new NoCache() : leveldb::NewLRUCache(cacheSize);
+    options->block_cache = leveldb::NewLRUCache(cacheSize);
     options->block_size = blockSize;
     options->block_restart_interval = blockRestartInterval;
-    // TODO Update to LevelDB 1.10
-//    options->max_file_size = maxFileSize;
+    options->max_file_size = maxFileSize;
     options->compression = snappyCompression ? leveldb::kSnappyCompression : leveldb::kNoCompression;
     options->filter_policy = (bloomFilterBitsPerKey <= 0) ? NULL : leveldb::NewBloomFilterPolicy(bloomFilterBitsPerKey);
 
@@ -254,6 +241,8 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1DestroyDB (J
 
 void J_LevelDBJNI_Put (JNIEnv *env, jlong ldbPtr, Bytes key, Bytes value, jboolean sync) {
     CAST(leveldb::DB, ldb);
+
+    std::cout << key.slice.ToString() << " -> " << value.slice.ToString() << std::endl;
 
     CHECK_STATUS(ldb->Put(_writeOptions(sync), key.slice, value.slice),);
 }
@@ -463,15 +452,11 @@ JNIEXPORT jboolean JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterat
 }
 
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1SeekToFirst (JNIEnv *env, jclass, jlong itPtr) {
-    std::cout << "COUCOU 1" << std::endl;
     CAST(leveldb::Iterator, it);
-    std::cout << "COUCOU 2" << std::endl;
 
 	it->SeekToFirst();
 
-    std::cout << "COUCOU 3" << std::endl;
     CHECK_STATUS(it->status(),);
-    std::cout << "COUCOU 4" << std::endl;
 }
 
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1SeekToLast (JNIEnv *env, jclass, jlong itPtr) {

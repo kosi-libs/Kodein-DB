@@ -7,6 +7,8 @@ import cnames.structs.leveldb_snapshot_t
 import cnames.structs.leveldb_t
 import cnames.structs.leveldb_writebatch_t
 import cnames.structs.leveldb_writeoptions_t
+import cnames.structs.leveldb_cache_t
+import cnames.structs.leveldb_filterpolicy_t
 import kotlinx.cinterop.*
 import kotlinx.io.core.writeFully
 import libleveldb.*
@@ -24,34 +26,34 @@ private inline fun <T> ldbCall(crossinline block: MemScope.(CPointerVar<ByteVar>
     ret
 }
 
-private fun LevelDB.Options.allocOptionsPtr(): CPointer<leveldb_options_t> {
-    val optionsPtr = leveldb_options_create()!!
-    leveldb_options_set_info_log(optionsPtr, null)
-    leveldb_options_set_create_if_missing(optionsPtr, openPolicy.createIfMissing.toByte().toUByte())
-    leveldb_options_set_error_if_exists(optionsPtr, openPolicy.errorIfExists.toByte().toUByte())
-    leveldb_options_set_paranoid_checks(optionsPtr, paranoidChecks.toByte().toUByte())
-    leveldb_options_set_write_buffer_size(optionsPtr, writeBufferSize.convert())
-    leveldb_options_set_max_open_files(optionsPtr, maxOpenFiles)
-    leveldb_options_set_cache(optionsPtr, leveldb_cache_create_lru(cacheSize.convert()))
-    leveldb_options_set_block_size(optionsPtr, blockSize.convert())
-    leveldb_options_set_block_restart_interval(optionsPtr, blockRestartInterval)
-    leveldb_options_set_compression(optionsPtr, if (snappyCompression) leveldb_snappy_compression.toInt() else leveldb_no_compression.toInt())
-    leveldb_options_set_filter_policy(optionsPtr, if (bloomFilterBitsPerKey == 0) null else leveldb_filterpolicy_create_bloom(bloomFilterBitsPerKey))
-    return optionsPtr
+class OptionsPtrs(val options: CPointer<leveldb_options_t>, val cache: CPointer<leveldb_cache_t>?, val filterPolicy: CPointer<leveldb_filterpolicy_t>?)
+
+private fun LevelDB.Options.allocOptionsPtr(): OptionsPtrs {
+
+    val ptrs = OptionsPtrs(
+            leveldb_options_create()!!,
+            if (cacheSize > 0) leveldb_cache_create_lru(cacheSize.convert()) else null,
+            if (bloomFilterBitsPerKey > 0) leveldb_filterpolicy_create_bloom(bloomFilterBitsPerKey) else null
+    )
+
+    leveldb_options_set_info_log(ptrs.options, null)
+    leveldb_options_set_create_if_missing(ptrs.options, openPolicy.createIfMissing.toByte().toUByte())
+    leveldb_options_set_error_if_exists(ptrs.options, openPolicy.errorIfExists.toByte().toUByte())
+    leveldb_options_set_paranoid_checks(ptrs.options, paranoidChecks.toByte().toUByte())
+    leveldb_options_set_write_buffer_size(ptrs.options, writeBufferSize.convert())
+    leveldb_options_set_max_open_files(ptrs.options, maxOpenFiles)
+    leveldb_options_set_cache(ptrs.options, ptrs.cache)
+    leveldb_options_set_block_size(ptrs.options, blockSize.convert())
+    leveldb_options_set_block_restart_interval(ptrs.options, blockRestartInterval)
+    leveldb_options_set_compression(ptrs.options, if (snappyCompression) leveldb_snappy_compression.toInt() else leveldb_no_compression.toInt())
+    leveldb_options_set_filter_policy(ptrs.options, if (bloomFilterBitsPerKey == 0) null else ptrs.filterPolicy)
+    return ptrs
 }
 
-//@kotlin.contracts.ExperimentalContracts
-private inline fun LevelDB.Options.usePointer(block: (CPointer<leveldb_options_t>) -> Unit) {
-//    kotlin.contracts.contract {
-//        callsInPlace(block, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
-//    }
-    val ptr = allocOptionsPtr()
-    try {
-        block(ptr)
-    }
-    finally {
-        leveldb_options_destroy(ptr)
-    }
+private fun releaseOptionsPtr(ptrs: OptionsPtrs) {
+    leveldb_options_destroy(ptrs.options)
+    ptrs.cache?.let { leveldb_cache_destroy(it) }
+    ptrs.filterPolicy?.let { leveldb_filterpolicy_destroy(it) }
 }
 
 private fun LevelDB.ReadOptions.allocOptionsPtr(): CPointer<leveldb_readoptions_t> {
@@ -63,6 +65,9 @@ private fun LevelDB.ReadOptions.allocOptionsPtr(): CPointer<leveldb_readoptions_
 }
 
 private inline fun LevelDB.ReadOptions.usePointer(block: (CPointer<leveldb_readoptions_t>) -> Unit) {
+//    kotlin.contracts.contract {
+//        callsInPlace(block, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+//    }
     val ptr = allocOptionsPtr()
     try {
         block(ptr)
@@ -89,23 +94,31 @@ private inline fun LevelDB.WriteOptions.usePointer(block: (CPointer<leveldb_writ
 }
 
 
-class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: LevelDB.Options) : PointerBound<leveldb_t>(ptr, "DB", null, options), LevelDB {
+class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: LevelDB.Options, val optionsPtrs: OptionsPtrs) : PointerBound<leveldb_t>(ptr, "DB", null, options), LevelDB {
 
     private val dbHandler = PlatformCloseable.Handler()
 
     object Factory : LevelDB.Factory {
 
         override fun open(path: String, options: LevelDB.Options): LevelDB {
-            options.usePointer { optionsPtr ->
-                val dbPtr = ldbCall { leveldb_open(optionsPtr, path, it.ptr) } ?: throw LevelDBException("Unknown error")
-                return LevelDBNative(dbPtr, options)
+            val ptrs = options.allocOptionsPtr()
+            try {
+                val dbPtr = ldbCall { leveldb_open(ptrs.options, path, it.ptr) } ?: throw LevelDBException("Unknown error")
+                return LevelDBNative(dbPtr, options, ptrs)
             }
-            throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
+            catch (e: Throwable) {
+                releaseOptionsPtr(ptrs)
+                throw e
+            }
         }
 
         override fun destroy(path: String, options: LevelDB.Options) {
-            options.usePointer { optionsPtr ->
-                ldbCall { leveldb_destroy_db(optionsPtr, path, it.ptr) }
+            val ptrs = options.allocOptionsPtr()
+            try {
+                ldbCall { leveldb_destroy_db(ptrs.options, path, it.ptr) }
+            }
+            finally {
+                releaseOptionsPtr(ptrs)
             }
         }
     }
@@ -356,6 +369,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
 
     override fun release(ptr: CPointer<leveldb_t>) {
         leveldb_close(ptr)
+        releaseOptionsPtr(optionsPtrs)
     }
 
     override fun beforeClose() {

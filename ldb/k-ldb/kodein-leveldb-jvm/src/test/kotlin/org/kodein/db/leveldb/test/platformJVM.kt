@@ -7,4 +7,4 @@ import org.kodein.log.print.printLogFilter
 
 actual fun platformOptions() = baseOptions().copy(loggerFactory = { Logger(it, printLogFilter) })
 
-actual val platformFactory: LevelDB.Factory = LevelDBJVM
+actual val platformFactory: LevelDB.Factory = LevelDB.Factory.Based("/tmp/", LevelDBJVM)

@@ -34,6 +34,7 @@ if (OperatingSystem.current().isLinux()) {
     library {
         source.from(
                 project(":ldb:ldb-lib").file("src/leveldb/port/port_posix.cc"),
+                project(":ldb:ldb-lib").file("src/leveldb/port/port_posix_sse.cc"),
                 project(":ldb:ldb-lib").file("src/leveldb/port/env_posix.cc")
         )
     }

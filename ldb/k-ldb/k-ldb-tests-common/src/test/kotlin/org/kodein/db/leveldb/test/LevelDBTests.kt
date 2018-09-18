@@ -490,12 +490,12 @@ open class LevelDBTests {
         ldb!!.newIterator().use { it ->
             it.seekToFirst()
 
-//            assertTrue(it.isValid())
-//            assertBytesEquals(byteArray("key"), it.transientKey())
-//            assertBytesEquals(byteArray("value"), it.transientValue())
-//
-//            it.next()
-//            assertFalse(it.isValid())
+            assertTrue(it.isValid())
+            assertBytesEquals(byteArray("key"), it.transientKey())
+            assertBytesEquals(byteArray("value"), it.transientValue())
+
+            it.next()
+            assertFalse(it.isValid())
         }
     }
 
@@ -530,7 +530,7 @@ open class LevelDBTests {
     fun test_06_OpenPolicy_00_OpenInexisting() {
         assertFailsWith<LevelDBException> {
             factory.open("none", options().copy(openPolicy = LevelDB.OpenPolicy.OPEN))
-//            factory.destroy("none")
+            factory.destroy("none")
         }
     }
 
