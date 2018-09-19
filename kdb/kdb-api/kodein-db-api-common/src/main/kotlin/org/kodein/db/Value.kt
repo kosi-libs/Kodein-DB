@@ -4,7 +4,7 @@ import kotlinx.io.core.IoBuffer
 import kotlinx.io.core.use
 import kotlinx.io.core.writeFully
 import org.kodein.db.ascii.writeAscii
-import org.kodein.db.leveldb.Buffer
+import org.kodein.db.leveldb.Allocation
 
 interface Value : Body {
 
@@ -16,8 +16,8 @@ interface Value : Body {
 
         override fun hashCode(): Int {
             if (_hashCode == 0) {
-                Buffer.allocHeapBuffer(size).use {
-                    writeInto(it.io)
+                Allocation.allocHeapBuffer(size).use {
+                    writeInto(it.buffer)
                     _hashCode = it.hashCode()
                 }
             }
@@ -31,10 +31,10 @@ interface Value : Body {
             if (size != other.size)
                 return false
 
-            Buffer.allocHeapBuffer(size).use { thisBuffer ->
-                writeInto(thisBuffer.io)
-                Buffer.allocHeapBuffer(size).use { otherBuffer ->
-                    other.writeInto(otherBuffer.io)
+            Allocation.allocHeapBuffer(size).use { thisBuffer ->
+                writeInto(thisBuffer.buffer)
+                Allocation.allocHeapBuffer(size).use { otherBuffer ->
+                    other.writeInto(otherBuffer.buffer)
                     return thisBuffer == otherBuffer
                 }
             }
@@ -78,12 +78,12 @@ interface Value : Body {
             }
         }
 
-        fun of(vararg values: Buffer): Value {
+        fun of(vararg values: Allocation): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeFully(values[pos].io.makeView())
+                    dst.writeFully(values[pos].buffer.makeView())
                 }
-                override fun size(pos: Int) = values[pos].io.readRemaining
+                override fun size(pos: Int) = values[pos].buffer.readRemaining
             }
         }
 
@@ -180,7 +180,7 @@ interface Value : Body {
                 when (val value = values[it]) {
                     is Value ->  value
                     is ByteArray -> of(*value)
-                    is Buffer -> of(value)
+                    is Allocation -> of(value)
                     is Boolean ->  of((if (value) 1 else 0).toByte())
                     is Byte ->  of(value)
                     is Char ->  ofAscii(value)

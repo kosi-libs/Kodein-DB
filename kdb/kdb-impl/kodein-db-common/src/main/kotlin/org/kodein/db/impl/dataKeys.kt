@@ -52,25 +52,25 @@ internal fun IoBuffer.writeRefKeyFromObjectKey(objectKey: IoBuffer) {
 }
 
 internal fun getObjectKeyType(key: IoBuffer): IoBuffer {
-    val typeEnd = key.firstPositionOf(NULL, past = 2)
+    val typeEnd = key.firstPositionOf(NULL, discard = 2)
     if (typeEnd == -1)
         throw IllegalStateException()
-    return key.makeSubView(2, typeEnd - 2 - 1)
+    return key.makeSubView(2, typeEnd - 2)
 }
 
 internal fun getObjectKeyID(key: IoBuffer): IoBuffer {
-    val typeEnd = key.firstPositionOf(NULL, past = 2)
+    val typeEnd = key.firstPositionOf(NULL, discard = 2)
     if (typeEnd == -1)
         throw IllegalStateException()
     return key.makeSubView(typeEnd + 1)
 }
 
 internal fun getIndexKeyName(key: IoBuffer): IoBuffer {
-    val typeEnd = key.firstPositionOf(NULL, past = 2)
+    val typeEnd = key.firstPositionOf(NULL, discard = 2)
     if (typeEnd == -1)
         throw IllegalStateException()
 
-    val nameEnd = key.firstPositionOf(NULL, past = typeEnd + 1)
+    val nameEnd = key.firstPositionOf(NULL, discard = typeEnd + 1)
     if (nameEnd == -1)
         throw IllegalStateException()
 
@@ -78,7 +78,7 @@ internal fun getIndexKeyName(key: IoBuffer): IoBuffer {
     return key.makeSubView(typeEnd + 1, nameSize)
 }
 
-internal fun IoBuffer.writeIndexKey(type: IoBuffer, id: IoBuffer, name: String, value: Value) {
+private fun IoBuffer.writeIndexKey(type: IoBuffer, id: IoBuffer, name: String, value: Value) {
     writeByte(Prefix.INDEX)
     writeByte(NULL)
 
@@ -92,7 +92,6 @@ internal fun IoBuffer.writeIndexKey(type: IoBuffer, id: IoBuffer, name: String, 
     writeByte(NULL)
 
     writeFully(id.makeView())
-    writeByte(NULL)
 }
 
 internal fun IoBuffer.writeIndexKeyFromObjectKey(objectKey: IoBuffer, name: String, value: Value) {
@@ -115,7 +114,7 @@ internal fun getIndexKeySizeFromObjectKey(objectKey: IoBuffer, name: String, val
     )
 }
 
-internal fun IoBuffer.writeIndexKeyStart(type: String, name: String, value: Value?, isOpen: Boolean) {
+internal fun IoBuffer.writeIndexKeyStart(type: String, name: String, value: Value?, isOpen: Boolean = false) {
     writeByte(Prefix.INDEX)
     writeByte(NULL)
 
@@ -132,7 +131,7 @@ internal fun IoBuffer.writeIndexKeyStart(type: String, name: String, value: Valu
     }
 }
 
-internal fun getIndexKeyStartSize(type: String, name: String, value: Value?, isOpen: Boolean): Int {
+internal fun getIndexKeyStartSize(type: String, name: String, value: Value?, isOpen: Boolean = false): Int {
     var size = (
             2                           // PREFIX_INDEX + NULL
         +   type.length + 1             // type + NULL

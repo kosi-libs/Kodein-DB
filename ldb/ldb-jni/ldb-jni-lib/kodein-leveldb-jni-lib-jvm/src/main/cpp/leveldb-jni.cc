@@ -172,8 +172,7 @@ JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1NewOptions 
     leveldb::Options *options = new leveldb::Options();
 
     // TODO
-    options->info_log = NULL;
-    options->info_log = new PrintLogger(); //printLogs ? soberLogger() : NULL;
+    options->info_log = NULL; //printLogs ? new PrintLogger() : NULL;
     options->create_if_missing = createIfMissing;
     options->error_if_exists = errorIfExists;
     options->paranoid_checks = paranoidChecks;
@@ -241,8 +240,6 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1DestroyDB (J
 
 void J_LevelDBJNI_Put (JNIEnv *env, jlong ldbPtr, Bytes key, Bytes value, jboolean sync) {
     CAST(leveldb::DB, ldb);
-
-    std::cout << key.slice.ToString() << " -> " << value.slice.ToString() << std::endl;
 
     CHECK_STATUS(ldb->Put(_writeOptions(sync), key.slice, value.slice),);
 }

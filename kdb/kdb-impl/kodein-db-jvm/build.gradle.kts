@@ -1,9 +1,11 @@
 plugins {
-    id("kodein-common")
+    id("kodein-jvm")
 }
 
 dependencies {
-    compile(project(":ldb:ldb-api:kodein-leveldb-api-common"))
+    expectedBy(project(":kdb:kdb-impl:kodein-db-common"))
+    compile(project(":kdb:kdb-api:kodein-db-api-jvm"))
+    testCompile(project(":test:test-utils-jvm"))
 }
 
 kodeinPublication {

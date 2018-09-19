@@ -19,12 +19,14 @@ internal inline fun IoBuffer.makeViewOf(block: IoBuffer.() -> Unit) : IoBuffer {
     return view
 }
 
-fun IoBuffer.firstPositionOf(search: Byte, past: Int = 0): Int {
-    val view = makeView()
-    if (past > 0)
-        view.discardExact(past)
+fun IoBuffer.firstPositionOf(search: Byte, discard: Int = 0): Int {
+    require(discard >= 0)
 
-    var i = 0
+    val view = makeView()
+    if (discard > 0)
+        view.discardExact(discard)
+
+    var i = discard
     while (view.canRead()) {
         if (view.readByte() == search)
             return i

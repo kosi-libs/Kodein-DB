@@ -8,6 +8,7 @@ repositories {
 
 dependencies {
     compile(project(":kdb:kdb-api:kodein-db-api-common"))
+    testCompile(project(":test:test-utils-common"))
     testCompile("org.jetbrains.kotlin:kotlin-test-common:${kodeinVersions.kotlin}")
     testCompile("org.jetbrains.kotlin:kotlin-test-annotations-common:${kodeinVersions.kotlin}")
 }

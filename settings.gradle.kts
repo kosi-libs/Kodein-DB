@@ -20,8 +20,10 @@ include(
         ":ldb:k-ldb:kodein-leveldb-android",
         ":ldb:k-ldb:kodein-leveldb-native",
 
-//        ":kdb:kdb-api:kodein-db-api-common",
-//        ":kdb:kdb-impl:kodein-db-common",
+        ":kdb:kdb-api:kodein-db-api-common",
+        ":kdb:kdb-api:kodein-db-api-jvm",
+        ":kdb:kdb-impl:kodein-db-common",
+        ":kdb:kdb-impl:kodein-db-jvm",
 
         ""
 )
