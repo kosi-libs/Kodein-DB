@@ -8,7 +8,7 @@ import org.kodein.db.leveldb.Allocation
 import org.kodein.db.leveldb.Bytes
 import org.kodein.db.leveldb.LevelDB
 
-abstract class AbstractDataIterator(protected val it: LevelDB.Iterator, protected val prefix: Bytes) : DataIterator {
+abstract class AbstractDataIterator(protected val it: LevelDB.Cursor, protected val prefix: Bytes) : DataIterator {
 
     private var cachedValid: Boolean? = null
     private var cachedItKey: Bytes? = null
@@ -105,7 +105,7 @@ abstract class AbstractDataIterator(protected val it: LevelDB.Iterator, protecte
 
     final override fun transientKey(): Bytes {
         if (!isValid())
-            throw IllegalStateException("Iterator is not valid")
+            throw IllegalStateException("Cursor is not valid")
 
         return thisKey().makeView()
     }
@@ -114,7 +114,7 @@ abstract class AbstractDataIterator(protected val it: LevelDB.Iterator, protecte
 
     final override fun transientValue(): Bytes {
         if (!isValid())
-            throw IllegalStateException("Iterator is not valid")
+            throw IllegalStateException("Cursor is not valid")
 
         cachedValue?.let { return it.makeView() }
 
@@ -126,11 +126,11 @@ abstract class AbstractDataIterator(protected val it: LevelDB.Iterator, protecte
 
     final override fun transientSeekKey(): Bytes {
         if (!isValid())
-            throw IllegalStateException("Iterator is not valid")
+            throw IllegalStateException("Cursor is not valid")
         return itKey()
     }
 
-    abstract class AbstractEntries<A: LevelDB.Iterator.ValuesArrayBase>(protected val array: A) : DataIterator.Entries {
+    abstract class AbstractEntries<A: LevelDB.Cursor.ValuesArrayBase>(protected val array: A) : DataIterator.Entries {
         private val cachedArrayKeys = arrayOfNulls<Bytes>(array.size)
         private val cachedValues = arrayOfNulls<Bytes>(array.size)
         private val cachedVersions = IntArray(array.size) { -1 }

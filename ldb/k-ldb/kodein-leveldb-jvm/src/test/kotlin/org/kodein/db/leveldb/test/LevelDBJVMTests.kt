@@ -83,8 +83,8 @@ class LevelDBJVMTests {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun test_90_BadBuffer_06_IteratorSeek() {
-        ldb!!.newIterator().use { it ->
+    fun test_90_BadBuffer_06_CursorSeek() {
+        ldb!!.newCursor().use { it ->
             it.seekTo(byteBuffer(2).asReadOnlyBuffer())
         }
     }

@@ -4,7 +4,7 @@ import org.kodein.db.data.DataIterator
 import org.kodein.db.leveldb.Bytes
 import org.kodein.db.leveldb.LevelDB
 
-class DataIndexIterator internal constructor(private val ddb: DataDBImpl, it: LevelDB.Iterator, prefix: Bytes, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT) : AbstractDataIterator(it, prefix) {
+class DataIndexIterator internal constructor(private val ddb: DataDBImpl, it: LevelDB.Cursor, prefix: Bytes, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT) : AbstractDataIterator(it, prefix) {
 
     private var cachedItValue: Bytes? = null
 
@@ -35,7 +35,7 @@ class DataIndexIterator internal constructor(private val ddb: DataDBImpl, it: Le
 
     override fun thisValue() = ddb.ldb.get(itValue(), options) ?: throw IllegalStateException("Index entry points to invalid object entry")
 
-    private inner class Entries internal constructor(array: LevelDB.Iterator.IndirectValuesArray) : AbstractEntries<LevelDB.Iterator.IndirectValuesArray>(array) {
+    private inner class Entries internal constructor(array: LevelDB.Cursor.IndirectValuesArray) : AbstractEntries<LevelDB.Cursor.IndirectValuesArray>(array) {
 
         private val cachedArrayIntermediateKeys = arrayOfNulls<Bytes>(array.size)
 

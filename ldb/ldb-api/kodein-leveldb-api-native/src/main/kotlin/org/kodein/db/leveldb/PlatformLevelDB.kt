@@ -5,6 +5,6 @@ actual interface PlatformLevelDB {
     actual interface WriteBatch {
     }
 
-    actual interface Iterator {
+    actual interface Cursor {
     }
 }

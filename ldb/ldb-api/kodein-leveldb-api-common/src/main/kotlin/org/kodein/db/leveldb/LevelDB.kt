@@ -47,8 +47,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
      *
      * **Warning**: The returned bytes are `Closeable`!
      *
-     * @see NativeBytes
-     *
      * @param key The key of the entry to get.
      * @param options Options that control this read operation.
      * @return The entry value.
@@ -75,35 +73,35 @@ interface LevelDB : Closeable, PlatformLevelDB {
     fun indirectGet(key: Bytes, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
-     * Get an entry value bytes by following the value of the iterator current key.
+     * Get an entry value bytes by following the value of the cursor current key.
      *
      * This function will get the value associated with this key, use this value as second key and return the value associated with this second key.
      *
      * This is equivalent (but a lot faster) to:
      *
      * ```java
-     * db.Get(it.transientValue(), options);
+     * db.Get(cursor.transientValue(), options);
      * ```
      *
-     * @param it The iterator that's position on the entry to follow.
+     * @param cursor The cursor that's position on the entry to follow.
      * @param options Options that control this read operation.
      * @return The found entry value
      */
-    fun indirectGet(it: Iterator, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
+    fun indirectGet(cursor: Cursor, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
-     * Creates a new Iterator.
+     * Creates a new Cursor.
      *
-     * **Warning**: Iterators are `Closeable`!
+     * **Warning**: Cursors are `Closeable`!
      *
-     * Note that, if snapshot is null, you can iterate on entries that were inserted after the creation of the iterator.
+     * Note that, if snapshot is null, you can iterate on entries that were inserted after the creation of the Cursor.
      *
-     * @see Iterator
+     * @see Cursor
      *
-     * @param options Options that control this iterators read operations.
-     * @return A new Iterator.
+     * @param options Options that control this Cursors read operations.
+     * @return A new Cursor.
      */
-    fun newIterator(options: ReadOptions = ReadOptions.DEFAULT): Iterator
+    fun newCursor(options: ReadOptions = ReadOptions.DEFAULT): Cursor
 
     /**
      * Creates a new Snapshot.
@@ -166,27 +164,27 @@ interface LevelDB : Closeable, PlatformLevelDB {
     interface Snapshot : Closeable
 
     /**
-     * An iterator to iterate over the entries of a database or a Snapshot.
+     * An Cursor to iterate over the entries of a database or a Snapshot.
      */
-    interface Iterator : Closeable, PlatformLevelDB.Iterator {
+    interface Cursor : Closeable, PlatformLevelDB.Cursor {
 
         /**
-         * @return Whether or not the iterator is in a valid state.
+         * @return Whether or not the cursor is in a valid state.
          */
         fun isValid(): Boolean
 
         /**
-         * Position the iterator on the first entry of the database.
+         * Position the cursor on the first entry of the database.
          */
         fun seekToFirst()
 
         /**
-         * Position the iterator on the last entry of the database.
+         * Position the cursor on the last entry of the database.
          */
         fun seekToLast()
 
         /**
-         * Position the iterator to the entry corresponding to the provided key inside the database.
+         * Position the cursor to the entry corresponding to the provided key inside the database.
          *
          * If the key does not exists, it will be positioned to the next valid entry whose key would be placed after the provided key.
          *
@@ -195,9 +193,9 @@ interface LevelDB : Closeable, PlatformLevelDB {
         fun seekTo(target: Bytes)
 
         /**
-         * Position the iterator on the entry right next after the current one.
+         * Position the cursor on the entry right next after the current one.
          *
-         * Note that if this iterator was created without a Snapshot, it can be positionned on an entry that were inserted after the creation of the iterator.
+         * Note that if this cursor was created without a Snapshot, it can be positionned on an entry that were inserted after the creation of the cursor.
          */
         fun next()
 
@@ -249,7 +247,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
         }
 
         /**
-         * Get an array of the next entries and position the iterator to the entry after the last one in the returned array.
+         * Get an array of the next entries and position the cursor to the entry after the last one in the returned array.
          *
          * The point of doing this is optimisation: it enables only one JNI access to fecth a large set of entries, thus limiting JNI access and allowing meaningful JIT optimisation by the JVM.
          *
@@ -264,19 +262,19 @@ interface LevelDB : Closeable, PlatformLevelDB {
          */
         fun nextArray(size: Int, bufferSize: Int = -1): ValuesArray
 
-        fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int = -1, options: ReadOptions = ReadOptions.DEFAULT): Iterator.IndirectValuesArray
+        fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int = -1, options: ReadOptions = ReadOptions.DEFAULT): Cursor.IndirectValuesArray
 
         /**
-         * Position the iterator on the entry right before the current one.
+         * Position the cursor on the entry right before the current one.
          *
-         * Note that if this iterator was created without a Snapshot, it can be positionned on an entry that were inserted after the creation of the iterator.
+         * Note that if this cursor was created without a Snapshot, it can be positionned on an entry that were inserted after the creation of the cursor.
          */
         fun prev()
 
         /**
          * Get a Buffer containing the current key.
          *
-         * Note that this Buffer is valid **as long as the iterator is not moved**.
+         * Note that this Buffer is valid **as long as the cursor is not moved**.
          *
          * @return The key bytes.
          */
@@ -285,7 +283,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
         /**
          * Get a Buffer containing the current value.
          *
-         * Note that this Buffer is valid **as long as the iterator is not moved**.
+         * Note that this Buffer is valid **as long as the cursor is not moved**.
          *
          * @return The value bytes.
          */
@@ -325,9 +323,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * (Default: OpenPolicy.OPEN_OR_CREATE)
              *
              * @see OpenPolicy
-             *
-             * @param openPolicy The policy to set.
-             * @return Itself for chaining.
              */
             val openPolicy: OpenPolicy = OpenPolicy.OPEN_OR_CREATE,
 
@@ -337,9 +332,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * This may have unforeseen ramifications: for example, a corruption of one DB entry may cause a large number of entries to become unreadable or for the entire DB to become unopenable.
              *
              * (Default: false)
-             *
-             * @param paranoidChecks Whether the DB will perform paranoid checks.
-             * @return Itself for chaining.
              */
             val paranoidChecks: Boolean = false,
 
@@ -349,9 +341,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * This severly slows the database and should never be set in production.
              *
              * (Default: false)
-             *
-             * @param printLogs Whether the DB will print internal logs.
-             * @return Itself for chaining.
              */
             val printLogs: Boolean = false,
 
@@ -363,9 +352,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * Also, a larger write buffer will result in a longer recovery time the next time the database is opened.
              *
              * (Default: 4MB)
-             *
-             * @param writeBufferSize The DB write buffer size.
-             * @return Itself for chaining.
              */
             val writeBufferSize: Int = 4 shl 20,
 
@@ -375,9 +361,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * You may need to increase this if your database has a large working set (budget one open file per 2MB of working set).
              *
              * (Default: 1000)
-             *
-             * @param maxOpenFiles The maximum number of files the DB can open at the same time.
-             * @return Itself for chaining.
              */
             val maxOpenFiles: Int = 1000,
 
@@ -385,9 +368,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * Size of the LRU cache LevelDB will use to prevent unneeded disk access.
              *
              * (Default: 8MB)
-             *
-             * @param cacheSize The size of the DB cache.
-             * @return Itself for chaining.
              */
             val cacheSize: Int = 8 shl 20,
 
@@ -400,9 +380,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * This parameter can be changed dynamically.
              *
              * (Default: 4K)
-             *
-             * @param blockSize The approximate size of user data packed per block.
-             * @return Itself for chaining.
              */
             val blockSize: Int = 4096,
 
@@ -414,9 +391,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * This parameter can be changed dynamically.
              *
              * (Default: 16)
-             *
-             * @param blockRestartInterval The number of keys between restart points for delta encoding of keys.
-             * @return Itself for chaining.
              */
             val blockRestartInterval: Int = 16,
 
@@ -429,9 +403,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * Another reason to increase this parameter might be when you are initially populating a large database.
              *
              * (Default: 2MB)
-             *
-             * @param maxFileSize The maximum DB file size.
-             * @return Itself for chaining.
              */
             val maxFileSize: Int = 2 shl 20,
 
@@ -451,9 +422,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * This parameter can be changed dynamically.
              *
              * (Default: true)
-             *
-             * @param snappyCompression Whether the DB uses the Snappy compression alorithm.
-             * @return Itself for chaining.
              */
             val snappyCompression: Boolean = true,
 
@@ -464,9 +432,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * A good value is 10, which yields a filter with ~ 1% false positive rate.
              *
              * (Default: 10)
-             *
-             * @param bloomFilterBitsPerKey The approximate number of bits per key.
-             * @return Itself for chaining.
              */
             val bloomFilterBitsPerKey: Int = 10,
 
@@ -474,9 +439,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * If a DB cannot be opened, you may attempt to set this to true to resurrect as much of the contents of the database as possible.
              *
              * Some data may be lost, so be careful when setting this on a database that contains important information.
-             *
-             * @param repairOnCorruption Whether to try to repair the database if it is corrupted.
-             * @return Itself for chaining.
              */
             val repairOnCorruption: Boolean = false,
 
@@ -484,7 +446,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
 
             val trackClosableAllocation: Boolean = false,
 
-            val defaultIteratorArrayBufferSize: Int = 4096
+            val defaultCursorArrayBufferSize: Int = 4096
     ) {
         companion object {
             val DEFAULT = Options()

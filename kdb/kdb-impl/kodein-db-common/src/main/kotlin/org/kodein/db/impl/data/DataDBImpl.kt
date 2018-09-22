@@ -49,34 +49,34 @@ class DataDBImpl(val ldb: LevelDB) : Closeable {
     }
 
     fun findAll(options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataIterator {
-        return DataSimpleIterator(ldb.newIterator(options), objectEmptyPrefix)
+        return DataSimpleIterator(ldb.newCursor(options), objectEmptyPrefix)
     }
 
     fun findAllByType(type: String, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataSimpleIterator {
         pool.useInstance {
             it.buffer.writeObjectKey(type, null)
-            return DataSimpleIterator(ldb.newIterator(options), it)
+            return DataSimpleIterator(ldb.newCursor(options), it)
         }
     }
 
     fun findByPrimaryKeyPrefix(type: String, primaryKey: Value, isOpen: Boolean = false, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataSimpleIterator {
         pool.useInstance {
             it.buffer.writeObjectKey(type, primaryKey, isOpen)
-            return DataSimpleIterator(ldb.newIterator(options), it)
+            return DataSimpleIterator(ldb.newCursor(options), it)
         }
     }
 
     fun findAllByIndex(type: String, name: String, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataSimpleIterator {
         pool.useInstance {
             it.buffer.writeIndexKeyStart(type, name, null)
-            return DataSimpleIterator(ldb.newIterator(options), it)
+            return DataSimpleIterator(ldb.newCursor(options), it)
         }
     }
 
     fun findByIndexPrefix(type: String, name: String, value: Value, isOpen: Boolean = false, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataSimpleIterator {
         pool.useInstance {
             it.buffer.writeIndexKeyStart(type, name, value, isOpen)
-            return DataSimpleIterator(ldb.newIterator(options), it)
+            return DataSimpleIterator(ldb.newCursor(options), it)
         }
     }
 

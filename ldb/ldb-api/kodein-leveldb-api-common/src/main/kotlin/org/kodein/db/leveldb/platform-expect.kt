@@ -2,7 +2,7 @@ package org.kodein.db.leveldb
 
 expect interface PlatformLevelDB {
     interface WriteBatch
-    interface Iterator
+    interface Cursor
 }
 
 expect class StackTrace {

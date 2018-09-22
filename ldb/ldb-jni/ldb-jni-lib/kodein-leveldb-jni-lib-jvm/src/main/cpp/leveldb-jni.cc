@@ -4,8 +4,8 @@
 #include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_NativeBytes.h"
 #include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_WriteBatch.h"
 #include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Snapshot.h"
-#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Iterator.h"
-#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Iterator_AbstractBytesArray.h"
+#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Cursor.h"
+#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Cursor_AbstractBytesArray.h"
 
 #include "leveldb/cache.h"
 #include "leveldb/db.h"
@@ -120,7 +120,7 @@ leveldb::ReadOptions _readOptions(jboolean verifyChecksum, jboolean fillCache, j
 }
 
 #define CHECK_IT_VALID(R)    if (!it->Valid()) {                                                \
-                                 throwLevelDBExceptionFromMessage(env, "Iterator is not valid"); \
+                                 throwLevelDBExceptionFromMessage(env, "Cursor is not valid"); \
                                  return R;                                                        \
                              }
 
@@ -440,15 +440,15 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Snapshot_n
 }
 
 
-////////////////////////////////////////// ITERATOR //////////////////////////////////////////
+////////////////////////////////////////// CURSOR //////////////////////////////////////////
 
-JNIEXPORT jboolean JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1Valid (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT jboolean JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Valid (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	return it->Valid();
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1SeekToFirst (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1SeekToFirst (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	it->SeekToFirst();
@@ -456,7 +456,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n
     CHECK_STATUS(it->status(),);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1SeekToLast (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1SeekToLast (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	it->SeekToLast();
@@ -472,15 +472,15 @@ void J_LevelDBJNI_Iterator_Seek(JNIEnv *env, jlong itPtr, Bytes key) {
     CHECK_STATUS(it->status(),);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1Seek_1B (JNIEnv *env, jclass, jlong itPtr, jobject keyBytes, jint keyOffset, jint keyLen) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Seek_1B (JNIEnv *env, jclass, jlong itPtr, jobject keyBytes, jint keyOffset, jint keyLen) {
     J_LevelDBJNI_Iterator_Seek(env, itPtr, BYTES_S(key));
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1Seek_1A (JNIEnv *env, jclass, jlong itPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Seek_1A (JNIEnv *env, jclass, jlong itPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen) {
     J_LevelDBJNI_Iterator_Seek(env, itPtr, BYTES_S(key));
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1Next (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Next (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	CHECK_IT_VALID();
@@ -490,7 +490,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n
     CHECK_STATUS(it->status(),);
 }
 
-JNIEXPORT void Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1Prev (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Prev (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	CHECK_IT_VALID();
@@ -500,7 +500,7 @@ JNIEXPORT void Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1Prev (
     CHECK_STATUS(it->status(),);
 }
 
-JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1key (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1key (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	CHECK_IT_VALID(0);
@@ -512,7 +512,7 @@ JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterato
 	return env->NewDirectByteBuffer((void *) key.data(), key.size());
 }
 
-JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1value(JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1value (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	CHECK_IT_VALID(0);
@@ -525,7 +525,7 @@ JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterato
 }
 
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1NextArray (JNIEnv *env, jclass, jlong itPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1NextArray (JNIEnv *env, jclass, jlong itPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
     CAST(leveldb::Iterator, it);
 
     jlong *ptrs = env->GetLongArrayElements(ptrArray, NULL);
@@ -581,7 +581,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n
     env->ReleaseLongArrayElements(ptrArray, ptrs, JNI_COMMIT);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1IndirectNextArray (JNIEnv *env, jclass, jlong ldbPtr, jlong itPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray intermediateKeyArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1IndirectNextArray (JNIEnv *env, jclass, jlong ldbPtr, jlong itPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray intermediateKeyArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
     CAST(leveldb::DB, ldb);
     CAST(leveldb::Iterator, it);
 
@@ -672,15 +672,15 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n
 
 
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1Release (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Release (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	delete it;
 }
 
-////////////////////////////////////////// ITERATOR::NATIVEBYTESARRAY //////////////////////////////////////////
+////////////////////////////////////////// CURSOR::NATIVEBYTESARRAY //////////////////////////////////////////
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_00024AbstractBytesArray_n_1Release (JNIEnv *env , jclass, jlongArray ptrArray) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_00024AbstractBytesArray_n_1Release (JNIEnv *env , jclass, jlongArray ptrArray) {
     jlong *ptrs = env->GetLongArrayElements(ptrArray, NULL);
     int length = env->GetArrayLength(ptrArray);
 

@@ -196,10 +196,10 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
     }
 
-    override fun indirectGet(it: LevelDB.Iterator, options: LevelDB.ReadOptions): Allocation? {
-        (it as Iterator).checkValid()
+    override fun indirectGet(cursor: LevelDB.Cursor, options: LevelDB.ReadOptions): Allocation? {
+        (cursor as Cursor).checkValid()
 
-        val newKey = it.transientValue()
+        val newKey = cursor.transientValue()
 
         options.usePointer { optionsPtr ->
             return ldbCall {
@@ -214,11 +214,11 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
     }
 
-    internal class Iterator internal constructor(val ldb: LevelDB, ptr: CPointer<leveldb_iterator_t>, handler: PlatformCloseable.Handler, options: LevelDB.Options) : PointerBound<leveldb_iterator_t>(ptr, "Iterator", handler, options), LevelDB.Iterator {
+    internal class Cursor internal constructor(val ldb: LevelDB, ptr: CPointer<leveldb_iterator_t>, handler: PlatformCloseable.Handler, options: LevelDB.Options) : PointerBound<leveldb_iterator_t>(ptr, "Cursor", handler, options), LevelDB.Cursor {
 
         internal fun checkValid() {
             if (!isValid())
-                throw LevelDBException("Iterator is not valid")
+                throw LevelDBException("Cursor is not valid")
         }
 
         private inline fun <T> ldbItCall(block: MemScope.() -> T): T = memScoped {
@@ -263,7 +263,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
                 override val size: Int,
                 handler: PlatformCloseable.Handler?,
                 options: LevelDB.Options
-        ) : PlatformCloseable(name, handler, options), LevelDB.Iterator.ValuesArrayBase {
+        ) : PlatformCloseable(name, handler, options), LevelDB.Cursor.ValuesArrayBase {
 
             internal fun checkIndex(i: Int) {
                 checkIsOpen()
@@ -289,13 +289,13 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         }
 
         internal class NativeBytesArray(ldb: LevelDB, keys: Array<Allocation?>, values: Array<Allocation?>, size: Int, handler: PlatformCloseable.Handler?, options: LevelDB.Options)
-            : NativeBytesArrayBase("IteratorArray", ldb, keys, values, size, handler, options), LevelDB.Iterator.ValuesArray {
+            : NativeBytesArrayBase("CursorArray", ldb, keys, values, size, handler, options), LevelDB.Cursor.ValuesArray {
 
             override fun getValue(i: Int) = super.getValue(i)!!
         }
 
         internal class NativeIndirectBytesArray(ldb: LevelDB, keys: Array<Allocation?>, val intermediateKeys: Array<Allocation?>, values: Array<Allocation?>, size: Int, handler: PlatformCloseable.Handler?, options: LevelDB.Options)
-            : NativeBytesArrayBase("IteratorArray", ldb, keys, values, size, handler, options), LevelDB.Iterator.IndirectValuesArray {
+            : NativeBytesArrayBase("CursorArray", ldb, keys, values, size, handler, options), LevelDB.Cursor.IndirectValuesArray {
 
             override fun getIntermediateKey(i: Int): Bytes {
                 checkIndex(i)
@@ -308,7 +308,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
             }
         }
 
-        override fun nextArray(size: Int, bufferSize: Int): LevelDB.Iterator.ValuesArray {
+        override fun nextArray(size: Int, bufferSize: Int): LevelDB.Cursor.ValuesArray {
             val keyArray = arrayOfNulls<Allocation>(size)
             val valueArray = arrayOfNulls<Allocation>(size)
             try {
@@ -331,7 +331,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
             }
         }
 
-        override fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int, options: LevelDB.ReadOptions): LevelDB.Iterator.IndirectValuesArray {
+        override fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int, options: LevelDB.ReadOptions): LevelDB.Cursor.IndirectValuesArray {
             val keyArray = arrayOfNulls<Allocation>(size)
             val intermediateKeyArray = arrayOfNulls<Allocation>(size)
             val valueArray = arrayOfNulls<Allocation>(size)
@@ -348,7 +348,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
                     valueArray[i] = (db as LevelDBNative).get(intermediateKey, options)
                     next()
                 }
-                return NativeIndirectBytesArray(ldb, keyArray, intermediateKeyArray, valueArray, count, handler, this@Iterator.options)
+                return NativeIndirectBytesArray(ldb, keyArray, intermediateKeyArray, valueArray, count, handler, this@Cursor.options)
             } catch (ex: Throwable) {
                 keyArray.filterNotNull().forEach { it.close() }
                 intermediateKeyArray.filterNotNull().forEach { it.close() }
@@ -380,9 +380,9 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         }
     }
 
-    override fun newIterator(options: LevelDB.ReadOptions): LevelDB.Iterator {
+    override fun newCursor(options: LevelDB.ReadOptions): LevelDB.Cursor {
         options.usePointer { optionsPtr ->
-            return Iterator(this, leveldb_create_iterator(nonNullPtr, optionsPtr)!!, dbHandler, this.options)
+            return Cursor(this, leveldb_create_iterator(nonNullPtr, optionsPtr)!!, dbHandler, this.options)
         }
         throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
     }

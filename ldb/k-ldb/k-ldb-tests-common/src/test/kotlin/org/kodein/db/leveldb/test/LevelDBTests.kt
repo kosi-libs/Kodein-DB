@@ -247,100 +247,100 @@ open class LevelDBTests {
     }
 
     @Test
-    fun test_03_Iterator_00_Forward() {
+    fun test_03_Cursor_00_Forward() {
         ldb!!.put(buffer(1), buffer("one"))
         ldb!!.put(buffer(2), buffer("two"))
 
-        ldb!!.newIterator().use { it ->
-            it.seekToFirst()
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekToFirst()
 
-            assertTrue(it.isValid())
-            assertBytesEquals(byteArray(1), it.transientKey())
-            assertBytesEquals(byteArray("one"), it.transientValue())
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray(1), cursor.transientKey())
+            assertBytesEquals(byteArray("one"), cursor.transientValue())
 
-            it.next()
+            cursor.next()
 
-            assertTrue(it.isValid())
-            assertBytesEquals(byteArray(2), it.transientKey())
-            assertBytesEquals(byteArray("two"), it.transientValue())
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray(2), cursor.transientKey())
+            assertBytesEquals(byteArray("two"), cursor.transientValue())
 
-            it.next()
+            cursor.next()
 
-            assertFalse(it.isValid())
+            assertFalse(cursor.isValid())
         }
     }
 
     @Test
-    fun test_03_Iterator_01_Backward() {
+    fun test_03_Cursor_01_Backward() {
         ldb!!.put(buffer(1), buffer("one"))
         ldb!!.put(buffer(2), buffer("two"))
 
-        ldb!!.newIterator().use { it ->
-            it.seekToLast()
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekToLast()
 
-            assertTrue(it.isValid())
-            assertBytesEquals(byteArray(2), it.transientKey())
-            assertBytesEquals(byteArray("two"), it.transientValue())
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray(2), cursor.transientKey())
+            assertBytesEquals(byteArray("two"), cursor.transientValue())
 
-            it.prev()
+            cursor.prev()
 
-            assertTrue(it.isValid())
-            assertBytesEquals(byteArray(1), it.transientKey())
-            assertBytesEquals(byteArray("one"), it.transientValue())
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray(1), cursor.transientKey())
+            assertBytesEquals(byteArray("one"), cursor.transientValue())
 
-            it.prev()
+            cursor.prev()
 
-            assertFalse(it.isValid())
+            assertFalse(cursor.isValid())
         }
     }
 
     @Test
-    fun test_03_Iterator_02_Seek() {
+    fun test_03_Cursor_02_Seek() {
         ldb!!.put(buffer(1), buffer("one"))
         ldb!!.put(buffer(3), buffer("three"))
 
-        ldb!!.newIterator().use { it ->
-            it.seekTo(buffer(2))
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekTo(buffer(2))
 
-            assertTrue(it.isValid())
-            assertBytesEquals(byteArray(3), it.transientKey())
-            assertBytesEquals(byteArray("three"), it.transientValue())
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray(3), cursor.transientKey())
+            assertBytesEquals(byteArray("three"), cursor.transientValue())
 
-            it.next()
+            cursor.next()
 
-            assertFalse(it.isValid())
+            assertFalse(cursor.isValid())
         }
     }
 
     @Test
-    fun test_03_Iterator_03_DirectSeek() {
+    fun test_03_Cursor_03_DirectSeek() {
         ldb!!.put(buffer(1), buffer("one"))
         ldb!!.put(buffer(3), buffer("three"))
 
-        ldb!!.newIterator().use { it ->
-            it.seekTo(buffer(2))
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekTo(buffer(2))
 
-            assertTrue(it.isValid())
-            assertBytesEquals(byteArray(3), it.transientKey())
-            assertBytesEquals(byteArray("three"), it.transientValue())
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray(3), cursor.transientKey())
+            assertBytesEquals(byteArray("three"), cursor.transientValue())
 
-            it.next()
+            cursor.next()
 
-            assertFalse(it.isValid())
+            assertFalse(cursor.isValid())
         }
     }
 
     @Test()
-    fun test_03_Iterator_04_Closed() {
-        val it = ldb!!.newIterator()
-        it.close()
+    fun test_03_Cursor_04_Closed() {
+        val cursor = ldb!!.newCursor()
+        cursor.close()
         assertFailsWith<IllegalStateException> {
-            it.seekTo(buffer(0))
+            cursor.seekTo(buffer(0))
         }
     }
 
     @Test
-    fun test_03_Iterator_05_Array() {
+    fun test_03_Cursor_05_Array() {
         ldb!!.put(buffer("key0"), buffer("value0"))
         ldb!!.put(buffer("key1"), buffer("value1"))
 
@@ -348,11 +348,11 @@ open class LevelDBTests {
 
         ldb = factory.open("db", options().copy(openPolicy = LevelDB.OpenPolicy.OPEN))
 
-        ldb!!.newIterator().use { it ->
-            it.seekToFirst()
-            assertTrue(it.isValid())
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekToFirst()
+            assertTrue(cursor.isValid())
 
-            it.nextArray(10).use { array ->
+            cursor.nextArray(10).use { array ->
                 assertEquals(2, array.size)
                 assertBytesEquals(byteArray("key0"), array.getKey(0))
                 assertBytesEquals(byteArray("value0"), array.getValue(0))
@@ -360,12 +360,12 @@ open class LevelDBTests {
                 assertBytesEquals(byteArray("value1"), array.getValue(1))
             }
 
-            assertFalse(it.isValid())
+            assertFalse(cursor.isValid())
         }
     }
 
     @Test
-    fun test_03_Iterator_06_ArrayFull() {
+    fun test_03_Cursor_06_ArrayFull() {
         ldb!!.put(buffer("key0"), buffer("value0"))
         ldb!!.put(buffer("key1"), buffer("value1"))
 
@@ -373,11 +373,11 @@ open class LevelDBTests {
 
         ldb = factory.open("db", options().copy(openPolicy = LevelDB.OpenPolicy.OPEN))
 
-        ldb!!.newIterator().use { it ->
-            it.seekToFirst()
-            assertTrue(it.isValid())
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekToFirst()
+            assertTrue(cursor.isValid())
 
-            it.nextArray(2, 4).use { array ->
+            cursor.nextArray(2, 4).use { array ->
                 assertEquals(2, array.size)
                 assertBytesEquals(byteArray("key0"), array.getKey(0))
                 assertBytesEquals(byteArray("value0"), array.getValue(0))
@@ -385,84 +385,84 @@ open class LevelDBTests {
                 assertBytesEquals(byteArray("value1"), array.getValue(1))
             }
 
-            assertFalse(it.isValid())
+            assertFalse(cursor.isValid())
         }
     }
 
     @Test
-    fun test_03_Iterator_07_SnapshotForward() {
+    fun test_03_Cursor_07_SnapshotForward() {
         ldb!!.put(buffer(1), buffer("one"))
         ldb!!.put(buffer(3), buffer("three"))
 
         ldb!!.newSnapshot().use { snapshot ->
             ldb!!.put(buffer(2), buffer("three"))
 
-            ldb!!.newIterator(LevelDB.ReadOptions(snapshot = snapshot)).use { it ->
-                it.seekToFirst()
+            ldb!!.newCursor(LevelDB.ReadOptions(snapshot = snapshot)).use { cursor ->
+                cursor.seekToFirst()
 
-                assertTrue(it.isValid())
-                assertBytesEquals(byteArray(1), it.transientKey())
-                assertBytesEquals(byteArray("one"), it.transientValue())
+                assertTrue(cursor.isValid())
+                assertBytesEquals(byteArray(1), cursor.transientKey())
+                assertBytesEquals(byteArray("one"), cursor.transientValue())
 
-                it.next()
+                cursor.next()
 
-                assertTrue(it.isValid())
-                assertBytesEquals(byteArray(3), it.transientKey())
-                assertBytesEquals(byteArray("three"), it.transientValue())
+                assertTrue(cursor.isValid())
+                assertBytesEquals(byteArray(3), cursor.transientKey())
+                assertBytesEquals(byteArray("three"), cursor.transientValue())
 
-                it.next()
+                cursor.next()
 
-                assertFalse(it.isValid())
+                assertFalse(cursor.isValid())
             }
         }
     }
 
     @Test
-    fun test_03_Iterator_08_IndirectValue() {
+    fun test_03_Cursor_08_IndirectValue() {
         ldb!!.put(buffer("one"), buffer("two"))
         ldb!!.put(buffer("two"), buffer("three"))
 
-        ldb!!.newIterator().use { it ->
-            it.seekTo(buffer("one"))
-            assertTrue(it.isValid())
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekTo(buffer("one"))
+            assertTrue(cursor.isValid())
 
-            val value = ldb!!.indirectGet(it)!!
+            val value = ldb!!.indirectGet(cursor)!!
             assertBytesEquals(byteArray("three"), value)
             value.close()
         }
     }
 
     @Test
-    fun test_03_Iterator_09_IndirectUnexistingValue() {
+    fun test_03_Cursor_09_IndirectUnexistingValue() {
         ldb!!.put(buffer("one"), buffer("two"))
 
-        ldb!!.newIterator().use { it ->
-            it.seekTo(buffer("one"))
-            assertTrue(it.isValid())
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekTo(buffer("one"))
+            assertTrue(cursor.isValid())
 
-            assertNull(ldb!!.indirectGet(it))
-            assertNull(ldb!!.indirectGet(it, LevelDB.ReadOptions()))
+            assertNull(ldb!!.indirectGet(cursor))
+            assertNull(ldb!!.indirectGet(cursor, LevelDB.ReadOptions()))
         }
     }
 
     @Test
-    fun test_03_Iterator_10_PutInside() {
+    fun test_03_Cursor_10_PutInside() {
         ldb!!.put(buffer("A"), buffer("A"))
         ldb!!.put(buffer("C"), buffer("C"))
 
-        ldb!!.newIterator().use { it ->
-            it.seekToFirst()
-            assertTrue(it.isValid())
-            assertBytesEquals(byteArray("A"), it.transientKey())
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekToFirst()
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray("A"), cursor.transientKey())
 
             ldb!!.put(buffer("B"), buffer("B"), LevelDB.WriteOptions(sync = true))
 
-            it.next()
-            assertTrue(it.isValid())
-            assertBytesEquals(byteArray("C"), it.transientKey())
+            cursor.next()
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray("C"), cursor.transientKey())
 
-            it.next()
-            assertFalse(it.isValid())
+            cursor.next()
+            assertFalse(cursor.isValid())
         }
     }
 
@@ -487,43 +487,43 @@ open class LevelDBTests {
 
         ldb = factory.open("db", options().copy(openPolicy = LevelDB.OpenPolicy.OPEN))
 
-        ldb!!.newIterator().use { it ->
-            it.seekToFirst()
+        ldb!!.newCursor().use { cursor ->
+            cursor.seekToFirst()
 
-            assertTrue(it.isValid())
-            assertBytesEquals(byteArray("key"), it.transientKey())
-            assertBytesEquals(byteArray("value"), it.transientValue())
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray("key"), cursor.transientKey())
+            assertBytesEquals(byteArray("value"), cursor.transientValue())
 
-            it.next()
-            assertFalse(it.isValid())
+            cursor.next()
+            assertFalse(cursor.isValid())
         }
     }
 
     @Test
-    fun test_05_ForgetClose_00_IteratorTrack() {
+    fun test_05_ForgetClose_00_CursorTrack() {
         val logger = AssertLogger()
         ldb!!.close()
         ldb = factory.open("db", options().copy(loggerFactory = { cls -> Logger(cls, logger.filter) }))
-        val iterator = ldb!!.newIterator()
+        val cursor = ldb!!.newCursor()
         val countBeforeClose = logger.count
         ldb!!.close()
         assertEquals((countBeforeClose + 1).toLong(), logger.count.toLong())
-        assertEquals("Iterator must be closed. Creation stack trace:", logger.last!!.msg!!.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].trim { it <= ' ' })
+        assertEquals("Cursor must be closed. Creation stack trace:", logger.last!!.msg!!.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].trim { it <= ' ' })
         assertEquals(Logger.Level.WARNING, logger.last!!.level)
-        iterator.close()
+        cursor.close()
     }
 
     @Test
-    fun test_05_ForgetClose_01_IteratorNoTrack() {
+    fun test_05_ForgetClose_01_CursorNoTrack() {
         val logger = AssertLogger()
         ldb!!.close()
         ldb = factory.open("db", options().copy(loggerFactory = { cls -> Logger(cls, logger.filter) }, trackClosableAllocation = false))
-        val iterator = ldb!!.newIterator()
+        val cursor = ldb!!.newCursor()
         val countBeforeClose = logger.count
         ldb!!.close()
         assertEquals((countBeforeClose + 1).toLong(), logger.count.toLong())
-        assertEquals("Iterator has not been properly closed. To track its allocation, open the DB with trackClosableAllocation = true", logger.last!!.msg!!.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].trim { it <= ' ' })
-        iterator.close()
+        assertEquals("Cursor has not been properly closed. To track its allocation, open the DB with trackClosableAllocation = true", logger.last!!.msg!!.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].trim { it <= ' ' })
+        cursor.close()
     }
 
     @Test

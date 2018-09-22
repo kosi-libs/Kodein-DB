@@ -111,13 +111,13 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
 
     override fun indirectGet(key: Bytes, options: LevelDB.ReadOptions) = indirectGet(key.byteBuffer(), options)
 
-    override fun indirectGet(it: LevelDB.Iterator, options: LevelDB.ReadOptions): Allocation? {
-        val valuePtr = n_IndirectGet_I(nonZeroPtr, (it as Iterator).nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot))
+    override fun indirectGet(cursor: LevelDB.Cursor, options: LevelDB.ReadOptions): Allocation? {
+        val valuePtr = n_IndirectGet_I(nonZeroPtr, (cursor as Cursor).nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot))
         return if (valuePtr == 0L) null else NativeBytes(valuePtr, dbHandler, this.options)
     }
 
-    override fun newIterator(options: LevelDB.ReadOptions): LevelDB.Iterator {
-        return Iterator(n_NewIterator(nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot)), dbHandler, this.options)
+    override fun newCursor(options: LevelDB.ReadOptions): LevelDB.Cursor {
+        return Cursor(n_NewIterator(nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot)), dbHandler, this.options)
     }
 
     override fun newSnapshot(): LevelDB.Snapshot {
@@ -220,7 +220,7 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
     }
 
 
-    private class Iterator internal constructor(ptr: Long, handler: PlatformCloseable.Handler, options: LevelDB.Options) : NativeBound(ptr, "Iterator", handler, options), LevelDB.Iterator {
+    private class Cursor internal constructor(ptr: Long, handler: PlatformCloseable.Handler, options: LevelDB.Options) : NativeBound(ptr, "Cursor", handler, options), LevelDB.Cursor {
 
         private val itHandler = PlatformCloseable.Handler()
 
@@ -240,7 +240,7 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
             @JvmStatic private external fun n_key(ptr: Long): ByteBuffer
             @JvmStatic private external fun n_value(ptr: Long): ByteBuffer
 
-            // Get an array of the next entries and move the native iterator to the entry after the last one in the returned array.
+            // Get an array of the next entries and move the native cursor to the entry after the last one in the returned array.
             //
             // The point of doing this is optimisation: it enables only one JNI access to fecth a large set of entries, thus limiting JNI access and allowing meaningful JIT optimisation by the JVM.
             //
@@ -259,7 +259,7 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
             //
             // All arrays provided to this functions must have a length superior or equal to the length of the indexes array.
             //
-            // If there is less entries left in the provided iterator than there are slots in the arrays, the first unused slot in the indexes array will be set to -1.
+            // If there is less entries left in the provided curfsor than there are slots in the arrays, the first unused slot in the indexes array will be set to -1.
             @JvmStatic private external fun n_NextArray(ptr: Long, ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, keys: IntArray, values: IntArray, limits: IntArray, bufferSize: Int)
 
             @JvmStatic private external fun n_IndirectNextArray(dbPtr: Long, iteratorPtr: Long, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long, ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, intermediateKeys: IntArray, keys: IntArray, values: IntArray, limits: IntArray, bufferSize: Int)
@@ -284,7 +284,7 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
                 protected val limit: IntArray,
                 handler: PlatformCloseable.Handler?,
                 options: LevelDB.Options
-        ) : PlatformCloseable(name, handler, options), LevelDB.Iterator.ValuesArrayBase {
+        ) : PlatformCloseable(name, handler, options), LevelDB.Cursor.ValuesArrayBase {
 
             final override val size: Int
 
@@ -333,13 +333,13 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
         }
 
         internal class BytesArray(ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, keys: IntArray, values: IntArray, limit: IntArray, handler: PlatformCloseable.Handler?, options: LevelDB.Options)
-            : AbstractBytesArray("IteratorArray", ptrs, buffers, indexes, keys, values, limit, handler, options), LevelDB.Iterator.ValuesArray {
+            : AbstractBytesArray("CursorArray", ptrs, buffers, indexes, keys, values, limit, handler, options), LevelDB.Cursor.ValuesArray {
 
             override fun getValue(i: Int) = super.getValue(i)!!
         }
 
         internal class IndirectBytesArray(ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, private val indirectKeys: IntArray?, keys: IntArray, values: IntArray, limit: IntArray, handler: PlatformCloseable.Handler?, options: LevelDB.Options)
-            : AbstractBytesArray("IteratorIndirectArray", ptrs, buffers, indexes, keys, values, limit, handler, options), LevelDB.Iterator.IndirectValuesArray {
+            : AbstractBytesArray("CursorIndirectArray", ptrs, buffers, indexes, keys, values, limit, handler, options), LevelDB.Cursor.IndirectValuesArray {
 
             override fun getIntermediateKey(i: Int): Bytes {
                 if (indirectKeys == null)
@@ -383,7 +383,7 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
             n_Next(nonZeroPtr)
         }
 
-        override fun nextArray(size: Int, bufferSize: Int): LevelDB.Iterator.ValuesArray {
+        override fun nextArray(size: Int, bufferSize: Int): LevelDB.Cursor.ValuesArray {
             val ptrs = LongArray(size)
             val buffers = arrayOfNulls<ByteBuffer>(size)
             val indexes = IntArray(size)
@@ -391,12 +391,12 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
             val values = IntArray(size)
             val limits = IntArray(size)
 
-            n_NextArray(nonZeroPtr, ptrs, buffers, indexes, keys, values, limits, if (bufferSize == -1) options.defaultIteratorArrayBufferSize else bufferSize)
+            n_NextArray(nonZeroPtr, ptrs, buffers, indexes, keys, values, limits, if (bufferSize == -1) options.defaultCursorArrayBufferSize else bufferSize)
 
             return BytesArray(ptrs, buffers, indexes, keys, values, limits, itHandler, options)
         }
 
-        override fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int, options: LevelDB.ReadOptions): LevelDB.Iterator.IndirectValuesArray {
+        override fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int, options: LevelDB.ReadOptions): LevelDB.Cursor.IndirectValuesArray {
             val ptrs = LongArray(size)
             val buffers = arrayOfNulls<ByteBuffer>(size)
             val indexes = IntArray(size)
@@ -405,9 +405,9 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
             val values = IntArray(size)
             val limits = IntArray(size)
 
-            n_IndirectNextArray((db as LevelDBJNI).nonZeroPtr, nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot), ptrs, buffers, indexes, intermediateKeys, keys, values, limits, if (bufferSize == -1) this.options.defaultIteratorArrayBufferSize else bufferSize)
+            n_IndirectNextArray((db as LevelDBJNI).nonZeroPtr, nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot), ptrs, buffers, indexes, intermediateKeys, keys, values, limits, if (bufferSize == -1) this.options.defaultCursorArrayBufferSize else bufferSize)
 
-            return Iterator.IndirectBytesArray(ptrs, buffers, indexes, intermediateKeys, keys, values, limits, itHandler, this.options)
+            return Cursor.IndirectBytesArray(ptrs, buffers, indexes, intermediateKeys, keys, values, limits, itHandler, this.options)
 
         }
 

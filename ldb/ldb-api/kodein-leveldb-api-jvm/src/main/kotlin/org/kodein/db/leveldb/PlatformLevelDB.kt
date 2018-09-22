@@ -13,7 +13,7 @@ actual interface PlatformLevelDB {
         fun delete(key: ByteBuffer)
     }
 
-    actual interface Iterator {
+    actual interface Cursor {
         fun seekTo(target: ByteBuffer)
     }
 }
