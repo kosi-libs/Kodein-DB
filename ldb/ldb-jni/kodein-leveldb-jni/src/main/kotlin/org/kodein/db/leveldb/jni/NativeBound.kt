@@ -5,8 +5,6 @@ import org.kodein.db.leveldb.PlatformCloseable
 
 abstract class NativeBound(private var ptr: Long, name: String, handler: Handler?, options: LevelDB.Options) : PlatformCloseable(name, handler, options) {
 
-    override val isClosed: Boolean get() = ptr == 0L
-
     val nonZeroPtr: Long get() {
         checkIsOpen()
         return ptr

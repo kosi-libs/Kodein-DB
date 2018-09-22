@@ -1,7 +1,11 @@
 package org.kodein.db.impl
 
+import kotlinx.io.core.IoBuffer
 import kotlinx.io.core.use
+import kotlinx.io.core.writeText
 import org.kodein.db.Value
+import org.kodein.db.impl.data.*
+import org.kodein.db.impl.utils.makeSubView
 import org.kodein.db.leveldb.Allocation
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
@@ -84,10 +88,10 @@ class DataKeysTests {
         Allocation.allocHeapBuffer(32).use { objectKey ->
             objectKey.buffer.writeObjectKey("Test", Value.ofAscii("one"))
 
-            val indexSize = getIndexKeySizeFromObjectKey(objectKey.buffer, "Symbols", Value.ofAscii("alpha"))
+            val indexSize = getIndexKeySize(objectKey.buffer, "Symbols", Value.ofAscii("alpha"))
             assertEquals(25, indexSize)
             Allocation.allocHeapBuffer(indexSize).use { index ->
-                index.buffer.writeIndexKeyFromObjectKey(objectKey.buffer, "Symbols", Value.ofAscii("alpha"))
+                index.buffer.writeIndexKey(objectKey.buffer, "Symbols", Value.ofAscii("alpha"))
                 assertBytesEquals(byteArray('i', 0, "Test", 0, "Symbols", 0, "alpha", 0, "one", 0), index)
             }
         }
@@ -98,10 +102,10 @@ class DataKeysTests {
         Allocation.allocHeapBuffer(32).use { objectKey ->
             objectKey.buffer.writeObjectKey("Test", Value.ofAscii("one", "two"))
 
-            val indexSize = getIndexKeySizeFromObjectKey(objectKey.buffer, "Symbols", Value.ofAscii("alpha", "beta"))
+            val indexSize = getIndexKeySize(objectKey.buffer, "Symbols", Value.ofAscii("alpha", "beta"))
             assertEquals(34, indexSize)
             Allocation.allocHeapBuffer(indexSize).use { index ->
-                index.buffer.writeIndexKeyFromObjectKey(objectKey.buffer, "Symbols", Value.ofAscii("alpha", "beta"))
+                index.buffer.writeIndexKey(objectKey.buffer, "Symbols", Value.ofAscii("alpha", "beta"))
                 assertBytesEquals(byteArray('i', 0, "Test", 0, "Symbols", 0, "alpha", 0, "beta", 0, "one", 0, "two", 0), index)
             }
         }
@@ -162,7 +166,7 @@ class DataKeysTests {
         Allocation.allocHeapBuffer(32).use { objectKey ->
             objectKey.buffer.writeObjectKey("Test", Value.ofAscii("one"))
             Allocation.allocHeapBuffer(32).use { indexKey ->
-                indexKey.buffer.writeIndexKeyFromObjectKey(objectKey.buffer, "Symbols", Value.ofAscii("alpha", "beta"))
+                indexKey.buffer.writeIndexKey(objectKey.buffer, "Symbols", Value.ofAscii("alpha", "beta"))
                 assertBytesEquals(byteArray("Symbols"), getIndexKeyName(indexKey.buffer))
             }
         }

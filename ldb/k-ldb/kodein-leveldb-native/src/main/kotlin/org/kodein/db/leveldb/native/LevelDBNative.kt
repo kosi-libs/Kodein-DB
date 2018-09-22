@@ -9,11 +9,11 @@ import cnames.structs.leveldb_writebatch_t
 import cnames.structs.leveldb_writeoptions_t
 import cnames.structs.leveldb_cache_t
 import cnames.structs.leveldb_filterpolicy_t
+import platform.posix.size_tVar
 import kotlinx.cinterop.*
-import kotlinx.io.core.writeFully
+import kotlinx.io.core.*
 import libleveldb.*
 import org.kodein.db.leveldb.*
-import platform.posix.size_tVar
 
 private inline fun <T> ldbCall(crossinline block: MemScope.(CPointerVar<ByteVar>) -> T): T = memScoped {
     val errorPtr = allocPointerTo<ByteVar>()
@@ -123,13 +123,13 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         }
     }
 
-    override fun put(key: Allocation, value: Allocation, options: LevelDB.WriteOptions) {
+    override fun put(key: Bytes, value: Bytes, options: LevelDB.WriteOptions) {
         options.usePointer { optionsPtr ->
             ldbCall { leveldb_put(nonNullPtr, optionsPtr, key.content, key.buffer.readRemaining.convert(), value.content, value.buffer.readRemaining.convert(), it.ptr) }
         }
     }
 
-    override fun delete(key: Allocation, options: LevelDB.WriteOptions) {
+    override fun delete(key: Bytes, options: LevelDB.WriteOptions) {
         options.usePointer { optionsPtr ->
             ldbCall { leveldb_delete(nonNullPtr, optionsPtr, key.content, key.buffer.readRemaining.convert(), it.ptr) }
         }
@@ -141,20 +141,26 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         }
     }
 
-    internal class NativeBytes(ptr: CPointer<ByteVar>, len: Int, handler: PlatformCloseable.Handler, options: LevelDB.Options) : PointerBound<ByteVar>(ptr, "Value", handler, options), LevelDB.NativeBytes {
+    internal class NativeBytes(ptr: CPointer<ByteVar>, len: Int, handler: PlatformCloseable.Handler, options: LevelDB.Options) : PointerBound<ByteVar>(ptr, "Value", handler, options), Allocation {
 
-        override val allocation: Allocation = Allocation(ptr, len, true)
+        private val allocation: Allocation = CPointerAllocation(ptr, len, true)
             get() {
                 checkIsOpen()
                 return field
             }
+
+        override val buffer get() = allocation.buffer
+
+        override val content get() = allocation.content
+
+        override fun makeView() = allocation.makeView()
 
         override fun release(ptr: CPointer<ByteVar>) {
             nativeHeap.free(ptr)
         }
     }
 
-    override fun get(key: Allocation, options: LevelDB.ReadOptions): LevelDB.NativeBytes? {
+    override fun get(key: Bytes, options: LevelDB.ReadOptions): Allocation? {
         options.usePointer { optionsPtr ->
             return ldbCall {
                 val valueSize = alloc<size_tVar>()
@@ -169,7 +175,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
     }
 
-    override fun indirectGet(key: Allocation, options: LevelDB.ReadOptions): LevelDB.NativeBytes? {
+    override fun indirectGet(key: Bytes, options: LevelDB.ReadOptions): Allocation? {
         options.usePointer { optionsPtr ->
             val (newKey, newKeySize) = ldbCall {
                 val newKeySize = alloc<size_tVar>()
@@ -190,7 +196,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
     }
 
-    override fun indirectGet(it: LevelDB.Iterator, options: LevelDB.ReadOptions): LevelDB.NativeBytes? {
+    override fun indirectGet(it: LevelDB.Iterator, options: LevelDB.ReadOptions): Allocation? {
         (it as Iterator).checkValid()
 
         val newKey = it.transientValue()
@@ -235,7 +241,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
             ldbItCall { leveldb_iter_seek_to_last(nonNullPtr) }
         }
 
-        override fun seekTo(target: Allocation) {
+        override fun seekTo(target: Bytes) {
             ldbItCall { leveldb_iter_seek(nonNullPtr, target.content, target.buffer.readRemaining.convert()) }
         }
 
@@ -249,79 +255,123 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
             ldbItCall { leveldb_iter_prev(nonNullPtr) }
         }
 
-        internal class NativeBytesArray(
+        internal abstract class NativeBytesArrayBase(
+                val name: String,
                 val ldb: LevelDB,
                 val keys: Array<Allocation?>,
                 val values: Array<Allocation?>,
                 override val size: Int,
                 handler: PlatformCloseable.Handler?,
                 options: LevelDB.Options
-        ) : PlatformCloseable("IteratorArray", handler, options), LevelDB.Iterator.NativeBytesArray {
+        ) : PlatformCloseable(name, handler, options), LevelDB.Iterator.ValuesArrayBase {
 
-            override var isClosed = false
-
-            override fun platformClose() {
-                for (i in 0 until size) {
-                    keys[i]!!.close()
-                    values[i]!!.close()
-                }
-                isClosed = true
-            }
-
-            private fun checkIndex(i: Int) {
+            internal fun checkIndex(i: Int) {
                 checkIsOpen()
                 if (i > size)
                     throw ArrayIndexOutOfBoundsException("Index $i is over array size: $size")
             }
 
-            override fun getKey(i: Int): Allocation {
+            override fun getKey(i: Int): Bytes {
                 checkIndex(i)
                 return keys[i]!!
             }
 
-            override fun getValue(i: Int): Allocation {
+            override fun getValue(i: Int): Bytes? {
                 checkIndex(i)
-                return values[i]!!
+                return values[i]
+            }
+
+            override fun platformClose() {
+                keys.filterNotNull().forEach { it.close() }
+                values.filterNotNull().forEach { it.close() }
             }
 
         }
 
-        override fun nextArray(size: Int, bufferSize: Int): LevelDB.Iterator.NativeBytesArray {
+        internal class NativeBytesArray(ldb: LevelDB, keys: Array<Allocation?>, values: Array<Allocation?>, size: Int, handler: PlatformCloseable.Handler?, options: LevelDB.Options)
+            : NativeBytesArrayBase("IteratorArray", ldb, keys, values, size, handler, options), LevelDB.Iterator.ValuesArray {
+
+            override fun getValue(i: Int) = super.getValue(i)!!
+        }
+
+        internal class NativeIndirectBytesArray(ldb: LevelDB, keys: Array<Allocation?>, val intermediateKeys: Array<Allocation?>, values: Array<Allocation?>, size: Int, handler: PlatformCloseable.Handler?, options: LevelDB.Options)
+            : NativeBytesArrayBase("IteratorArray", ldb, keys, values, size, handler, options), LevelDB.Iterator.IndirectValuesArray {
+
+            override fun getIntermediateKey(i: Int): Bytes {
+                checkIndex(i)
+                return intermediateKeys[i]!!
+            }
+
+            override fun platformClose() {
+                super.platformClose()
+                intermediateKeys.filterNotNull().forEach { it.close() }
+            }
+        }
+
+        override fun nextArray(size: Int, bufferSize: Int): LevelDB.Iterator.ValuesArray {
             val keyArray = arrayOfNulls<Allocation>(size)
             val valueArray = arrayOfNulls<Allocation>(size)
-            var count = 0
-            for (i in 0 until size) {
-                if (!isValid())
-                    break
-                ++count
-                val key = transientKey()
-                val value = transientValue()
-                val keyCopy = Allocation.allocNativeBuffer(key.buffer.readRemaining).apply { buffer.writeFully(key.buffer) }
-                val valueCopy = Allocation.allocNativeBuffer(value.buffer.readRemaining).apply { buffer.writeFully(value.buffer) }
-//                val keyCopy = ldb.allocBuffer(key.buffer.readRemaining).apply { io.writeFully(key.io) }
-//                val valueCopy = ldb.allocBuffer(value.buffer.readRemaining).apply { io.writeFully(value.io) }
-                keyArray[i] = keyCopy
-                valueArray[i] = valueCopy
-                next()
+            try {
+                var count = 0
+                for (i in 0 until size) {
+                    if (!isValid())
+                        break
+                    ++count
+                    val key = transientKey()
+                    val value = transientValue()
+                    keyArray[i] = Allocation.allocNativeBuffer(key.buffer.readRemaining).apply { buffer.writeFully(key.buffer) }
+                    valueArray[i] = Allocation.allocNativeBuffer(value.buffer.readRemaining).apply { buffer.writeFully(value.buffer) }
+                    next()
+                }
+                return NativeBytesArray(ldb, keyArray, valueArray, count, handler, options)
+            } catch (ex: Throwable) {
+                keyArray.filterNotNull().forEach { it.close() }
+                valueArray.filterNotNull().forEach { it.close() }
+                throw ex
             }
-            return NativeBytesArray(ldb, keyArray, valueArray, count, handler, options)
         }
 
-        override fun transientKey(): Allocation {
+        override fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int, options: LevelDB.ReadOptions): LevelDB.Iterator.IndirectValuesArray {
+            val keyArray = arrayOfNulls<Allocation>(size)
+            val intermediateKeyArray = arrayOfNulls<Allocation>(size)
+            val valueArray = arrayOfNulls<Allocation>(size)
+            try {
+                var count = 0
+                for (i in 0 until size) {
+                    if (!isValid())
+                        break
+                    ++count
+                    val key = transientKey()
+                    val intermediateKey = transientValue()
+                    keyArray[i] = Allocation.allocNativeBuffer(key.buffer.readRemaining).apply { buffer.writeFully(key.buffer) }
+                    intermediateKeyArray[i] = Allocation.allocNativeBuffer(intermediateKey.buffer.readRemaining).apply { buffer.writeFully(intermediateKey.buffer) }
+                    valueArray[i] = (db as LevelDBNative).get(intermediateKey, options)
+                    next()
+                }
+                return NativeIndirectBytesArray(ldb, keyArray, intermediateKeyArray, valueArray, count, handler, this@Iterator.options)
+            } catch (ex: Throwable) {
+                keyArray.filterNotNull().forEach { it.close() }
+                intermediateKeyArray.filterNotNull().forEach { it.close() }
+                valueArray.filterNotNull().forEach { it.close() }
+                throw ex
+            }
+        }
+
+        override fun transientKey(): Bytes {
             checkValid()
             return ldbItCall {
                 val keySize = alloc<size_tVar>()
                 val key = leveldb_iter_key(nonNullPtr, keySize.ptr)!!
-                Allocation(key, keySize.value.convert(), true)
+                CPointerAllocation(key, keySize.value.convert(), true)
             }
         }
 
-        override fun transientValue(): Allocation {
+        override fun transientValue(): Bytes {
             checkValid()
             return ldbItCall {
                 val valueSize = alloc<size_tVar>()
                 val value = leveldb_iter_value(nonNullPtr, valueSize.ptr)!!
-                Allocation(value, valueSize.value.convert(), true)
+                CPointerAllocation(value, valueSize.value.convert(), true)
             }
         }
 
@@ -351,11 +401,11 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
 
     internal class WriteBatch internal constructor(ptr: CPointer<leveldb_writebatch_t>, handler: PlatformCloseable.Handler, options: LevelDB.Options) : PointerBound<leveldb_writebatch_t>(ptr, "WriteBatch", handler, options), LevelDB.WriteBatch {
 
-        override fun put(key: Allocation, value: Allocation) {
+        override fun put(key: Bytes, value: Bytes) {
             leveldb_writebatch_put(nonNullPtr, key.content, key.buffer.readRemaining.convert(), value.content, value.buffer.readRemaining.convert())
         }
 
-        override fun delete(key: Allocation) {
+        override fun delete(key: Bytes) {
             leveldb_writebatch_delete(nonNullPtr, key.content, key.buffer.readRemaining.convert())
         }
 

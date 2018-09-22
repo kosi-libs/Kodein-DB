@@ -1,4 +1,4 @@
-package org.kodein.db.impl
+package org.kodein.db.impl.data
 
 import kotlinx.io.core.IoBuffer
 import kotlinx.io.core.writeFully
@@ -7,6 +7,7 @@ import org.kodein.db.Value
 import org.kodein.db.impl.utils.firstPositionOf
 import org.kodein.db.impl.utils.makeSubView
 import org.kodein.db.impl.utils.writeFully
+import org.kodein.db.leveldb.Allocation
 
 private object Prefix {
     const val OBJECT = 'o'.toByte()
@@ -15,6 +16,11 @@ private object Prefix {
 }
 
 private val NULL = 0.toByte()
+
+internal val objectEmptyPrefix = Allocation.allocNativeBuffer(2).apply {
+    buffer.writeByte(Prefix.OBJECT)
+    buffer.writeByte(NULL)
+}
 
 internal fun IoBuffer.writeObjectKey(type: String, primaryKey: Value?, isOpen: Boolean = false) {
     writeByte(Prefix.OBJECT)
@@ -94,14 +100,14 @@ private fun IoBuffer.writeIndexKey(type: IoBuffer, id: IoBuffer, name: String, v
     writeFully(id.makeView())
 }
 
-internal fun IoBuffer.writeIndexKeyFromObjectKey(objectKey: IoBuffer, name: String, value: Value) {
+internal fun IoBuffer.writeIndexKey(objectKey: IoBuffer, name: String, value: Value) {
     val type = getObjectKeyType(objectKey)
     val id = getObjectKeyID(objectKey)
 
     writeIndexKey(type, id, name, value)
 }
 
-internal fun getIndexKeySizeFromObjectKey(objectKey: IoBuffer, name: String, value: Value): Int {
+internal fun getIndexKeySize(objectKey: IoBuffer, name: String, value: Value): Int {
     val type = getObjectKeyType(objectKey)
     val id = getObjectKeyID(objectKey)
 

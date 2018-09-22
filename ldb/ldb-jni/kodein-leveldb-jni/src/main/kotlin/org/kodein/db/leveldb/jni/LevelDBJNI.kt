@@ -62,7 +62,7 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
             throw IllegalStateException("Buffers must be either direct or backed by a byte array")
     }
 
-    override fun put(key: Allocation, value: Allocation, options: LevelDB.WriteOptions) = put(key.toByteBuffer(), value.toByteBuffer(), options)
+    override fun put(key: Bytes, value: Bytes, options: LevelDB.WriteOptions) = put(key.byteBuffer(), value.byteBuffer(), options)
 
     override fun delete(key: ByteBuffer, options: LevelDB.WriteOptions) {
         // Calls the correct native function according to the types of ByteBuffer the key is.
@@ -74,13 +74,13 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
             throw IllegalStateException("Buffers must be either direct or backed by a byte array")
     }
 
-    override fun delete(key: Allocation, options: LevelDB.WriteOptions) = delete(key.toByteBuffer(), options)
+    override fun delete(key: Bytes, options: LevelDB.WriteOptions) = delete(key.byteBuffer(), options)
 
     override fun write(batch: LevelDB.WriteBatch, options: LevelDB.WriteOptions) {
         n_Write(nonZeroPtr, (batch as WriteBatch).nonZeroPtr, options.sync)
     }
 
-    override fun get(key: ByteBuffer, options: LevelDB.ReadOptions): LevelDB.NativeBytes? {
+    override fun get(key: ByteBuffer, options: LevelDB.ReadOptions): Allocation? {
         val valuePtr: Long
         // Calls the correct native function according to the types of ByteBuffer the key is.
         if (key.isDirect)
@@ -94,9 +94,9 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
 
     }
 
-    override fun get(key: Allocation, options: LevelDB.ReadOptions) = get(key.toByteBuffer(), options)
+    override fun get(key: Bytes, options: LevelDB.ReadOptions) = get(key.byteBuffer(), options)
 
-    override fun indirectGet(key: ByteBuffer, options: LevelDB.ReadOptions): LevelDB.NativeBytes? {
+    override fun indirectGet(key: ByteBuffer, options: LevelDB.ReadOptions): Allocation? {
         val valuePtr: Long
         // Calls the correct native function according to the types of ByteBuffer the key is.
         if (key.isDirect)
@@ -109,9 +109,9 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
         return if (valuePtr == 0L) null else NativeBytes(valuePtr, dbHandler, this.options)
     }
 
-    override fun indirectGet(key: Allocation, options: LevelDB.ReadOptions) = indirectGet(key.toByteBuffer(), options)
+    override fun indirectGet(key: Bytes, options: LevelDB.ReadOptions) = indirectGet(key.byteBuffer(), options)
 
-    override fun indirectGet(it: LevelDB.Iterator, options: LevelDB.ReadOptions): LevelDB.NativeBytes? {
+    override fun indirectGet(it: LevelDB.Iterator, options: LevelDB.ReadOptions): Allocation? {
         val valuePtr = n_IndirectGet_I(nonZeroPtr, (it as Iterator).nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot))
         return if (valuePtr == 0L) null else NativeBytes(valuePtr, dbHandler, this.options)
     }
@@ -134,18 +134,22 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
         n_ReleaseOptions(optionsPtr)
     }
 
+    private class NativeBytes internal constructor(ptr: Long, handler: PlatformCloseable.Handler, options: LevelDB.Options) : NativeBound(ptr, "Value", handler, options), Allocation {
 
-    private class NativeBytes internal constructor(ptr: Long, handler: PlatformCloseable.Handler, options: LevelDB.Options) : NativeBound(ptr, "Value", handler, options), LevelDB.NativeBytes {
-
-        override val allocation: Allocation = Allocation(n_Buffer(ptr), true)
+        private val allocation: Allocation = ByteBufferAllocation(n_Buffer(ptr), true)
             get() {
                 checkIsOpen()
                 return field
             }
 
+        override val buffer get() = allocation.buffer
+
+        override fun byteBuffer() = allocation.byteBuffer()
+
+        override fun makeView() = allocation.makeView()
+
         companion object {
             @JvmStatic private external fun n_Buffer(ptr: Long): ByteBuffer
-
             @JvmStatic private external fun n_Release(ptr: Long)
         }
 
@@ -184,7 +188,7 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
                 throw IllegalStateException("Buffers must be either direct or backed by a byte array")
         }
 
-        override fun put(key: Allocation, value: Allocation) = put(key.toByteBuffer(), value.toByteBuffer())
+        override fun put(key: Bytes, value: Bytes) = put(key.byteBuffer(), value.byteBuffer())
 
         override fun delete(key: ByteBuffer) {
             if (key.isDirect)
@@ -195,7 +199,7 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
                 throw IllegalStateException("Buffers must be either direct or backed by a byte array")
         }
 
-        override fun delete(key: Allocation) = delete(key.toByteBuffer())
+        override fun delete(key: Bytes) = delete(key.byteBuffer())
 
         override fun release(ptr: Long) {
             n_Release(ptr)
@@ -217,6 +221,8 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
 
 
     private class Iterator internal constructor(ptr: Long, handler: PlatformCloseable.Handler, options: LevelDB.Options) : NativeBound(ptr, "Iterator", handler, options), LevelDB.Iterator {
+
+        private val itHandler = PlatformCloseable.Handler()
 
         companion object {
             @JvmStatic private external fun n_Valid(ptr: Long): Boolean
@@ -256,37 +262,36 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
             // If there is less entries left in the provided iterator than there are slots in the arrays, the first unused slot in the indexes array will be set to -1.
             @JvmStatic private external fun n_NextArray(ptr: Long, ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, keys: IntArray, values: IntArray, limits: IntArray, bufferSize: Int)
 
+            @JvmStatic private external fun n_IndirectNextArray(dbPtr: Long, iteratorPtr: Long, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long, ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, intermediateKeys: IntArray, keys: IntArray, values: IntArray, limits: IntArray, bufferSize: Int)
+
             @JvmStatic private external fun n_Release(ptr: Long)
         }
 
 
-        private class NativeBytesArray(
+        internal abstract class AbstractBytesArray(
+                name: String,
                 // There are probably less buffer pointers than there are entries. All unused slots are set to zero.
                 private val ptrs: LongArray,
                 // There are probably less buffers than there are entries. All unused slots are set to null.
-                private val buffers: Array<ByteBuffer?>,
+                protected val buffers: Array<ByteBuffer?>,
                 // There might be less entry than this array length. _length should always be used in place of this arrays length.
-                private val indexes: IntArray,
+                protected val indexes: IntArray,
                 // There might be less entry than this array length. _length should always be used in place of this arrays length.
-                private val keys: IntArray,
+                protected val keys: IntArray,
                 // There might be less entry than this array length. _length should always be used in place of this arrays length.
-                private val values: IntArray,
+                protected val values: IntArray,
                 // There might be less entry than this array length. _length should always be used in place of this arrays length.
-                private val limit: IntArray,
+                protected val limit: IntArray,
                 handler: PlatformCloseable.Handler?,
                 options: LevelDB.Options
-        ) : PlatformCloseable("IteratorArray", handler, options), LevelDB.Iterator.NativeBytesArray {
+        ) : PlatformCloseable(name, handler, options), LevelDB.Iterator.ValuesArrayBase {
 
-            override val size: Int
-
-            override val isClosed: Boolean
-                get() = ptrs[0] == 0L
+            final override val size: Int
 
             init {
 
                 // The length (= number of entries) can be found as either the number of indexes values before the first -1, or the length of the indexes array if no -1 is found.
-                var i: Int
-                i = 0
+                var i = 0
                 while (i < indexes.size) {
                     if (indexes[i] == -1)
                         break
@@ -299,29 +304,54 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
                 @JvmStatic private external fun n_Release(ptrs: LongArray)
             }
 
-            override fun getKey(i: Int): Allocation {
+            override fun getKey(i: Int): Bytes {
                 val index = indexes[i]
                 if (index == -1)
                     throw ArrayIndexOutOfBoundsException(i)
                 val key = buffers[index]!!.duplicate()
                 key.position(keys[i])
                 key.limit(values[i])
-                return Allocation(key.slice(), true)
+                return ByteBufferAllocation(key.slice(), true)
             }
 
-            override fun getValue(i: Int): Allocation {
+            override fun getValue(i: Int): Bytes? {
                 val index = indexes[i]
                 if (index == -1)
                     throw ArrayIndexOutOfBoundsException(i)
+                if (limit[i] == -1)
+                    return null
                 val value = buffers[index]!!.duplicate()
                 value.position(values[i])
                 value.limit(limit[i])
-                return Allocation(value.slice(), true)
+                return ByteBufferAllocation(value.slice(), true)
             }
 
             override fun platformClose() {
                 n_Release(ptrs)
                 Arrays.fill(ptrs, 0)
+            }
+        }
+
+        internal class BytesArray(ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, keys: IntArray, values: IntArray, limit: IntArray, handler: PlatformCloseable.Handler?, options: LevelDB.Options)
+            : AbstractBytesArray("IteratorArray", ptrs, buffers, indexes, keys, values, limit, handler, options), LevelDB.Iterator.ValuesArray {
+
+            override fun getValue(i: Int) = super.getValue(i)!!
+        }
+
+        internal class IndirectBytesArray(ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, private val indirectKeys: IntArray?, keys: IntArray, values: IntArray, limit: IntArray, handler: PlatformCloseable.Handler?, options: LevelDB.Options)
+            : AbstractBytesArray("IteratorIndirectArray", ptrs, buffers, indexes, keys, values, limit, handler, options), LevelDB.Iterator.IndirectValuesArray {
+
+            override fun getIntermediateKey(i: Int): Bytes {
+                if (indirectKeys == null)
+                    return getKey(i)
+
+                val index = indexes[i]
+                if (index == -1)
+                    throw ArrayIndexOutOfBoundsException(i)
+                val key = buffers[index]!!.duplicate()
+                key.position(indirectKeys[i])
+                key.limit(keys[i])
+                return ByteBufferAllocation(key.slice(), true)
             }
         }
 
@@ -347,13 +377,13 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
                 throw IllegalStateException("Buffers must be either direct or backed by a byte array")
         }
 
-        override fun seekTo(target: Allocation) = seekTo(target.toByteBuffer())
+        override fun seekTo(target: Bytes) = seekTo(target.byteBuffer())
 
         override fun next() {
             n_Next(nonZeroPtr)
         }
 
-        override fun nextArray(size: Int, bufferSize: Int): LevelDB.Iterator.NativeBytesArray {
+        override fun nextArray(size: Int, bufferSize: Int): LevelDB.Iterator.ValuesArray {
             val ptrs = LongArray(size)
             val buffers = arrayOfNulls<ByteBuffer>(size)
             val indexes = IntArray(size)
@@ -363,19 +393,38 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
 
             n_NextArray(nonZeroPtr, ptrs, buffers, indexes, keys, values, limits, if (bufferSize == -1) options.defaultIteratorArrayBufferSize else bufferSize)
 
-            return NativeBytesArray(ptrs, buffers, indexes, keys, values, limits, handler, options)
+            return BytesArray(ptrs, buffers, indexes, keys, values, limits, itHandler, options)
+        }
+
+        override fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int, options: LevelDB.ReadOptions): LevelDB.Iterator.IndirectValuesArray {
+            val ptrs = LongArray(size)
+            val buffers = arrayOfNulls<ByteBuffer>(size)
+            val indexes = IntArray(size)
+            val intermediateKeys = IntArray(size)
+            val keys = IntArray(size)
+            val values = IntArray(size)
+            val limits = IntArray(size)
+
+            n_IndirectNextArray((db as LevelDBJNI).nonZeroPtr, nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot), ptrs, buffers, indexes, intermediateKeys, keys, values, limits, if (bufferSize == -1) this.options.defaultIteratorArrayBufferSize else bufferSize)
+
+            return Iterator.IndirectBytesArray(ptrs, buffers, indexes, intermediateKeys, keys, values, limits, itHandler, this.options)
+
         }
 
         override fun prev() {
             n_Prev(nonZeroPtr)
         }
 
-        override fun transientKey(): Allocation {
-            return Allocation(n_key(nonZeroPtr), true)
+        override fun transientKey(): Bytes {
+            return ByteBufferAllocation(n_key(nonZeroPtr), true)
         }
 
-        override fun transientValue(): Allocation {
-            return Allocation(n_value(nonZeroPtr), true)
+        override fun transientValue(): Bytes {
+            return ByteBufferAllocation(n_value(nonZeroPtr), true)
+        }
+
+        override fun beforeClose() {
+            itHandler.close()
         }
 
         override fun release(ptr: Long) {

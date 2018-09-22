@@ -4,21 +4,36 @@ import kotlinx.io.core.Closeable
 import kotlinx.io.core.IoBuffer
 import java.nio.ByteBuffer
 
-actual class Allocation(private val content: ByteBuffer, contentReadable: Boolean = false) : Closeable {
+actual interface Bytes {
+    actual val buffer: IoBuffer
+    fun byteBuffer(): ByteBuffer
+    actual fun makeView(): Bytes
+}
 
-    actual val buffer = IoBuffer(content)
+actual interface Allocation : Bytes, Closeable {
+    actual companion object {
+        actual fun allocHeapBuffer(capacity: Int): Allocation = ByteBufferAllocation(ByteBuffer.allocate(capacity))
+        actual fun allocNativeBuffer(capacity: Int): Allocation = ByteBufferAllocation(ByteBuffer.allocateDirect(capacity))
+    }
+}
+
+class ByteBufferAllocation private constructor(private val content: ByteBuffer, override val buffer: IoBuffer, contentReadable: Boolean) : Allocation {
+
+    constructor(content: ByteBuffer, contentReadable: Boolean = false) : this(content, IoBuffer(content), contentReadable)
 
     init {
         if (contentReadable)
             buffer.resetForRead()
     }
 
-    fun toByteBuffer(): ByteBuffer {
-        val bb = content.slice()
+    override fun byteBuffer(): ByteBuffer {
+        val bb = content.duplicate()
         bb.position(buffer.startGap)
         bb.limit(buffer.capacity - buffer.endGap)
         return bb
     }
+
+    override fun makeView() = ByteBufferAllocation(content, buffer.makeView(), false)
 
     override fun hashCode() = content.hashCode()
 
@@ -26,14 +41,9 @@ actual class Allocation(private val content: ByteBuffer, contentReadable: Boolea
         if (this === other) return true
         if (other !is Allocation) return false
 
-        if (content != other.content) return false
+        if (content != other.byteBuffer()) return false
 
         return true
-    }
-
-    actual companion object {
-        actual fun allocHeapBuffer(capacity: Int): Allocation = Allocation(ByteBuffer.allocate(capacity))
-        actual fun allocNativeBuffer(capacity: Int): Allocation = Allocation(ByteBuffer.allocateDirect(capacity))
     }
 
     override fun close() {}

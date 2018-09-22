@@ -89,6 +89,14 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n
 
 /*
  * Class:     org_kodein_db_leveldb_jni_LevelDBJNI_Iterator
+ * Method:    n_IndirectNextArray
+ * Signature: (JJZZJ[J[Ljava/nio/ByteBuffer;[I[I[I[I[II)V
+ */
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1IndirectNextArray
+  (JNIEnv *, jclass, jlong, jlong, jboolean, jboolean, jlong, jlongArray, jobjectArray, jintArray, jintArray, jintArray, jintArray, jintArray, jint);
+
+/*
+ * Class:     org_kodein_db_leveldb_jni_LevelDBJNI_Iterator
  * Method:    n_Release
  * Signature: (J)V
  */

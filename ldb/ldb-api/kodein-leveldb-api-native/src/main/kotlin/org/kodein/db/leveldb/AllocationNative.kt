@@ -4,14 +4,29 @@ import kotlinx.cinterop.*
 import kotlinx.io.core.Closeable
 import kotlinx.io.core.IoBuffer
 
-actual class Allocation(val content: CPointer<ByteVar>, contentCapacity: Int, contentReadable: Boolean = false) : Closeable {
+actual interface Bytes {
+    actual val buffer: IoBuffer
+    val content: CPointer<ByteVar>
+    actual fun makeView(): Bytes
+}
 
-    actual val buffer = IoBuffer(content, contentCapacity)
+actual interface Allocation : Bytes, Closeable {
+    actual companion object {
+        actual fun allocHeapBuffer(capacity: Int): Allocation = allocNativeBuffer(capacity)
+        actual fun allocNativeBuffer(capacity: Int): Allocation = CPointerAllocation(nativeHeap.allocArray(capacity), capacity)
+    }
+}
+
+class CPointerAllocation private constructor(override val content: CPointer<ByteVar>, override val buffer: IoBuffer, contentReadable: Boolean) : Allocation {
+
+    constructor(content: CPointer<ByteVar>, contentCapacity: Int, contentReadable: Boolean = false) : this(content, IoBuffer(content, contentCapacity), contentReadable)
 
     init {
         if (contentReadable)
             buffer.resetForRead()
     }
+
+    override fun makeView() = CPointerAllocation(content, buffer.makeView(), false)
 
     override fun hashCode(): Int {
         var h = 1
@@ -39,11 +54,6 @@ actual class Allocation(val content: CPointer<ByteVar>, contentCapacity: Int, co
         }
 
         return true
-    }
-
-    actual companion object {
-        actual fun allocHeapBuffer(capacity: Int) = allocNativeBuffer(capacity)
-        actual fun allocNativeBuffer(capacity: Int) = Allocation(nativeHeap.allocArray(capacity), capacity)
     }
 
     override fun close() {

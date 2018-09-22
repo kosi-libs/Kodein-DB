@@ -2,8 +2,6 @@ package org.kodein.db.leveldb
 
 import java.util.*
 
-actual typealias Synchronized = kotlin.jvm.Synchronized
-
 actual class StackTrace(val elements: Array<StackTraceElement>) {
 
     actual fun write(on: Appendable) {

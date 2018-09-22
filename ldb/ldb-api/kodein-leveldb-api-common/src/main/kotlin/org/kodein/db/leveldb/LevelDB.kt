@@ -18,7 +18,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @param value The value ov the entry to put.
      * @param options Options that control this write operation.
      */
-    fun put(key: Allocation, value: Allocation, options: WriteOptions = WriteOptions.DEFAULT)
+    fun put(key: Bytes, value: Bytes, options: WriteOptions = WriteOptions.DEFAULT)
 
     /**
      * Delete an entry from the database.
@@ -26,7 +26,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @param key The key of the entry to delete.
      * @param options Options that control this write operation.
      */
-    fun delete(key: Allocation, options: WriteOptions = WriteOptions.DEFAULT)
+    fun delete(key: Bytes, options: WriteOptions = WriteOptions.DEFAULT)
 
     /**
      * Write a batch atomically to the database.
@@ -53,7 +53,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @param options Options that control this read operation.
      * @return The entry value.
      */
-    fun get(key: Allocation, options: ReadOptions = ReadOptions.DEFAULT): NativeBytes?
+    fun get(key: Bytes, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Get an entry value bytes by following the value of the given key.
@@ -72,7 +72,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @param options Options that control this read operation.
      * @return The found entry value
      */
-    fun indirectGet(key: Allocation, options: ReadOptions = ReadOptions.DEFAULT): NativeBytes?
+    fun indirectGet(key: Bytes, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Get an entry value bytes by following the value of the iterator current key.
@@ -89,7 +89,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @param options Options that control this read operation.
      * @return The found entry value
      */
-    fun indirectGet(it: Iterator, options: ReadOptions = ReadOptions.DEFAULT): NativeBytes?
+    fun indirectGet(it: Iterator, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Creates a new Iterator.
@@ -130,16 +130,6 @@ interface LevelDB : Closeable, PlatformLevelDB {
     fun newWriteBatch(): WriteBatch
 
     /**
-     * Closeable Buffer
-     */
-    interface NativeBytes : Closeable {
-        /**
-         * @return The Buffer that needs to be closed after reading.
-         */
-        val allocation: Allocation
-    }
-
-    /**
      * A WriteBatch is a write only object.
      * When writing on the batch, the database is **not** reflected.
      *
@@ -156,14 +146,14 @@ interface LevelDB : Closeable, PlatformLevelDB {
          * @param key The key of the entry to put.
          * @param value The value ov the entry to put.
          */
-        fun put(key: Allocation, value: Allocation)
+        fun put(key: Bytes, value: Bytes)
 
         /**
          * Registers a key whose entry is to be deleted from the database.
          *
          * @param key The key of the entry to delete.
          */
-        fun delete(key: Allocation)
+        fun delete(key: Bytes)
     }
 
     /**
@@ -202,7 +192,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
          *
          * @param target The key to seek to.
          */
-        fun seekTo(target: Allocation)
+        fun seekTo(target: Bytes)
 
         /**
          * Position the iterator on the entry right next after the current one.
@@ -214,7 +204,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
         /**
          * An array of keys and values.
          */
-        interface NativeBytesArray : Closeable {
+        interface ValuesArrayBase : Closeable {
 
             /**
              * @return The number of entries in this array.
@@ -225,13 +215,37 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * @param i An index.
              * @return The key at index i.
              */
-            fun getKey(i: Int): Allocation
+            fun getKey(i: Int): Bytes
 
             /**
              * @param i An index.
              * @return The value at index i.
              */
-            fun getValue(i: Int): Allocation
+            fun getValue(i: Int): Bytes?
+        }
+
+        /**
+         * An array of keys and values.
+         */
+        interface ValuesArray : ValuesArrayBase {
+
+            /**
+             * @param i An index.
+             * @return The value at index i.
+             */
+            override fun getValue(i: Int): Bytes
+        }
+
+        /**
+         * An array of keys, intermediate keys and values.
+         */
+        interface IndirectValuesArray : ValuesArrayBase {
+
+            /**
+             * @param i An index.
+             * @return The key at index i.
+             */
+            fun getIntermediateKey(i: Int): Bytes
         }
 
         /**
@@ -248,7 +262,9 @@ interface LevelDB : Closeable, PlatformLevelDB {
          * @param size The maximum number of entries to get.
          * @param bufferSize The size allocated for each direct byte buffer.
          */
-        fun nextArray(size: Int, bufferSize: Int = -1): NativeBytesArray
+        fun nextArray(size: Int, bufferSize: Int = -1): ValuesArray
+
+        fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int = -1, options: ReadOptions = ReadOptions.DEFAULT): Iterator.IndirectValuesArray
 
         /**
          * Position the iterator on the entry right before the current one.
@@ -264,7 +280,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
          *
          * @return The key bytes.
          */
-        fun transientKey(): Allocation
+        fun transientKey(): Bytes
 
         /**
          * Get a Buffer containing the current value.
@@ -273,7 +289,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
          *
          * @return The value bytes.
          */
-        fun transientValue(): Allocation
+        fun transientValue(): Bytes
 
         override fun close()
     }

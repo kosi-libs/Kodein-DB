@@ -5,7 +5,7 @@
 #include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_WriteBatch.h"
 #include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Snapshot.h"
 #include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Iterator.h"
-#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Iterator_NativeBytesArray.h"
+#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Iterator_AbstractBytesArray.h"
 
 #include "leveldb/cache.h"
 #include "leveldb/db.h"
@@ -291,7 +291,7 @@ jlong LevelDBJNI_Get (JNIEnv *env, leveldb::DB* ldb, const leveldb::Slice &key, 
 		return 0;
 	}
 
-	if (value->empty() || status.IsNotFound()) {
+	if (status.IsNotFound()) {
 		delete value;
 		return 0;
 	}
@@ -326,7 +326,7 @@ jlong J_LevelDBJNI_IndirectGet (JNIEnv *env, jlong ldbPtr, Bytes key, jboolean v
 		return 0;
 	}
 
-	if (indir.empty() || status.IsNotFound())
+	if (status.IsNotFound())
 		return 0;
 
     return LevelDBJNI_Get(env, ldb, leveldb::Slice(indir), options);
@@ -524,6 +524,7 @@ JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterato
 	return env->NewDirectByteBuffer((void *) value.data(), value.size());
 }
 
+
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1NextArray (JNIEnv *env, jclass, jlong itPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
     CAST(leveldb::Iterator, it);
 
@@ -564,6 +565,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n
         memcpy(ptr + pos, key.data(), key.size());
         keys[i] = pos;
         pos += key.size();
+
         memcpy(ptr + pos, value.data(), value.size());
         values[i] = pos;
         pos += value.size();
@@ -579,6 +581,97 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n
     env->ReleaseLongArrayElements(ptrArray, ptrs, JNI_COMMIT);
 }
 
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1IndirectNextArray (JNIEnv *env, jclass, jlong ldbPtr, jlong itPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray intermediateKeyArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
+    CAST(leveldb::DB, ldb);
+    CAST(leveldb::Iterator, it);
+
+    leveldb::ReadOptions options = _readOptions(verifyChecksum, fillCache, snapshotPtr);
+
+    jlong *ptrs = env->GetLongArrayElements(ptrArray, NULL);
+    jint *indexes = env->GetIntArrayElements(indexArray, NULL);
+    jint *intermediateKeys = env->GetIntArrayElements(intermediateKeyArray, NULL);
+    jint *keys = env->GetIntArrayElements(keyArray, NULL);
+    jint *values = env->GetIntArrayElements(valueArray, NULL);
+    jint *limits = env->GetIntArrayElements(limitArray, NULL);
+
+    int length = env->GetArrayLength(indexArray);
+
+    int pos = 0;
+    int index = -1;
+    char *ptr = 0;
+
+    for (int i = 0; i < length; ++i) {
+        if (!it->Valid()) {
+            indexes[i] = -1;
+            break ;
+        }
+
+        leveldb::Slice key = it->key();
+        leveldb::Slice intermediateKey = it->value();
+
+        std::string *value = new std::string("");
+        leveldb::Status status = ldb->Get(options, intermediateKey, value);
+
+        if (!status.ok() && !status.IsNotFound()) {
+            delete value;
+            env->ReleaseIntArrayElements(limitArray, limits, JNI_ABORT);
+            env->ReleaseIntArrayElements(valueArray, values, JNI_ABORT);
+            env->ReleaseIntArrayElements(keyArray, keys, JNI_ABORT);
+            env->ReleaseIntArrayElements(intermediateKeyArray, intermediateKeys, JNI_ABORT);
+            env->ReleaseIntArrayElements(indexArray, indexes, JNI_ABORT);
+            env->ReleaseLongArrayElements(ptrArray, ptrs, JNI_ABORT);
+            throwLevelDBExceptionFromStatus(env, status);
+            return ;
+        }
+
+        if (ptr == 0 || (pos + intermediateKey.size() + key.size() + value->size()) > bufferSize) {
+            int realBufferSize = std::max((int) (intermediateKey.size() + key.size() + value->size()), bufferSize);
+            ptr = new char[realBufferSize];
+            jobject buffer = env->NewDirectByteBuffer((void *) ptr, realBufferSize);
+            ++index;
+            ptrs[index] = (jlong) ptr;
+            env->SetObjectArrayElement(buffers, index, buffer);
+
+            pos = 0;
+        }
+
+        indexes[i] = index;
+
+        memcpy(ptr + pos, intermediateKey.data(), intermediateKey.size());
+        intermediateKeys[i] = pos;
+        pos += intermediateKey.size();
+
+        memcpy(ptr + pos, key.data(), key.size());
+        keys[i] = pos;
+        pos += key.size();
+
+        if (status.ok()) {
+            memcpy(ptr + pos, value->data(), value->size());
+        }
+        values[i] = pos;
+        pos += value->size();
+        if (status.IsNotFound()) {
+            limits[i] = -1;
+        }
+        else {
+            limits[i] = pos;
+        }
+
+        delete value;
+
+        it->Next();
+    }
+
+    env->ReleaseIntArrayElements(limitArray, limits, JNI_COMMIT);
+    env->ReleaseIntArrayElements(valueArray, values, JNI_COMMIT);
+    env->ReleaseIntArrayElements(keyArray, keys, JNI_COMMIT);
+    env->ReleaseIntArrayElements(intermediateKeyArray, intermediateKeys, JNI_COMMIT);
+    env->ReleaseIntArrayElements(indexArray, indexes, JNI_COMMIT);
+    env->ReleaseLongArrayElements(ptrArray, ptrs, JNI_COMMIT);
+}
+
+
+
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n_1Release (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
@@ -587,7 +680,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_n
 
 ////////////////////////////////////////// ITERATOR::NATIVEBYTESARRAY //////////////////////////////////////////
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_00024NativeBytesArray_n_1Release (JNIEnv *env , jclass, jlongArray ptrArray) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Iterator_00024AbstractBytesArray_n_1Release (JNIEnv *env , jclass, jlongArray ptrArray) {
     jlong *ptrs = env->GetLongArrayElements(ptrArray, NULL);
     int length = env->GetArrayLength(ptrArray);
 

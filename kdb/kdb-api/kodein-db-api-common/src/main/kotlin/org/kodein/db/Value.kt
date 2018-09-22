@@ -31,11 +31,11 @@ interface Value : Body {
             if (size != other.size)
                 return false
 
-            Allocation.allocHeapBuffer(size).use { thisBuffer ->
+            return Allocation.allocHeapBuffer(size).use { thisBuffer ->
                 writeInto(thisBuffer.buffer)
                 Allocation.allocHeapBuffer(size).use { otherBuffer ->
                     other.writeInto(otherBuffer.buffer)
-                    return thisBuffer == otherBuffer
+                    thisBuffer == otherBuffer
                 }
             }
         }

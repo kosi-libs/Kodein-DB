@@ -1,5 +1,6 @@
 package org.kodein.db.leveldb
 
+import kotlinx.atomicfu.atomic
 import kotlinx.io.core.Closeable
 
 
@@ -7,7 +8,7 @@ abstract class PlatformCloseable(private val name: String, val handler: Handler?
 
     private val stackTrace: StackTrace?
 
-    abstract val isClosed: Boolean
+    private val closed = atomic(false)
 
     init {
         if (options.loggerFactory != null && options.trackClosableAllocation) {
@@ -24,30 +25,32 @@ abstract class PlatformCloseable(private val name: String, val handler: Handler?
 
     protected open fun beforeClose() {}
 
-    @Synchronized
-    override fun close() {
-        if (isClosed)
-            return
+    private fun doClose() {
         beforeClose()
         handler?.remove(this)
         platformClose()
     }
 
+    final override fun close() {
+        if (closed.getAndSet(true))
+            return
+        doClose()
+    }
+
     fun checkIsOpen() {
-        if (isClosed)
+        if (closed.value)
             throw IllegalStateException("$name has been closed")
     }
 
-    @Synchronized
     fun closeBad() {
-        if (isClosed)
+        if (closed.getAndSet(true))
             return
 
         val logger = options.loggerFactory?.invoke(this::class)
         if (logger != null) {
             if (stackTrace == null) {
                 logger.warning("$name has not been properly closed. To track its allocation, open the DB with trackClosableAllocation = true")
-                close()
+                doClose()
                 return
             }
 
@@ -56,37 +59,39 @@ abstract class PlatformCloseable(private val name: String, val handler: Handler?
             logger.warning(message.toString())
         }
 
-        close()
+        doClose()
     }
 
     @Suppress("unused")
     protected fun finalize() {
-        if (!isClosed)
+        if (!closed.value)
             closeBad()
     }
 
     class Handler : Closeable {
 
-        private var closing = false
+        private val closed = atomic(false)
 
         private val set = WeakHashSet<PlatformCloseable>()
 
         fun add(pc: PlatformCloseable) {
+            if (closed.value)
+                return
             set.add(pc)
         }
 
         fun remove(pc: PlatformCloseable) {
-            if (!closing) set.remove(pc)
+            if (!closed.value)
+                set.remove(pc)
         }
 
-        @Synchronized
         override fun close() {
-            closing = true
+            if (closed.getAndSet(true))
+                return
 
             set.forEach { it.closeBad() }
             set.clear()
-
-            closing = false
+            closed.value = false
         }
 
     }

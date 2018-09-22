@@ -22,8 +22,10 @@ include(
 
         ":kdb:kdb-api:kodein-db-api-common",
         ":kdb:kdb-api:kodein-db-api-jvm",
+        ":kdb:kdb-api:kodein-db-api-native",
         ":kdb:kdb-impl:kodein-db-common",
         ":kdb:kdb-impl:kodein-db-jvm",
+        ":kdb:kdb-impl:kodein-db-native",
 
         ""
 )

@@ -14,11 +14,14 @@ buildscript {
 
     dependencies {
         classpath("org.kodein.internal.gradle:kodein-internal-gradle-plugin:1.2.0-K1.3")
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.11.6-gradle-4.10")
     }
 
 }
 
 val kotlinxIoVer by extra { "0.1.0-eap13-gradle-4.10" }
+val kotlinxAtomicFuVer by extra { "0.11.6-gradle-4.10" }
+val kotlinxCoroutinesVer by extra { "0.25.3-eap13-gradle-4.10" }
 val kodeinLogVer by extra { "1.0.0" }
 
 allprojects {
