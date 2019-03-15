@@ -1,44 +1,29 @@
-buildscript {
-
-    repositories {
-        jcenter()
-        google()
-        maven(url = "https://plugins.gradle.org/m2/")
-        maven(url = "https://dl.bintray.com/jetbrains/kotlin-native-dependencies")
-        maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
-        maven(url = "https://dl.bintray.com/salomonbrys/KMP-Gradle-Utils")
-        maven(url = "https://dl.bintray.com/kodein-framework/Kodein-Internal-Gradle")
-        maven(url = "https://dl.bintray.com/salomonbrys/wup-digital-maven")
-        mavenLocal()
-    }
-
-    dependencies {
-        classpath("org.kodein.internal.gradle:kodein-internal-gradle-plugin:1.2.0-K1.3")
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.11.6-gradle-4.10")
-    }
-
+plugins {
+    id("org.kodein.root")
 }
 
-val kotlinxIoVer by extra { "0.1.0-eap13-gradle-4.10" }
-val kotlinxAtomicFuVer by extra { "0.11.6-gradle-4.10" }
-val kotlinxCoroutinesVer by extra { "0.25.3-eap13-gradle-4.10" }
-val kodeinLogVer by extra { "1.0.0" }
+val kotlinxIoVer by extra { "0.1.7" }
+val kotlinxAtomicFuVer by extra { "0.12.2" }
+val kotlinxCoroutinesVer by extra { "1.1.1" }
+val kodeinLogVer by extra { "0.1.0" }
+
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.11.12")
+    }
+}
 
 allprojects {
     group = "org.kodein.db"
-    version = "1.0"
+    version = "0.1.0-LGM"
 
     repositories {
-        maven(url = "https://kotlin.bintray.com/kotlinx") {
-            metadataSources {
-                mavenPom()
-            }
-        }
-        maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
         jcenter()
-        google()
+        maven(url = "https://kotlin.bintray.com/kotlinx")
         mavenLocal()
     }
 }
 
-val travisBuild by extra { System.getenv("TRAVIS") == "true" }
+kodeinPublications {
+    repo = "Kodein-DB"
+}

@@ -47,6 +47,7 @@ add_library(
     ${CMAKE_CURRENT_LIST_DIR}/../../../ldb-lib/src/leveldb/table/table_builder.cc
 
     ${CMAKE_CURRENT_LIST_DIR}/../../../ldb-lib/src/leveldb/port/port_posix.cc
+    ${CMAKE_CURRENT_LIST_DIR}/../../../ldb-lib/src/leveldb/port/port_posix_sse.cc
     ${CMAKE_CURRENT_LIST_DIR}/../../../ldb-lib/src/leveldb/util/env_posix.cc
 
     ${CMAKE_CURRENT_SOURCE_DIR}/../kodein-leveldb-jni-lib-jvm/src/main/cpp/leveldb-jni.cc

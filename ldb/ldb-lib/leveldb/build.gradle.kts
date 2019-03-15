@@ -1,5 +1,4 @@
 import org.gradle.internal.os.OperatingSystem
-import org.jetbrains.kotlin.konan.target.linker
 
 plugins {
     `cpp-library`

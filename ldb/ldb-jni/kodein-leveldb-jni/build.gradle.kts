@@ -1,7 +1,9 @@
 plugins {
-    id("kodein-jvm")
+    id("org.kodein.library.jvm")
 }
 
-dependencies {
-    compile(project(":ldb:ldb-api:kodein-leveldb-api-jvm"))
+kodeinLib {
+    dependencies {
+        compile(project(":ldb:kodein-leveldb-api") target "jvm")
+    }
 }

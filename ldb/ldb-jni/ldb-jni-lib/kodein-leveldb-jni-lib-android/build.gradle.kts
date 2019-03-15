@@ -1,9 +1,9 @@
 plugins {
-    id("kodein-android")
+    id("org.kodein.library.android")
 }
 
 dependencies {
-    compile(project(":ldb:ldb-jni:kodein-leveldb-jni"))
+    api(project(":ldb:ldb-jni:kodein-leveldb-jni"))
 }
 
 android {

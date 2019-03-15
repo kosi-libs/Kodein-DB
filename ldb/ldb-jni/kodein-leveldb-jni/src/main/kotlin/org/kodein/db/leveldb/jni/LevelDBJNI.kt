@@ -11,7 +11,7 @@ import java.util.*
  *
  * However, it requires its native library to be loaded (loading depends on the platform).
  */
-class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: LevelDB.Options) : NativeBound(ptr, "DB", null, options), LevelDB {
+class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: LevelDB.Options, override val path: String) : NativeBound(ptr, "DB", null, options), LevelDB {
 
     private val dbHandler = PlatformCloseable.Handler()
 
@@ -23,7 +23,7 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
         override fun open(path: String, options: LevelDB.Options): LevelDB {
             val optionsPtr = newNativeOptions(options)
             try {
-                return LevelDBJNI(n_OpenDB(path, optionsPtr, options.repairOnCorruption), optionsPtr, options)
+                return LevelDBJNI(n_OpenDB(path, optionsPtr, options.repairOnCorruption), optionsPtr, options, path)
             }
             catch (e: Throwable) {
                 n_ReleaseOptions(optionsPtr)
@@ -147,6 +147,8 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
         override fun byteBuffer() = allocation.byteBuffer()
 
         override fun makeView() = allocation.makeView()
+
+        override fun resetEndGap() = allocation.resetEndGap()
 
         companion object {
             @JvmStatic private external fun n_Buffer(ptr: Long): ByteBuffer
