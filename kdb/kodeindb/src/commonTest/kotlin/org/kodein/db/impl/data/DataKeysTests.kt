@@ -1,16 +1,16 @@
-package org.kodein.db.impl.data
-
-import kotlinx.io.core.use
-import org.kodein.db.Value
-import org.kodein.db.leveldb.Allocation
-import org.kodein.db.test.utils.assertBytesEquals
-import org.kodein.db.test.utils.byteArray
-import kotlin.test.Test
-import kotlin.test.assertEquals
-
-@Suppress("FunctionName")
-class DataKeysTests {
-
+//package org.kodein.db.impl.data
+//
+//import kotlinx.io.core.use
+//import org.kodein.db.Value
+//import org.kodein.db.leveldb.Allocation
+//import org.kodein.db.test.utils.assertBytesEquals
+//import org.kodein.db.test.utils.byteArray
+//import kotlin.test.Test
+//import kotlin.test.assertEquals
+//
+//@Suppress("FunctionName")
+//class DataKeysTests {
+//
 //    @Test
 //    fun test00_SimpleKey() {
 //        val size = getObjectKeySize("Test", Value.ofAscii("one"))
@@ -167,4 +167,4 @@ class DataKeysTests {
 //            }
 //        }
 //    }
-}
+//}

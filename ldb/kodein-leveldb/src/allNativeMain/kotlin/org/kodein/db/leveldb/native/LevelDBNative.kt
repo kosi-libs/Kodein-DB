@@ -180,13 +180,13 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
             val (newKey, newKeySize) = ldbCall {
                 val newKeySize = alloc<size_tVar>()
                 val newKey = leveldb_get(nonNullPtr, optionsPtr, key.content, key.buffer.readRemaining.convert(), newKeySize.ptr, it.ptr)
-                newKey to newKeySize
+                newKey to newKeySize.value
             }
             if (newKey == null)
                 return null
             return ldbCall {
                 val valueSize = alloc<size_tVar>()
-                val value = leveldb_get(nonNullPtr, optionsPtr, newKey, newKeySize.value, valueSize.ptr, it.ptr)
+                val value = leveldb_get(nonNullPtr, optionsPtr, newKey, newKeySize, valueSize.ptr, it.ptr)
                 if (value != null)
                     NativeBytes(value, valueSize.value.convert(), dbHandler, this@LevelDBNative.options)
                 else

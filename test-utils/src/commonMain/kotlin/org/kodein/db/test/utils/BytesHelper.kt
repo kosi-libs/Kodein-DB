@@ -63,8 +63,11 @@ fun assertBytesEquals(expected: ByteArray, actual: ByteArray) {
         fail("Bytes are not equal: ${expected.description()} != ${actual.description()}")
 }
 
-fun assertBytesEquals(expected: ByteArray, buffer: IoBuffer) =
-        assertBytesEquals(expected, buffer.makeView().readBytes())
+//fun assertBytesEquals(expected: ByteArray, buffer: IoBuffer) =
+//        assertBytesEquals(expected, buffer.makeView().readBytes())
 
 fun assertBytesEquals(expected: ByteArray, actual: Bytes) =
         assertBytesEquals(expected, actual.buffer.makeView().readBytes())
+
+fun assertBytesEquals(expected: Bytes, actual: Bytes) =
+        assertBytesEquals(expected.buffer.makeView().readBytes(), actual.buffer.makeView().readBytes())

@@ -67,16 +67,15 @@ class LDBTests_00_SimpleOp : LevelDBTests() {
         assertNull(ldb!!.get(buffer("key")))
     }
 
-    // Waiting for https://github.com/JetBrains/kotlin-native/issues/2762
-//    @Test
-//    fun test_06_IndirectGet() {
-//        ldb!!.put(buffer("one"), buffer("two"))
-//        ldb!!.put(buffer("two"), buffer("three"))
-//
-//        val value = ldb!!.indirectGet(buffer("one"))!!
-//        assertBytesEquals(byteArray("three"), value)
-//        value.close()
-//    }
+    @Test
+    fun test_06_IndirectGet() {
+        ldb!!.put(buffer("one"), buffer("two"))
+        ldb!!.put(buffer("two"), buffer("three"))
+
+        val value = ldb!!.indirectGet(buffer("one"))!!
+        assertBytesEquals(byteArray("three"), value)
+        value.close()
+    }
 
     @Test
     fun test_07_IndirectUnexistingGet() {

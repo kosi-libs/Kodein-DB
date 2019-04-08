@@ -8,7 +8,6 @@ actual interface Bytes {
     actual val buffer: IoBuffer
     fun byteBuffer(): ByteBuffer
     actual fun makeView(): Bytes
-    actual fun resetEndGap()
 }
 
 actual interface Allocation : Bytes, Closeable {
@@ -35,10 +34,6 @@ class ByteBufferAllocation private constructor(private val content: ByteBuffer, 
     }
 
     override fun makeView() = ByteBufferAllocation(content, buffer.makeView(), false)
-
-    override fun resetEndGap() {
-        content.limit(buffer.capacity)
-    }
 
     override fun hashCode() = content.hashCode()
 

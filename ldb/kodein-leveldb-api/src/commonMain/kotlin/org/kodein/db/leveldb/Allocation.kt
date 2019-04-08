@@ -1,12 +1,10 @@
 package org.kodein.db.leveldb
 
-import kotlinx.io.core.Closeable
-import kotlinx.io.core.IoBuffer
+import kotlinx.io.core.*
 
 expect interface Bytes {
     val buffer: IoBuffer
     fun makeView(): Bytes
-    fun resetEndGap()
 }
 
 expect interface Allocation : Bytes, Closeable {
@@ -22,3 +20,7 @@ expect interface Allocation : Bytes, Closeable {
 fun Bytes.toAllocation(): Allocation = object : Allocation, Bytes by this {
     override fun close() {}
 }
+
+fun Bytes.readBytes() = buffer.readBytes()
+
+fun Bytes.write(bytes: ByteArray) = buffer.writeFully(bytes)

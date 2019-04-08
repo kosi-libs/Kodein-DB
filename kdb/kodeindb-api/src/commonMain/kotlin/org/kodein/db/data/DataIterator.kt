@@ -16,7 +16,6 @@ interface DataIterator : Closeable {
     fun seekToLast()
     fun seekTo(target: Bytes)
 
-    fun version(): Int
     fun transientKey(): Bytes
     fun transientValue(): Bytes
 
@@ -25,7 +24,6 @@ interface DataIterator : Closeable {
     interface Entries : Closeable {
         val size: Int
         fun getSeekKey(i: Int): Bytes
-        fun getVersion(i: Int): Int
         fun getKey(i: Int): Bytes
         fun getValue(i: Int): Bytes
     }

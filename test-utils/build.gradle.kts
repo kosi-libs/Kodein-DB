@@ -14,6 +14,7 @@ kodein {
 
             api("org.jetbrains.kotlinx:kotlinx-io:$kotlinxIoVer")
             api("org.jetbrains.kotlin:kotlin-test-common")
+            api("org.jetbrains.kotlin:kotlin-test-annotations-common")
         }
 
         add(kodeinTargets.jvm) {
@@ -22,6 +23,8 @@ kodein {
             main.dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-io-jvm:$kotlinxIoVer")
                 api("org.jetbrains.kotlin:kotlin-test")
+                api("org.jetbrains.kotlin:kotlin-test-junit")
+                api("junit:junit:4.12")
             }
         }
 

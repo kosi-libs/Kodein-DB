@@ -148,8 +148,6 @@ class LevelDBJNI private constructor(ptr: Long, val optionsPtr: Long, options: L
 
         override fun makeView() = allocation.makeView()
 
-        override fun resetEndGap() = allocation.resetEndGap()
-
         companion object {
             @JvmStatic private external fun n_Buffer(ptr: Long): ByteBuffer
             @JvmStatic private external fun n_Release(ptr: Long)
