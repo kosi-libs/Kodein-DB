@@ -16,8 +16,8 @@ val configure = tasks.create<Exec>("configure") {
             "-DCMAKE_CXX_COMPILER:STRING=clang++",
             "-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=1",
             "-DCMAKE_INSTALL_PREFIX:PATH=$buildDir/out",
-            "-DCMAKE_C_FLAGS:STRING=-D_GLIBCXX_USE_CXX11_ABI=0",
-            "-DCMAKE_CXX_FLAGS:STRING=-D_GLIBCXX_USE_CXX11_ABI=0",
+            "-DCMAKE_C_FLAGS:STRING=-D_GLIBCXX_USE_CXX11_ABI=0 -pthread --sysroot=/home/salomon/.konan/dependencies/target-gcc-toolchain-3-linux-x86-64/x86_64-unknown-linux-gnu/sysroot",
+            "-DCMAKE_CXX_FLAGS:STRING=-D_GLIBCXX_USE_CXX11_ABI=0 -pthread --sysroot=/home/salomon/.konan/dependencies/target-gcc-toolchain-3-linux-x86-64/x86_64-unknown-linux-gnu/sysroot",
             srcDir
     )
 
