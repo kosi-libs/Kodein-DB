@@ -8,6 +8,8 @@ import org.kodein.db.leveldb.LevelDB
 
 interface DataDB : DataWrite, Closeable {
 
+    val ldb: LevelDB
+
     interface Batch : DataWrite, Closeable {
         fun write(options: LevelDB.WriteOptions = LevelDB.WriteOptions.DEFAULT)
     }
@@ -24,7 +26,7 @@ interface DataDB : DataWrite, Closeable {
 
     fun findByIndexPrefix(type: String, name: String, value: Value, isOpen: Boolean = false, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataIterator
 
-    fun findIndexes(key: Bytes, options: LevelDB.ReadOptions): List<String>
+    fun findIndexes(key: Bytes, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): List<String>
 
     fun newBatch(): Batch
 

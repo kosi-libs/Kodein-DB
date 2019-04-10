@@ -17,12 +17,15 @@ include(
 
         ":test-utils",
 
-        ":ldb:ldb-lib:leveldb",
-        ":ldb:ldb-lib:leveldb-native-interop",
+        ":ldb:lib:snappy",
+        ":ldb:lib:crc32c",
+        ":ldb:lib:leveldb",
 
-        ":ldb:ldb-jni:kodein-leveldb-jni",
-        ":ldb:ldb-jni:ldb-jni-lib:kodein-leveldb-jni-lib-jvm",
-        ":ldb:ldb-jni:ldb-jni-lib:kodein-leveldb-jni-lib-android",
+        ":ldb:jni:kodein-leveldb-jni-api",
+        ":ldb:jni:kodein-leveldb-jni-jvm",
+//        ":ldb:ldb-jni:ldb-jni-lib:kodein-leveldb-jni-lib-android",
+
+        ":ldb:kodein-leveldb-native",
 
         ":ldb:kodein-leveldb",
 
@@ -33,6 +36,6 @@ include(
 )
 
 //val excludeAndroid: String? by settings
-//
+
 //if (excludeAndroid != "true") {
 //}

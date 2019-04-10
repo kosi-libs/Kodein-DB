@@ -6,8 +6,8 @@ val kotlinxIoVer: String by getRootProject().extra
 val kodeinLogVer: String by rootProject.extra
 val kotlinxAtomicFuVer: String by getRootProject().extra
 
-evaluationDependsOn(":ldb:ldb-lib:leveldb")
-evaluationDependsOn(":ldb:ldb-jni:ldb-jni-lib:kodein-leveldb-jni-lib-jvm")
+evaluationDependsOn(":ldb:lib:leveldb")
+evaluationDependsOn(":ldb:jni:kodein-leveldb-jni-jvm")
 
 kodein {
     kotlin {
@@ -29,6 +29,6 @@ kodein {
 }
 
 tasks.withType<Test> {
-    dependsOn(project(":ldb:ldb-jni:ldb-jni-lib:kodein-leveldb-jni-lib-jvm").tasks["linkDebug"])
-    systemProperty("java.library.path", project(":ldb:ldb-jni:ldb-jni-lib:kodein-leveldb-jni-lib-jvm").tasks["linkDebug"].outputs.files.first())
+    dependsOn(project(":ldb:jni:kodein-leveldb-jni-jvm").tasks["linkDebug"])
+    systemProperty("java.library.path", project(":ldb:jni:kodein-leveldb-jni-jvm").tasks["linkDebug"].outputs.files.first())
 }

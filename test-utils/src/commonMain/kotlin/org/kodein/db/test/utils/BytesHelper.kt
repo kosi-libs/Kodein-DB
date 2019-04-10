@@ -3,6 +3,7 @@ package org.kodein.db.test.utils
 import kotlinx.io.core.BytePacketBuilder
 import kotlinx.io.core.IoBuffer
 import kotlinx.io.core.readBytes
+import kotlinx.io.core.use
 import org.kodein.db.leveldb.Allocation
 import org.kodein.db.leveldb.Bytes
 import org.kodein.db.leveldb.LevelDB
@@ -68,6 +69,8 @@ fun assertBytesEquals(expected: ByteArray, actual: ByteArray) {
 
 fun assertBytesEquals(expected: ByteArray, actual: Bytes) =
         assertBytesEquals(expected, actual.buffer.makeView().readBytes())
+
+fun assertBytesEquals(expected: ByteArray, actual: Allocation) = actual.use { assertBytesEquals(expected, actual as Bytes) }
 
 fun assertBytesEquals(expected: Bytes, actual: Bytes) =
         assertBytesEquals(expected.buffer.makeView().readBytes(), actual.buffer.makeView().readBytes())

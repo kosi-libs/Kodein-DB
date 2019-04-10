@@ -19,7 +19,7 @@ import org.kodein.db.leveldb.Allocation
 import org.kodein.db.leveldb.Bytes
 import org.kodein.db.leveldb.LevelDB
 
-class DataDBImpl(internal val ldb: LevelDB) : DataDB {
+class DataDBImpl(override val ldb: LevelDB) : DataDB {
 
     internal val pool: ObjectPool<Bytes> = object : DefaultPool<Bytes>(8) {
         override fun produceInstance(): Bytes = Allocation.allocNativeBuffer(16384)
@@ -108,7 +108,6 @@ class DataDBImpl(internal val ldb: LevelDB) : DataDB {
         val value = dst.makeViewOf { buffer.writeFully(body) }
         batch.put(key, value)
 
-
         return value.buffer.readRemaining
     }
 
@@ -134,7 +133,7 @@ class DataDBImpl(internal val ldb: LevelDB) : DataDB {
         return DataWrite.PutResult(ViewFromPool(dst, key), length)
     }
 
-    internal fun deleteInBatch(dst: Bytes, batch: LevelDB.WriteBatch, key: Bytes) {
+    private fun deleteInBatch(dst: Bytes, batch: LevelDB.WriteBatch, key: Bytes) {
         val refKey = dst.makeViewOf { this.writeRefKeyFromObjectKey(key) }
 
         deleteIndexesInBatch(batch, refKey)

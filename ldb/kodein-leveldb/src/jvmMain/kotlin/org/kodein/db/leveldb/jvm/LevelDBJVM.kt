@@ -6,6 +6,6 @@ import org.kodein.db.leveldb.jni.LevelDBJNI
 
 object LevelDBJVM : LevelDB.Factory by LevelDBJNI.Factory {
     init {
-        System.loadLibrary("kodein-leveldb-jni-lib-jvm")
+        System.loadLibrary("kodein-leveldb-jni-jvm")
     }
 }

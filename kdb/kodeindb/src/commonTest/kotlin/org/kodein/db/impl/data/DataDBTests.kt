@@ -616,12 +616,14 @@ class DataDBTests : AbstractTests() {
     @Test
     fun test081_BatchDelete() {
 
-        val vk = ddb.putAndGetKey("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols", Value.ofAscii("alpha", "beta")))
+        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols", Value.ofAscii("alpha", "beta")))
         ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers", Value.ofAscii("forty", "two")))
         ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols", Value.ofAscii("gamma", "delta")))
 
         val batch = ddb.newBatch()
-        batch.delete(vk.key)
+        ddb.allocKey("Test", Value.ofAscii("aaa")).use { key ->
+            batch.delete(key)
+        }
         ddb.allocKey("Test", Value.ofAscii("bbb")).use {
             batch.delete(it)
         }
@@ -674,146 +676,65 @@ class DataDBTests : AbstractTests() {
     }
 
 
-//    @Test
-//    fun test090_PutCloseOpenGet() {
-//        val res = ddb.Put(MEM(), "Test", Value.ofAscii("key"), null, Value.ofAscii("value"), -1, true)
-//
-//        ddb.close()
-//
-//        _ddb = _factory.open()
-//
-//        assertBytesEquals(byteArray("value"), ddb.Get(res.key, null))
-//    }
-//
-//    @Test
-//    fun test091_PutCloseOpenIter() {
-//        val res = ddb.Put(MEM(), "Test", Value.ofAscii("key"), null, Value.ofAscii("value"), -1, true)
-//
-//        ddb.close()
-//
-//        _ddb = _factory.open()
-//
-//        val it = ddb.FindAllByType("Test", null)
-//        try {
-//            assertTrue(it.Valid())
-//            assertIteratorIs(1, byteArray('o', 0, "Test", 0, "key", 0), byteArray("value"), it)
-//
-//            it.Next()
-//            assertFalse(it.Valid())
-//        } finally {
-//            it.close()
-//        }
-//    }
-//
-//    @Test
-//    fun test100_FindIndexes() {
-//        val key = ddb.Put(MEM(), "Test", Value.ofAscii("aaa"), indexSet("Numbers", Value.ofAscii("forty", "two"), "Symbols", Value.ofAscii("alpha", "beta")), Value.ofAscii("ValueA!"), -1, true).key
-//
-//        val indexes = ddb.findIndexes(key)
-//
-//        assertEquals(2, indexes.size.toLong())
-//        assertTrue(indexes.contains("Numbers"))
-//        assertTrue(indexes.contains("Symbols"))
-//    }
-//
-//    @Test
-//    fun test101_FindNoIndexes() {
-//        val key = ddb.Put(MEM(), "Test", Value.ofAscii("aaa"), null, Value.ofAscii("ValueA!"), -1, true).key
-//
-//        val indexes = ddb.findIndexes(key)
-//
-//        assertTrue(indexes.isEmpty())
-//    }
-//
-//    @Test
-//    fun test102_FindUnknownIndexes() {
-//        val indexes = ddb.findIndexes(DataKeys.getObjectKey("Unknown", Value.ofAscii("A"), false))
-//
-//        assertTrue(indexes.isEmpty())
-//    }
-//
-//    @Test
-//    fun test110_MultiThreadPut() {
-//
-//        val COUNT = 100
-//
-//        val executor = Executors.newFixedThreadPool(5)
-//        val count = AtomicInteger(0)
-//
-//        val run = object : Runnable {
-//            override fun run() {
-//                val it = ddb.FindAllByIndex("Test", "index", null)
-//                try {
-//                    while (it.Valid()) {
-//                        //                        it.value();
-//                        it.Next()
-//                    }
-//                } finally {
-//                    it.close()
-//                }
-//                count.incrementAndGet()
-//            }
-//        }
-//
-//        for (i in 0 until COUNT) {
-//            ddb.Put(MEM(), "Test", Value.ofAscii(UUID.randomUUID().toString()), indexSet("index", Value.ofAscii(UUID.randomUUID().toString())), Value.ofAscii(UUID.randomUUID().toString()), -1, true)
-//            executor.submit(run)
-//        }
-//
-//        executor.shutdown()
-//        try {
-//            executor.awaitTermination(20, TimeUnit.SECONDS)
-//        } catch (e: InterruptedException) {
-//            throw RuntimeException(e)
-//        }
-//
-//        assertEquals(COUNT.toLong(), count.get().toLong())
-//    }
-//
-//    @Test
-//    fun test111_MultiThreadDelete() {
-//
-//        val COUNT = 100
-//
-//        val keys = ArrayList<ByteBuffer>(COUNT)
-//        for (i in 0 until COUNT)
-//            keys.add(ddb.Put(MEM(), "Test", Value.ofAscii(UUID.randomUUID().toString()), indexSet("index", Value.ofAscii(UUID.randomUUID().toString())), Value.ofAscii(UUID.randomUUID().toString()), -1, true).key)
-//
-//        val executor = Executors.newFixedThreadPool(5)
-//        val count = AtomicInteger(0)
-//
-//        val run = object : Runnable {
-//            override fun run() {
-//                val it = ddb.FindAllByIndex("Test", "index", null)
-//                try {
-//                    while (it.Valid()) {
-//                        //                        it.value();
-//                        it.Next()
-//                    }
-//                } catch (t: Throwable) {
-//                    t.printStackTrace()
-//                    fail(t.message)
-//                    throw RuntimeException(t)
-//                } finally {
-//                    it.close()
-//                }
-//                count.incrementAndGet()
-//            }
-//        }
-//
-//        for (key in keys) {
-//            ddb.Delete(MEM(), key, -1, false, false)
-//            executor.submit(run)
-//        }
-//
-//        executor.shutdown()
-//        try {
-//            executor.awaitTermination(20, TimeUnit.SECONDS)
-//        } catch (e: InterruptedException) {
-//            throw RuntimeException(e)
-//        }
-//
-//        assertEquals(COUNT.toLong(), count.get().toLong())
-//    }
+    @Test
+    fun test090_PutCloseOpenGet() {
+        ddb.put("Test", Value.ofAscii("key"), Value.ofAscii("value"))
+
+        ddb.close()
+
+        _ddb = _factory.open()
+
+        ddb.allocKey("Test", Value.ofAscii("key")).use { key ->
+            assertBytesEquals(byteArray("value"), ddb.get(key)!!)
+        }
+    }
+
+    @Test
+    fun test091_PutCloseOpenIter() {
+        ddb.put("Test", Value.ofAscii("key"), Value.ofAscii("value"))
+
+        ddb.close()
+
+        _ddb = _factory.open()
+
+        val it = ddb.findAllByType("Test")
+        try {
+            assertTrue(it.isValid())
+            assertIteratorIs(byteArray('o', 0, "Test", 0, "key", 0), byteArray("value"), it)
+
+            it.next()
+            assertFalse(it.isValid())
+        } finally {
+            it.close()
+        }
+    }
+
+    @Test
+    fun test100_FindIndexes() {
+        ddb.putAndGetKey("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA!"), indexSet("Numbers", Value.ofAscii("forty", "two"), "Symbols", Value.ofAscii("alpha", "beta"))).use { res ->
+            val indexes = ddb.findIndexes(res.key)
+
+            assertEquals(2, indexes.size.toLong())
+            assertTrue(indexes.contains("Numbers"))
+            assertTrue(indexes.contains("Symbols"))
+        }
+    }
+
+    @Test
+    fun test101_FindNoIndexes() {
+        ddb.putAndGetKey("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA!")).use { res ->
+            val indexes = ddb.findIndexes(res.key)
+            assertTrue(indexes.isEmpty())
+        }
+    }
+
+    @Test
+    fun test102_FindUnknownIndexes() {
+        ddb.allocKey("Unknown", Value.ofAscii("A")).use { key ->
+            val indexes = ddb.findIndexes(key)
+
+            assertTrue(indexes.isEmpty())
+        }
+    }
 
 }

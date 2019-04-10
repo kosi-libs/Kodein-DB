@@ -46,6 +46,8 @@ private fun LevelDB.Options.allocOptionsPtr(): OptionsPtrs {
     leveldb_options_set_block_size(ptrs.options, blockSize.convert())
     leveldb_options_set_block_restart_interval(ptrs.options, blockRestartInterval)
     leveldb_options_set_compression(ptrs.options, if (snappyCompression) leveldb_snappy_compression.toInt() else leveldb_no_compression.toInt())
+    // TODO
+//    leveldb_options_set_reuse_logs(ptrs.options, reuseLogs.toByte().toUByte())
     leveldb_options_set_filter_policy(ptrs.options, if (bloomFilterBitsPerKey == 0) null else ptrs.filterPolicy)
     return ptrs
 }
@@ -411,6 +413,14 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
 
         override fun release(ptr: CPointer<leveldb_writebatch_t>) {
             leveldb_writebatch_destroy(ptr)
+        }
+
+        override fun clear() {
+            leveldb_writebatch_clear(nonNullPtr)
+        }
+
+        override fun append(source: LevelDB.WriteBatch) {
+            leveldb_writebatch_append(nonNullPtr, (source as WriteBatch).nonNullPtr)
         }
     }
 

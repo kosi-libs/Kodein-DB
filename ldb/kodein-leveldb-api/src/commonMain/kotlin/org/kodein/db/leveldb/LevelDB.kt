@@ -132,6 +132,34 @@ interface LevelDB : Closeable, PlatformLevelDB {
      */
     fun newWriteBatch(): WriteBatch
 
+    // TODO: Add these methods
+//    /**
+//     * DB implementations can export properties about their state via this method.
+//     *
+//     * @return The value of the property, if found.
+//    */
+//    fun getProperty(): Allocation?
+//
+//    /**
+//     * Compact the underlying storage for the key range [begin,end].
+//     *
+//     * The compactRange(null, null) will compact the entire database.
+//     *
+//     * @param begin The beginning of the range, or null to start at the first key.
+//     * @param limit The inclusive limit of the range, or null to end at the last key.
+//     */
+//    fun compactRange(begin: Bytes?, limit: Bytes?)
+//
+//    /**
+//     * The approximate file system space used by keys in each range (inclusive)
+//     *
+//     * The results may not include the sizes of recently written data.
+//     *
+//     * @param ranges A list of inclusive ranges to get their sizes.
+//     * @return The corresponding list of sizes.
+//     */
+//    fun getApproximateSizes(ranges: List<Pair<Byte, Byte>>): Array<Int>
+
     /**
      * A WriteBatch is a write only object.
      * When writing on the batch, the database is **not** reflected.
@@ -157,6 +185,24 @@ interface LevelDB : Closeable, PlatformLevelDB {
          * @param key The key of the entry to delete.
          */
         fun delete(key: Bytes)
+
+        /**
+         * Clear all updates buffered in this batch.
+         */
+        fun clear()
+
+        fun append(source: WriteBatch)
+
+        // TODO: Add these methods
+//        interface Handler {
+//            fun put(key: Bytes, value: Bytes)
+//            fun delete(key: Bytes, value: Bytes)
+//        }
+//
+//        fun iterate(handler: Handler)
+//
+//        fun getApproximateSize()
+
     }
 
     /**
@@ -431,6 +477,14 @@ interface LevelDB : Closeable, PlatformLevelDB {
             val snappyCompression: Boolean = true,
 
             /**
+             * EXPERIMENTAL: If true, append to existing MANIFEST and log files
+             * when a database is opened.  This can significantly speed up open.
+             *
+             * Default: currently false, but may become true later.
+            */
+            val reuseLogs: Boolean = false,
+
+            /**
              * If non-0, use a Bloom filter policy to reduce disk reads.
              *
              * Uses a bloom filter with approximately the specified number of bits per key.
@@ -452,6 +506,8 @@ interface LevelDB : Closeable, PlatformLevelDB {
             val trackClosableAllocation: Boolean = false,
 
             val defaultCursorArrayBufferSize: Int = 4096
+
+//            val comparator: ???
     ) {
         companion object {
             val DEFAULT = Options()
@@ -512,6 +568,20 @@ interface LevelDB : Closeable, PlatformLevelDB {
         }
     }
 
+//    interface Table {
+//        fun newCursor(options: ReadOptions = ReadOptions.DEFAULT): Cursor
+//        fun approximateOffsetOf(key: Bytes)
+//
+//        interface Builder {
+//            fun add(key: Bytes, value: Bytes)
+//            fun flush()
+//            fun finish()
+//            fun abandon()
+//            fun numEntries(): Int
+//            fun fileSize(): Long
+//        }
+//    }
+
     /**
      * A Sober-LevelDB factory is responsible for opening or destroying LevelDB databases.
      */
@@ -533,6 +603,13 @@ interface LevelDB : Closeable, PlatformLevelDB {
          * @param path The path to the database to destroy.
          */
         fun destroy(path: String, options: Options = Options.DEFAULT)
+
+        // TODO: Add these methods
+//        fun dumpFile(??)
+//
+//        fun buildTable(file: String, append: Boolean = true, options: Options = Options.DEFAULT)
+//        fun openTable(file: String, size: Int = -1, options: Options = Options.DEFAULT): Table
+
 
         class Based(val baseWithSeparator: String, val factory: Factory) : Factory {
             override fun open(path: String, options: Options) = factory.open(baseWithSeparator + path, options)

@@ -12,27 +12,13 @@ import org.kodein.db.impl.utils.writeFully
 import org.kodein.db.leveldb.Bytes
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.readBytes
+import org.kodein.db.leveldb.write
 
 class DataDBBatchImpl(private val ddb: DataDBImpl) : DataDB.Batch {
 
     private val batch = ddb.ldb.newWriteBatch()
 
-    private val deleteKeys = ArrayList<ByteArray>()
-
-//    private fun putInBatch(dst: Bytes, batch: LevelDB.WriteBatch, key: Bytes, body: Body, indexes: Set<Index>): Int {
-//        val refKey = dst.makeViewOf { writeRefKeyFromObjectKey(key) }
-//
-//        deleteIndexesInBatch(batch, refKey)
-//        putIndexesInBatch(dst, batch, key, refKey, indexes)
-//
-//        val value = dst.makeViewOf {
-//            buffer.writeFully(body)
-//        }
-//        batch.put(key, value)
-//
-//
-//        return value.buffer.readRemaining
-//    }
+    private val deleteRefKeys = ArrayList<ByteArray>()
 
     override fun put(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, options: LevelDB.WriteOptions): Int {
         ddb.pool.useInstance { dst ->
@@ -40,7 +26,10 @@ class DataDBBatchImpl(private val ddb: DataDBImpl) : DataDB.Batch {
             val value = dst.makeViewOf { buffer.writeFully(body) }
             batch.put(key, value)
 
-            deleteKeys += key.makeView().readBytes()
+            val refKey = dst.makeViewOf { writeRefKeyFromObjectKey(key) }
+            ddb.putIndexesInBatch(dst, batch, key, refKey, indexes)
+
+            deleteRefKeys += refKey.makeView().readBytes()
 
             return value.buffer.readRemaining
         }
@@ -52,24 +41,36 @@ class DataDBBatchImpl(private val ddb: DataDBImpl) : DataDB.Batch {
         val value = dst.makeViewOf { buffer.writeFully(body) }
         batch.put(key, value)
 
-        deleteKeys += key.makeView().readBytes()
+        val refKey = dst.makeViewOf { writeRefKeyFromObjectKey(key) }
+        ddb.putIndexesInBatch(dst, batch, key, refKey, indexes)
+
+        deleteRefKeys += refKey.makeView().readBytes()
 
         return DataWrite.PutResult(ddb.ViewFromPool(dst, key), value.buffer.readRemaining)
     }
 
     override fun delete(key: Bytes, options: LevelDB.WriteOptions) {
+        batch.delete(key)
         ddb.pool.useInstance { dst ->
-            ddb.deleteInBatch(dst, batch, key)
+            val refKey = dst.makeViewOf { writeRefKeyFromObjectKey(key) }
+            deleteRefKeys += refKey.makeView().readBytes()
         }
     }
 
     override fun write(options: LevelDB.WriteOptions) {
         use {
-            for (key in deleteKeys) {
+            ddb.ldb.newWriteBatch().use { fullBatch ->
+                for (refKeyArray in deleteRefKeys) {
+                    ddb.pool.useInstance { dst ->
+                        val refKey = dst.makeViewOf { write(refKeyArray) }
+                        ddb.deleteIndexesInBatch(fullBatch, refKey)
+                    }
+                }
 
+                fullBatch.append(batch)
+
+                ddb.ldb.write(fullBatch)
             }
-
-            ddb.ldb.write(batch)
         }
     }
 
