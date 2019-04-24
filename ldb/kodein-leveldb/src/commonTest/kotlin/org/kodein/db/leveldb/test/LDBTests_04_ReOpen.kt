@@ -1,13 +1,14 @@
 package org.kodein.db.leveldb.test
 
-import kotlinx.io.core.use
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@Suppress("ClassName")
 class LDBTests_04_ReOpen : LevelDBTests() {
 
     @Test

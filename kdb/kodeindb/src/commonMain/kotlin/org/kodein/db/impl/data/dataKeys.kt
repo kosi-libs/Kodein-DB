@@ -1,13 +1,10 @@
 package org.kodein.db.impl.data
 
-import kotlinx.io.core.writeFully
-import org.kodein.db.ascii.writeAscii
 import org.kodein.db.Value
-import org.kodein.db.impl.utils.firstPositionOf
-import org.kodein.db.impl.utils.makeSubView
-import org.kodein.db.impl.utils.writeFully
-import org.kodein.db.leveldb.Allocation
-import org.kodein.db.leveldb.Bytes
+import org.kodein.db.ascii.putAscii
+import org.kodein.db.impl.utils.firstIndexOf
+import org.kodein.db.impl.utils.putBody
+import org.kodein.memory.*
 
 private object Prefix {
     const val OBJECT = 'o'.toByte()
@@ -17,22 +14,23 @@ private object Prefix {
 
 private val NULL = 0.toByte()
 
-internal val objectEmptyPrefix = Allocation.allocNativeBuffer(2).apply {
-    buffer.writeByte(Prefix.OBJECT)
-    buffer.writeByte(NULL)
+internal val objectEmptyPrefix: KBuffer = KBuffer.array(2).apply {
+    put(Prefix.OBJECT)
+    put(NULL)
+    flip()
 }
 
-internal fun Bytes.writeObjectKey(type: String, primaryKey: Value?, isOpen: Boolean = false) {
-    buffer.writeByte(Prefix.OBJECT)
-    buffer.writeByte(NULL)
+internal fun Writeable.putObjectKey(type: String, primaryKey: Value?, isOpen: Boolean = false) {
+    put(Prefix.OBJECT)
+    put(NULL)
 
-    buffer.writeAscii(type)
-    buffer.writeByte(NULL)
+    putAscii(type)
+    put(NULL)
 
     if (primaryKey != null) {
-        buffer.writeFully(primaryKey)
+        putBody(primaryKey)
         if (!isOpen)
-            buffer.writeByte(NULL)
+            put(NULL)
     }
 }
 
@@ -50,90 +48,93 @@ internal fun getObjectKeySize(type: String, primaryKey: Value?, isOpen: Boolean 
     return size
 }
 
-internal fun Bytes.writeRefKeyFromObjectKey(objectKey: Bytes) {
-    buffer.writeByte(Prefix.REFERENCE)
-    val view = objectKey.makeView()
-    view.buffer.discard(1)
-    buffer.writeFully(view.buffer)
+internal fun Writeable.putRefKeyFromObjectKey(objectKey: ReadBuffer) {
+    mark(objectKey) {
+        put(Prefix.REFERENCE)
+        objectKey.skip(1)
+        putBytes(objectKey)
+    }
 }
 
-internal fun getObjectKeyType(key: Bytes): Bytes {
-    val typeEnd = key.buffer.firstPositionOf(NULL, discard = 2)
+internal fun getObjectKeyType(key: ReadBuffer): ReadBuffer {
+    val typeEnd = key.firstIndexOf(NULL, key.position + 2)
     if (typeEnd == -1)
         throw IllegalStateException()
-    return key.makeSubView(2, typeEnd - 2)
+    return key.slice(2, typeEnd - 2)
 }
 
-internal fun getObjectKeyID(key: Bytes): Bytes {
-    val typeEnd = key.buffer.firstPositionOf(NULL, discard = 2)
+internal fun getObjectKeyID(key: ReadBuffer): ReadBuffer {
+    val typeEnd = key.firstIndexOf(NULL, key.position + 2)
     if (typeEnd == -1)
         throw IllegalStateException()
-    return key.makeSubView(typeEnd + 1)
+    return key.slice(typeEnd + 1)
 }
 
-internal fun getIndexKeyName(key: Bytes): Bytes {
-    val typeEnd = key.buffer.firstPositionOf(NULL, discard = 2)
+internal fun getIndexKeyName(key: ReadBuffer): ReadBuffer {
+    val typeEnd = key.firstIndexOf(NULL, key.position + 2)
     if (typeEnd == -1)
         throw IllegalStateException()
 
-    val nameEnd = key.buffer.firstPositionOf(NULL, discard = typeEnd + 1)
+    val nameEnd = key.firstIndexOf(NULL, typeEnd + 1)
     if (nameEnd == -1)
         throw IllegalStateException()
 
     val nameSize = nameEnd - typeEnd - 1
-    return key.makeSubView(typeEnd + 1, nameSize)
+    return key.slice(typeEnd + 1, nameSize)
 }
 
-private fun Bytes.writeIndexKey(type: Bytes, id: Bytes, name: String, value: Value) {
-    buffer.writeByte(Prefix.INDEX)
-    buffer.writeByte(NULL)
+private fun Writeable.putIndexKey(type: ReadBuffer, id: ReadBuffer, name: String, value: Value) {
+    mark(type, id) {
+        put(Prefix.INDEX)
+        put(NULL)
 
-    buffer.writeFully(type.makeView().buffer)
-    buffer.writeByte(NULL)
+        putBytes(type)
+        put(NULL)
 
-    buffer.writeAscii(name)
-    buffer.writeByte(NULL)
+        putAscii(name)
+        put(NULL)
 
-    buffer.writeFully(value)
-    buffer.writeByte(NULL)
+        putBody(value)
+        put(NULL)
 
-    buffer.writeFully(id.makeView().buffer)
+        putBytes(id)
+    }
 }
 
-internal fun Bytes.writeIndexKey(objectKey: Bytes, name: String, value: Value) {
+internal fun Writeable.putIndexKey(objectKey: ReadBuffer, name: String, value: Value) {
     val type = getObjectKeyType(objectKey)
     val id = getObjectKeyID(objectKey)
 
-    writeIndexKey(type, id, name, value)
+    putIndexKey(type, id, name, value)
 }
 
-internal fun getIndexKeySize(objectKey: Bytes, name: String, value: Value): Int {
+internal fun getIndexKeySize(objectKey: ReadBuffer, name: String, value: Value): Int {
     val type = getObjectKeyType(objectKey)
     val id = getObjectKeyID(objectKey)
 
     return (
-            2                              // PREFIX_INDEX + NULL
-        +   type.buffer.readRemaining + 1  // type + NULL
-        +   name.length + 1                // name + NULL
-        +   value.size + 1                 // value + NULL
-        +   id.buffer.readRemaining        // id
+            2                   // PREFIX_INDEX + NULL
+        +   type.remaining + 1  // type + NULL
+        +   name.length + 1     // name + NULL
+        +   value.size + 1      // value + NULL
+        +   id.remaining        // id
     )
 }
 
-internal fun Bytes.writeIndexKeyStart(type: String, name: String, value: Value?, isOpen: Boolean = false) {
-    buffer.writeByte(Prefix.INDEX)
-    buffer.writeByte(NULL)
+internal fun Writeable.putIndexKeyStart(type: String, name: String, value: Value?, isOpen: Boolean = false) {
+    put(Prefix.INDEX)
+    put(NULL)
 
-    buffer.writeAscii(type)
-    buffer.writeByte(NULL)
+    putAscii(type)
+    put(NULL)
 
-    buffer.writeAscii(name)
-    buffer.writeByte(NULL)
+    putAscii(name)
+    put(NULL)
 
     if (value != null) {
-        buffer.writeFully(value)
+        putBody(value)
         if (!isOpen)
-            buffer.writeByte(NULL)
+            put(NULL)
     }
 }
 

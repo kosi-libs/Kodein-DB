@@ -5,6 +5,7 @@ import org.kodein.db.leveldb.LevelDBException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
+@Suppress("ClassName")
 class LDBTests_06_OpenPolicy : LevelDBTests() {
 
     @Test

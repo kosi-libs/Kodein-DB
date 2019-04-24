@@ -1,10 +1,11 @@
 package org.kodein.db.data
 
-import kotlinx.io.core.Closeable
 import org.kodein.db.Value
-import org.kodein.db.leveldb.Allocation
-import org.kodein.db.leveldb.Bytes
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.memory.Allocation
+import org.kodein.memory.Closeable
+import org.kodein.memory.KBuffer
+import org.kodein.memory.ReadBuffer
 
 interface DataDB : DataWrite, Closeable {
 
@@ -14,23 +15,21 @@ interface DataDB : DataWrite, Closeable {
         fun write(options: LevelDB.WriteOptions = LevelDB.WriteOptions.DEFAULT)
     }
 
-    fun get(key: Bytes, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): Allocation?
+    fun get(key: ReadBuffer, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): Allocation?
 
-    fun findAll(options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataIterator
+    fun findAll(options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataCursor
 
-    fun findAllByType(type: String, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataIterator
+    fun findAllByType(type: String, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataCursor
 
-    fun findByPrimaryKeyPrefix(type: String, primaryKey: Value, isOpen: Boolean = false, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataIterator
+    fun findByPrimaryKeyPrefix(type: String, primaryKey: Value, isOpen: Boolean = false, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataCursor
 
-    fun findAllByIndex(type: String, name: String, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataIterator
+    fun findAllByIndex(type: String, name: String, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataCursor
 
-    fun findByIndexPrefix(type: String, name: String, value: Value, isOpen: Boolean = false, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataIterator
+    fun findByIndexPrefix(type: String, name: String, value: Value, isOpen: Boolean = false, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): DataCursor
 
-    fun findIndexes(key: Bytes, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): List<String>
+    fun findIndexes(key: ReadBuffer, options: LevelDB.ReadOptions = LevelDB.ReadOptions.DEFAULT): List<String>
 
     fun newBatch(): Batch
 
-    fun allocKey(type: String, primaryKey: Value): Allocation
-
-    fun alloc(bytes: ByteArray): Allocation
+    fun getKey(type: String, primaryKey: Value): KBuffer
 }

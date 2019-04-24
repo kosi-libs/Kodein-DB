@@ -2,7 +2,7 @@ package org.kodein.db.leveldb
 
 import java.util.*
 
-actual class StackTrace(val elements: Array<StackTraceElement>) {
+actual class StackTrace(private val elements: Array<StackTraceElement>) {
 
     actual fun write(on: Appendable) {
         var i = 0
@@ -22,4 +22,4 @@ actual class StackTrace(val elements: Array<StackTraceElement>) {
 
 }
 
-actual fun <T> WeakHashSet() = Collections.newSetFromMap(WeakHashMap<T, Boolean>())
+actual fun <T> newWeakHashSet(): MutableSet<T> = Collections.newSetFromMap(WeakHashMap<T, Boolean>())

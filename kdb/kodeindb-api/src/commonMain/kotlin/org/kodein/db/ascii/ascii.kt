@@ -1,16 +1,17 @@
 package org.kodein.db.ascii
 
-import kotlinx.io.core.IoBuffer
+import org.kodein.memory.Readable
+import org.kodein.memory.Writeable
 
-fun IoBuffer.writeAscii(str: CharSequence) {
+fun Writeable.putAscii(str: CharSequence) {
     for (i in 0 until str.length)
-        writeByte(str[i].toByte())
+        put(str[i].toByte())
 }
 
-fun IoBuffer.readFullyAscii(): String {
-    val size = readRemaining
+fun Readable.readAscii(): String {
+    val size = remaining
     val array = CharArray(size)
     for (i in 0 until size)
-        array[i] = readByte().toChar()
+        array[i] = read().toChar()
     return String(array)
 }

@@ -1,15 +1,18 @@
 package org.kodein.db.leveldb
 
 
-import kotlinx.io.core.Closeable
 import org.kodein.log.LoggerFactory
+import org.kodein.memory.Allocation
+import org.kodein.memory.Closeable
+import org.kodein.memory.KBuffer
+import org.kodein.memory.ReadBuffer
 
 /**
  * Google's LevelDB in Java.
  *
  * This interface allows the use of different implementations of LevelDB.
  */
-interface LevelDB : Closeable, PlatformLevelDB {
+interface LevelDB : Closeable {
 
     /**
      * path of the DB.
@@ -23,7 +26,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @param value The value ov the entry to put.
      * @param options Options that control this write operation.
      */
-    fun put(key: Bytes, value: Bytes, options: WriteOptions = WriteOptions.DEFAULT)
+    fun put(key: ReadBuffer, value: ReadBuffer, options: WriteOptions = WriteOptions.DEFAULT)
 
     /**
      * Delete an entry from the database.
@@ -31,7 +34,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @param key The key of the entry to delete.
      * @param options Options that control this write operation.
      */
-    fun delete(key: Bytes, options: WriteOptions = WriteOptions.DEFAULT)
+    fun delete(key: ReadBuffer, options: WriteOptions = WriteOptions.DEFAULT)
 
     /**
      * Write a batch atomically to the database.
@@ -56,7 +59,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @param options Options that control this read operation.
      * @return The entry value.
      */
-    fun get(key: Bytes, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
+    fun get(key: ReadBuffer, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Get an entry value bytes by following the value of the given key.
@@ -75,7 +78,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @param options Options that control this read operation.
      * @return The found entry value
      */
-    fun indirectGet(key: Bytes, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
+    fun indirectGet(key: ReadBuffer, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Get an entry value bytes by following the value of the cursor current key.
@@ -169,7 +172,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
      * @see .NewWriteBatch
      * @see .Write
      */
-    interface WriteBatch : Closeable, PlatformLevelDB.WriteBatch {
+    interface WriteBatch : Closeable {
 
         /**
          * Registers an entry to be put into the database.
@@ -177,14 +180,14 @@ interface LevelDB : Closeable, PlatformLevelDB {
          * @param key The key of the entry to put.
          * @param value The value ov the entry to put.
          */
-        fun put(key: Bytes, value: Bytes)
+        fun put(key: ReadBuffer, value: ReadBuffer)
 
         /**
          * Registers a key whose entry is to be deleted from the database.
          *
          * @param key The key of the entry to delete.
          */
-        fun delete(key: Bytes)
+        fun delete(key: ReadBuffer)
 
         /**
          * Clear all updates buffered in this batch.
@@ -217,7 +220,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
     /**
      * An Cursor to iterate over the entries of a database or a Snapshot.
      */
-    interface Cursor : Closeable, PlatformLevelDB.Cursor {
+    interface Cursor : Closeable {
 
         /**
          * @return Whether or not the cursor is in a valid state.
@@ -241,7 +244,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
          *
          * @param target The key to seek to.
          */
-        fun seekTo(target: Bytes)
+        fun seekTo(target: ReadBuffer)
 
         /**
          * Position the cursor on the entry right next after the current one.
@@ -264,13 +267,13 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * @param i An index.
              * @return The key at index i.
              */
-            fun getKey(i: Int): Bytes
+            fun getKey(i: Int): KBuffer
 
             /**
              * @param i An index.
              * @return The value at index i.
              */
-            fun getValue(i: Int): Bytes?
+            fun getValue(i: Int): KBuffer?
         }
 
         /**
@@ -282,7 +285,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * @param i An index.
              * @return The value at index i.
              */
-            override fun getValue(i: Int): Bytes
+            override fun getValue(i: Int): KBuffer
         }
 
         /**
@@ -294,7 +297,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
              * @param i An index.
              * @return The key at index i.
              */
-            fun getIntermediateKey(i: Int): Bytes
+            fun getIntermediateKey(i: Int): KBuffer
         }
 
         /**
@@ -313,7 +316,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
          */
         fun nextArray(size: Int, bufferSize: Int = -1): ValuesArray
 
-        fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int = -1, options: ReadOptions = ReadOptions.DEFAULT): Cursor.IndirectValuesArray
+        fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int = -1, options: ReadOptions = ReadOptions.DEFAULT): IndirectValuesArray
 
         /**
          * Position the cursor on the entry right before the current one.
@@ -329,7 +332,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
          *
          * @return The key bytes.
          */
-        fun transientKey(): Bytes
+        fun transientKey(): KBuffer
 
         /**
          * Get a Buffer containing the current value.
@@ -338,7 +341,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
          *
          * @return The value bytes.
          */
-        fun transientValue(): Bytes
+        fun transientValue(): KBuffer
 
         override fun close()
     }
@@ -380,7 +383,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
             /**
              * If true, the implementation will do aggressive checking of the data it is processing and will stop early if it detects any errors.
              *
-             * This may have unforeseen ramifications: for example, a corruption of one DB entry may cause a large number of entries to become unreadable or for the entire DB to become unopenable.
+             * This may have unforeseen ramifications: for example, a corruption of one DB entry may cause a large number of entries to become unReadBuffer or for the entire DB to become unopenable.
              *
              * (Default: false)
              */
@@ -611,7 +614,7 @@ interface LevelDB : Closeable, PlatformLevelDB {
 //        fun openTable(file: String, size: Int = -1, options: Options = Options.DEFAULT): Table
 
 
-        class Based(val baseWithSeparator: String, val factory: Factory) : Factory {
+        class Based(private val baseWithSeparator: String, private val factory: Factory) : Factory {
             override fun open(path: String, options: Options) = factory.open(baseWithSeparator + path, options)
             override fun destroy(path: String, options: Options) = factory.destroy(baseWithSeparator + path, options)
         }

@@ -5,6 +5,7 @@ import org.kodein.log.Logger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("ClassName")
 class LDBTests_05_ForgetClose : LevelDBTests() {
 
     @Test

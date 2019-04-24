@@ -2,10 +2,10 @@ plugins {
     id("org.kodein.root")
 }
 
-val kotlinxIoVer by extra { "0.1.7" }
-val kotlinxAtomicFuVer by extra { "0.12.2" }
+val kotlinxAtomicFuVer by extra { "0.12.3" }
 val kotlinxCoroutinesVer by extra { "1.1.1" }
 val kodeinLogVer by extra { "0.1.0" }
+val kodeinMemoryVer by extra { "0.1.0" }
 
 buildscript {
     dependencies {

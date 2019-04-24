@@ -1,7 +1,7 @@
 package org.kodein.db.leveldb
 
 import kotlinx.atomicfu.atomic
-import kotlinx.io.core.Closeable
+import org.kodein.memory.Closeable
 
 
 abstract class PlatformCloseable(private val name: String, val handler: Handler?, val options: LevelDB.Options) : Closeable {
@@ -72,7 +72,7 @@ abstract class PlatformCloseable(private val name: String, val handler: Handler?
 
         private val closed = atomic(false)
 
-        private val set = WeakHashSet<PlatformCloseable>()
+        private val set = newWeakHashSet<PlatformCloseable>()
 
         fun add(pc: PlatformCloseable) {
             if (closed.value)

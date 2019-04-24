@@ -1,35 +1,32 @@
 package org.kodein.db.test.utils
 
-import kotlinx.io.core.BytePacketBuilder
-import kotlinx.io.core.IoBuffer
-import kotlinx.io.core.readBytes
-import kotlinx.io.core.use
-import org.kodein.db.leveldb.Allocation
-import org.kodein.db.leveldb.Bytes
-import org.kodein.db.leveldb.LevelDB
+import org.kodein.memory.*
 import kotlin.test.fail
 
-fun byteArray(vararg values: Any): ByteArray {
-    val builder = BytePacketBuilder()
+private fun KBuffer.putValues(vararg values: Any) {
     for (value in values) {
         when (value) {
-            is Number -> builder.writeByte(value.toByte())
-            is Char -> builder.writeByte(value.toByte())
+            is Number -> put(value.toByte())
+            is Char -> put(value.toByte())
             is String -> {
                 for (i in 0 until value.length)
-                    builder.writeByte(value[i].toByte())
+                    put(value[i].toByte())
             }
             else -> throw IllegalArgumentException(value.toString())
         }
     }
+    flip()
+}
 
-    return builder.build().readBytes()
+fun byteArray(vararg values: Any): ByteArray {
+    val buffer = Allocation.array(16384)
+    buffer.putValues(*values)
+    return buffer.readBytes()
 }
 
 fun newBuffer(vararg values: Any): Allocation {
-    val bytes = byteArray(*values)
-    val buffer = Allocation.allocNativeBuffer(bytes.size)
-    buffer.buffer.writeFully(bytes, 0, bytes.size)
+    val buffer = Allocation.native(16384)
+    buffer.putValues(*values)
     return buffer
 }
 
@@ -61,16 +58,11 @@ fun ByteArray.description(): String {
 
 fun assertBytesEquals(expected: ByteArray, actual: ByteArray) {
     if (!expected.contentEquals(actual))
-        fail("Bytes are not equal: ${expected.description()} != ${actual.description()}")
+        fail("Bytes are not equal:\nExpected: ${expected.description()}\nActual:   ${actual.description()}")
 }
 
-//fun assertBytesEquals(expected: ByteArray, buffer: IoBuffer) =
-//        assertBytesEquals(expected, buffer.makeView().readBytes())
+fun assertBytesEquals(expected: ByteArray, actual: ReadBuffer) =
+        assertBytesEquals(expected, actual.duplicate().readBytes())
 
-fun assertBytesEquals(expected: ByteArray, actual: Bytes) =
-        assertBytesEquals(expected, actual.buffer.makeView().readBytes())
-
-fun assertBytesEquals(expected: ByteArray, actual: Allocation) = actual.use { assertBytesEquals(expected, actual as Bytes) }
-
-fun assertBytesEquals(expected: Bytes, actual: Bytes) =
-        assertBytesEquals(expected.buffer.makeView().readBytes(), actual.buffer.makeView().readBytes())
+fun assertBytesEquals(expected: ReadBuffer, actual: ReadBuffer) =
+        assertBytesEquals(expected.getBytes(expected.position), actual.getBytes(actual.position))

@@ -1,10 +1,7 @@
 package org.kodein.db
 
-import kotlinx.io.core.IoBuffer
-import kotlinx.io.core.use
-import kotlinx.io.core.writeFully
-import org.kodein.db.ascii.writeAscii
-import org.kodein.db.leveldb.Allocation
+import org.kodein.db.ascii.putAscii
+import org.kodein.memory.*
 
 interface Value : Body {
 
@@ -16,10 +13,10 @@ interface Value : Body {
 
         override fun hashCode(): Int {
             if (_hashCode == 0) {
-                Allocation.allocHeapBuffer(size).use {
-                    writeInto(it.buffer)
-                    _hashCode = it.hashCode()
-                }
+                val buffer = KBuffer.array(size)
+                writeInto(buffer)
+                buffer.flip()
+                _hashCode = buffer.hashCode()
             }
             return _hashCode
         }
@@ -31,22 +28,24 @@ interface Value : Body {
             if (size != other.size)
                 return false
 
-            return Allocation.allocHeapBuffer(size).use { thisBuffer ->
-                writeInto(thisBuffer.buffer)
-                Allocation.allocHeapBuffer(size).use { otherBuffer ->
-                    other.writeInto(otherBuffer.buffer)
-                    thisBuffer == otherBuffer
-                }
-            }
+            val thisBuffer = KBuffer.array(size)
+            writeInto(thisBuffer)
+            thisBuffer. flip()
+
+            val otherBuffer = KBuffer.array(other.size)
+            other.writeInto(otherBuffer)
+            otherBuffer.flip()
+
+            return thisBuffer == otherBuffer
         }
     }
 
     abstract class ZeroSpacedValues(private val _count: Int) : AbstractValue(), Value {
 
-        final override fun writeInto(dst: IoBuffer) {
+        final override fun writeInto(dst: Writeable) {
             for (i in 0 until _count) {
                 if (i != 0)
-                    dst.writeByte(0.toByte())
+                    dst.put(0.toByte())
                 write(dst, i)
             }
         }
@@ -58,47 +57,38 @@ interface Value : Body {
             return size
         }
 
-        protected abstract fun write(dst: IoBuffer, pos: Int)
+        protected abstract fun write(dst: Writeable, pos: Int)
         protected abstract fun size(pos: Int): Int
     }
 
     companion object {
 
-        val EmptyValue: Value = object : Value {
+        val emptyValue: Value = object : Value {
             override val size = 0
-            override fun writeInto(dst: IoBuffer) {}
+            override fun writeInto(dst: Writeable) {}
         }
 
         fun of(vararg values: ByteArray): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeFully(values[pos], 0, values[pos].size)
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.putBytes(values[pos], 0, values[pos].size)
                 }
                 override fun size(pos: Int) = values[pos].size
             }
         }
 
-        fun of(vararg values: Allocation): Value {
+        fun of(vararg values: ReadBuffer): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeFully(values[pos].buffer.makeView())
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.putBytes(values[pos].duplicate())
                 }
-                override fun size(pos: Int) = values[pos].buffer.readRemaining
-            }
-        }
-
-        fun of(vararg values: IoBuffer): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeFully(values[pos].makeView())
-                }
-                override fun size(pos: Int) = values[pos].readRemaining
+                override fun size(pos: Int) = values[pos].remaining
             }
         }
 
         fun of(vararg values: Value): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
+                override fun write(dst: Writeable, pos: Int) {
                     val value = values[pos]
                     value.writeInto(dst)
                 }
@@ -108,8 +98,8 @@ interface Value : Body {
 
         fun of(vararg values: Boolean): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeByte((if (values[pos]) 0 else 1).toByte())
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.put((if (values[pos]) 0 else 1).toByte())
                 }
                 override fun size(pos: Int) = 1
             }
@@ -117,8 +107,8 @@ interface Value : Body {
 
         fun of(vararg values: Byte): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeByte(values[pos])
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.put(values[pos])
                 }
                 override fun size(pos: Int) = 1
             }
@@ -126,8 +116,8 @@ interface Value : Body {
 
         fun of(vararg values: Short): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeShort(values[pos])
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.putShort(values[pos])
                 }
                 override fun size(pos: Int) = 2
             }
@@ -135,8 +125,8 @@ interface Value : Body {
 
         fun of(vararg values: Int): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeInt(values[pos])
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.putInt(values[pos])
                 }
 
                 override fun size(pos: Int) = 4
@@ -145,8 +135,8 @@ interface Value : Body {
 
         fun of(vararg values: Long): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeLong(values[pos])
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.putLong(values[pos])
                 }
 
                 override fun size(pos: Int) = 8
@@ -155,8 +145,8 @@ interface Value : Body {
 
         fun ofAscii(vararg values: Char): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeByte(values[pos].toByte())
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.put(values[pos].toByte())
                 }
                 override fun size(pos: Int) = 1
             }
@@ -165,8 +155,8 @@ interface Value : Body {
 
         fun ofAscii(vararg values: CharSequence): Value {
             return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: IoBuffer, pos: Int) {
-                    dst.writeAscii(values[pos])
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.putAscii(values[pos])
                 }
                 override fun size(pos: Int) = values[pos].length
             }
@@ -174,7 +164,7 @@ interface Value : Body {
 
         fun ofAll(vararg values: Any): Value {
             if (values.isEmpty())
-                return EmptyValue
+                return emptyValue
 
             val sized = Array<Value>(values.size) {
                 when (val value = values[it]) {

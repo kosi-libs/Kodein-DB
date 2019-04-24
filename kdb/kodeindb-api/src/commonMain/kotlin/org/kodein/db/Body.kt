@@ -1,9 +1,9 @@
 package org.kodein.db
 
-import kotlinx.io.core.IoBuffer
+import org.kodein.memory.Writeable
 
 interface Body {
 
-    fun writeInto(dst: IoBuffer)
+    fun writeInto(dst: Writeable)
 
 }

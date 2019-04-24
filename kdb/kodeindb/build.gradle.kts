@@ -2,12 +2,8 @@ plugins {
     id("org.kodein.library.mpp")
 }
 
-val kotlinxIoVer: String by getRootProject().extra
-val kodeinLogVer: String by rootProject.extra
-val kotlinxAtomicFuVer: String by getRootProject().extra
-
-evaluationDependsOn(":ldb:lib:leveldb")
-evaluationDependsOn(":ldb:jni:kodein-leveldb-jni-jvm")
+evaluationDependsOn(":ldb:lib")
+evaluationDependsOn(":ldb:kodein-leveldb")
 
 kodein {
     kotlin {
@@ -23,12 +19,12 @@ kodein {
 
         add(kodeinTargets.jvm)
 
-//        add(kodeinTargets.native.linuxX64)
+        add(kodeinTargets.native.linuxX64)
 
     }
 }
 
 tasks.withType<Test> {
-    dependsOn(project(":ldb:jni:kodein-leveldb-jni-jvm").tasks["linkDebug"])
-    systemProperty("java.library.path", project(":ldb:jni:kodein-leveldb-jni-jvm").tasks["linkDebug"].outputs.files.first())
+    dependsOn(project(":ldb:kodein-leveldb").tasks["linkDebug"])
+    systemProperty("java.library.path", project(":ldb:kodein-leveldb").tasks["linkDebug"].outputs.files.first())
 }

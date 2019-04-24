@@ -1,11 +1,12 @@
 package org.kodein.db.leveldb.test
 
-import kotlinx.io.core.use
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.use
 import kotlin.test.*
 
+@Suppress("ClassName")
 class LDBTests_03_Cursor : LevelDBTests() {
 
     @Test
@@ -92,7 +93,7 @@ class LDBTests_03_Cursor : LevelDBTests() {
         }
     }
 
-    @Test()
+    @Test
     fun test_04_Closed() {
         val cursor = ldb!!.newCursor()
         cursor.close()

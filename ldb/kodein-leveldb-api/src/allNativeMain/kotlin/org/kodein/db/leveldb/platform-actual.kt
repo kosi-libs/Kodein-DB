@@ -13,4 +13,4 @@ actual class StackTrace {
 
 }
 
-actual fun <T> WeakHashSet(): MutableSet<T> = HashSet()
+actual fun <T> newWeakHashSet(): MutableSet<T> = HashSet()

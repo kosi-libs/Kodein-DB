@@ -1,70 +1,62 @@
 package org.kodein.db.impl.data
 
-import kotlinx.io.core.use
-import kotlinx.io.pool.useInstance
 import org.kodein.db.Body
 import org.kodein.db.Index
 import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.data.DataWrite
-import org.kodein.db.impl.utils.makeViewOf
-import org.kodein.db.impl.utils.writeFully
-import org.kodein.db.leveldb.Bytes
+import org.kodein.db.impl.utils.putBody
 import org.kodein.db.leveldb.LevelDB
-import org.kodein.db.leveldb.readBytes
-import org.kodein.db.leveldb.write
+import org.kodein.memory.*
 
 class DataDBBatchImpl(private val ddb: DataDBImpl) : DataDB.Batch {
 
     private val batch = ddb.ldb.newWriteBatch()
 
-    private val deleteRefKeys = ArrayList<ByteArray>()
+    private val deleteRefKeys = ArrayList<KBuffer>()
 
     override fun put(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, options: LevelDB.WriteOptions): Int {
-        ddb.pool.useInstance { dst ->
-            val key = dst.makeViewOf { writeObjectKey(type, primaryKey) }
-            val value = dst.makeViewOf { buffer.writeFully(body) }
+        SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
+            val key = it.newSlice { putObjectKey(type, primaryKey) }
+            val value = it.newSlice { putBody(body) }
             batch.put(key, value)
 
-            val refKey = dst.makeViewOf { writeRefKeyFromObjectKey(key) }
-            ddb.putIndexesInBatch(dst, batch, key, refKey, indexes)
+            val refKey = KBuffer.array(key.remaining) { putRefKeyFromObjectKey(key) }
+            ddb.putIndexesInBatch(it, batch, key, refKey, indexes)
 
-            deleteRefKeys += refKey.makeView().readBytes()
+            deleteRefKeys += refKey
 
-            return value.buffer.readRemaining
+            return value.remaining
         }
     }
 
     override fun putAndGetKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, options: LevelDB.WriteOptions): DataWrite.PutResult {
-        val dst = ddb.pool.borrow()
-        val key = dst.makeViewOf { writeObjectKey(type, primaryKey) }
-        val value = dst.makeViewOf { buffer.writeFully(body) }
-        batch.put(key, value)
+        val key = KBuffer.array(getObjectKeySize(type, primaryKey)) { putObjectKey(type, primaryKey) }
 
-        val refKey = dst.makeViewOf { writeRefKeyFromObjectKey(key) }
-        ddb.putIndexesInBatch(dst, batch, key, refKey, indexes)
+        SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
+            val value = it.newSlice { putBody(body) }
+            batch.put(key, value)
 
-        deleteRefKeys += refKey.makeView().readBytes()
+            val refKey = KBuffer.array(key.remaining) { putRefKeyFromObjectKey(key) }
+            ddb.putIndexesInBatch(it, batch, key, refKey, indexes)
 
-        return DataWrite.PutResult(ddb.ViewFromPool(dst, key), value.buffer.readRemaining)
+            deleteRefKeys += refKey
+
+            return DataWrite.PutResult(key, value.remaining)
+        }
     }
 
-    override fun delete(key: Bytes, options: LevelDB.WriteOptions) {
+    override fun delete(key: ReadBuffer, options: LevelDB.WriteOptions) {
         batch.delete(key)
-        ddb.pool.useInstance { dst ->
-            val refKey = dst.makeViewOf { writeRefKeyFromObjectKey(key) }
-            deleteRefKeys += refKey.makeView().readBytes()
-        }
+        val refKey = KBuffer.array(key.remaining) { putRefKeyFromObjectKey(key) }
+        deleteRefKeys += refKey
     }
 
     override fun write(options: LevelDB.WriteOptions) {
         use {
             ddb.ldb.newWriteBatch().use { fullBatch ->
-                for (refKeyArray in deleteRefKeys) {
-                    ddb.pool.useInstance { dst ->
-                        val refKey = dst.makeViewOf { write(refKeyArray) }
-                        ddb.deleteIndexesInBatch(fullBatch, refKey)
-                    }
+                for (refKey in deleteRefKeys) {
+                    ddb.deleteIndexesInBatch(fullBatch, refKey)
                 }
 
                 fullBatch.append(batch)
