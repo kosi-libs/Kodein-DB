@@ -4,7 +4,7 @@ buildscript {
         maven(url = "https://dl.bintray.com/kodein-framework/Kodein-Internal-Gradle")
     }
     dependencies {
-        classpath("org.kodein.internal.gradle:kodein-internal-gradle-settings:2.4.0")
+        classpath("org.kodein.internal.gradle:kodein-internal-gradle-settings:2.4.1")
     }
 }
 
@@ -21,8 +21,11 @@ include(
 
         ":ldb:kodein-leveldb",
 
-        ":kdb:kodeindb-api",
-        ":kdb:kodeindb",
+        ":kdb:kodein-db-api",
+        ":kdb:kodein-db",
+
+        ":kdb:serializer:kodein-db-serializer-kotlinx",
+        ":kdb:serializer:kodein-db-serializer-kryo-jvm",
 
         ""
 )

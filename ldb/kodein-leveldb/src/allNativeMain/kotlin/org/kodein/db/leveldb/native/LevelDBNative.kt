@@ -14,6 +14,7 @@ import cnames.structs.leveldb_writeoptions_t
 import kotlinx.cinterop.*
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.LevelDBException
+import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.PlatformCloseable
 import org.kodein.db.libleveldb.*
 import org.kodein.memory.*
@@ -103,7 +104,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
 
     private val dbHandler = Handler()
 
-    companion object Factory : LevelDB.Factory {
+    companion object Factory : LevelDBFactory {
 
         override fun open(path: String, options: LevelDB.Options): LevelDB {
             val ptrs = options.allocOptionsPtr()

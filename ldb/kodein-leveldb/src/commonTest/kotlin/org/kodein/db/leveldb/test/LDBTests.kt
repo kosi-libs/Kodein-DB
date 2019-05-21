@@ -1,6 +1,7 @@
 package org.kodein.db.leveldb.test
 
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.test.utils.newBuffer
 import org.kodein.memory.Allocation
 import kotlin.test.AfterTest
@@ -10,7 +11,7 @@ fun baseOptions() = LevelDB.Options(trackClosableAllocation = true)
 
 expect fun platformOptions(): LevelDB.Options
 
-expect val platformFactory: LevelDB.Factory
+expect val platformFactory: LevelDBFactory
 
 @Suppress("FunctionName")
 abstract class LevelDBTests {
@@ -19,7 +20,7 @@ abstract class LevelDBTests {
 
     open fun options(): LevelDB.Options = platformOptions()
 
-    open val factory: LevelDB.Factory = platformFactory
+    open val factory: LevelDBFactory = platformFactory
 
     private val buffers = ArrayList<Allocation>()
 

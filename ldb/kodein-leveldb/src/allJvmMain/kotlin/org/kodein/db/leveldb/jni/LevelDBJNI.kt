@@ -1,6 +1,7 @@
 package org.kodein.db.leveldb.jni
 
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.PlatformCloseable
 import org.kodein.memory.Allocation
 import org.kodein.memory.KBuffer
@@ -24,7 +25,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
     /**
      * LevelDB Factory that handles native LevelDB databases.
      */
-    object Factory : LevelDB.Factory {
+    object Factory : LevelDBFactory {
 
         override fun open(path: String, options: LevelDB.Options): LevelDB {
             val optionsPtr = newNativeOptions(options)
