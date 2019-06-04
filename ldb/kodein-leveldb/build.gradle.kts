@@ -65,7 +65,7 @@ val generation = task<Exec>("generateJniHeaders") {
         val classPath =
                 ldbApiKotlin.targets["jvm"].compilations["main"].output.classesDirs + ldbApiKotlin.targets["jvm"].compilations["main"].compileDependencyFiles +
                 kotlin.targets["jvm"].compilations["main"].output.classesDirs + kotlin.targets["jvm"].compilations["main"].compileDependencyFiles
-        setCommandLine("javah", "-d", output, "-cp", classPath.joinToString(":"), "org.kodein.db.leveldb.jni.LevelDBJNI")
+        setCommandLine("javah", "-d", output, "-cp", classPath.joinToString(":"), "org.kodein.db.leveldb.jni.Native")
     }
 
     outputs.dir(output)

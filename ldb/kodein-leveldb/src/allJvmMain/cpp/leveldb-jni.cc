@@ -1,11 +1,6 @@
 #include <stdint.h>
 
-#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI.h"
-#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_NativeBytes.h"
-#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_WriteBatch.h"
-#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Snapshot.h"
-#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Cursor.h"
-#include "kodein/org_kodein_db_leveldb_jni_LevelDBJNI_Cursor_AbstractBytesArray.h"
+#include "kodein/org_kodein_db_leveldb_jni_Native.h"
 
 #include "leveldb/cache.h"
 #include "leveldb/db.h"
@@ -153,9 +148,24 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *jvm, void *) {
 }
 
 
-////////////////////////////////////////////// LEVELDB //////////////////////////////////////////
+////////////////////////////////////////// NATIVE BYTES //////////////////////////////////////////
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1NewOptions (JNIEnv *env, jclass,
+JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_Native_bufferNew (JNIEnv *env, jclass, jlong valuePtr) {
+    CAST(std::string, value);
+
+    return env->NewDirectByteBuffer((void *) value->data(), value->size());
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_bufferRelease (JNIEnv *env, jclass, jlong valuePtr) {
+    CAST(std::string, value);
+
+	delete value;
+}
+
+
+////////////////////////////////////////////// OPTIONS //////////////////////////////////////////
+
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_optionsNew (JNIEnv *env, jclass,
     jboolean printLogs,
     jboolean createIfMissing,
     jboolean errorIfExists,
@@ -190,7 +200,7 @@ JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1NewOptions 
     return (jlong) options;
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1ReleaseOptions (JNIEnv *env, jclass, jlong optionsPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_optionsRelease (JNIEnv *env, jclass, jlong optionsPtr) {
     CAST(leveldb::Options, options);
 
     if (options->info_log != NULL)
@@ -205,7 +215,10 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1ReleaseOptio
     delete options;
 }
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1OpenDB (JNIEnv *env, jclass, jstring jpath, jlong optionsPtr, jboolean repairOnCorruption) {
+
+////////////////////////////////////////////// LEVELDB //////////////////////////////////////////
+
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_dbOpen (JNIEnv *env, jclass, jstring jpath, jlong optionsPtr, jboolean repairOnCorruption) {
     CAST(leveldb::Options, options);
 
 	const char *path = getAsciiString(env, jpath);
@@ -230,7 +243,13 @@ JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1OpenDB (JNI
 	return (jlong) ldb;
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1DestroyDB (JNIEnv *env, jclass, jstring jpath, jlong optionsPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_dbRelease (JNIEnv *, jclass, jlong ldbPtr) {
+    CAST(leveldb::DB, ldb);
+
+	delete ldb;
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_dbDestroy (JNIEnv *env, jclass, jstring jpath, jlong optionsPtr) {
     CAST(leveldb::Options, options);
 
 	const char *path = getAsciiString(env, jpath);
@@ -246,19 +265,19 @@ void J_LevelDBJNI_Put (JNIEnv *env, jlong ldbPtr, Bytes key, Bytes value, jboole
     CHECK_STATUS(ldb->Put(_writeOptions(sync), key.slice, value.slice),);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Put_1BB (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_putBB (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
     J_LevelDBJNI_Put(env, ldbPtr, BYTES(key), BYTES(value), sync);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Put_1AB (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_putAB (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
     J_LevelDBJNI_Put(env, ldbPtr, BYTES(key), BYTES(value), sync);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Put_1BA (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_putBA (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
     J_LevelDBJNI_Put(env, ldbPtr, BYTES(key), BYTES(value), sync);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Put_1AA (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_putAA (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
     J_LevelDBJNI_Put(env, ldbPtr, BYTES(key), BYTES(value), sync);
 }
 
@@ -268,15 +287,15 @@ void J_LevelDBJNI_Delete (JNIEnv *env, jlong ldbPtr, Bytes key, jboolean sync) {
     CHECK_STATUS(ldb->Delete(_writeOptions(sync), key.slice),);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Delete_1B (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jboolean sync) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_deleteB (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jboolean sync) {
     J_LevelDBJNI_Delete(env, ldbPtr, BYTES(key), sync);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Delete_1A (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jboolean sync) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_deleteA (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jboolean sync) {
     J_LevelDBJNI_Delete(env, ldbPtr, BYTES(key), sync);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Write (JNIEnv *env, jclass, jlong ldbPtr, jlong batchPtr, jboolean sync) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_write (JNIEnv *env, jclass, jlong ldbPtr, jlong batchPtr, jboolean sync) {
     CAST(leveldb::DB, ldb);
     CAST(leveldb::WriteBatch, batch);
 
@@ -307,11 +326,11 @@ jlong J_LevelDBJNI_Get(JNIEnv *env, jlong ldbPtr, Bytes key, jboolean verifyChec
     return LevelDBJNI_Get(env, ldb, key.slice, _readOptions(verifyChecksum, fillCache, snapshotPtr));
 }
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Get_1B (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_getB (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
     return J_LevelDBJNI_Get(env, ldbPtr, BYTES_S(key), verifyChecksum, fillCache, snapshotPtr);
 }
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Get_1A (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_getA (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
     return J_LevelDBJNI_Get(env, ldbPtr, BYTES_S(key), verifyChecksum, fillCache, snapshotPtr);
 }
 
@@ -334,15 +353,15 @@ jlong J_LevelDBJNI_IndirectGet (JNIEnv *env, jlong ldbPtr, Bytes key, jboolean v
     return LevelDBJNI_Get(env, ldb, leveldb::Slice(indir), options);
 }
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1IndirectGet_1B (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_indirectGetB (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
     return J_LevelDBJNI_IndirectGet(env, ldbPtr, BYTES_S(key), verifyChecksum, fillCache, snapshotPtr);
 }
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1IndirectGet_1A (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_indirectGetA (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
     return J_LevelDBJNI_IndirectGet(env, ldbPtr, BYTES_S(key), verifyChecksum, fillCache, snapshotPtr);
 }
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1IndirectGet_1I (JNIEnv *env, jclass, jlong ldbPtr, jlong itPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_indirectGetI (JNIEnv *env, jclass, jlong ldbPtr, jlong itPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
     CAST(leveldb::DB, ldb);
     CAST(leveldb::Iterator, it);
 
@@ -351,120 +370,28 @@ JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1IndirectGet
     return LevelDBJNI_Get(env, ldb, it->value(), _readOptions(verifyChecksum, fillCache, snapshotPtr));
 }
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1NewIterator (JNIEnv *, jclass, jlong ldbPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
+
+////////////////////////////////////////// ITERATOR //////////////////////////////////////////
+
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorNew (JNIEnv *, jclass, jlong ldbPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
     CAST(leveldb::DB, ldb);
 
 	return (jlong) ldb->NewIterator(_readOptions(verifyChecksum, fillCache, snapshotPtr));
 }
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1NewSnapshot (JNIEnv *, jclass, jlong ldbPtr) {
-    CAST(leveldb::DB, ldb);
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorRelease (JNIEnv *env, jclass, jlong itPtr) {
+    CAST(leveldb::Iterator, it);
 
-	return (jlong) ldb->GetSnapshot();
+	delete it;
 }
 
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1NewWriteBatch (JNIEnv *, jclass) {
-	return (jlong) new leveldb::WriteBatch;
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_n_1Release (JNIEnv *, jclass, jlong ldbPtr) {
-    CAST(leveldb::DB, ldb);
-
-	delete ldb;
-}
-
-
-////////////////////////////////////////// NATIVE BYTES //////////////////////////////////////////
-
-JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024NativeBytes_n_1Buffer (JNIEnv *env, jclass, jlong valuePtr) {
-    CAST(std::string, value);
-    return env->NewDirectByteBuffer((void *) value->data(), value->size());
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024NativeBytes_n_1Release (JNIEnv *env, jclass, jlong valuePtr) {
-    CAST(std::string, value);
-
-	delete value;
-}
-
-
-////////////////////////////////////////// WRITE BATCH //////////////////////////////////////////
-
-void J_LevelDBJNI_WriteBatch_Put (jlong batchPtr, Bytes key, Bytes value) {
-    CAST(leveldb::WriteBatch, batch);
-	batch->Put(key.slice, value.slice);
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024WriteBatch_n_1Put_1BB (JNIEnv *env, jclass, jlong batchPtr, jobject keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen) {
-    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024WriteBatch_n_1Put_1AB (JNIEnv *env, jclass, jlong batchPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen) {
-    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024WriteBatch_n_1Put_1BA (JNIEnv *env, jclass, jlong batchPtr, jobject keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen) {
-    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024WriteBatch_n_1Put_1AA (JNIEnv *env, jclass, jlong batchPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen) {
-    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
-}
-
-void J_LevelDBJNI_WriteBatch_Delete(jlong batchPtr, Bytes key) {
-    CAST(leveldb::WriteBatch, batch);
-
-	batch->Delete(key.slice);
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024WriteBatch_n_1Delete_1B (JNIEnv *env, jclass, jlong batchPtr, jobject keyBytes, jint keyOffset, jint keyLen) {
-    J_LevelDBJNI_WriteBatch_Delete(batchPtr, BYTES_A(key));
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024WriteBatch_n_1Delete_1A (JNIEnv *env, jclass, jlong batchPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen) {
-    J_LevelDBJNI_WriteBatch_Delete(batchPtr, BYTES_A(key));
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024WriteBatch_n_1Clear (JNIEnv *env, jclass, jlong batchPtr) {
-    CAST(leveldb::WriteBatch, batch);
-
-    batch->Clear();
-}
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024WriteBatch_n_1Append (JNIEnv *env, jclass, jlong batchPtr, jlong sourcePtr) {
-    CAST(leveldb::WriteBatch, batch);
-    CAST(leveldb::WriteBatch, source);
-
-    batch->Append(*source);
-}
-
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024WriteBatch_n_1Release (JNIEnv *env, jclass, jlong batchPtr) {
-    CAST(leveldb::WriteBatch, batch);
-
-	delete batch;
-}
-
-
-////////////////////////////////////////// SNAPSHOT //////////////////////////////////////////
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Snapshot_n_1Release (JNIEnv *env, jclass, jlong ldbPtr, jlong snapshotPtr) {
-    CAST(leveldb::DB, ldb);
-    CAST(leveldb::Snapshot, snapshot);
-
-	ldb->ReleaseSnapshot(snapshot);
-}
-
-
-////////////////////////////////////////// CURSOR //////////////////////////////////////////
-
-JNIEXPORT jboolean JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Valid (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT jboolean JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorValid (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	return it->Valid();
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1SeekToFirst (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekToFirst (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	it->SeekToFirst();
@@ -472,7 +399,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1
     CHECK_STATUS(it->status(),);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1SeekToLast (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekToLast (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	it->SeekToLast();
@@ -488,15 +415,15 @@ void J_LevelDBJNI_Iterator_Seek(JNIEnv *env, jlong itPtr, Bytes key) {
     CHECK_STATUS(it->status(),);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Seek_1B (JNIEnv *env, jclass, jlong itPtr, jobject keyBytes, jint keyOffset, jint keyLen) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekB (JNIEnv *env, jclass, jlong itPtr, jobject keyBytes, jint keyOffset, jint keyLen) {
     J_LevelDBJNI_Iterator_Seek(env, itPtr, BYTES_S(key));
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Seek_1A (JNIEnv *env, jclass, jlong itPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekA (JNIEnv *env, jclass, jlong itPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen) {
     J_LevelDBJNI_Iterator_Seek(env, itPtr, BYTES_S(key));
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Next (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorNext (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	CHECK_IT_VALID();
@@ -506,7 +433,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1
     CHECK_STATUS(it->status(),);
 }
 
-JNIEXPORT void Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Prev (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void Java_org_kodein_db_leveldb_jni_Native_iteratorPrev (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	CHECK_IT_VALID();
@@ -516,7 +443,7 @@ JNIEXPORT void Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Prev (JN
     CHECK_STATUS(it->status(),);
 }
 
-JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1key (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorKey (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	CHECK_IT_VALID(0);
@@ -528,7 +455,7 @@ JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_
 	return env->NewDirectByteBuffer((void *) key.data(), key.size());
 }
 
-JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1value (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorValue (JNIEnv *env, jclass, jlong itPtr) {
     CAST(leveldb::Iterator, it);
 
 	CHECK_IT_VALID(0);
@@ -541,7 +468,9 @@ JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_
 }
 
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1NextArray (JNIEnv *env, jclass, jlong itPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
+////////////////////////////////////////// ITERATOR ARRAY //////////////////////////////////////////
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorArrayNext (JNIEnv *env, jclass, jlong itPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
     CAST(leveldb::Iterator, it);
 
     jlong *ptrs = env->GetLongArrayElements(ptrArray, NULL);
@@ -597,7 +526,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1
     env->ReleaseLongArrayElements(ptrArray, ptrs, JNI_COMMIT);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1IndirectNextArray (JNIEnv *env, jclass, jlong ldbPtr, jlong itPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray intermediateKeyArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
+JNIEXPORT void Java_org_kodein_db_leveldb_jni_Native_iteratorArrayNextIndirect (JNIEnv *env, jclass, jlong ldbPtr, jlong itPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr, jlongArray ptrArray, jobjectArray buffers, jintArray indexArray, jintArray intermediateKeyArray, jintArray keyArray, jintArray valueArray, jintArray limitArray, jint bufferSize) {
     CAST(leveldb::DB, ldb);
     CAST(leveldb::Iterator, it);
 
@@ -686,17 +615,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1
     env->ReleaseLongArrayElements(ptrArray, ptrs, JNI_COMMIT);
 }
 
-
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_n_1Release (JNIEnv *env, jclass, jlong itPtr) {
-    CAST(leveldb::Iterator, it);
-
-	delete it;
-}
-
-////////////////////////////////////////// CURSOR::NATIVEBYTESARRAY //////////////////////////////////////////
-
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_00024AbstractBytesArray_n_1Release (JNIEnv *env , jclass, jlongArray ptrArray) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorArrayRelease (JNIEnv *env , jclass, jlongArray ptrArray) {
     jlong *ptrs = env->GetLongArrayElements(ptrArray, NULL);
     int length = env->GetArrayLength(ptrArray);
 
@@ -708,6 +627,84 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_LevelDBJNI_00024Cursor_000
 
     env->ReleaseLongArrayElements(ptrArray, ptrs, JNI_ABORT);
 }
+
+
+////////////////////////////////////////// SNAPSHOT //////////////////////////////////////////
+
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_snapshotNew (JNIEnv *, jclass, jlong ldbPtr) {
+    CAST(leveldb::DB, ldb);
+
+	return (jlong) ldb->GetSnapshot();
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_snapshotRelease (JNIEnv *env, jclass, jlong ldbPtr, jlong snapshotPtr) {
+    CAST(leveldb::DB, ldb);
+    CAST(leveldb::Snapshot, snapshot);
+
+	ldb->ReleaseSnapshot(snapshot);
+}
+
+
+////////////////////////////////////////// WRITE BATCH //////////////////////////////////////////
+
+JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchNew (JNIEnv *, jclass) {
+	return (jlong) new leveldb::WriteBatch;
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchRelease (JNIEnv *env, jclass, jlong batchPtr) {
+    CAST(leveldb::WriteBatch, batch);
+
+	delete batch;
+}
+
+void J_LevelDBJNI_WriteBatch_Put (jlong batchPtr, Bytes key, Bytes value) {
+    CAST(leveldb::WriteBatch, batch);
+	batch->Put(key.slice, value.slice);
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchPutBB (JNIEnv *env, jclass, jlong batchPtr, jobject keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen) {
+    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchPutAB (JNIEnv *env, jclass, jlong batchPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen) {
+    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchPutBA (JNIEnv *env, jclass, jlong batchPtr, jobject keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen) {
+    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchPutAA (JNIEnv *env, jclass, jlong batchPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen) {
+    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
+}
+
+void J_LevelDBJNI_WriteBatch_Delete(jlong batchPtr, Bytes key) {
+    CAST(leveldb::WriteBatch, batch);
+
+	batch->Delete(key.slice);
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchDeleteB (JNIEnv *env, jclass, jlong batchPtr, jobject keyBytes, jint keyOffset, jint keyLen) {
+    J_LevelDBJNI_WriteBatch_Delete(batchPtr, BYTES_A(key));
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchDeleteA (JNIEnv *env, jclass, jlong batchPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen) {
+    J_LevelDBJNI_WriteBatch_Delete(batchPtr, BYTES_A(key));
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchClear (JNIEnv *env, jclass, jlong batchPtr) {
+    CAST(leveldb::WriteBatch, batch);
+
+    batch->Clear();
+}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchAppend (JNIEnv *env, jclass, jlong batchPtr, jlong sourcePtr) {
+    CAST(leveldb::WriteBatch, batch);
+    CAST(leveldb::WriteBatch, source);
+
+    batch->Append(*source);
+}
+
 
 
 } /* extern "C" */
