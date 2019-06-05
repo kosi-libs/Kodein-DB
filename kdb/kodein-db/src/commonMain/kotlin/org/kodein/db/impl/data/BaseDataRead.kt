@@ -6,7 +6,7 @@ import org.kodein.db.ascii.readAscii
 import org.kodein.db.data.DataCursor
 import org.kodein.db.data.DataOptions
 import org.kodein.db.data.DataRead
-import org.kodein.db.get
+import org.kodein.db.invoke
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.*
 
@@ -16,7 +16,7 @@ internal interface BaseDataRead : BaseDataBase, DataRead {
     val snapshot: LevelDB.Snapshot?
 
     private fun toLdb(options: Array<out Options.Read>): LevelDB.ReadOptions {
-        val ro: DataOptions.Read = options.get() ?: return LevelDB.ReadOptions.DEFAULT
+        val ro: DataOptions.Read = options() ?: return LevelDB.ReadOptions.DEFAULT
         return LevelDB.ReadOptions(
                 verifyChecksums = ro.verifyChecksums,
                 fillCache = ro.fillCache,

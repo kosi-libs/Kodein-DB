@@ -3,7 +3,7 @@ package org.kodein.db.impl.model
 import org.kodein.db.Value
 import org.kodein.db.model.findAllByIndex
 import org.kodein.db.model.findByIndex
-import org.kodein.db.model.getKey
+import org.kodein.db.model.getHeapKey
 import org.kodein.memory.use
 import kotlin.test.*
 
@@ -22,20 +22,20 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.findAllByIndex<Adult>("firstName").use {
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(laila, it)
-                assertNotSame(laila, it)
+                assertEquals(laila, it.value)
+                assertNotSame(laila, it.value)
             }
             it.next()
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(me, it)
-                assertNotSame(me, it)
+                assertEquals(me, it.value)
+                assertNotSame(me, it.value)
             }
             it.next()
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(notMe, it)
-                assertNotSame(notMe, it)
+                assertEquals(notMe, it.value)
+                assertNotSame(notMe, it.value)
             }
             it.next()
             assertFalse(it.isValid())
@@ -54,14 +54,14 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.findByIndex<Adult>("firstName", Value.ofAscii("Salomon")).use {
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(me, it)
-                assertNotSame(me, it)
+                assertEquals(me, it.value)
+                assertNotSame(me, it.value)
             }
             it.next()
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(notMe, it)
-                assertNotSame(notMe, it)
+                assertEquals(notMe, it.value)
+                assertNotSame(notMe, it.value)
             }
             it.next()
             assertFalse(it.isValid())
@@ -83,20 +83,20 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.findByIndex<Adult>("firstName", Value.ofAscii("Sa"), isOpen = true).use {
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(me, it)
-                assertNotSame(me, it)
+                assertEquals(me, it.value)
+                assertNotSame(me, it.value)
             }
             it.next()
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(notMe, it)
-                assertNotSame(notMe, it)
+                assertEquals(notMe, it.value)
+                assertNotSame(notMe, it.value)
             }
             it.next()
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(sarah, it)
-                assertNotSame(sarah, it)
+                assertEquals(sarah, it.value)
+                assertNotSame(sarah, it.value)
             }
             it.next()
             assertFalse(it.isValid())
@@ -126,7 +126,7 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         mdb.put(me)
 
-        val indexes = mdb.getIndexesOf(mdb.getKey<Adult>(Value.ofAscii("BRYS", "Salomon"))).toSet()
+        val indexes = mdb.getIndexesOf(mdb.getHeapKey<Adult>(Value.ofAscii("BRYS", "Salomon"))).toSet()
         assertEquals(setOf("birth", "firstName"), indexes)
     }
 }

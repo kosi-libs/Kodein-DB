@@ -19,7 +19,7 @@ private fun KBuffer.putValues(vararg values: Any) {
 }
 
 fun byteArray(vararg values: Any): ByteArray {
-    val buffer = Allocation.array(16384)
+    val buffer = KBuffer.array(16384)
     buffer.putValues(*values)
     return buffer.readBytes()
 }

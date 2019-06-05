@@ -3,7 +3,7 @@ package org.kodein.db.orm.kotlinx
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.Cbor
 import org.kodein.db.Options
-import org.kodein.db.get
+import org.kodein.db.invoke
 import org.kodein.db.model.Serializer
 import org.kodein.db.simpleNameOf
 import org.kodein.memory.Readable
@@ -34,7 +34,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
 
     @ImplicitReflectionSerializer
     private fun getSerializer(options: Array<out Options>, type: KClass<*>): KSerializer<*> {
-        val opt: KXSerializer? = options.get()
+        val opt: KXSerializer? = options()
         return try {
             opt?.serializer ?: serializers[type] ?: type.serializer()
         } catch (ex: NotImplementedError) {
@@ -51,7 +51,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
 
     @ImplicitReflectionSerializer
     override fun <M : Any> deserialize(type: KClass<M>, input: Readable, vararg options: Options.Read): M {
-        val opt: KXSerializer? = options.get()
+        val opt: KXSerializer? = options()
         val serializer = opt?.serializer ?: serializers[type] ?: type.serializer()
         val bytes = input.readBytes()
         @Suppress("UNCHECKED_CAST")

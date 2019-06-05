@@ -10,7 +10,7 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test00_DeleteWithoutIndex() {
-        val key = ddb.putAndGetKey("Test", Value.ofAscii("aaa", "bbb"), Value.ofAscii("ValueAB1")).key
+        val key = ddb.putAndGetHeapKey("Test", Value.ofAscii("aaa", "bbb"), Value.ofAscii("ValueAB1")).value
         ddb.delete(key)
 
         assertDBIs(
@@ -19,7 +19,7 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test01_DeleteWithIndex() {
-        val key = ddb.putAndGetKey("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta"), "Numbers" to Value.ofAscii("forty", "two"))).key
+        val key = ddb.putAndGetHeapKey("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta"), "Numbers" to Value.ofAscii("forty", "two"))).value
         ddb.delete(key)
 
         assertDBIs(
@@ -29,7 +29,7 @@ class DataDBTests_01_Delete : DataDBTests() {
     @Test
     fun test02_DeleteUnknown() {
         ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        val key = ddb.getKey("Test", Value.ofAscii("bbb"))
+        val key = ddb.getHeapKey("Test", Value.ofAscii("bbb"))
         ddb.delete(key)
 
         assertDBIs(
@@ -41,7 +41,7 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test03_Delete1of2() {
-        val key = ddb.putAndGetKey("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta"))).key
+        val key = ddb.putAndGetHeapKey("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta"))).value
         ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
         ddb.delete(key)
 

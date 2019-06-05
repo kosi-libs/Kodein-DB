@@ -46,10 +46,10 @@ data class Birth(val adult: Ref<Adult>, val city: Ref<City>) : HasMetadata {
     override fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata {
         val person = db[adult]!!
         return Metadata(
-                primaryKey = person.primaryKey,
+                primaryKey = person.value.primaryKey,
                 indexes = indexSet(
-                        "city" to Value.ofAscii(db[city]!!.name),
-                        "date" to Value.of(person.birth.year, person.birth.month, person.birth.day)
+                        "city" to Value.ofAscii(db[city]!!.value.name),
+                        "date" to Value.of(person.value.birth.year, person.value.birth.month, person.value.birth.day)
                 )
         )
     }

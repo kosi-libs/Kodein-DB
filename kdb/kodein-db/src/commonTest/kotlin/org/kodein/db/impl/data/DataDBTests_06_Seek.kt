@@ -18,7 +18,7 @@ class DataDBTests_06_Seek : DataDBTests() {
 
         ddb.findByType("Test").use {
             assertTrue(it.isValid())
-            val key = ddb.getKey("Test", Value.ofAscii("bba"))
+            val key = ddb.getHeapKey("Test", Value.ofAscii("bba"))
             it.seekTo(key)
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "bbb", 0), byteArray("ValueB1!"), it)
@@ -34,7 +34,7 @@ class DataDBTests_06_Seek : DataDBTests() {
 
         ddb.findByType("Test").use {
             assertTrue(it.isValid())
-            val key = ddb.getKey("Test", Value.ofAscii("A"))
+            val key = ddb.getHeapKey("Test", Value.ofAscii("A"))
             it.seekTo(key)
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "aaa", 0), byteArray("ValueA1!"), it)
@@ -48,7 +48,7 @@ class DataDBTests_06_Seek : DataDBTests() {
 
         ddb.findByType("Test").use {
             assertTrue(it.isValid())
-            val key = ddb.getKey("Test", Value.ofAscii("z"))
+            val key = ddb.getHeapKey("Test", Value.ofAscii("z"))
             it.seekTo(key)
             assertFalse(it.isValid())
         }

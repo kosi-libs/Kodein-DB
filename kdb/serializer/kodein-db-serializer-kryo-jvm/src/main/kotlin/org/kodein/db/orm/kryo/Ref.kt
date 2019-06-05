@@ -25,7 +25,7 @@ fun SeekKey.asRef() = SeekRef(bytes.getBytes(0))
 fun TransientSeekKey.asRef() = SeekRef(transientBytes.getBytes(0))
 
 
-inline fun <reified T : Any> Ref<T>.toKey() = Key(T::class, KBuffer.wrap(bytes))
+inline fun <reified T : Any> Ref<T>.toKey() = Key.Heap(T::class, KBuffer.wrap(bytes))
 
 fun SeekRef.toSeekKey() = SeekKey(KBuffer.wrap(bytes))
 

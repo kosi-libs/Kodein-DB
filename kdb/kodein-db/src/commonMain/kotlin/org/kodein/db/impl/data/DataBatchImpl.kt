@@ -5,9 +5,10 @@ import org.kodein.db.Index
 import org.kodein.db.Options
 import org.kodein.db.Value
 import org.kodein.db.data.DataDB
-import org.kodein.db.data.DataWrite
 import org.kodein.db.impl.utils.putBody
 import org.kodein.memory.*
+import org.kodein.memory.concurent.withLock
+import org.kodein.memory.model.Sized
 
 internal class DataBatchImpl(private val ddb: DataDBImpl) : BaseDataBase, DataDB.Batch {
 
@@ -30,8 +31,9 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : BaseDataBase, DataDB
         }
     }
 
-    override fun putAndGetKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): DataWrite.PutResult {
-        val key = KBuffer.array(getObjectKeySize(type, primaryKey)) { putObjectKey(type, primaryKey) }
+    private fun putAndSetKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, key: KBuffer): Int {
+        key.putObjectKey(type, primaryKey)
+        key.flip()
 
         SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
             val value = it.newSlice { putBody(body) }
@@ -42,8 +44,20 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : BaseDataBase, DataDB
 
             deleteRefKeys += refKey
 
-            return DataWrite.PutResult(key, value.remaining)
+            return value.remaining
         }
+    }
+
+    override fun putAndGetHeapKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Sized<KBuffer> {
+        val key = KBuffer.array(getObjectKeySize(type, primaryKey))
+        val length = putAndSetKey(type, primaryKey, body, indexes, key)
+        return Sized(key, length)
+    }
+
+    override fun putAndGetNativeKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Sized<Allocation> {
+        val key = Allocation.native(getObjectKeySize(type, primaryKey))
+        val length = putAndSetKey(type, primaryKey, body, indexes, key)
+        return Sized(key, length)
     }
 
     override fun delete(key: ReadBuffer, vararg options: Options.Write) {
@@ -55,13 +69,15 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : BaseDataBase, DataDB
     override fun write(vararg options: Options.Write) {
         use {
             ddb.ldb.newWriteBatch().use { fullBatch ->
-                for (refKey in deleteRefKeys) {
-                    ddb.deleteIndexesInBatch(fullBatch, refKey)
+                ddb.indexesLock.withLock {
+                    for (refKey in deleteRefKeys) {
+                        ddb.deleteIndexesInBatch(fullBatch, refKey)
+                    }
+
+                    fullBatch.append(batch)
+
+                    ddb.ldb.write(fullBatch, DataDBImpl.toLdb(options))
                 }
-
-                fullBatch.append(batch)
-
-                ddb.ldb.write(fullBatch, DataDBImpl.toLdb(options))
             }
         }
     }

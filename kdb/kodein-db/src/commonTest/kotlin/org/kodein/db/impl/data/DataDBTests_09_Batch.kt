@@ -37,8 +37,8 @@ class DataDBTests_09_Batch : DataDBTests() {
         ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         val batch = ddb.newBatch()
-        batch.delete(ddb.getKey("Test", Value.ofAscii("aaa")))
-        batch.delete(ddb.getKey("Test", Value.ofAscii("bbb")))
+        batch.delete(ddb.getHeapKey("Test", Value.ofAscii("aaa")))
+        batch.delete(ddb.getHeapKey("Test", Value.ofAscii("bbb")))
 
         assertDBIs(
                 byteArray('i', 0, "Test", 0, "Numbers", 0, "forty", 0, "two", 0, "bbb", 0) to byteArray('o', 0, "Test", 0, "bbb", 0),

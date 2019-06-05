@@ -12,4 +12,4 @@ interface Options {
     interface Open : Options
 }
 
-inline fun <O : Options, reified T : O> Array<out O>.get() = firstOrNull { it is T } as T?
+inline operator fun <O : Options, reified T : O> Array<out O>.invoke() = firstOrNull { it is T } as T?

@@ -4,6 +4,7 @@ import org.kodein.db.Options
 import org.kodein.memory.Closeable
 import org.kodein.memory.KBuffer
 import org.kodein.memory.ReadBuffer
+import org.kodein.memory.model.Sized
 
 interface ModelCursor<M: Any> : Closeable {
 
@@ -19,7 +20,7 @@ interface ModelCursor<M: Any> : Closeable {
     fun seekTo(target: ReadBuffer)
 
     fun transientKey(): TransientKey<M>
-    fun model(vararg options: Options.Read): M
+    fun model(vararg options: Options.Read): Sized<M>
 
     fun transientSeekKey(): TransientSeekKey
 
@@ -27,7 +28,7 @@ interface ModelCursor<M: Any> : Closeable {
         val size: Int
         fun getSeekKey(i: Int): ReadBuffer
         fun getKey(i: Int): Key<M>
-        fun getModel(i: Int, vararg options: Options.Read): M
+        fun getModel(i: Int, vararg options: Options.Read): Sized<M>
     }
 
 }

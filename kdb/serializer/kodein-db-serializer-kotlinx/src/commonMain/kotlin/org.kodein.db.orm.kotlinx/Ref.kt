@@ -38,7 +38,7 @@ fun TransientSeekKey.asRef() = SeekRef(encoder.encode(transientBytes.duplicate()
 @PublishedApi
 internal fun <T : Any> Ref<T>.decodeBytes() = decoder.decode(b64)
 
-inline fun <reified T : Any> Ref<T>.toKey() = Key(T::class, KBuffer.wrap(decodeBytes()))
+inline fun <reified T : Any> Ref<T>.toKey() = Key.Heap(T::class, KBuffer.wrap(decodeBytes()))
 
 fun SeekRef.toSeekKey() = SeekKey(KBuffer.wrap(decoder.decode(b64)))
 

@@ -18,7 +18,7 @@ class DataDBTests_10_CloseOpen : DataDBTests() {
 
         _ddb = DataDBTestFactory.open()
 
-        val key = ddb.getKey("Test", Value.ofAscii("key"))
+        val key = ddb.getHeapKey("Test", Value.ofAscii("key"))
         assertBytesEquals(byteArray("value"), ddb.get(key)!!)
     }
 

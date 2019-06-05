@@ -7,6 +7,7 @@ import org.kodein.db.ascii.readAscii
 import org.kodein.db.data.DataRead
 import org.kodein.db.model.*
 import org.kodein.memory.Readable
+import org.kodein.memory.model.Sized
 import org.kodein.memory.use
 import kotlin.reflect.KClass
 
@@ -15,7 +16,7 @@ internal interface BaseModelRead : BaseModelBase, ModelRead {
     override val data: DataRead
 
     companion object {
-        internal fun <M : Any> getFrom(readable: Readable, type: KClass<M>, typeTable: TypeTable, serializer: Serializer, options: Array<out Options.Read>): M {
+        internal fun <M : Any> getFrom(readable: Readable, type: KClass<out M>, typeTable: TypeTable, serializer: Serializer, options: Array<out Options.Read>): Sized<M> {
             val typeLength = readable.readShort()
             val typeName = readable.readAscii(typeLength.toInt())
 
@@ -28,11 +29,15 @@ internal interface BaseModelRead : BaseModelBase, ModelRead {
             @Suppress("UNCHECKED_CAST")
             realType as KClass<M>
 
-            return serializer.deserialize(realType, readable, *options)
+            val r = readable.remaining
+
+            val model = serializer.deserialize(realType, readable, *options)
+
+            return Sized(model, r - readable.remaining)
         }
     }
 
-    override fun <M : Any> get(key: Key<M>, vararg options: Options.Read): M? {
+    override fun <M : Any> get(key: Key<M>, vararg options: Options.Read): Sized<M>? {
         return data.get(key.bytes, *options)?.use { getFrom(it, key.type, mdb.typeTable, mdb.serializer, options) }
     }
 

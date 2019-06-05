@@ -2,11 +2,12 @@ package org.kodein.db.model
 
 import org.kodein.db.Options
 import org.kodein.db.Value
+import org.kodein.memory.model.Sized
 import kotlin.reflect.KClass
 
 interface ModelRead : ModelBase {
 
-    operator fun <M : Any> get(key: Key<M>, vararg options: Options.Read): M?
+    operator fun <M : Any> get(key: Key<M>, vararg options: Options.Read): Sized<M>?
 
     fun findAll(vararg options: Options.Read): ModelCursor<*>
 

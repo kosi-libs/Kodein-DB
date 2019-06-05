@@ -18,14 +18,14 @@ open class ModelDBTests_01_Types : ModelDBTests() {
         mdb.findByType<Adult>().use {
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(laila, it)
-                assertNotSame(laila, it)
+                assertEquals(laila, it.value)
+                assertNotSame(laila, it.value)
             }
             it.next()
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(salomon, it)
-                assertNotSame(salomon, it)
+                assertEquals(salomon, it.value)
+                assertNotSame(salomon, it.value)
             }
             it.next()
             assertFalse(it.isValid())
