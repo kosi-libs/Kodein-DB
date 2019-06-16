@@ -29,5 +29,11 @@ kodein {
                 api("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
             }
         }
+
+        add(kodeinTargets.native.macosX64) {
+            main.dependencies {
+                api("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
+            }
+        }
     }
 }
