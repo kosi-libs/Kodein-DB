@@ -27,5 +27,7 @@ kodein {
         }
 
         add(kodeinTargets.native.linuxX64)
+
+        add(kodeinTargets.native.macosX64)
     }
 }
