@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
+import org.kodein.internal.gradle.KodeinMPPExtension
+
 plugins {
     id("org.kodein.library.mpp")
     `cpp-library`
@@ -22,7 +25,7 @@ kodein {
 
         add(kodeinTargets.jvm)
 
-        add(kodeinTargets.native.linuxX64) {
+        fun KodeinMPPExtension.TargetBuilder<KotlinNativeCompilation>.configureNative() {
             mainCompilation.cinterops.create("libleveldb") {
                 packageName("org.kodein.db.libleveldb")
 
@@ -47,6 +50,15 @@ kodein {
 
 //            testCompilation.linkerOpts("-L${project(":ldb:lib").buildDir}/out/konan/lib/")
         }
+
+        add(kodeinTargets.native.linuxX64) {
+            configureNative()
+        }
+
+        add(kodeinTargets.native.macosX64) {
+            configureNative()
+        }
+
     }
 }
 
@@ -65,7 +77,9 @@ val generation = task<Exec>("generateJniHeaders") {
         val classPath =
                 ldbApiKotlin.targets["jvm"].compilations["main"].output.classesDirs + ldbApiKotlin.targets["jvm"].compilations["main"].compileDependencyFiles +
                 kotlin.targets["jvm"].compilations["main"].output.classesDirs + kotlin.targets["jvm"].compilations["main"].compileDependencyFiles
-        setCommandLine("javah", "-d", output, "-cp", classPath.joinToString(":"), "org.kodein.db.leveldb.jni.Native")
+
+        val javah: String? by project
+        setCommandLine(javah ?: "javah", "-d", output, "-cp", classPath.joinToString(":"), "org.kodein.db.leveldb.jni.Native")
     }
 
     outputs.dir(output)
@@ -93,6 +107,11 @@ library {
             from("$javaHome/include/linux")
         }
     }
+    else if (currentOs.isMacOsX()) {
+        privateHeaders {
+            from("$javaHome/include/darwin")
+        }
+    }
 
     binaries.configureEach {
         compileTask.get().dependsOn(generation)
@@ -103,6 +122,7 @@ library {
                     "-L${project(":ldb:lib").buildDir}/out/host/lib",
                     "-lleveldb", "-lsnappy", "-lcrc32c"
             )
+            compileTask.get().compilerArgs.add("-std=c++11")
         }
     }
 }
