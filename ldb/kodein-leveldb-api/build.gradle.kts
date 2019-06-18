@@ -24,13 +24,10 @@ kodein {
             }
         }
 
-        add(kodeinTargets.native.linuxX64) {
-            main.dependencies {
-                api("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
-            }
-        }
+        add(kodeinTargets.native.linuxX64)
+        add(kodeinTargets.native.macosX64)
 
-        add(kodeinTargets.native.macosX64) {
+        sourceSet(kodeinSourceSets.allNative) {
             main.dependencies {
                 api("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
             }

@@ -17,7 +17,10 @@ kodein {
             }
         }
 
-        add(kodeinTargets.native.linuxX64) {
+        add(kodeinTargets.native.linuxX64)
+        add(kodeinTargets.native.macosX64)
+
+        sourceSet(kodeinSourceSets.allNative) {
             main.dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:0.11.0")
             }

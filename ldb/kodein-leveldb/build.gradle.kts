@@ -42,13 +42,6 @@ kodein {
 
             tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["buildLeveldbKonan"])
             tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["buildLeveldbKonan"])
-
-
-            main.dependencies {
-                api("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
-            }
-
-//            testCompilation.linkerOpts("-L${project(":ldb:lib").buildDir}/out/konan/lib/")
         }
 
         add(kodeinTargets.native.linuxX64) {
@@ -57,6 +50,12 @@ kodein {
 
         add(kodeinTargets.native.macosX64) {
             configureNative()
+        }
+
+        sourceSet(kodeinSourceSets.allNative) {
+            main.dependencies {
+                api("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
+            }
         }
 
     }
