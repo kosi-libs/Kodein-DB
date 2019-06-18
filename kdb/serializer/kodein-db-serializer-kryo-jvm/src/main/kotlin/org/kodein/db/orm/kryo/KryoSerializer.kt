@@ -19,11 +19,9 @@ import org.kodein.memory.*
 class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : Serializer {
 
     override fun <M : Any> serialize(model: M, output: Writeable, vararg options: Options.Write) {
-        println(output)
         Output(output.asOuputStream()).use {
             kryo.writeObject(it, model)
         }
-        println(output)
     }
 
     override fun <M : Any> deserialize(type: KClass<M>, input: Readable, vararg options: Options.Read): M {

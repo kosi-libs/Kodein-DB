@@ -6,4 +6,6 @@ interface Cache {
 
     object Skip : Options.Write
 
+    data class CopyMaxSize(val size: Int) : Options.Read
+
 }

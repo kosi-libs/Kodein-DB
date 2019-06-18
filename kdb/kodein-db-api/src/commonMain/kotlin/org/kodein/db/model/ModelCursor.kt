@@ -6,7 +6,7 @@ import org.kodein.memory.KBuffer
 import org.kodein.memory.ReadBuffer
 import org.kodein.memory.model.Sized
 
-interface ModelCursor<M: Any> : Closeable {
+interface ModelCursor<M : Any> : Closeable {
 
     fun isValid(): Boolean
 

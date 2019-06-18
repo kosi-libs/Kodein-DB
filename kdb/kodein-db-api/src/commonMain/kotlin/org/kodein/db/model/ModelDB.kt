@@ -14,7 +14,7 @@ interface ModelDB : ModelWrite, ModelRead, Closeable {
 
     interface Snapshot : ModelRead, Closeable
 
-    fun newSnapshot(): Snapshot
+    fun newSnapshot(vararg options: Options.Read): Snapshot
 
     class OpenOptions(
             val serializer: Serializer? = null,

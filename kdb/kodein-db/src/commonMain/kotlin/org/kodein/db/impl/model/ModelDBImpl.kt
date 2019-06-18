@@ -14,7 +14,7 @@ internal class ModelDBImpl(val serializer: Serializer, private val metadataExtra
 
     override fun newBatch(): ModelDB.Batch = ModelBatchImpl(this, data.newBatch())
 
-    override fun newSnapshot(): ModelDB.Snapshot = ModelSnapshotImpl(this, data.newSnapshot())
+    override fun newSnapshot(vararg options: Options.Read): ModelDB.Snapshot = ModelSnapshotImpl(this, data.newSnapshot())
 
     override fun close() = data.close()
 

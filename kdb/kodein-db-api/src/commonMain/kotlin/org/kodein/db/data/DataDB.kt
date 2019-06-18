@@ -16,6 +16,6 @@ interface DataDB : DataWrite, DataRead, Closeable {
 
     interface Snapshot : DataRead, Closeable
 
-    fun newSnapshot(): Snapshot
+    fun newSnapshot(vararg options: Options.Read): Snapshot
 
 }

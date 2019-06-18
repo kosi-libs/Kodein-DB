@@ -133,7 +133,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : BaseDataRead, DataDB {
 
     override fun newBatch(): DataDB.Batch = DataBatchImpl(this)
 
-    override fun newSnapshot(): DataDB.Snapshot = DataSnapshotImpl(ldb, ldb.newSnapshot())
+    override fun newSnapshot(vararg options: Options.Read): DataDB.Snapshot = DataSnapshotImpl(ldb, ldb.newSnapshot())
 
     override fun close() {
         ldb.close()
