@@ -28,10 +28,10 @@ interface Person : Metadata {
 }
 
 @Serializable
-data class Adult(override val firstName: String, override val lastName: String, override val birth: Date) : Metadata, Person
+data class Adult(override val firstName: String, override val lastName: String, override val birth: Date) : Person
 
 @Serializable
-data class Child(override val firstName: String, override val lastName: String, override val birth: Date, val parents: Pair<Ref<Adult>, Ref<Adult>>) : Metadata, Person
+data class Child(override val firstName: String, override val lastName: String, override val birth: Date, val parents: Pair<Ref<Adult>, Ref<Adult>>) : Person
 
 @Serializable
 data class Location(val lat: Double, val lng: Double)

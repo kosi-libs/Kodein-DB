@@ -28,7 +28,7 @@ internal interface BaseDataRead : BaseDataBase, DataRead {
 
     override fun findAll(vararg options: Options.Read): DataCursor = DataSimpleCursor(ldb.newCursor(toLdb(options)), objectEmptyPrefix.asManagedAllocation())
 
-    override fun findByType(type: String, vararg options: Options.Read): DataCursor {
+    override fun findAllByType(type: String, vararg options: Options.Read): DataCursor {
         val key = Allocation.native(getObjectKeySize(type, null)) { putObjectKey(type, null) }
         return DataSimpleCursor(ldb.newCursor(toLdb(options)), key)
     }

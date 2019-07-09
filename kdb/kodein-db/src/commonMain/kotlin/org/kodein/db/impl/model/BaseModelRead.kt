@@ -45,7 +45,7 @@ internal interface BaseModelRead : BaseModelBase, ModelRead {
             ModelCursorImpl(data.findAll(*options), mdb.typeTable, mdb.serializer, Any::class)
 
     override fun <M : Any> findByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findByType(mdb.typeTable.getTypeName(type), *options), mdb.typeTable, mdb.serializer, type)
+            ModelCursorImpl(data.findAllByType(mdb.typeTable.getTypeName(type), *options), mdb.typeTable, mdb.serializer, type)
 
     override fun <M : Any> findByPrimaryKey(type: KClass<M>, primaryKey: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =
             ModelCursorImpl(data.findByPrimaryKey(mdb.typeTable.getTypeName(type), primaryKey, isOpen, *options), mdb.typeTable, mdb.serializer, type)

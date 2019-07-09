@@ -12,7 +12,7 @@ interface DataRead : DataBase {
 
     fun findAll(vararg options: Options.Read): DataCursor
 
-    fun findByType(type: String, vararg options: Options.Read): DataCursor
+    fun findAllByType(type: String, vararg options: Options.Read): DataCursor
 
     fun findByPrimaryKey(type: String, primaryKey: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
 

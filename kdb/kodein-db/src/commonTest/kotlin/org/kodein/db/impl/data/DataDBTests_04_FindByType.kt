@@ -18,7 +18,7 @@ class DataDBTests_04_FindByType : DataDBTests() {
         ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
         ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB2!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findByType("Test").use {
+        ddb.findAllByType("Test").use {
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "aaa", 0), byteArray("ValueA1!"), it)
             assertBytesEquals(it.transientKey(), it.transientSeekKey())
@@ -37,7 +37,7 @@ class DataDBTests_04_FindByType : DataDBTests() {
         ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
         ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findByType("Test").use {
+        ddb.findAllByType("Test").use {
             assertTrue(it.isValid())
             it.seekToLast()
             assertTrue(it.isValid())
@@ -54,7 +54,7 @@ class DataDBTests_04_FindByType : DataDBTests() {
 
     @Test
     fun test02_FindByTypeNothingInEmptyDB() {
-        ddb.findByType("Test").use {
+        ddb.findAllByType("Test").use {
             assertFalse(it.isValid())
         }
     }
@@ -64,7 +64,7 @@ class DataDBTests_04_FindByType : DataDBTests() {
         ddb.put("Test", Value.ofAscii("ValueA1!"), Value.ofAscii("aaa"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
         ddb.put("Test", Value.ofAscii("ValueB1!"), Value.ofAscii("bbb"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findByType("Yeah").use {
+        ddb.findAllByType("Yeah").use {
             assertFalse(it.isValid())
         }
     }

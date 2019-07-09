@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.kodein.internal.gradle.KodeinMPPExtension
 
 plugins {
@@ -25,7 +26,7 @@ kodein {
 
         add(kodeinTargets.jvm)
 
-        fun KodeinMPPExtension.TargetBuilder<KotlinNativeCompilation>.configureNative() {
+        fun KodeinMPPExtension.TargetBuilder<KotlinNativeCompilation, KotlinNativeTarget>.configureNative() {
             mainCompilation.cinterops.create("libleveldb") {
                 packageName("org.kodein.db.libleveldb")
 
@@ -36,9 +37,14 @@ kodein {
                 includeDirs(Action {
                     headerFilterOnly("/usr/include")
                 })
-
-                linkerOpts("-L${project(":ldb:lib").buildDir}/out/konan/lib/")
             }
+
+            // https://github.com/JetBrains/kotlin-native/issues/2314
+            mainCompilation.kotlinOptions.freeCompilerArgs = listOf(
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/konan/lib/libleveldb.a",
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/konan/lib/libcrc32c.a",
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/konan/lib/libsnappy.a"
+            )
 
             tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["buildLeveldbKonan"])
             tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["buildLeveldbKonan"])

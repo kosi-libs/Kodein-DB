@@ -2,8 +2,8 @@ plugins {
     id("org.kodein.root")
 }
 
-val kotlinxAtomicFuVer by extra { "0.12.3" }
-val kotlinxCoroutinesVer by extra { "1.1.1" }
+val kotlinxAtomicFuVer by extra { "0.12.9" }
+val kotlinxCoroutinesVer by extra { "1.2.2" }
 val kodeinLogVer by extra { "0.1.0" }
 val kodeinMemoryVer by extra { "0.1.0" }
 

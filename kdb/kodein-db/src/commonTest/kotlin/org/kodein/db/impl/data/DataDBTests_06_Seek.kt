@@ -16,7 +16,7 @@ class DataDBTests_06_Seek : DataDBTests() {
         ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
         ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findByType("Test").use {
+        ddb.findAllByType("Test").use {
             assertTrue(it.isValid())
             val key = ddb.getHeapKey("Test", Value.ofAscii("bba"))
             it.seekTo(key)
@@ -32,7 +32,7 @@ class DataDBTests_06_Seek : DataDBTests() {
         ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
         ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findByType("Test").use {
+        ddb.findAllByType("Test").use {
             assertTrue(it.isValid())
             val key = ddb.getHeapKey("Test", Value.ofAscii("A"))
             it.seekTo(key)
@@ -46,7 +46,7 @@ class DataDBTests_06_Seek : DataDBTests() {
         ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
         ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findByType("Test").use {
+        ddb.findAllByType("Test").use {
             assertTrue(it.isValid())
             val key = ddb.getHeapKey("Test", Value.ofAscii("z"))
             it.seekTo(key)

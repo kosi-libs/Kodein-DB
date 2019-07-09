@@ -72,6 +72,9 @@ fun addTarget(target: String, conf: Options.() -> Unit) {
         "CRC32C_BUILD_TESTS:BOOL" += "0"
         "CRC32C_USE_GLOG:BOOL" += "0"
 
+        "CMAKE_C_FLAGS:STRING" += "-fPIC"
+        "CMAKE_CXX_FLAGS:STRING" += "-fPIC"
+
         conf()
     }
 
@@ -84,6 +87,10 @@ fun addTarget(target: String, conf: Options.() -> Unit) {
     val (leveldb, _) = addCMakeTasks("leveldb", target) {
         "LEVELDB_BUILD_BENCHMARKS:BOOL" += "0"
         "LEVELDB_BUILD_TESTS:BOOL" += "0"
+
+        "CMAKE_C_FLAGS:STRING" += "-I$buildDir/out/$target/include"
+        "CMAKE_CXX_FLAGS:STRING" += "-I$buildDir/out/$target/include"
+        "CMAKE_EXE_LINKER_FLAGS:STRING" += "-L$buildDir/out/$target/lib -lstdc++"
 
         conf()
     }

@@ -30,7 +30,7 @@ class DataDBTests_10_CloseOpen : DataDBTests() {
 
         _ddb = DataDBTestFactory.open()
 
-        val it = ddb.findByType("Test")
+        val it = ddb.findAllByType("Test")
         try {
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "key", 0), byteArray("value"), it)
