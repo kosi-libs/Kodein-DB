@@ -2,8 +2,8 @@
 
 package org.kodein.db.model
 
-import org.kodein.memory.*
-import org.kodein.memory.text.Base64
+import org.kodein.memory.Closeable
+import org.kodein.memory.io.*
 import kotlin.reflect.KClass
 
 
@@ -15,6 +15,13 @@ sealed class Key<out T : Any>(val type: KClass<out T>, val bytes: ReadBuffer) {
     class Native<out T : Any>(type: KClass<out T>, private val alloc: Allocation) : Key<T>(type, alloc), Closeable {
         override fun close() { alloc.close() }
         override fun asHeapKey(): Key<T> = Heap(type, KBuffer.wrap(bytes.getBytesHere()))
+    }
+
+    override fun hashCode(): Int = bytes.hashCode()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Key<*>) return false
+        return bytes == other.bytes
     }
 }
 

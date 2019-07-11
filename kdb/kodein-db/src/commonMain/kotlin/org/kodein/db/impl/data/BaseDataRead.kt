@@ -8,7 +8,8 @@ import org.kodein.db.data.DataOptions
 import org.kodein.db.data.DataRead
 import org.kodein.db.invoke
 import org.kodein.db.leveldb.LevelDB
-import org.kodein.memory.*
+import org.kodein.memory.io.*
+import org.kodein.memory.use
 
 internal interface BaseDataRead : BaseDataBase, DataRead {
 

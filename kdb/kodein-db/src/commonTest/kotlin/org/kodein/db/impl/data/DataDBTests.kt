@@ -4,8 +4,8 @@ import org.kodein.db.data.DataCursor
 import org.kodein.db.data.DataDB
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.description
-import org.kodein.memory.Allocation
-import org.kodein.memory.readBytes
+import org.kodein.memory.io.Allocation
+import org.kodein.memory.io.readBytes
 import org.kodein.memory.use
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest

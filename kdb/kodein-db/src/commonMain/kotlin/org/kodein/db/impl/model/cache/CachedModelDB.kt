@@ -1,15 +1,10 @@
 package org.kodein.db.impl.model.cache
 
 import org.kodein.db.Options
-import org.kodein.db.Value
-import org.kodein.db.invoke
-import org.kodein.db.model.Cache
 import org.kodein.db.model.Key
-import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.ModelDB
-import org.kodein.memory.model.ObjectCache
-import org.kodein.memory.model.Sized
-import kotlin.reflect.KClass
+import org.kodein.db.react.DBListener
+import org.kodein.memory.Closeable
 
 class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val cacheCopyMaxSize: Int) : ModelDB, BaseCachedModelRead, BaseCachedModelWrite {
 
@@ -36,4 +31,5 @@ class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, o
         return CachedModelSnapshot(mdb.newSnapshot(*options), cache.newCopy(maxSize), maxSize)
     }
 
+    override fun register(listener: DBListener, vararg options: Options.React): Closeable = mdb.register(listener, *options)
 }

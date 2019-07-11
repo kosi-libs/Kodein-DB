@@ -1,6 +1,6 @@
 package org.kodein.db.leveldb.jni
 
-import org.kodein.memory.*
+import org.kodein.memory.io.*
 import java.nio.ByteBuffer
 
 internal fun ReadBuffer.directByteBuffer(): ByteBuffer? = (internalBuffer() as? JvmNioKBuffer)?.byteBuffer?.takeIf { it.isDirect }

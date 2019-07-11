@@ -4,7 +4,7 @@ import org.kodein.db.Value
 import org.kodein.db.ascii.putAscii
 import org.kodein.db.impl.utils.firstIndexOf
 import org.kodein.db.impl.utils.putBody
-import org.kodein.memory.*
+import org.kodein.memory.io.*
 
 private object Prefix {
     const val OBJECT = 'o'.toByte()

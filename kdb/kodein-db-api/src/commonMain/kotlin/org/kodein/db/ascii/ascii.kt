@@ -1,7 +1,8 @@
 package org.kodein.db.ascii
 
-import org.kodein.memory.Readable
-import org.kodein.memory.Writeable
+import org.kodein.memory.io.Readable
+import org.kodein.memory.io.Writeable
+
 
 fun Writeable.putAscii(str: CharSequence) {
     for (i in 0 until str.length)

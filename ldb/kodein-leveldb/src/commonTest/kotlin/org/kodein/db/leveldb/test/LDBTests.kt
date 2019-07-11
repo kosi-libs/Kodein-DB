@@ -3,7 +3,7 @@ package org.kodein.db.leveldb.test
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.test.utils.newBuffer
-import org.kodein.memory.Allocation
+import org.kodein.memory.io.Allocation
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 

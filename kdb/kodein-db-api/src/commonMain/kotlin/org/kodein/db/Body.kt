@@ -1,6 +1,6 @@
 package org.kodein.db
 
-import org.kodein.memory.Writeable
+import org.kodein.memory.io.Writeable
 
 interface Body {
 

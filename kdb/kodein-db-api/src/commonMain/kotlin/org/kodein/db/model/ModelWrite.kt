@@ -1,7 +1,7 @@
 package org.kodein.db.model
 
 import org.kodein.db.Options
-import org.kodein.memory.model.Sized
+import org.kodein.memory.cache.Sized
 
 interface ModelWrite : ModelBase {
 

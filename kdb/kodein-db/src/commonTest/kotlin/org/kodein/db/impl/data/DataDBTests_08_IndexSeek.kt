@@ -3,9 +3,9 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.indexSet
 import org.kodein.db.test.utils.byteArray
-import org.kodein.memory.KBuffer
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.wrap
 import org.kodein.memory.use
-import org.kodein.memory.wrap
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

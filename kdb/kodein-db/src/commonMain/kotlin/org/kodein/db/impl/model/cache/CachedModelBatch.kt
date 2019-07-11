@@ -1,11 +1,9 @@
 package org.kodein.db.impl.model.cache
 
 import org.kodein.db.Options
-import org.kodein.db.model.Cache
 import org.kodein.db.model.Key
 import org.kodein.db.model.ModelDB
-import org.kodein.memory.model.ObjectCacheBase
-import org.kodein.memory.model.Sized
+import org.kodein.memory.cache.ObjectCacheBase
 
 class CachedModelBatch(override val mdb: ModelDB.Batch, val cache: ModelCache) : ModelDB.Batch, BaseCachedModelWrite {
 

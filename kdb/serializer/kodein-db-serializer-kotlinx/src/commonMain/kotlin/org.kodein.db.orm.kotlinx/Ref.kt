@@ -5,11 +5,9 @@ package org.kodein.db.orm.kotlinx
 import kotlinx.serialization.Serializable
 import org.kodein.db.Options
 import org.kodein.db.model.*
-import org.kodein.memory.KBuffer
-import org.kodein.memory.getBytes
-import org.kodein.memory.getBytesHere
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.wrap
 import org.kodein.memory.text.Base64
-import org.kodein.memory.wrap
 
 private val encoder = Base64.encoder.withoutPadding()
 private val decoder = Base64.decoder

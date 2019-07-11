@@ -7,8 +7,8 @@ import org.kodein.db.model.Cache
 import org.kodein.db.model.Key
 import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.ModelRead
-import org.kodein.memory.model.ObjectCache
-import org.kodein.memory.model.Sized
+import org.kodein.memory.cache.ObjectCache
+import org.kodein.memory.cache.Sized
 import kotlin.reflect.KClass
 
 interface BaseCachedModelRead : ModelRead, BaseCachedModelBase {

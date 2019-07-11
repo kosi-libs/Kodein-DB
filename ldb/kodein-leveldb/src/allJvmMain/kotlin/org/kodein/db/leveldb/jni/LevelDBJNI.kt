@@ -3,10 +3,10 @@ package org.kodein.db.leveldb.jni
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.PlatformCloseable
-import org.kodein.memory.Allocation
-import org.kodein.memory.KBuffer
-import org.kodein.memory.ReadBuffer
-import org.kodein.memory.wrap
+import org.kodein.memory.io.Allocation
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.wrap
 import java.nio.ByteBuffer
 import java.util.*
 

@@ -4,10 +4,10 @@ import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CValuesRef
 import kotlinx.cinterop.plus
 import kotlinx.cinterop.refTo
-import org.kodein.memory.ByteArrayKBuffer
-import org.kodein.memory.CPointerKBuffer
-import org.kodein.memory.ReadBuffer
-import org.kodein.memory.getBytes
+import org.kodein.memory.io.ByteArrayKBuffer
+import org.kodein.memory.io.CPointerKBuffer
+import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.getBytes
 
 fun ReadBuffer.pointer(): CValuesRef<ByteVar> = when (val b = internalBuffer()) {
     is CPointerKBuffer -> (b.pointer + b.position)!!

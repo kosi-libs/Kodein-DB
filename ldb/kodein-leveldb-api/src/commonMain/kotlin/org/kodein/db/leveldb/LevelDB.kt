@@ -2,10 +2,10 @@ package org.kodein.db.leveldb
 
 
 import org.kodein.log.LoggerFactory
-import org.kodein.memory.Allocation
 import org.kodein.memory.Closeable
-import org.kodein.memory.KBuffer
-import org.kodein.memory.ReadBuffer
+import org.kodein.memory.io.Allocation
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.ReadBuffer
 
 /**
  * Google's LevelDB in Java.

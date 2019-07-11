@@ -5,9 +5,12 @@ import org.kodein.db.TypeTable
 import org.kodein.db.Value
 import org.kodein.db.ascii.readAscii
 import org.kodein.db.data.DataRead
-import org.kodein.db.model.*
-import org.kodein.memory.Readable
-import org.kodein.memory.model.Sized
+import org.kodein.db.model.Key
+import org.kodein.db.model.ModelCursor
+import org.kodein.db.model.ModelRead
+import org.kodein.db.model.Serializer
+import org.kodein.memory.cache.Sized
+import org.kodein.memory.io.Readable
 import org.kodein.memory.use
 import kotlin.reflect.KClass
 

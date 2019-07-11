@@ -6,14 +6,16 @@ plugins {
 kodein {
     kotlin {
 
+        val kxSerRtVer = "0.11.1"
+
         common.main.dependencies {
             api(project(":kdb:kodein-db-api"))
-            api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.11.0")
+            api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$kxSerRtVer")
         }
 
         add(kodeinTargets.jvm) {
             main.dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.0")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kxSerRtVer")
             }
         }
 
@@ -22,7 +24,7 @@ kodein {
 
         sourceSet(kodeinSourceSets.allNative) {
             main.dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:0.11.0")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$kxSerRtVer")
             }
         }
 

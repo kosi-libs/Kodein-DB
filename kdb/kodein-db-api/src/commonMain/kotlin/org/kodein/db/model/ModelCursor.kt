@@ -2,9 +2,8 @@ package org.kodein.db.model
 
 import org.kodein.db.Options
 import org.kodein.memory.Closeable
-import org.kodein.memory.KBuffer
-import org.kodein.memory.ReadBuffer
-import org.kodein.memory.model.Sized
+import org.kodein.memory.cache.Sized
+import org.kodein.memory.io.ReadBuffer
 
 interface ModelCursor<M : Any> : Closeable {
 

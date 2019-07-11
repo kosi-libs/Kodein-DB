@@ -2,10 +2,8 @@ package org.kodein.db.model
 
 import org.kodein.db.Options
 import org.kodein.db.TypeTable
-import org.kodein.db.Value
+import org.kodein.db.react.DBListener
 import org.kodein.memory.Closeable
-import org.kodein.memory.model.Sized
-import kotlin.reflect.KClass
 
 interface ModelDB : ModelWrite, ModelRead, Closeable {
 
@@ -25,9 +23,6 @@ interface ModelDB : ModelWrite, ModelRead, Closeable {
 
     fun newSnapshot(vararg options: Options.Read): Snapshot
 
-    fun <M : Any> registerOnModelChange(key: Key<M>, vararg options: Options.React, callback: (Sized<M>, React.Operation) -> Unit): Sized<M>?
-
-    fun registerAnyChange(vararg options: Options.Read): ModelCursor<*>
-
+    fun register(listener: DBListener, vararg options: Options.React): Closeable
 }
 

@@ -2,9 +2,8 @@ package org.kodein.db.data
 
 import org.kodein.db.Options
 import org.kodein.db.Value
-import org.kodein.memory.Allocation
-import org.kodein.memory.KBuffer
-import org.kodein.memory.ReadBuffer
+import org.kodein.memory.io.Allocation
+import org.kodein.memory.io.ReadBuffer
 
 interface DataRead : DataBase {
 

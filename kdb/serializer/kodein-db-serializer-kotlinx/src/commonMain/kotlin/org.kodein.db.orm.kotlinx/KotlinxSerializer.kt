@@ -6,9 +6,9 @@ import org.kodein.db.Options
 import org.kodein.db.invoke
 import org.kodein.db.model.Serializer
 import org.kodein.db.simpleNameOf
-import org.kodein.memory.Readable
-import org.kodein.memory.Writeable
-import org.kodein.memory.readBytes
+import org.kodein.memory.io.Readable
+import org.kodein.memory.io.Writeable
+import org.kodein.memory.io.readBytes
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 

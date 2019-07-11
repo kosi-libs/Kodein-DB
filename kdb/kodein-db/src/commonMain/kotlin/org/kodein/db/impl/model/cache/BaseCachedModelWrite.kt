@@ -4,7 +4,7 @@ import org.kodein.db.Options
 import org.kodein.db.model.Cache
 import org.kodein.db.model.Key
 import org.kodein.db.model.ModelWrite
-import org.kodein.memory.model.Sized
+import org.kodein.memory.cache.Sized
 
 interface BaseCachedModelWrite : ModelWrite, BaseCachedModelBase {
 

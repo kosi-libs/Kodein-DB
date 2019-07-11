@@ -1,6 +1,6 @@
 package org.kodein.db.test.utils
 
-import org.kodein.memory.*
+import org.kodein.memory.io.*
 import kotlin.test.fail
 
 private fun KBuffer.putValues(vararg values: Any) {

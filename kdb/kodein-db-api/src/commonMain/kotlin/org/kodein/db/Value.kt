@@ -1,7 +1,7 @@
 package org.kodein.db
 
 import org.kodein.db.ascii.putAscii
-import org.kodein.memory.*
+import org.kodein.memory.io.*
 
 interface Value : Body {
 

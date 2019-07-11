@@ -3,8 +3,8 @@ package org.kodein.db.model
 import org.kodein.db.Index
 import org.kodein.db.Options
 import org.kodein.db.Value
-import org.kodein.memory.Readable
-import org.kodein.memory.Writeable
+import org.kodein.memory.io.Readable
+import org.kodein.memory.io.Writeable
 import kotlin.reflect.KClass
 
 interface Serializer {

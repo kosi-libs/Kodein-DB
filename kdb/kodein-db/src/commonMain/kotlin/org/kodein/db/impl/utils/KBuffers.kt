@@ -1,8 +1,8 @@
 package org.kodein.db.impl.utils
 
 import org.kodein.db.Body
-import org.kodein.memory.ReadBuffer
-import org.kodein.memory.Writeable
+import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.Writeable
 import kotlin.math.min
 
 @Suppress("NOTHING_TO_INLINE")

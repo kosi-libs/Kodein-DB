@@ -3,8 +3,8 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
-import org.kodein.memory.Allocation
-import org.kodein.memory.native
+import org.kodein.memory.io.Allocation
+import org.kodein.memory.io.native
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertEquals

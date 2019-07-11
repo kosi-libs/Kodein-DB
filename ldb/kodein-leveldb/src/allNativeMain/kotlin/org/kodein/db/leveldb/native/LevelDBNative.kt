@@ -17,7 +17,7 @@ import org.kodein.db.leveldb.LevelDBException
 import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.PlatformCloseable
 import org.kodein.db.libleveldb.*
-import org.kodein.memory.*
+import org.kodein.memory.io.*
 import platform.posix.size_tVar
 
 private inline fun <T> ldbCall(crossinline block: MemScope.(CPointerVar<ByteVar>) -> T): T = memScoped {

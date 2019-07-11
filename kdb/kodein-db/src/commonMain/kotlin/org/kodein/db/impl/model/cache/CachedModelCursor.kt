@@ -1,12 +1,11 @@
 package org.kodein.db.impl.model.cache
 
 import org.kodein.db.Options
-import org.kodein.db.model.Key
 import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.TransientSeekKey
-import org.kodein.memory.ReadBuffer
-import org.kodein.memory.model.ObjectCache
-import org.kodein.memory.model.Sized
+import org.kodein.memory.cache.ObjectCache
+import org.kodein.memory.cache.Sized
+import org.kodein.memory.io.ReadBuffer
 
 class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache: ModelCache) : ModelCursor<M> {
 

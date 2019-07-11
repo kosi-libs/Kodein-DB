@@ -1,8 +1,8 @@
 package org.kodein.db.data
 
 import org.kodein.memory.Closeable
-import org.kodein.memory.KBuffer
-import org.kodein.memory.ReadBuffer
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.ReadBuffer
 
 interface DataCursor : Closeable {
 

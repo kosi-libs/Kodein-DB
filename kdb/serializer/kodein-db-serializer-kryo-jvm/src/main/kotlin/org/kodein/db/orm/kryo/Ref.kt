@@ -4,11 +4,9 @@ package org.kodein.db.orm.kryo
 
 import org.kodein.db.Options
 import org.kodein.db.model.*
-import org.kodein.memory.KBuffer
-import org.kodein.memory.backingArray
-import org.kodein.memory.getBytes
-import org.kodein.memory.text.Base64
-import org.kodein.memory.wrap
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.getBytes
+import org.kodein.memory.io.wrap
 
 
 inline class Ref<out T : Any>(val bytes: ByteArray)

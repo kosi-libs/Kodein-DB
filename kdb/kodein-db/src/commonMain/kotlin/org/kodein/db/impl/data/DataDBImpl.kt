@@ -3,19 +3,19 @@ package org.kodein.db.impl.data
 import org.kodein.db.*
 import org.kodein.db.data.DataDB
 import org.kodein.db.data.DataOptions
-import org.kodein.db.data.DataWrite
 import org.kodein.db.impl.utils.putBody
 import org.kodein.db.leveldb.LevelDB
-import org.kodein.memory.*
-import org.kodein.memory.concurent.Lock
+import org.kodein.memory.cache.Sized
+import org.kodein.memory.concurent.newLock
 import org.kodein.memory.concurent.withLock
-import org.kodein.memory.model.Sized
+import org.kodein.memory.io.*
+import org.kodein.memory.use
 
 internal class DataDBImpl(override val ldb: LevelDB) : BaseDataRead, DataDB {
 
     override val snapshot: LevelDB.Snapshot? get() = null
 
-    internal val indexesLock = Lock()
+    internal val indexesLock = newLock()
 
     companion object {
         internal const val DEFAULT_CAPACITY = 16384

@@ -4,11 +4,8 @@ import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.data.DataCursor
 import org.kodein.db.model.*
-import org.kodein.memory.KBuffer
-import org.kodein.memory.ReadBuffer
-import org.kodein.memory.getBytes
-import org.kodein.memory.model.Sized
-import org.kodein.memory.wrap
+import org.kodein.memory.cache.Sized
+import org.kodein.memory.io.ReadBuffer
 import kotlin.reflect.KClass
 
 internal class ModelCursorImpl<B : Any, M : B>(private val dc: DataCursor, private val typeTable: TypeTable, private val serializer: Serializer, private val modelType: KClass<M>) : ModelCursor<M> {
