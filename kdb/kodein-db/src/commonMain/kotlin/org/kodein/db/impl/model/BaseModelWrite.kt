@@ -10,7 +10,6 @@ import org.kodein.db.model.ModelWrite
 import org.kodein.db.react.DBListener
 import org.kodein.memory.cache.Sized
 import org.kodein.memory.io.Allocation
-import org.kodein.memory.util.forEachResilient
 
 internal interface BaseModelWrite : BaseModelBase, ModelWrite {
 
@@ -59,18 +58,19 @@ internal interface BaseModelWrite : BaseModelBase, ModelWrite {
         }
     }
 
-    private object UNFETCHED
-
     override fun delete(key: Key<*>, vararg options: Options.Write) {
         val typeName = mdb.typeTable.getTypeName(key.type)
-        var model: Any? = UNFETCHED
-        val get: () -> Any? = {
-            if (model == UNFETCHED)
+        var fetched = false
+        var model: Any? = null
+        val getModel: () -> Any? = {
+            if (!fetched) {
                 model = mdb[key]?.value
+                fetched = true
+            }
             model
         }
-        mdb.listeners.toList().forEach { it.willDelete(key, typeName, get)}
+        mdb.listeners.toList().forEach { it.willDelete(key, getModel, typeName)}
         data.delete(key.bytes, *options)
-        didAction { didDelete(key, typeName) }
+        didAction { didDelete(key, model, typeName) }
     }
 }

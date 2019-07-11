@@ -12,8 +12,8 @@ interface DBListener {
 
     fun didPut(model: Any, typeName: String, metadata: Metadata) {}
 
-    fun willDelete(key: Key<*>, typeName: String, getModel: () -> Any?) {}
+    fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String) {}
 
-    fun didDelete(key: Key<*>, typeName: String) {}
+    fun didDelete(key: Key<*>, model: Any?, typeName: String) {}
 
 }
