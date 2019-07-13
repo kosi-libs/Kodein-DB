@@ -1,7 +1,7 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.TypeTable
-import org.kodein.db.model.findByType
+import org.kodein.db.model.findAllByType
 import org.kodein.db.model.putAll
 import org.kodein.db.orm.kotlinx.asRef
 import org.kodein.memory.use
@@ -26,7 +26,7 @@ open class ModelDBTests_05_Polymorphism : ModelDBTests() {
 
         mdb.putAll(listOf(gilbert, veronique, salomon, maroussia, benjamin))
 
-        mdb.findByType<Person>().use {
+        mdb.findAllByType<Person>().use {
             assertTrue(it.isValid())
             val benji = it.model()
             assertEquals(benjamin, benji.value)

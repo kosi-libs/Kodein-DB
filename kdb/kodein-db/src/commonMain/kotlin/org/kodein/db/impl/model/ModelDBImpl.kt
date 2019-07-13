@@ -4,7 +4,7 @@ import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.data.DataDB
 import org.kodein.db.model.*
-import org.kodein.db.react.DBListener
+import org.kodein.db.model.DBListener
 import org.kodein.memory.Closeable
 import org.kodein.memory.util.forEachResilient
 
@@ -25,7 +25,7 @@ internal class ModelDBImpl(val serializer: Serializer, private val metadataExtra
 
     override fun close() = data.close()
 
-    override fun register(listener: DBListener, vararg options: Options.React): Closeable {
+    override fun register(listener: DBListener): Closeable {
         val subscription = Closeable { listeners -= listener }
         if (listeners.add(listener))  listener.setSubscription(subscription)
         return subscription

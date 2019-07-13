@@ -1,12 +1,13 @@
-package org.kodein.db.impl.model
+package org.kodein.db.impl.cache
 
 import kotlin.test.Test
 
 @Suppress("ClassName")
-class ModelDBTests_XX_ : ModelDBTests() {
+class CacheDBTests_XX_ : CacheDBTests() {
 
     @Test
     fun test00_() {
+
     }
 
 }

@@ -62,7 +62,7 @@ class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache: ModelCac
     override fun model(vararg options: Options.Read): Sized<M> {
         if (cachedEntry == null) {
             @Suppress("UNCHECKED_CAST")
-            cachedEntry = cache.getOrRetrieveEntry(transientKey().asPermanent().asHeapKey()) { cursor.model(*options) } as ObjectCache.Entry.Cached<M>
+            cachedEntry = cache.getOrRetrieveEntry(transientKey().asPermanent()) { cursor.model(*options) } as ObjectCache.Entry.Cached<M>
         }
         return cachedEntry!!
     }

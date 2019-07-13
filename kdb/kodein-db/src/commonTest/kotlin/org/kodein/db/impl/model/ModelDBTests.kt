@@ -32,7 +32,7 @@ abstract class ModelDBTests {
 
     open fun testTypeTable(): TypeTable? = null
 
-    fun newModelDB(): ModelDB = ModelDBTestFactory.open(
+    open fun newModelDB(): ModelDB = ModelDBTestFactory.open(
             ModelDB.OpenOptions(
                     testSerializer(),
                     testMetadataExtractor(),
@@ -41,13 +41,13 @@ abstract class ModelDBTests {
     )
 
     @BeforeTest
-    fun setUp() {
+    open fun setUp() {
         ModelDBTestFactory.destroy()
         _mdb = newModelDB()
     }
 
     @AfterTest
-    fun tearDown() {
+    open fun tearDown() {
         _mdb?.close()
         _mdb = null
         ModelDBTestFactory.destroy()

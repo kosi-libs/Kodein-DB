@@ -24,8 +24,11 @@ internal interface BaseModelRead : BaseModelBase, ModelRead {
             val typeName = readable.readAscii(typeLength.toInt())
 
             val realType = typeTable.getTypeClass(typeName) ?: run {
-                if (typeName != typeTable.getTypeName(type))
-                    throw IllegalStateException("Could not find type $typeName (parameter type $type do not match)")
+                if (type == Any::class)
+                    throw IllegalStateException("Type $typeName is not declared in type table.")
+                val expectedTypeName = typeTable.getTypeName(type)
+                if (typeName != expectedTypeName)
+                    throw IllegalStateException("Type $typeName is not declared in type table and do not match expected type $expectedTypeName.")
                 type
             }
 
@@ -47,7 +50,7 @@ internal interface BaseModelRead : BaseModelBase, ModelRead {
     override fun findAll(vararg options: Options.Read): ModelCursor<*> =
             ModelCursorImpl(data.findAll(*options), mdb.typeTable, mdb.serializer, Any::class)
 
-    override fun <M : Any> findByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M> =
+    override fun <M : Any> findAllByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M> =
             ModelCursorImpl(data.findAllByType(mdb.typeTable.getTypeName(type), *options), mdb.typeTable, mdb.serializer, type)
 
     override fun <M : Any> findByPrimaryKey(type: KClass<M>, primaryKey: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =

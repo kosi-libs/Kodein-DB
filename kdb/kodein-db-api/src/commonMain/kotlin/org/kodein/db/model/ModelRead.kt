@@ -11,7 +11,7 @@ interface ModelRead : ModelBase {
 
     fun findAll(vararg options: Options.Read): ModelCursor<*>
 
-    fun <M : Any> findByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M>
+    fun <M : Any> findAllByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M>
 
     fun <M : Any> findByPrimaryKey(type: KClass<M>, primaryKey: Value, isOpen: Boolean = false, vararg options: Options.Read): ModelCursor<M>
 
@@ -22,7 +22,7 @@ interface ModelRead : ModelBase {
     fun getIndexesOf(key: Key<*>, vararg options: Options.Read): List<String>
 }
 
-inline fun <reified M : Any> ModelRead.findByType(vararg options: Options.Read) = findByType(M::class, *options)
+inline fun <reified M : Any> ModelRead.findAllByType(vararg options: Options.Read) = findAllByType(M::class, *options)
 
 inline fun <reified M : Any> ModelRead.findByPrimaryKey(primaryKey: Value, isOpen: Boolean = false, vararg options: Options.Read) = findByPrimaryKey(M::class, primaryKey, isOpen, *options)
 
