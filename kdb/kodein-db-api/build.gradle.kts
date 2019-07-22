@@ -18,7 +18,7 @@ kodein {
         add(kodeinTargets.native.macosX64)
 
         allTargets {
-            mainCompilation.kotlinOptions.freeCompilerArgs = listOf("-XXLanguage:+InlineClasses")
+            mainCommonCompilation.kotlinOptions.freeCompilerArgs = listOf("-XXLanguage:+InlineClasses")
         }
     }
 }

@@ -28,12 +28,6 @@ kodein {
             }
         }
 
-        add(kodeinTargets.native.linuxX64)
-        add(kodeinTargets.native.macosX64)
+        add(listOf(kodeinTargets.native.linuxX64, kodeinTargets.native.macosX64))
     }
-}
-
-tasks.withType<Test> {
-    dependsOn(project(":ldb:kodein-leveldb").tasks["linkDebug"])
-    systemProperty("java.library.path", project(":ldb:kodein-leveldb").tasks["linkDebug"].outputs.files.first())
 }

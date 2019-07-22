@@ -15,12 +15,13 @@ buildscript {
 
 allprojects {
     group = "org.kodein.db"
-    version = "0.1.0-LGM"
+    version = "0.1.0"
 
     repositories {
-        jcenter()
-        maven(url = "https://kotlin.bintray.com/kotlinx")
         mavenLocal()
+        google()
+        maven(url = "https://kotlin.bintray.com/kotlinx")
+        jcenter()
     }
 }
 
