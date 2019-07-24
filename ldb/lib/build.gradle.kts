@@ -1,3 +1,4 @@
+import org.kodein.internal.gradle.isExcluded
 import java.util.Properties
 
 val buildAll = tasks.create("build") {
@@ -6,12 +7,7 @@ val buildAll = tasks.create("build") {
 
 val currentOs = org.gradle.internal.os.OperatingSystem.current()
 
-val localPropsFile = rootProject.file("local.properties")
-if (!localPropsFile.exists())
-    throw IllegalStateException("Please create android root local.properties")
-val localProps = localPropsFile.inputStream().use { Properties().apply { load(it) } }
-val androidSdkDir = localProps["sdk.dir"]
-        ?: throw IllegalStateException("Please set sdk.dir android sdk path in root local.properties")
+val withAndroid = !isExcluded("android")
 
 class Options {
     val map = HashMap<String, ArrayList<String>>()
@@ -125,23 +121,28 @@ addTarget("konan") {
     }
 }
 
-fun addAndroidTarget(target: String) {
-    val build = addTarget("android-$target") {
-        "CMAKE_TOOLCHAIN_FILE:PATH" += "$androidSdkDir/ndk-bundle/build/cmake/android.toolchain.cmake"
-        "ANDROID_NDK:PATH" += "$androidSdkDir/ndk-bundle/"
-        "ANDROID_PLATFORM:STRING" += "android-21"
-        "ANDROID_ABI:STRING" += target
+if (withAndroid) {
+    val localPropsFile = rootProject.file("local.properties")
+    if (!localPropsFile.exists())
+        throw IllegalStateException("Please create android root local.properties")
+    val localProps = localPropsFile.inputStream().use { Properties().apply { load(it) } }
+    val androidSdkDir = localProps["sdk.dir"]
+            ?: throw IllegalStateException("Please set sdk.dir android sdk path in root local.properties")
+
+    fun addAndroidTarget(target: String) {
+        val build = addTarget("android-$target") {
+            "CMAKE_TOOLCHAIN_FILE:PATH" += "$androidSdkDir/ndk-bundle/build/cmake/android.toolchain.cmake"
+            "ANDROID_NDK:PATH" += "$androidSdkDir/ndk-bundle/"
+            "ANDROID_PLATFORM:STRING" += "android-21"
+            "ANDROID_ABI:STRING" += target
+        }
+
+        tasks.maybeCreate("buildAndroidLeveldb").apply {
+            group = "build"
+            dependsOn(build)
+        }
     }
 
-    tasks.maybeCreate("buildAndroidLeveldb").apply {
-        group = "build"
-        dependsOn(build)
-    }
-}
-
-val excludeAndroid = findProperty("excludeAndroid") == "true"
-
-if (!excludeAndroid) {
     addAndroidTarget("armeabi-v7a")
     addAndroidTarget("arm64-v8a")
     addAndroidTarget("x86")
