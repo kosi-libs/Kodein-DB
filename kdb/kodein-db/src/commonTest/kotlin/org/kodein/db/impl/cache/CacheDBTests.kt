@@ -4,6 +4,8 @@ import org.kodein.db.impl.model.ModelDBTests
 import org.kodein.db.impl.model.cache.CachedModelDB
 import org.kodein.db.impl.model.cache.ModelCache
 import org.kodein.db.model.ModelDB
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 
 abstract class CacheDBTests : ModelDBTests() {
 
@@ -20,12 +22,14 @@ abstract class CacheDBTests : ModelDBTests() {
             testCacheCopyMaxSize()
     )
 
+    @BeforeTest
     override fun setUp() {
         _cache?.clean()
         _cache = testCache()
         super.setUp()
     }
 
+    @AfterTest
     override fun tearDown() {
         _cache = null
         super.tearDown()

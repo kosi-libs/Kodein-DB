@@ -1,13 +1,29 @@
 plugins {
-    id("org.kodein.library.mpp")
+    id("org.kodein.library.mpp-with-android")
 }
 
 val currentOs = org.gradle.internal.os.OperatingSystem.current()
 
 evaluationDependsOn(":ldb:jni")
+evaluationDependsOn(":ldb:lib")
 
 val kotlinxAtomicFuVer: String by getRootProject().extra
 val kodeinLogVer: String by rootProject.extra
+
+android {
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                arguments.add("-DPATH_BASE:PATH=${project(":ldb").projectDir.absolutePath}")
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            setPath("src/androidMain/cpp/CMakeLists.txt")
+        }
+    }
+}
 
 kodein {
     kotlin {
@@ -18,6 +34,13 @@ kodein {
         common.test.dependencies {
             implementation(project(":test-utils"))
             implementation("org.kodein.log:kodein-log-frontend-print:$kodeinLogVer")
+        }
+
+        add(kodeinTargets.android) {
+            test.dependencies {
+                implementation("androidx.test.ext:junit:1.1.1")
+                implementation("androidx.test.espresso:espresso-core:3.2.0")
+            }
         }
 
         add(kodeinTargets.jvm) {
@@ -53,8 +76,8 @@ kodein {
                     "-include-binary", "${project(":ldb:lib").buildDir}/out/konan/lib/libsnappy.a"
             )
 
-            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["buildLeveldbKonan"])
-            tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["buildLeveldbKonan"])
+            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["buildKonanLeveldb"])
+            tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["buildKonanLeveldb"])
         }
 
         sourceSet(kodeinSourceSets.allNative) {
@@ -63,5 +86,14 @@ kodein {
             }
         }
 
+    }
+}
+
+afterEvaluate {
+    configure(listOf("Debug", "Release").map { tasks["externalNativeBuild$it"] }) {
+        dependsOn(
+                project(":ldb:lib").tasks["buildAndroidLeveldb"],
+                project(":ldb:jni").tasks["generateJniHeaders"]
+        )
     }
 }

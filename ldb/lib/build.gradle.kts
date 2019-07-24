@@ -1,8 +1,17 @@
+import java.util.Properties
+
 val buildAll = tasks.create("build") {
     group = "build"
 }
 
 val currentOs = org.gradle.internal.os.OperatingSystem.current()
+
+val localPropsFile = rootProject.file("local.properties")
+if (!localPropsFile.exists())
+    throw IllegalStateException("Please create android root local.properties")
+val localProps = localPropsFile.inputStream().use { Properties().apply { load(it) } }
+val androidSdkDir = localProps["sdk.dir"]
+        ?: throw IllegalStateException("Please set sdk.dir android sdk path in root local.properties")
 
 class Options {
     val map = HashMap<String, ArrayList<String>>()
@@ -16,7 +25,7 @@ fun addCMakeTasks(lib: String, target: String, conf: Options.() -> Unit): Pair<T
 
     val srcDir = "${project(":ldb:lib").projectDir}/src/$lib"
 
-    val configure = tasks.create<Exec>("configure${lib.capitalize()}${target.capitalize()}") {
+    val configure = tasks.create<Exec>("configure${target.capitalize()}${lib.capitalize()}") {
         group = "build"
 
         workingDir("$buildDir/cmake/$lib-$target")
@@ -42,17 +51,17 @@ fun addCMakeTasks(lib: String, target: String, conf: Options.() -> Unit): Pair<T
         }
     }
 
-    val build = tasks.create<Exec>("build${lib.capitalize()}${target.capitalize()}") {
+    val build = tasks.create<Exec>("build${target.capitalize()}${lib.capitalize()}") {
         group = "build"
 
         dependsOn(configure)
 
         workingDir(configure.workingDir)
-        commandLine("make")
+        commandLine("cmake")
         args(
-                "all",
-                "install",
-                "VERBOSE=1"
+                "--build", ".",
+                "--config", "Release",
+                "--target", "install"
         )
 
         inputs.dir(srcDir)
@@ -60,13 +69,11 @@ fun addCMakeTasks(lib: String, target: String, conf: Options.() -> Unit): Pair<T
         outputs.dir("${buildDir}/out")
     }
 
-    buildAll.dependsOn(build)
-
     return configure to build
 }
 
-fun addTarget(target: String, conf: Options.() -> Unit) {
-    val (_, crc32c) = addCMakeTasks("crc32c", target) {
+fun addTarget(target: String, conf: Options.() -> Unit) : Task {
+    val (_, buildCrc32c) = addCMakeTasks("crc32c", target) {
         "CRC32C_BUILD_BENCHMARKS:BOOL" += "0"
         "CRC32C_BUILD_TESTS:BOOL" += "0"
         "CRC32C_USE_GLOG:BOOL" += "0"
@@ -77,13 +84,13 @@ fun addTarget(target: String, conf: Options.() -> Unit) {
         conf()
     }
 
-    val (_, snappy) = addCMakeTasks("snappy", target) {
+    val (_, buildSnappy) = addCMakeTasks("snappy", target) {
         "SNAPPY_BUILD_TESTS:BOOL" += "0"
 
         conf()
     }
 
-    val (leveldb, _) = addCMakeTasks("leveldb", target) {
+    val (configureLeveldb, buildLevelDB) = addCMakeTasks("leveldb", target) {
         "LEVELDB_BUILD_BENCHMARKS:BOOL" += "0"
         "LEVELDB_BUILD_TESTS:BOOL" += "0"
 
@@ -94,8 +101,12 @@ fun addTarget(target: String, conf: Options.() -> Unit) {
         conf()
     }
 
-    leveldb.dependsOn(crc32c)
-    leveldb.dependsOn(snappy)
+    configureLeveldb.dependsOn(buildCrc32c)
+    configureLeveldb.dependsOn(buildSnappy)
+
+    buildAll.dependsOn(buildLevelDB)
+
+    return buildLevelDB
 }
 
 addTarget("host") {
@@ -114,11 +125,18 @@ addTarget("konan") {
     }
 }
 
-fun addAndroidTarget(target: String) = addTarget("android-$target") {
-    "CMAKE_TOOLCHAIN_FILE:PATH" += "/opt/Android/Sdk/ndk-bundle/build/cmake/android.toolchain.cmake"
-    "ANDROID_NDK:PATH" += "/opt/Android/Sdk/ndk-bundle/"
-    "ANDROID_PLATFORM:STRING" += "android-21"
-    "ANDROID_ABI:STRING" += target
+fun addAndroidTarget(target: String) {
+    val build = addTarget("android-$target") {
+        "CMAKE_TOOLCHAIN_FILE:PATH" += "$androidSdkDir/ndk-bundle/build/cmake/android.toolchain.cmake"
+        "ANDROID_NDK:PATH" += "$androidSdkDir/ndk-bundle/"
+        "ANDROID_PLATFORM:STRING" += "android-21"
+        "ANDROID_ABI:STRING" += target
+    }
+
+    tasks.maybeCreate("buildAndroidLeveldb").apply {
+        group = "build"
+        dependsOn(build)
+    }
 }
 
 addAndroidTarget("armeabi-v7a")

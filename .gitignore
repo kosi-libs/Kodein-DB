@@ -13,7 +13,6 @@ build/
 out/
 !dokka/out/
 gradle.properties
-gradle.props
 local.properties
 .gradletasknamecache
 
@@ -26,3 +25,6 @@ package-lock.json
 *.a
 *.o
 *.so
+
+# C++
+.cxx

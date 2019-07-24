@@ -84,7 +84,7 @@ library {
             macros.put("_GLIBCXX_USE_CXX11_ABI", "0")
         }
         compileTask.get().dependsOn(generation)
-        compileTask.get().dependsOn(project(":ldb:lib").tasks["buildLeveldbHost"])
+        compileTask.get().dependsOn(project(":ldb:lib").tasks["buildHostLeveldb"])
 
         if (this is CppSharedLibrary) {
             linkTask.get().linkerArgs.addAll(

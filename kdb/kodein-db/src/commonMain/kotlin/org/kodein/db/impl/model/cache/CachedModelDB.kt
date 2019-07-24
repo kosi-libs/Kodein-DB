@@ -7,7 +7,8 @@ import org.kodein.memory.cache.Sized
 
 class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val cacheCopyMaxSize: Int) : BaseCachedModelRead, ModelDB {
 
-    private val listener = object : DBListener {
+    // https://youtrack.jetbrains.com/issue/KT-20996
+    private val listener: DBListener = object : DBListener {
         override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
             if (Cache.Skip in options) {
                 cache.evict(getKey())

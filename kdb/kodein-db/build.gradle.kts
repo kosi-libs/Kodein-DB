@@ -1,10 +1,7 @@
 plugins {
-    id("org.kodein.library.mpp")
+    id("org.kodein.library.mpp-with-android")
     id("kotlinx-serialization")
 }
-
-evaluationDependsOn(":ldb:lib")
-evaluationDependsOn(":ldb:kodein-leveldb")
 
 kodein {
     kotlin {
@@ -23,6 +20,12 @@ kodein {
         }
 
         add(kodeinTargets.jvm) {
+            test.dependencies {
+                implementation(project(":kdb:serializer:kodein-db-serializer-kryo-jvm"))
+            }
+        }
+
+        add(kodeinTargets.android) {
             test.dependencies {
                 implementation(project(":kdb:serializer:kodein-db-serializer-kryo-jvm"))
             }
