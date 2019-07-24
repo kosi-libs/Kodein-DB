@@ -10,17 +10,19 @@ evaluationDependsOn(":ldb:lib")
 val kotlinxAtomicFuVer: String by getRootProject().extra
 val kodeinLogVer: String by rootProject.extra
 
-android {
-    defaultConfig {
-        externalNativeBuild {
-            cmake {
-                arguments.add("-DPATH_BASE:PATH=${project(":ldb").projectDir.absolutePath}")
+kodeinAndroid {
+    android {
+        defaultConfig {
+            externalNativeBuild {
+                cmake {
+                    arguments.add("-DPATH_BASE:PATH=${project(":ldb").projectDir.absolutePath}")
+                }
             }
         }
-    }
-    externalNativeBuild {
-        cmake {
-            setPath("src/androidMain/cpp/CMakeLists.txt")
+        externalNativeBuild {
+            cmake {
+                setPath("src/androidMain/cpp/CMakeLists.txt")
+            }
         }
     }
 }
@@ -89,11 +91,13 @@ kodein {
     }
 }
 
-afterEvaluate {
-    configure(listOf("Debug", "Release").map { tasks["externalNativeBuild$it"] }) {
-        dependsOn(
-                project(":ldb:lib").tasks["buildAndroidLeveldb"],
-                project(":ldb:jni").tasks["generateJniHeaders"]
-        )
+if (kodeinAndroid.isIncluded) {
+    afterEvaluate {
+        configure(listOf("Debug", "Release").map { tasks["externalNativeBuild$it"] }) {
+            dependsOn(
+                    project(":ldb:lib").tasks["buildAndroidLeveldb"],
+                    project(":ldb:jni").tasks["generateJniHeaders"]
+            )
+        }
     }
 }

@@ -139,10 +139,14 @@ fun addAndroidTarget(target: String) {
     }
 }
 
-addAndroidTarget("armeabi-v7a")
-addAndroidTarget("arm64-v8a")
-addAndroidTarget("x86")
-addAndroidTarget("x86_64")
+val excludeAndroid = findProperty("excludeAndroid") == "true"
+
+if (!excludeAndroid) {
+    addAndroidTarget("armeabi-v7a")
+    addAndroidTarget("arm64-v8a")
+    addAndroidTarget("x86")
+    addAndroidTarget("x86_64")
+}
 
 tasks.create<Delete>("clean") {
     delete(buildDir)
