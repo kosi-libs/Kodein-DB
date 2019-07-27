@@ -133,7 +133,7 @@ if (withAndroid) {
         val build = addTarget("android-$target") {
             "CMAKE_TOOLCHAIN_FILE:PATH" += "$androidSdkDir/ndk-bundle/build/cmake/android.toolchain.cmake"
             "ANDROID_NDK:PATH" += "$androidSdkDir/ndk-bundle/"
-            "ANDROID_PLATFORM:STRING" += "android-21"
+            "ANDROID_PLATFORM:STRING" += "android-16"
             "ANDROID_ABI:STRING" += target
         }
 
