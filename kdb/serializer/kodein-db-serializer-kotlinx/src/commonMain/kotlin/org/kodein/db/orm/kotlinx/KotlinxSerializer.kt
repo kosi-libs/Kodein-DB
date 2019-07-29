@@ -6,6 +6,7 @@ import org.kodein.db.Options
 import org.kodein.db.invoke
 import org.kodein.db.model.Serializer
 import org.kodein.db.simpleNameOf
+import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.io.Readable
 import org.kodein.memory.io.Writeable
 import org.kodein.memory.io.readBytes
@@ -14,7 +15,7 @@ import kotlin.reflect.KClass
 
 class KXSerializer(val serializer: KSerializer<*>) : Options.Read, Options.Write
 
-class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : Serializer {
+class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : Serializer<Any> {
 
     private val serializers = HashMap<KClass<*>, KSerializer<*>>()
 
@@ -43,14 +44,14 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
     }
 
     @ImplicitReflectionSerializer
-    override fun <M : Any> serialize(model: M, output: Writeable, vararg options: Options.Write) {
+    override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
         @Suppress("UNCHECKED_CAST")
-        val bytes = Cbor.dump(getSerializer(options, model::class) as SerializationStrategy<M>, model)
+        val bytes = Cbor.dump(getSerializer(options, model::class) as SerializationStrategy<Any>, model)
         output.putBytes(bytes)
     }
 
     @ImplicitReflectionSerializer
-    override fun <M : Any> deserialize(type: KClass<M>, input: Readable, vararg options: Options.Read): M {
+    override fun <M : Any> deserialize(type: KClass<M>, input: ReadBuffer, vararg options: Options.Read): M {
         val opt: KXSerializer? = options()
         val serializer = opt?.serializer ?: serializers[type] ?: type.serializer()
         val bytes = input.readBytes()

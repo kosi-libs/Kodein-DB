@@ -7,7 +7,7 @@ import org.kodein.memory.Closeable
 interface ModelDB : ModelWrite, ModelRead, Closeable {
 
     class OpenOptions(
-            val serializer: Serializer? = null,
+            val serializer: Serializer<Any>? = null,
             val metadataExtractor: MetadataExtractor? = null,
             val typeTable: TypeTable? = null
     ) : Options.Open

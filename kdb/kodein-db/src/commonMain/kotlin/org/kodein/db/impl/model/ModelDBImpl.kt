@@ -8,7 +8,7 @@ import org.kodein.db.model.DBListener
 import org.kodein.memory.Closeable
 import org.kodein.memory.util.forEachResilient
 
-internal class ModelDBImpl(val serializer: Serializer, private val metadataExtractor: MetadataExtractor, val typeTable: TypeTable, override val data: DataDB) : ModelDB, BaseModelRead, BaseModelWrite {
+internal class ModelDBImpl(val serializer: Serializer<Any>, private val metadataExtractor: MetadataExtractor, val typeTable: TypeTable, override val data: DataDB) : ModelDB, BaseModelRead, BaseModelWrite {
 
     internal val listeners = LinkedHashSet<DBListener>()
 

@@ -8,7 +8,7 @@ import org.kodein.memory.cache.Sized
 import org.kodein.memory.io.ReadBuffer
 import kotlin.reflect.KClass
 
-internal class ModelCursorImpl<B : Any, M : B>(private val dc: DataCursor, private val typeTable: TypeTable, private val serializer: Serializer, private val modelType: KClass<M>) : ModelCursor<M> {
+internal class ModelCursorImpl<B : Any, M : B>(private val dc: DataCursor, private val typeTable: TypeTable, private val serializer: Serializer<Any>, private val modelType: KClass<M>) : ModelCursor<M> {
 
     override fun isValid(): Boolean = dc.isValid()
 

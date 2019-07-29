@@ -20,7 +20,7 @@ abstract class ModelDBTests {
 
     protected val mdb: ModelDB get() = _mdb!!
 
-    open fun testSerializer(): Serializer = KotlinxSerializer {
+    open fun testSerializer(): Serializer<Any> = KotlinxSerializer {
         +Adult.serializer()
         +Child.serializer()
         +Location.serializer()

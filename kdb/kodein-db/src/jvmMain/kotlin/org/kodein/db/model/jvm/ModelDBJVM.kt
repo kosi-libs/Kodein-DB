@@ -18,13 +18,14 @@ object ModelDBJVM : AbstractModelDBFactory() {
             try { Class.forName(name) }
             catch (_: ClassNotFoundException) { null }
 
-    override fun defaultSerializer(): Serializer {
+    override fun defaultSerializer(): Serializer<Any> {
         val serializerClass =
                     getClass("org.kodein.db.orm.kryo.KryoSerializer")
                 ?:  getClass("org.kodein.db.orm.kotlinx.KotlinxSerializer")
                 ?:  throw IllegalStateException("Could not find neither Kryo nor KotlinX serializers in the classpath. Either add one of them to the classpath or define the serializer with ModelDB.OpenOptions.")
 
-        return serializerClass.getConstructor().newInstance() as Serializer
+        @Suppress("UNCHECKED_CAST")
+        return serializerClass.getConstructor().newInstance() as Serializer<Any>
     }
 
     override fun defaultMetadataExtractor(): MetadataExtractor {

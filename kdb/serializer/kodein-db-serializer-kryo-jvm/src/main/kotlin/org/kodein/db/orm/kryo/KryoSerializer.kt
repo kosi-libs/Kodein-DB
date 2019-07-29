@@ -8,24 +8,21 @@ import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy
 import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.model.Serializer
-import org.kodein.memory.io.Readable
-import org.kodein.memory.io.Writeable
-import org.kodein.memory.io.asInputStream
-import org.kodein.memory.io.asOuputStream
+import org.kodein.memory.io.*
 import org.kodein.memory.use
 import org.objenesis.strategy.StdInstantiatorStrategy
 import kotlin.reflect.KClass
 
 
-class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : Serializer {
+class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : Serializer<Any> {
 
-    override fun <M : Any> serialize(model: M, output: Writeable, vararg options: Options.Write) {
+    override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
         Output(output.asOuputStream()).use {
             kryo.writeObject(it, model)
         }
     }
 
-    override fun <M : Any> deserialize(type: KClass<M>, input: Readable, vararg options: Options.Read): M {
+    override fun <M : Any> deserialize(type: KClass<M>, input: ReadBuffer, vararg options: Options.Read): M {
         Input(input.asInputStream()).use {
             return kryo.readObject<M>(it, type.java)
         }

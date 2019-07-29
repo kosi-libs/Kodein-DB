@@ -13,7 +13,7 @@ abstract class AbstractModelDBFactory : ModelDBFactory {
 
     protected abstract val ddbFactory: DataDBFactory
 
-    protected abstract fun defaultSerializer(): Serializer
+    protected abstract fun defaultSerializer(): Serializer<Any>
 
     protected abstract fun defaultMetadataExtractor(): MetadataExtractor
 

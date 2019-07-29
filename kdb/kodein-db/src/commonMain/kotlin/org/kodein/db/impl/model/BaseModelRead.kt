@@ -10,6 +10,7 @@ import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.ModelRead
 import org.kodein.db.model.Serializer
 import org.kodein.memory.cache.Sized
+import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.io.Readable
 import org.kodein.memory.use
 import kotlin.reflect.KClass
@@ -19,9 +20,9 @@ internal interface BaseModelRead : BaseModelBase, ModelRead {
     override val data: DataRead
 
     companion object {
-        internal fun <M : Any> getFrom(readable: Readable, type: KClass<out M>, typeTable: TypeTable, serializer: Serializer, options: Array<out Options.Read>): Sized<M> {
-            val typeLength = readable.readShort()
-            val typeName = readable.readAscii(typeLength.toInt())
+        internal fun <M : Any> getFrom(buffer: ReadBuffer, type: KClass<out M>, typeTable: TypeTable, serializer: Serializer<Any>, options: Array<out Options.Read>): Sized<M> {
+            val typeLength = buffer.readShort()
+            val typeName = buffer.readAscii(typeLength.toInt())
 
             val realType = typeTable.getTypeClass(typeName) ?: run {
                 if (type == Any::class)
@@ -35,11 +36,11 @@ internal interface BaseModelRead : BaseModelBase, ModelRead {
             @Suppress("UNCHECKED_CAST")
             realType as KClass<M>
 
-            val r = readable.remaining
+            val r = buffer.remaining
 
-            val model = serializer.deserialize(realType, readable, *options)
+            val model = serializer.deserialize(realType, buffer, *options)
 
-            return Sized(model, r - readable.remaining)
+            return Sized(model, r - buffer.remaining)
         }
     }
 
