@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.targets.js.npm.SemVer
 import org.kodein.internal.gradle.isExcluded
 import java.util.Properties
 
@@ -126,13 +127,18 @@ if (withAndroid) {
     if (!localPropsFile.exists())
         throw IllegalStateException("Please create android root local.properties")
     val localProps = localPropsFile.inputStream().use { Properties().apply { load(it) } }
-    val androidSdkDir = localProps["sdk.dir"]
+    val sdkDir = localProps["sdk.dir"]?.let { file(it) }
             ?: throw IllegalStateException("Please set sdk.dir android sdk path in root local.properties")
+    val ndkDir = sdkDir.resolve("ndk-bundle").takeIf { it.exists() }
+            ?: sdkDir.resolve("ndk").takeIf { it.exists() }
+                    ?.listFiles { f -> f.isDirectory() }
+                    ?.reduce { l, r -> if (SemVer.from(l.name) >= SemVer.from(r.name)) l else r }
+            ?: throw IllegalStateException("Please install NDK")
 
     fun addAndroidTarget(target: String) {
         val build = addTarget("android-$target") {
-            "CMAKE_TOOLCHAIN_FILE:PATH" += "$androidSdkDir/ndk-bundle/build/cmake/android.toolchain.cmake"
-            "ANDROID_NDK:PATH" += "$androidSdkDir/ndk-bundle/"
+            "CMAKE_TOOLCHAIN_FILE:PATH" += "${ndkDir.absolutePath}/build/cmake/android.toolchain.cmake"
+            "ANDROID_NDK:PATH" += "${ndkDir.absolutePath}/"
             "ANDROID_PLATFORM:STRING" += "android-16"
             "ANDROID_ABI:STRING" += target
         }
