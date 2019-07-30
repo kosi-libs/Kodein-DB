@@ -54,9 +54,10 @@ val generation = task<Exec>("generateJniHeaders") {
 
 val javaHome = System.getProperty("java.home").let { if (it.endsWith("/jre")) file("$it/..").absolutePath else it }
 val currentOs = org.gradle.internal.os.OperatingSystem.current()
+val currentOsName = currentOs.name.toLowerCase().replace(" ", "")
 
 library {
-    this.baseName.set("kodein-leveldb-jni-${currentOs.name.toLowerCase()}-$version")
+    this.baseName.set("kodein-leveldb-jni-$currentOsName-$version")
 
     privateHeaders {
         from("$javaHome/include")
@@ -89,9 +90,13 @@ library {
         if (this is CppSharedLibrary) {
             linkTask.get().linkerArgs.addAll(
                     "-L${project(":ldb:lib").buildDir}/out/host/lib",
-                    "-lleveldb", "-lsnappy", "-lcrc32c",
-                    "-static-libgcc", "-static-libstdc++"
+                    "-lleveldb", "-lsnappy", "-lcrc32c"
             )
+            if (currentOs.isLinux()) {
+                linkTask.get().linkerArgs.addAll(
+                        "-static-libgcc", "-static-libstdc++"
+                )
+            }
             compileTask.get().compilerArgs.add("-std=c++11")
         }
     }
@@ -108,17 +113,21 @@ listOf("debug", "release").forEach { type ->
         doLast {
             val digest = MessageDigest.getInstance("SHA-1")
             val buf = ByteArray(8192)
-            tasks["link$cType"].outputs.files.filter { it.name.endsWith(".so") }.first().inputStream().use {
-                while (true) {
-                    val n = it.read(buf)
-                    if (n == -1) break
-                    if (n > 0) digest.update(buf, 0, n)
-                }
-            }
+            tasks["link$cType"].outputs.files
+                    .filter { it.name.endsWith(".so") || it.name.endsWith(".dylib") }
+                    .first()
+                    .inputStream()
+                    .use {
+                        while (true) {
+                            val n = it.read(buf)
+                            if (n == -1) break
+                            if (n > 0) digest.update(buf, 0, n)
+                        }
+                    }
 
             val props = Properties()
             props["version"] = version
-            props["os"] = currentOs.name.toLowerCase()
+            props["os"] = currentOsName
             props["sha1"] = digest.digest().toHexString()
             outputFile.outputStream().use {
                 props.store(it, null)

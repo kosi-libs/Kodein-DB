@@ -6,6 +6,7 @@ import org.kodein.memory.text.toHexString
 import java.lang.IllegalStateException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.*
 
@@ -17,9 +18,11 @@ object LevelDBJVM : LevelDBFactory by LevelDBJNI.Factory {
         val version = resourcesProps["version"]!!
         val sha1 = resourcesProps["sha1"]!!
 
-        val libname = "libkodein-leveldb-jni-$os-$version.so"
+        val ext = if ("mac" in System.getProperty("os.name").toLowerCase()) "dylib" else "so"
 
-        val location = Path.of(System.getProperty("org.kodein.db.leveldb.jvm.jni-location") ?: "${System.getProperty("user.home")}/.kodein-db/$os/$version").toAbsolutePath()
+        val libname = "libkodein-leveldb-jni-$os-$version.$ext"
+
+        val location = Paths.get(System.getProperty("org.kodein.db.leveldb.jvm.jni-location") ?: "${System.getProperty("user.home")}/.kodein-db/$os/$version").toAbsolutePath()
         val info = location.resolve("info.properties")
         val lib = location.resolve(libname)
 

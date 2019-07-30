@@ -119,6 +119,9 @@ addTarget("konan") {
         "CMAKE_SYSROOT:PATH" += "${System.getenv("HOME")}/.konan/dependencies/target-gcc-toolchain-3-linux-x86-64/x86_64-unknown-linux-gnu/sysroot"
         "CMAKE_C_FLAGS:STRING" += "--gcc-toolchain=${System.getenv("HOME")}/.konan/dependencies/target-gcc-toolchain-3-linux-x86-64"
         "CMAKE_CXX_FLAGS:STRING" += "--gcc-toolchain=${System.getenv("HOME")}/.konan/dependencies/target-gcc-toolchain-3-linux-x86-64"
+    } else if (currentOs.isMacOsX) {
+        "CMAKE_C_FLAGS:STRING" += "-mmacosx-version-min=10.11"
+        "CMAKE_CXX_FLAGS:STRING" += "-mmacosx-version-min=10.11"
     }
 }
 
