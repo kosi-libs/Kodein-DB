@@ -69,9 +69,11 @@ kodein {
                     headerFilterOnly(project(":ldb:lib").file("build/out/$compilation/include"))
                 })
 
-                includeDirs(Action {
-                    headerFilterOnly("/usr/include")
-                })
+                if (currentOs.isLinux) {
+                    includeDirs(Action {
+                        headerFilterOnly("/usr/include")
+                    })
+                }
             }
 
             // https://github.com/JetBrains/kotlin-native/issues/2314
@@ -85,7 +87,7 @@ kodein {
             tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
         }
 
-        add(listOf(kodeinTargets.native.linuxX64, kodeinTargets.native.macosX64)) {
+        add(kodeinTargets.native.host) {
             configureCInterop("konan")
         }
 
@@ -105,6 +107,16 @@ kodein {
 
     }
 }
+
+println(tasks["macosX64Test"].javaClass)
+
+//task<Exec>("iosX64Test") {
+//    dependsOn("linkDebugTestIosX64")
+//    group = "verification"
+//
+//    val binary = (kotlin.targets["iosX64"] as KotlinNativeTarget).binaries.getTest("DEBUG").outputFile
+//    setCommandLine("xcrun", "simctl", "spawn", "iPhone 8", binary.absolutePath, "--ktest_logger=TEAMCITY")
+//}
 
 if (kodeinAndroid.isIncluded) {
     afterEvaluate {

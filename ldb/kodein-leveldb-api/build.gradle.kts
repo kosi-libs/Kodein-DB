@@ -30,7 +30,7 @@ kodein {
             }
         }
 
-        add(listOf(kodeinTargets.native.linuxX64, kodeinTargets.native.macosX64)) {
+        add(kodeinTargets.native.host) {
             main.dependencies {
                 api("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
             }

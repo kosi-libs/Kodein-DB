@@ -26,8 +26,8 @@ kodein {
             }
         }
 
-        add(kodeinTargets.native.linuxX64)
+        add(kodeinTargets.native.host)
 
-        add(kodeinTargets.native.macosX64)
+        add(kodeinTargets.native.allIos)
     }
 }
