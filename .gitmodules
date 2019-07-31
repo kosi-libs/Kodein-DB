@@ -7,3 +7,6 @@
 [submodule "ldb/lib/src/leveldb"]
 	path = ldb/lib/src/leveldb
 	url = https://github.com/google/leveldb.git
+[submodule "ldb/lib/src/ios-cmake"]
+	path = ldb/lib/src/ios-cmake
+	url = https://github.com/leetal/ios-cmake.git

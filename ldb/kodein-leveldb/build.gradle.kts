@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.kodein.internal.gradle.KodeinMPPExtension
+
 plugins {
     id("org.kodein.library.mpp-with-android")
 }
@@ -58,12 +61,12 @@ kodein {
             }
         }
 
-        add(listOf(kodeinTargets.native.linuxX64, kodeinTargets.native.macosX64)) {
+        fun KodeinMPPExtension.TargetBuilder<KotlinNativeTarget>.configureCInterop(compilation: String) {
             mainCompilation.cinterops.create("libleveldb") {
                 packageName("org.kodein.db.libleveldb")
 
                 includeDirs(Action {
-                    headerFilterOnly(project(":ldb:lib").file("build/out/konan/include"))
+                    headerFilterOnly(project(":ldb:lib").file("build/out/$compilation/include"))
                 })
 
                 includeDirs(Action {
@@ -73,13 +76,25 @@ kodein {
 
             // https://github.com/JetBrains/kotlin-native/issues/2314
             mainCompilation.kotlinOptions.freeCompilerArgs = listOf(
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/konan/lib/libleveldb.a",
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/konan/lib/libcrc32c.a",
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/konan/lib/libsnappy.a"
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libleveldb.a",
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libcrc32c.a",
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libsnappy.a"
             )
 
-            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["buildKonanLeveldb"])
-            tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["buildKonanLeveldb"])
+            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
+            tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
+        }
+
+        add(listOf(kodeinTargets.native.linuxX64, kodeinTargets.native.macosX64)) {
+            configureCInterop("konan")
+        }
+
+        add(listOf(kodeinTargets.native.iosArm32, kodeinTargets.native.iosArm64)) {
+            configureCInterop("iosOs")
+        }
+
+        add(kodeinTargets.native.iosX64) {
+            configureCInterop("iosSimulator64")
         }
 
         sourceSet(kodeinSourceSets.allNative) {

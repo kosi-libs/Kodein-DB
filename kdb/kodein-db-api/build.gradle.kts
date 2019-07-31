@@ -14,8 +14,9 @@ kodein {
 
         add(kodeinTargets.jvm)
 
-        add(kodeinTargets.native.linuxX64)
-        add(kodeinTargets.native.macosX64)
+        add(listOf(kodeinTargets.native.linuxX64, kodeinTargets.native.macosX64))
+
+        add(kodeinTargets.native.allIos)
 
         allTargets {
             mainCommonCompilation.kotlinOptions.freeCompilerArgs = listOf("-XXLanguage:+InlineClasses")

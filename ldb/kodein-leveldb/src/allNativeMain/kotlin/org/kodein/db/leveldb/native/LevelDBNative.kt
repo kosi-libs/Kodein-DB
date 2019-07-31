@@ -36,7 +36,7 @@ private fun LevelDB.Options.allocOptionsPtr(): OptionsPtrs {
 
     val ptrs = OptionsPtrs(
             leveldb_options_create()!!,
-            if (cacheSize > 0) leveldb_cache_create_lru(cacheSize.toULong()) else null,
+            if (cacheSize > 0) leveldb_cache_create_lru(cacheSize.convert()) else null,
             if (bloomFilterBitsPerKey > 0) leveldb_filterpolicy_create_bloom(bloomFilterBitsPerKey) else null
     )
 
@@ -44,10 +44,10 @@ private fun LevelDB.Options.allocOptionsPtr(): OptionsPtrs {
     leveldb_options_set_create_if_missing(ptrs.options, openPolicy.createIfMissing.toByte().toUByte())
     leveldb_options_set_error_if_exists(ptrs.options, openPolicy.errorIfExists.toByte().toUByte())
     leveldb_options_set_paranoid_checks(ptrs.options, paranoidChecks.toByte().toUByte())
-    leveldb_options_set_write_buffer_size(ptrs.options, writeBufferSize.toULong())
+    leveldb_options_set_write_buffer_size(ptrs.options, writeBufferSize.convert())
     leveldb_options_set_max_open_files(ptrs.options, maxOpenFiles)
     leveldb_options_set_cache(ptrs.options, ptrs.cache)
-    leveldb_options_set_block_size(ptrs.options, blockSize.toULong())
+    leveldb_options_set_block_size(ptrs.options, blockSize.convert())
     leveldb_options_set_block_restart_interval(ptrs.options, blockRestartInterval)
     leveldb_options_set_compression(ptrs.options, if (snappyCompression) leveldb_snappy_compression.toInt() else leveldb_no_compression.toInt())
     // TODO
@@ -131,13 +131,13 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
 
     override fun put(key: ReadBuffer, value: ReadBuffer, options: LevelDB.WriteOptions) {
         options.usePointer { optionsPtr ->
-            ldbCall { leveldb_put(nonNullPtr, optionsPtr, key.pointer(), key.remaining.toULong(), value.pointer(), value.remaining.toULong(), it.ptr) }
+            ldbCall { leveldb_put(nonNullPtr, optionsPtr, key.pointer(), key.remaining.convert(), value.pointer(), value.remaining.convert(), it.ptr) }
         }
     }
 
     override fun delete(key: ReadBuffer, options: LevelDB.WriteOptions) {
         options.usePointer { optionsPtr ->
-            ldbCall { leveldb_delete(nonNullPtr, optionsPtr, key.pointer(), key.remaining.toULong(), it.ptr) }
+            ldbCall { leveldb_delete(nonNullPtr, optionsPtr, key.pointer(), key.remaining.convert(), it.ptr) }
         }
     }
 
@@ -159,7 +159,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         options.usePointer { optionsPtr ->
             return ldbCall {
                 val valueSize = alloc<size_tVar>()
-                val value = leveldb_get(nonNullPtr, optionsPtr, key.pointer(), key.remaining.toULong(), valueSize.ptr, it.ptr)
+                val value = leveldb_get(nonNullPtr, optionsPtr, key.pointer(), key.remaining.convert(), valueSize.ptr, it.ptr)
                 if (value != null)
                     NativeBytes(value, valueSize.value.toInt(), dbHandler, this@LevelDBNative.options)
                 else
@@ -174,7 +174,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         options.usePointer { optionsPtr ->
             val (newKey, newKeySize) = ldbCall {
                 val newKeySize = alloc<size_tVar>()
-                val newKey = leveldb_get(nonNullPtr, optionsPtr, key.pointer(), key.remaining.toULong(), newKeySize.ptr, it.ptr)
+                val newKey = leveldb_get(nonNullPtr, optionsPtr, key.pointer(), key.remaining.convert(), newKeySize.ptr, it.ptr)
                 newKey to newKeySize.value
             }
             if (newKey == null)
@@ -199,7 +199,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         options.usePointer { optionsPtr ->
             return ldbCall {
                 val valueSize = alloc<size_tVar>()
-                val value = leveldb_get(nonNullPtr, optionsPtr, newKey.pointer(), newKey.remaining.toULong(), valueSize.ptr, it.ptr)
+                val value = leveldb_get(nonNullPtr, optionsPtr, newKey.pointer(), newKey.remaining.convert(), valueSize.ptr, it.ptr)
                 if (value != null)
                     NativeBytes(value, valueSize.value.toInt(), dbHandler, this@LevelDBNative.options)
                 else
@@ -237,7 +237,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         }
 
         override fun seekTo(target: ReadBuffer) {
-            ldbItCall { leveldb_iter_seek(nonNullPtr, target.pointer(), target.remaining.toULong()) }
+            ldbItCall { leveldb_iter_seek(nonNullPtr, target.pointer(), target.remaining.convert()) }
         }
 
         override fun next() {
@@ -396,11 +396,11 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
     internal class WriteBatch internal constructor(ptr: CPointer<leveldb_writebatch_t>, handler: Handler, options: LevelDB.Options) : PointerBound<leveldb_writebatch_t>(ptr, "WriteBatch", handler, options), LevelDB.WriteBatch {
 
         override fun put(key: ReadBuffer, value: ReadBuffer) {
-            leveldb_writebatch_put(nonNullPtr, key.pointer(), key.remaining.toULong(), value.pointer(), value.remaining.toULong())
+            leveldb_writebatch_put(nonNullPtr, key.pointer(), key.remaining.convert(), value.pointer(), value.remaining.convert())
         }
 
         override fun delete(key: ReadBuffer) {
-            leveldb_writebatch_delete(nonNullPtr, key.pointer(), key.remaining.toULong())
+            leveldb_writebatch_delete(nonNullPtr, key.pointer(), key.remaining.convert())
         }
 
         override fun release(ptr: CPointer<leveldb_writebatch_t>) {

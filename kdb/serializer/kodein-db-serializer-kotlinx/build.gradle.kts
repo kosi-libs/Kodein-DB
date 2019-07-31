@@ -19,8 +19,17 @@ kodein {
             }
         }
 
-        add(kodeinTargets.native.linuxX64)
-        add(kodeinTargets.native.macosX64)
+        add(listOf(kodeinTargets.native.linuxX64, kodeinTargets.native.macosX64)) {
+            main.dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$kxSerRtVer")
+            }
+        }
+
+        add(kodeinTargets.native.allIos) {
+            main.dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$kxSerRtVer")
+            }
+        }
 
         sourceSet(kodeinSourceSets.allNative) {
             main.dependencies {

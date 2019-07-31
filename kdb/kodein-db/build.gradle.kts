@@ -32,5 +32,7 @@ kodein {
         }
 
         add(listOf(kodeinTargets.native.linuxX64, kodeinTargets.native.macosX64))
+
+        add(kodeinTargets.native.allIos)
     }
 }

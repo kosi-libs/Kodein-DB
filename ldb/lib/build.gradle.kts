@@ -6,21 +6,33 @@ val buildAll = tasks.create("build") {
     group = "build"
 }
 
-val currentOs = org.gradle.internal.os.OperatingSystem.current()
+val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
 
 val withAndroid = !isExcluded("android")
 
-class Options {
-    val map = HashMap<String, ArrayList<String>>()
+class CMakeOptions {
+    val defines = HashMap<String, ArrayList<String>>()
+    val raw = ArrayList<String>()
 
     operator fun String.plusAssign(value: String) {
-        map.getOrPut(this) { ArrayList() } .add(value)
+        defines.getOrPut(this) { ArrayList() } .add(value)
     }
+
+    operator fun String.unaryPlus() { this += "1" }
+
+    operator fun String.minusAssign(value: String) {
+        raw.addAll(arrayOf("-$this", value))
+    }
+
+    operator fun String.unaryMinus() {
+        raw.add("-$this")
+    }
+
 }
 
-fun addCMakeTasks(lib: String, target: String, conf: Options.() -> Unit): Pair<Task, Task> {
+fun addCMakeTasks(lib: String, target: String, dir: String = lib, conf: CMakeOptions.() -> Unit): Pair<Task, Task> {
 
-    val srcDir = "${project(":ldb:lib").projectDir}/src/$lib"
+    val srcDir = "${project(":ldb:lib").projectDir}/src/$dir"
 
     val configure = tasks.create<Exec>("configure${target.capitalize()}${lib.capitalize()}") {
         group = "build"
@@ -28,8 +40,8 @@ fun addCMakeTasks(lib: String, target: String, conf: Options.() -> Unit): Pair<T
         workingDir("$buildDir/cmake/$lib-$target")
         commandLine("cmake")
 
-        val options = Options().apply {
-            "CMAKE_POSITION_INDEPENDENT_CODE:BOOL" += "1"
+        val options = CMakeOptions().apply {
+            +"CMAKE_POSITION_INDEPENDENT_CODE:BOOL"
             "CMAKE_INSTALL_PREFIX:PATH" += "$buildDir/out/$target"
             "CMAKE_C_FLAGS:STRING" += "-D_GLIBCXX_USE_CXX11_ABI=0"
             "CMAKE_CXX_FLAGS:STRING" += "-D_GLIBCXX_USE_CXX11_ABI=0"
@@ -38,7 +50,7 @@ fun addCMakeTasks(lib: String, target: String, conf: Options.() -> Unit): Pair<T
             conf()
         }
 
-        args(options.map.map { "-D${it.key}=${it.value.joinToString(" ")}" } + srcDir)
+        args(options.raw + options.defines.map { "-D${it.key}=${it.value.joinToString(" ")}" } + srcDir)
 
         inputs.dir(srcDir)
         outputs.dir(workingDir)
@@ -63,13 +75,13 @@ fun addCMakeTasks(lib: String, target: String, conf: Options.() -> Unit): Pair<T
 
         inputs.dir(srcDir)
         inputs.dir(configure.workingDir)
-        outputs.dir("${buildDir}/out")
+        outputs.dir("$buildDir/out")
     }
 
     return configure to build
 }
 
-fun addTarget(target: String, conf: Options.() -> Unit) : Task {
+fun addTarget(target: String, conf: CMakeOptions.() -> Unit) : Task {
     val (_, buildCrc32c) = addCMakeTasks("crc32c", target) {
         "CRC32C_BUILD_BENCHMARKS:BOOL" += "0"
         "CRC32C_BUILD_TESTS:BOOL" += "0"
@@ -87,7 +99,7 @@ fun addTarget(target: String, conf: Options.() -> Unit) : Task {
         conf()
     }
 
-    val (configureLeveldb, buildLevelDB) = addCMakeTasks("leveldb", target) {
+    val (configureLeveldb, buildLevelDB) = addCMakeTasks("leveldb", target, "leveldb-kodein") {
         "LEVELDB_BUILD_BENCHMARKS:BOOL" += "0"
         "LEVELDB_BUILD_TESTS:BOOL" += "0"
 
@@ -115,7 +127,7 @@ addTarget("konan") {
     "CMAKE_C_COMPILER:STRING" += "clang"
     "CMAKE_CXX_COMPILER:STRING" += "clang++"
 
-    if (currentOs.isLinux()) {
+    if (currentOs.isLinux) {
         "CMAKE_SYSROOT:PATH" += "${System.getenv("HOME")}/.konan/dependencies/target-gcc-toolchain-3-linux-x86-64/x86_64-unknown-linux-gnu/sysroot"
         "CMAKE_C_FLAGS:STRING" += "--gcc-toolchain=${System.getenv("HOME")}/.konan/dependencies/target-gcc-toolchain-3-linux-x86-64"
         "CMAKE_CXX_FLAGS:STRING" += "--gcc-toolchain=${System.getenv("HOME")}/.konan/dependencies/target-gcc-toolchain-3-linux-x86-64"
@@ -134,12 +146,12 @@ if (withAndroid) {
             ?: throw IllegalStateException("Please set sdk.dir android sdk path in root local.properties")
     val ndkDir = sdkDir.resolve("ndk-bundle").takeIf { it.exists() }
             ?: sdkDir.resolve("ndk").takeIf { it.exists() }
-                    ?.listFiles { f -> f.isDirectory() }
+                    ?.listFiles { f -> f.isDirectory }
                     ?.reduce { l, r -> if (SemVer.from(l.name) >= SemVer.from(r.name)) l else r }
             ?: throw IllegalStateException("Please install NDK")
 
     fun addAndroidTarget(target: String) {
-        val build = addTarget("android-$target") {
+        val build = addTarget("android${target.capitalize()}") {
             "CMAKE_TOOLCHAIN_FILE:PATH" += "${ndkDir.absolutePath}/build/cmake/android.toolchain.cmake"
             "ANDROID_NDK:PATH" += "${ndkDir.absolutePath}/"
             "ANDROID_PLATFORM:STRING" += "android-16"
@@ -156,6 +168,26 @@ if (withAndroid) {
     addAndroidTarget("arm64-v8a")
     addAndroidTarget("x86")
     addAndroidTarget("x86_64")
+}
+
+if (currentOs.isMacOsX) {
+    fun addIosTarget(target: String) {
+        val build = addTarget("ios${target.capitalize()}") {
+            "G" -= "Xcode"
+            "CMAKE_TOOLCHAIN_FILE:PATH" += "${projectDir.absolutePath}/src/ios-cmake/ios.toolchain.cmake"
+            "PLATFORM:STRING" += target.toUpperCase()
+            "CMAKE_C_FLAGS:STRING" += "-Wno-shorten-64-to-32"
+            "CMAKE_CXX_FLAGS:STRING" += "-Wno-shorten-64-to-32"
+        }
+
+        tasks.maybeCreate("buildIosLeveldb").apply {
+            group = "build"
+            dependsOn(build)
+        }
+    }
+
+    addIosTarget("os")
+    addIosTarget("simulator64")
 }
 
 tasks.create<Delete>("clean") {
