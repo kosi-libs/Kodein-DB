@@ -1,10 +1,8 @@
-package org.kodein.db.model
+package org.kodein.db
 
-import org.kodein.db.Options
-import org.kodein.db.Value
 import kotlin.reflect.KClass
 
-interface ModelBase {
+interface DBBase {
 
     fun <M : Any> getHeapKey(type: KClass<M>, primaryKey: Value): Key<M>
     fun <M : Any> getNativeKey(type: KClass<M>, primaryKey: Value): Key.Native<M>
@@ -14,5 +12,5 @@ interface ModelBase {
 
 }
 
-inline fun <reified M : Any> ModelBase.getHeapKey(primaryKey: Value) = getHeapKey(M::class, primaryKey)
-inline fun <reified M : Any> ModelBase.getNativeKey(primaryKey: Value) = getNativeKey(M::class, primaryKey)
+inline fun <reified M : Any> DBBase.getHeapKey(primaryKey: Value) = getHeapKey(M::class, primaryKey)
+inline fun <reified M : Any> DBBase.getNativeKey(primaryKey: Value) = getNativeKey(M::class, primaryKey)

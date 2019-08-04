@@ -1,13 +1,13 @@
 package org.kodein.db.impl.model
 
+import org.kodein.db.DBBase
 import org.kodein.db.Options
 import org.kodein.db.Value
 import org.kodein.db.data.DataBase
-import org.kodein.db.model.Key
-import org.kodein.db.model.ModelBase
+import org.kodein.db.Key
 import kotlin.reflect.KClass
 
-internal interface BaseModelBase : ModelBase {
+internal interface BaseModelBase : DBBase {
 
     val mdb: ModelDBImpl
     val data: DataBase

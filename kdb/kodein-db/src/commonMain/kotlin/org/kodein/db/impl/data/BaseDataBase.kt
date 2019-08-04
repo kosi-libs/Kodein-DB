@@ -15,5 +15,4 @@ interface BaseDataBase : DataBase {
     override fun getNativeKey(type: String, primaryKey: Value): Allocation =
             Allocation.native(getObjectKeySize(type, primaryKey)) { putObjectKey(type, primaryKey) }
 
-
 }

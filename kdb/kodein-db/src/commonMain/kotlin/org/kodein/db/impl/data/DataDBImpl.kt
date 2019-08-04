@@ -3,11 +3,10 @@ package org.kodein.db.impl.data
 import org.kodein.db.*
 import org.kodein.db.data.DataDB
 import org.kodein.db.data.DataOptions
+import org.kodein.db.impl.utils.newLock
 import org.kodein.db.impl.utils.putBody
+import org.kodein.db.impl.utils.withLock
 import org.kodein.db.leveldb.LevelDB
-import org.kodein.memory.cache.Sized
-import org.kodein.memory.concurent.newLock
-import org.kodein.memory.concurent.withLock
 import org.kodein.memory.io.*
 import org.kodein.memory.use
 

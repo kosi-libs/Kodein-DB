@@ -1,13 +1,9 @@
 package org.kodein.db.impl.data
 
-import org.kodein.db.Body
-import org.kodein.db.Index
-import org.kodein.db.Options
-import org.kodein.db.Value
+import org.kodein.db.*
 import org.kodein.db.data.DataDB
 import org.kodein.db.impl.utils.putBody
-import org.kodein.memory.cache.Sized
-import org.kodein.memory.concurent.withLock
+import org.kodein.db.impl.utils.withLock
 import org.kodein.memory.io.*
 import org.kodein.memory.use
 

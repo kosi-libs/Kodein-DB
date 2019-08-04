@@ -4,7 +4,7 @@ import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.data.DataDB
 import org.kodein.db.model.*
-import org.kodein.db.model.DBListener
+import org.kodein.db.DBListener
 import org.kodein.memory.Closeable
 import org.kodein.memory.util.forEachResilient
 

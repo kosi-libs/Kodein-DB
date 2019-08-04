@@ -2,9 +2,9 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.Options
 import org.kodein.db.data.DataDB
-import org.kodein.db.model.Key
+import org.kodein.db.Key
 import org.kodein.db.model.ModelDB
-import org.kodein.db.model.DBListener
+import org.kodein.db.DBListener
 import org.kodein.memory.util.forEachResilient
 
 internal class ModelBatchImpl(override val mdb: ModelDBImpl, override val data: DataDB.Batch) : BaseModelWrite, ModelDB.Batch {

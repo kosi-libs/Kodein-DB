@@ -3,12 +3,11 @@ package org.kodein.db.impl.model.cache
 import org.kodein.db.Options
 import org.kodein.db.Value
 import org.kodein.db.invoke
-import org.kodein.db.model.Cache
-import org.kodein.db.model.Key
+import org.kodein.db.model.cache.ModelCache
+import org.kodein.db.Key
 import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.ModelRead
-import org.kodein.memory.cache.ObjectCache
-import org.kodein.memory.cache.Sized
+import org.kodein.db.Sized
 import kotlin.reflect.KClass
 
 interface BaseCachedModelRead : ModelRead, BaseCachedModelBase {
@@ -17,16 +16,16 @@ interface BaseCachedModelRead : ModelRead, BaseCachedModelBase {
 
     val cache: ModelCache
 
-    val cacheCopyMaxSize: Int
+    val cacheCopyMaxSize: Long
 
     override fun <M : Any> get(key: Key<M>, vararg options: Options.Read): Sized<M>? {
         when {
-            Cache.Skip in options -> {
+            ModelCache.Skip in options -> {
                 cache.evict(key)
                 return mdb.get(key, *options)
             }
 
-            Cache.Refresh in options -> {
+            ModelCache.Refresh in options -> {
                 val sized = mdb.get(key, *options)
                 if (sized != null)
                     cache.put(key.asHeapKey(), sized)
@@ -35,8 +34,8 @@ interface BaseCachedModelRead : ModelRead, BaseCachedModelBase {
 
             else -> {
                 @Suppress("UNCHECKED_CAST")
-                val entry = cache.getOrRetrieveEntry(key.asHeapKey()) { mdb.get(key, *options) } as ObjectCache.Entry<M>
-                if (entry is ObjectCache.Entry.Cached) {
+                val entry = cache.getOrRetrieveEntry(key.asHeapKey()) { mdb.get(key, *options) }
+                if (entry is ModelCache.Entry.Cached) {
                     return entry
                 }
                 return null
@@ -44,15 +43,15 @@ interface BaseCachedModelRead : ModelRead, BaseCachedModelBase {
         }
     }
 
-    fun maxSize(options: Array<out Options.Read>): Int {
-        val optMaxSize: Cache.CopyMaxSize? = options.invoke()
+    fun maxSize(options: Array<out Options.Read>): Long {
+        val optMaxSize: ModelCache.CopyMaxSize? = options.invoke()
         return optMaxSize?.size ?: cacheCopyMaxSize
     }
 
     private fun <M : Any> wrapCursor(cursor: ModelCursor<M>, options: Array<out Options.Read>): ModelCursor<M> {
         return when {
-            Cache.Skip in options -> cursor
-            Cache.Refresh in options -> CachedModelCursor(cursor, ObjectCache(maxSize(options)))
+            ModelCache.Skip in options -> cursor
+            ModelCache.Refresh in options -> CachedModelCursor(cursor, ModelCacheImpl(maxSize(options)))
             else -> CachedModelCursor(cursor, cache.newCopy(maxSize(options)))
         }
     }

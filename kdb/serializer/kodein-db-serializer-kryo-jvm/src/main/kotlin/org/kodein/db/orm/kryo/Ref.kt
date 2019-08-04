@@ -2,7 +2,9 @@
 
 package org.kodein.db.orm.kryo
 
+import org.kodein.db.Key
 import org.kodein.db.Options
+import org.kodein.db.TransientKey
 import org.kodein.db.model.*
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.getBytes
@@ -18,14 +20,14 @@ fun <T : Any> Key<T>.asRef() = Ref<T>(bytes.getBytes(0))
 
 fun <T : Any> TransientKey<T>.asRef() = Ref<T>(transientKey.bytes.getBytes(0))
 
-fun SeekKey.asRef() = SeekRef(bytes.getBytes(0))
-
-fun TransientSeekKey.asRef() = SeekRef(transientBytes.getBytes(0))
+//fun SeekKey.asRef() = SeekRef(bytes.getBytes(0))
+//
+//fun TransientSeekKey.asRef() = SeekRef(transientBytes.getBytes(0))
 
 
 inline fun <reified T : Any> Ref<T>.toKey() = Key.Heap(T::class, KBuffer.wrap(bytes))
 
-fun SeekRef.toSeekKey() = SeekKey(KBuffer.wrap(bytes))
+//fun SeekRef.toSeekKey() = SeekKey(KBuffer.wrap(bytes))
 
 
 inline operator fun <reified M : Any> ModelRead.get(ref: Ref<M>, vararg options: Options.Read) = get(ref.toKey(), *options)

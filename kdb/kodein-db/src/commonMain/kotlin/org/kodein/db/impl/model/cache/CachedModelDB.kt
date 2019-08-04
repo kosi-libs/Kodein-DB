@@ -1,16 +1,19 @@
 package org.kodein.db.impl.model.cache
 
+import org.kodein.db.DBListener
+import org.kodein.db.Key
 import org.kodein.db.Options
+import org.kodein.db.Sized
 import org.kodein.db.model.*
+import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.Closeable
-import org.kodein.memory.cache.Sized
 
-class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val cacheCopyMaxSize: Int) : BaseCachedModelRead, ModelDB {
+class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val cacheCopyMaxSize: Long) : BaseCachedModelRead, ModelDB {
 
     // https://youtrack.jetbrains.com/issue/KT-20996
     private val listener: DBListener = object : DBListener {
         override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
-            if (Cache.Skip in options) {
+            if (ModelCache.Skip in options) {
                 cache.evict(getKey())
             } else {
                 cache.put(getKey().asHeapKey(), model, size)
@@ -18,7 +21,7 @@ class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, o
         }
 
         override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {
-            if (Cache.Skip in options) {
+            if (ModelCache.Skip in options) {
                 cache.evict(key)
             } else {
                 cache.delete(key)
@@ -27,7 +30,7 @@ class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, o
     }
 
     init {
-        register(listener)
+        mdb.register(listener)
     }
 
     override fun register(listener: DBListener): Closeable = mdb.register(listener)

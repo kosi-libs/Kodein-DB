@@ -18,7 +18,7 @@ class CacheDBTests_03_Cursor : CacheDBTests() {
         val her = Adult("Laila", "ATIE", Date(25, 8, 1989))
 
         mdb.putAll(listOf(me, her))
-        cache.clean()
+        cache.clear()
 
         mdb[mdb.getHeapKey(her)]
 

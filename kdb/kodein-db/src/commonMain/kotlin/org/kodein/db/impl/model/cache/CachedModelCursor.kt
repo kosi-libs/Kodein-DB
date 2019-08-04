@@ -1,15 +1,14 @@
 package org.kodein.db.impl.model.cache
 
 import org.kodein.db.Options
+import org.kodein.db.Sized
 import org.kodein.db.model.ModelCursor
-import org.kodein.db.model.TransientSeekKey
-import org.kodein.memory.cache.ObjectCache
-import org.kodein.memory.cache.Sized
+import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.io.ReadBuffer
 
 class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache: ModelCache) : ModelCursor<M> {
 
-    private var cachedEntry: ObjectCache.Entry.Cached<M>? = null
+    private var cachedEntry: ModelCache.Entry.Cached<M>? = null
 
     override fun isValid() = cursor.isValid()
 
@@ -25,16 +24,16 @@ class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache: ModelCac
 
     private inner class Entries(val entries: ModelCursor.Entries<M>) : ModelCursor.Entries<M> {
         override val size: Int get() = entries.size
-        override fun getSeekKey(i: Int) = entries.getSeekKey(i)
-        override fun getKey(i: Int) = entries.getKey(i)
+        override fun seekKey(i: Int) = entries.seekKey(i)
+        override fun key(i: Int) = entries.key(i)
         override fun close() = entries.close()
 
-        private val cachedEntries = arrayOfNulls<ObjectCache.Entry.Cached<M>>(size)
+        private val cachedEntries = arrayOfNulls<ModelCache.Entry.Cached<M>>(size)
 
-        override fun getModel(i: Int, vararg options: Options.Read): Sized<M> {
+        override fun get(i: Int, vararg options: Options.Read): Sized<M> {
             if (cachedEntries[i] == null) {
                 @Suppress("UNCHECKED_CAST")
-                cachedEntries[i] = cache.getOrRetrieveEntry(transientKey().asPermanent().asHeapKey()) { entries.getModel(i, *options) } as ObjectCache.Entry.Cached<M>
+                cachedEntries[i] = cache.getOrRetrieveEntry(transientKey().copyToHeap().asHeapKey()) { entries.get(i, *options) } as ModelCache.Entry.Cached<M>
             }
             return cachedEntries[i]!!
         }
@@ -62,12 +61,12 @@ class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache: ModelCac
     override fun model(vararg options: Options.Read): Sized<M> {
         if (cachedEntry == null) {
             @Suppress("UNCHECKED_CAST")
-            cachedEntry = cache.getOrRetrieveEntry(transientKey().asPermanent()) { cursor.model(*options) } as ObjectCache.Entry.Cached<M>
+            cachedEntry = cache.getOrRetrieveEntry(transientKey().copyToHeap()) { cursor.model(*options) } as ModelCache.Entry.Cached<M>
         }
         return cachedEntry!!
     }
 
-    override fun transientSeekKey(): TransientSeekKey = cursor.transientSeekKey()
+    override fun transientSeekKey() = cursor.transientSeekKey()
 
     override fun close() = cursor.close()
 

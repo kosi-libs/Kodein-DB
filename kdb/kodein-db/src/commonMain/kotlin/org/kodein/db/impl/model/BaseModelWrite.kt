@@ -1,14 +1,10 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.Body
-import org.kodein.db.Options
+import org.kodein.db.*
 import org.kodein.db.ascii.putAscii
 import org.kodein.db.data.DataWrite
-import org.kodein.db.model.Key
 import org.kodein.db.model.Metadata
 import org.kodein.db.model.ModelWrite
-import org.kodein.db.model.DBListener
-import org.kodein.memory.cache.Sized
 import org.kodein.memory.io.Allocation
 
 internal interface BaseModelWrite : BaseModelBase, ModelWrite {

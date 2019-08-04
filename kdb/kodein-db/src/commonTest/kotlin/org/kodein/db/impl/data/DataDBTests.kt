@@ -37,8 +37,8 @@ abstract class DataDBTests {
     }
 
     fun assertCursorIs(key: ByteArray, value: ByteArray, it: DataCursor) {
-        assertBytesEquals(key, it.transientKey())
-        assertBytesEquals(value, it.transientValue())
+        assertBytesEquals(key, it.transientKey().bytes)
+        assertBytesEquals(value, it.transientValue().bytes)
     }
 
     fun assertDBIs(vararg keyValues: Pair<ByteArray, ByteArray>) {

@@ -1,14 +1,14 @@
 package org.kodein.db.impl.model.cache
 
+import org.kodein.db.DBBase
 import org.kodein.db.Options
 import org.kodein.db.Value
-import org.kodein.db.model.Key
-import org.kodein.db.model.ModelBase
+import org.kodein.db.Key
 import kotlin.reflect.KClass
 
-interface BaseCachedModelBase : ModelBase {
+interface BaseCachedModelBase : DBBase {
 
-    val mdb: ModelBase
+    val mdb: DBBase
 
     override fun <M : Any> getHeapKey(type: KClass<M>, primaryKey: Value): Key<M> = mdb.getHeapKey(type, primaryKey)
     override fun <M : Any> getNativeKey(type: KClass<M>, primaryKey: Value): Key.Native<M> = mdb.getNativeKey(type, primaryKey)

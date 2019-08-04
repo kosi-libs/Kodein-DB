@@ -3,7 +3,7 @@ package org.kodein.db.impl.cache
 import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Date
 import org.kodein.db.impl.model.cache.CachedModelCursor
-import org.kodein.db.model.Cache
+import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.use
 import kotlin.test.*
 
@@ -14,13 +14,13 @@ class CacheDBTests_04_Options : CacheDBTests() {
     fun test00_putSkip() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         assertEquals(0, cache.entryCount)
-        val key = mdb.putAndGetHeapKey(me, Cache.Skip).value
+        val key = mdb.putAndGetHeapKey(me, ModelCache.Skip).value
         assertEquals(0, cache.entryCount)
         val otherMe = mdb[key]!!.value
         assertNotSame(me, otherMe)
         assertEquals(1, cache.entryCount)
         assertSame(otherMe, mdb[key]!!.value)
-        mdb.put(me, Cache.Skip)
+        mdb.put(me, ModelCache.Skip)
         assertEquals(0, cache.entryCount)
     }
 
@@ -30,7 +30,7 @@ class CacheDBTests_04_Options : CacheDBTests() {
             assertTrue(it is CachedModelCursor<*>)
         }
 
-        mdb.findAll(Cache.Skip).use {
+        mdb.findAll(ModelCache.Skip).use {
             assertFalse(it is CachedModelCursor<*>)
         }
     }
@@ -42,7 +42,7 @@ class CacheDBTests_04_Options : CacheDBTests() {
 
         assertSame(me, mdb[key]!!.value)
 
-        val otherMe = mdb.get(key, Cache.Refresh)!!.value
+        val otherMe = mdb.get(key, ModelCache.Refresh)!!.value
 
         assertNotSame(me, otherMe)
         assertSame(otherMe, mdb[key]!!.value)
@@ -53,7 +53,7 @@ class CacheDBTests_04_Options : CacheDBTests() {
         mdb.put(Adult("Salomon", "BRYS", Date(15, 12, 1986)))
         assertEquals(1, cache.entryCount)
 
-        mdb.findAll(Cache.Refresh).use {
+        mdb.findAll(ModelCache.Refresh).use {
             assertEquals(0, (it as CachedModelCursor).cache.entryCount)
         }
     }

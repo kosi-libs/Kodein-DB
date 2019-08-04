@@ -1,10 +1,8 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.Options
-import org.kodein.db.TypeTable
+import org.kodein.db.*
 import org.kodein.db.data.DataCursor
 import org.kodein.db.model.*
-import org.kodein.memory.cache.Sized
 import org.kodein.memory.io.ReadBuffer
 import kotlin.reflect.KClass
 
@@ -22,21 +20,21 @@ internal class ModelCursorImpl<B : Any, M : B>(private val dc: DataCursor, priva
 
     override fun seekTo(target: ReadBuffer) = dc.seekTo(target)
 
-    override fun transientKey() = TransientKey(Key.Heap(modelType, dc.transientKey()))
+    override fun transientKey() = TransientKey(Key.Heap(modelType, dc.transientKey().bytes))
 
-    override fun model(vararg options: Options.Read): Sized<M> = BaseModelRead.getFrom(dc.transientValue(), modelType, typeTable, serializer, options)
+    override fun model(vararg options: Options.Read): Sized<M> = BaseModelRead.getFrom(dc.transientValue().bytes, modelType, typeTable, serializer, options)
 
-    override fun transientSeekKey() = TransientSeekKey(dc.transientSeekKey())
+    override fun transientSeekKey() = dc.transientSeekKey()
 
     private inner class Entries(private val dce: DataCursor.Entries) : ModelCursor.Entries<M> {
 
         override val size: Int get() = dce.size
 
-        override fun getSeekKey(i: Int): ReadBuffer = dce.getSeekKey(i)
+        override fun seekKey(i: Int): ReadBuffer = dce.seekKey(i)
 
-        override fun getKey(i: Int) = Key.Heap(modelType, dce.getKey(i))
+        override fun key(i: Int) = Key.Heap(modelType, dce.key(i))
 
-        override fun getModel(i: Int, vararg options: Options.Read): Sized<M> = BaseModelRead.getFrom(dce.getValue(i), modelType, typeTable, serializer, options)
+        override fun get(i: Int, vararg options: Options.Read): Sized<M> = BaseModelRead.getFrom(dce.get(i), modelType, typeTable, serializer, options)
 
         override fun close() = dce.close()
     }

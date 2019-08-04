@@ -1,11 +1,9 @@
 package org.kodein.db.model
 
-import org.kodein.db.Options
-import org.kodein.db.Value
-import org.kodein.memory.cache.Sized
+import org.kodein.db.*
 import kotlin.reflect.KClass
 
-interface ModelRead : ModelBase {
+interface ModelRead : DBBase {
 
     operator fun <M : Any> get(key: Key<M>, vararg options: Options.Read): Sized<M>?
 

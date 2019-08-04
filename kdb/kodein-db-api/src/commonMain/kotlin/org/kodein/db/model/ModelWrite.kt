@@ -1,9 +1,11 @@
 package org.kodein.db.model
 
+import org.kodein.db.DBBase
+import org.kodein.db.Key
 import org.kodein.db.Options
-import org.kodein.memory.cache.Sized
+import org.kodein.db.Sized
 
-interface ModelWrite : ModelBase {
+interface ModelWrite : DBBase {
 
     fun put(model: Any, vararg options: Options.Write): Int
 

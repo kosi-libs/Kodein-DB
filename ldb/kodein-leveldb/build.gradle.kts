@@ -3,6 +3,7 @@ import org.kodein.internal.gradle.KodeinMPPExtension
 
 plugins {
     id("org.kodein.library.mpp-with-android")
+//    id("kotlinx-atomicfu")
 }
 
 val currentOs = org.gradle.internal.os.OperatingSystem.current()
@@ -10,7 +11,6 @@ val currentOs = org.gradle.internal.os.OperatingSystem.current()
 evaluationDependsOn(":ldb:jni")
 evaluationDependsOn(":ldb:lib")
 
-val kotlinxAtomicFuVer: String by getRootProject().extra
 val kodeinLogVer: String by rootProject.extra
 
 kodeinAndroid {
@@ -41,12 +41,7 @@ kodein {
             implementation("org.kodein.log:kodein-log-frontend-print:$kodeinLogVer")
         }
 
-        add(kodeinTargets.android) {
-            test.dependencies {
-                implementation("androidx.test.ext:junit:1.1.1")
-                implementation("androidx.test.espresso:espresso-core:3.2.0")
-            }
-        }
+        add(kodeinTargets.android)
 
         add(kodeinTargets.jvm) {
             (tasks[mainCompilation.processResourcesTaskName] as ProcessResources).apply {
@@ -99,16 +94,8 @@ kodein {
             configureCInterop("iosSimulator64")
         }
 
-        sourceSet(kodeinSourceSets.allNative) {
-            main.dependencies {
-                api("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
-            }
-        }
-
     }
 }
-
-println(tasks["macosX64Test"].javaClass)
 
 //task<Exec>("iosX64Test") {
 //    dependsOn("linkDebugTestIosX64")

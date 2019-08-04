@@ -3,10 +3,7 @@ package org.kodein.db.model.jvm
 import org.kodein.db.data.DataDBFactory
 import org.kodein.db.data.jvm.DataDBJVM
 import org.kodein.db.impl.model.AbstractModelDBFactory
-import org.kodein.db.impl.model.cache.CachedModelDB
-import org.kodein.db.impl.model.cache.ModelCache
 import org.kodein.db.model.MetadataExtractor
-import org.kodein.db.model.ModelDB
 import org.kodein.db.model.NoMetadataExtractor
 import org.kodein.db.model.Serializer
 

@@ -4,6 +4,7 @@ import org.kodein.db.data.DataCursor
 import org.kodein.db.impl.utils.compareTo
 import org.kodein.db.impl.utils.startsWith
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.TransientBytes
 import org.kodein.memory.io.*
 
 internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, private val prefix: Allocation) : DataCursor {
@@ -95,28 +96,28 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
 
     protected abstract fun thisKey(): KBuffer
 
-    final override fun transientKey(): KBuffer {
+    final override fun transientKey(): TransientBytes {
         if (!isValid())
             throw IllegalStateException("Cursor is not valid")
 
-        return thisKey().duplicate()
+        return  TransientBytes(thisKey().duplicate())
     }
 
     protected abstract fun thisValue(): Allocation
 
-    final override fun transientValue(): KBuffer {
+    final override fun transientValue(): TransientBytes {
         if (!isValid())
             throw IllegalStateException("Cursor is not valid")
 
-        cachedValue?.let { return it.duplicate() }
+        cachedValue?.let { return TransientBytes(it.duplicate()) }
 
-        return thisValue().also { cachedValue = it } .duplicate()
+        return TransientBytes(thisValue().also { cachedValue = it } .duplicate())
     }
 
-    final override fun transientSeekKey(): KBuffer {
+    final override fun transientSeekKey(): TransientBytes {
         if (!isValid())
             throw IllegalStateException("Cursor is not valid")
-        return itKey()
+        return TransientBytes(itKey())
     }
 
     abstract class AbstractEntries<A: LevelDB.Cursor.ValuesArrayBase>(protected val array: A) : DataCursor.Entries {
@@ -129,15 +130,15 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
 
         protected abstract fun thisSeekKey(i: Int): KBuffer
 
-        final override fun getSeekKey(i: Int) = thisSeekKey(i).duplicate()
+        final override fun seekKey(i: Int) = thisSeekKey(i).duplicate()
 
         protected abstract fun thisKey(i: Int): KBuffer
 
-        final override fun getKey(i: Int) = thisKey(i).duplicate()
+        final override fun key(i: Int) = thisKey(i).duplicate()
 
         protected abstract fun thisValue(i: Int): KBuffer
 
-        final override fun getValue(i: Int): KBuffer {
+        final override fun get(i: Int): KBuffer {
             cachedValues[i]?.let { return it.duplicate() }
 
             val value = thisValue(i)

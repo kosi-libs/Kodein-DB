@@ -1,11 +1,12 @@
 package org.kodein.db.impl.cache
 
 import org.kodein.db.Value
+import org.kodein.db.getHeapKey
 import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Date
-import org.kodein.db.impl.model.ModelDBTests
-import org.kodein.db.model.getHeapKey
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertNull
+import kotlin.test.assertSame
 
 @Suppress("ClassName")
 class CacheDBTests_00_PutGetDelete : CacheDBTests() {

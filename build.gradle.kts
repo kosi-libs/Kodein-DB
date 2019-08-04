@@ -8,8 +8,12 @@ val kodeinLogVer by extra { "0.1.0" }
 val kodeinMemoryVer by extra { "0.1.0" }
 
 buildscript {
+    repositories {
+        maven(url = "https://kotlin.bintray.com/kotlinx")
+    }
+
     dependencies {
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.11.12")
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.12.9")
     }
 }
 

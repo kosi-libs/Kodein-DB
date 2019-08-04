@@ -4,7 +4,7 @@ import org.kodein.db.Body
 import org.kodein.db.Index
 import org.kodein.db.Options
 import org.kodein.db.Value
-import org.kodein.memory.cache.Sized
+import org.kodein.db.Sized
 import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.ReadBuffer

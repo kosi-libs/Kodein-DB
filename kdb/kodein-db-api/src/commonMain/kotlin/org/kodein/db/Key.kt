@@ -1,6 +1,6 @@
 @file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
 
-package org.kodein.db.model
+package org.kodein.db
 
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.*
@@ -26,11 +26,9 @@ sealed class Key<out T : Any>(val type: KClass<out T>, val bytes: ReadBuffer) {
 }
 
 inline class TransientKey<out T : Any>(val transientKey: Key<T>) {
-    fun asPermanent() = Key.Heap(transientKey.type, KBuffer.wrap(transientKey.bytes.getBytes(0)))
+    fun copyToHeap() = Key.Heap(transientKey.type, KBuffer.wrap(transientKey.bytes.getBytes(0)))
 }
 
-inline class SeekKey(val bytes: ReadBuffer)
-
-inline class TransientSeekKey(val transientBytes: ReadBuffer) {
-    fun asPermanent() = SeekKey(KBuffer.wrap(transientBytes.getBytes(0)))
+inline class TransientBytes(val bytes: ReadBuffer) {
+    fun copyToHeap() = KBuffer.wrap(bytes.getBytes(0))
 }
