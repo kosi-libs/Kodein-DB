@@ -9,14 +9,14 @@ class PhonyLock private constructor() {
 
 actual typealias Lock = PhonyLock
 
-actual fun newLock(): Lock = PhonyLock.instance
+internal actual fun newLock(): Lock = PhonyLock.instance
 
-actual inline fun <T> Lock.withLock(action: () -> T): T = action()
+internal actual inline fun <T> Lock.withLock(action: () -> T): T = action()
 
 actual typealias RWLock = PhonyLock
 
-actual fun newRWLock(): Lock = PhonyLock.instance
+internal actual fun newRWLock(): Lock = PhonyLock.instance
 
-actual inline fun <T> RWLock.write(action: () -> T): T = action()
+internal actual inline fun <T> RWLock.write(action: () -> T): T = action()
 
-actual inline fun <T> RWLock.read(action: () -> T): T = action()
+internal actual inline fun <T> RWLock.read(action: () -> T): T = action()

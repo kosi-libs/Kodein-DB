@@ -7,7 +7,7 @@ import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.array
 import org.kodein.memory.io.native
 
-interface BaseDataBase : DataBase {
+internal interface BaseDataBase : DataBase {
 
     override fun getHeapKey(type: String, primaryKey: Value): KBuffer =
             KBuffer.array(getObjectKeySize(type, primaryKey)) { putObjectKey(type, primaryKey) }

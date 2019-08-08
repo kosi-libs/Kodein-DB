@@ -1,12 +1,12 @@
-package org.kodein.db.impl.model.cache
+package org.kodein.db.impl
 
 import org.kodein.db.DBBase
+import org.kodein.db.Key
 import org.kodein.db.Options
 import org.kodein.db.Value
-import org.kodein.db.Key
 import kotlin.reflect.KClass
 
-internal interface BaseCachedModelBase : DBBase {
+internal interface BaseDBBase : DBBase {
 
     val mdb: DBBase
 

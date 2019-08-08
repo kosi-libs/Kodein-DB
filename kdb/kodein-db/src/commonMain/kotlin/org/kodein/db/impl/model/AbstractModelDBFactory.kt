@@ -4,10 +4,7 @@ import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.data.DataDBFactory
 import org.kodein.db.invoke
-import org.kodein.db.model.MetadataExtractor
-import org.kodein.db.model.ModelDB
-import org.kodein.db.model.ModelDBFactory
-import org.kodein.db.model.Serializer
+import org.kodein.db.model.*
 
 abstract class AbstractModelDBFactory : ModelDBFactory {
 
@@ -17,12 +14,14 @@ abstract class AbstractModelDBFactory : ModelDBFactory {
 
     protected abstract fun defaultMetadataExtractor(): MetadataExtractor
 
-    override fun open(path: String, vararg options: Options.Open): ModelDB {
-        val opt: ModelDB.OpenOptions? = options()
+    final override fun open(path: String, vararg options: Options.Open): ModelDB {
+        val serializerOpt: DBSerializer? = options()
+        val metadataExtractorOpt: DBMetadataExtractor? = options()
+        val typeTableOpt: DBTypeTable? = options()
 
-        val serializer = opt?.serializer ?: defaultSerializer()
-        val metadataExtractor = opt?.metadataExtractor ?: defaultMetadataExtractor()
-        val typeTable = opt?.typeTable ?: TypeTable()
+        val serializer = serializerOpt?.serializer ?: defaultSerializer()
+        val metadataExtractor = metadataExtractorOpt?.extractor ?: defaultMetadataExtractor()
+        val typeTable = typeTableOpt?.typeTable ?: TypeTable()
 
         return ModelDBImpl(serializer, metadataExtractor, typeTable, ddbFactory.open(path, *options))
     }

@@ -6,7 +6,7 @@ import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.io.ReadBuffer
 
-class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache: ModelCache) : ModelCursor<M> {
+internal class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache: ModelCache) : ModelCursor<M> {
 
     private var cachedEntry: ModelCache.Entry.Cached<M>? = null
 

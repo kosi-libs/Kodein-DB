@@ -8,7 +8,7 @@ import org.kodein.db.model.*
 import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.Closeable
 
-class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val cacheCopyMaxSize: Long) : BaseCachedModelRead, ModelDB {
+internal class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val cacheCopyMaxSize: Long) : BaseCachedModelRead, ModelDB {
 
     // https://youtrack.jetbrains.com/issue/KT-20996
     private val listener: DBListener = object : DBListener {

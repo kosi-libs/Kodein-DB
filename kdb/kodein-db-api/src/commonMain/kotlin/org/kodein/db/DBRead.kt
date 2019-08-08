@@ -2,32 +2,34 @@
 
 package org.kodein.db
 
-import org.kodein.db.model.ModelCursor
+import kotlin.reflect.KClass
 
 interface DBRead : DBBase {
 
     operator fun <M : Any> get(key: Key<M>, vararg options: Options.Read): M?
 
-    fun findAll(vararg options: Options.Read): ModelCursor<*>
+    fun findAll(vararg options: Options.Read): DBCursor<*>
 
     interface FindDsl<M : Any> {
 
         interface ByDsl<M : Any> {
 
-            fun all(): ModelCursor<M>
+            fun all(): DBCursor<M>
 
-            fun withValue(value: Value, isOpen: Boolean = true): ModelCursor<M>
+            fun withValue(value: Value, isOpen: Boolean = true): DBCursor<M>
         }
 
-        fun all(): ModelCursor<M> = byPrimaryKey().all()
+        fun all(): DBCursor<M> = byPrimaryKey().all()
 
         fun byPrimaryKey(): ByDsl<M>
 
         fun byIndex(name: String): ByDsl<M>
     }
 
-    fun <M : Any> find(vararg options: Options.Read)
+    fun <M : Any> find(type: KClass<M>, vararg options: Options.Read): FindDsl<M>
 
     fun getIndexesOf(key: Key<*>, vararg options: Options.Read): List<String>
 
 }
+
+inline fun <reified M : Any> DBRead.find(vararg options: Options.Read) = find(M::class, *options)

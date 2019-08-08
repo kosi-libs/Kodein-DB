@@ -1,16 +1,15 @@
 package org.kodein.db.impl.model
 
+import org.kodein.db.Options
 import org.kodein.db.TypeTable
-import org.kodein.db.model.MetadataExtractor
-import org.kodein.db.model.ModelDB
-import org.kodein.db.model.Serializer
+import org.kodein.db.model.*
 import org.kodein.db.orm.kotlinx.KotlinxSerializer
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
 expect object ModelDBTestFactory {
     fun destroy()
-    fun open(options: ModelDB.OpenOptions): ModelDB
+    fun open(vararg options: Options.Open): ModelDB
 }
 
 
@@ -32,13 +31,14 @@ abstract class ModelDBTests {
 
     open fun testTypeTable(): TypeTable? = null
 
-    open fun newModelDB(): ModelDB = ModelDBTestFactory.open(
-            ModelDB.OpenOptions(
-                    testSerializer(),
-                    testMetadataExtractor(),
-                    testTypeTable()
-            )
-    )
+    open fun newModelDB(): ModelDB {
+        val options = ArrayList<Options.Open>()
+        options.add(DBSerializer(testSerializer()))
+        testMetadataExtractor()?.let { options.add(DBMetadataExtractor(it)) }
+        testTypeTable()?.let { options.add(DBTypeTable(it)) }
+
+        return ModelDBTestFactory.open(*options.toTypedArray())
+    }
 
     @BeforeTest
     open fun setUp() {

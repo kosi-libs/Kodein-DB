@@ -10,7 +10,7 @@ import org.kodein.db.model.ModelRead
 import org.kodein.db.Sized
 import kotlin.reflect.KClass
 
-interface BaseCachedModelRead : ModelRead, BaseCachedModelBase {
+internal interface BaseCachedModelRead : ModelRead, BaseCachedModelBase {
 
     override val mdb: ModelRead
 

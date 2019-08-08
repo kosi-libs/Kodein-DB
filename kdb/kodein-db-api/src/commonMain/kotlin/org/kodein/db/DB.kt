@@ -6,18 +6,16 @@ import org.kodein.memory.Closeable
 import org.kodein.memory.use
 import kotlin.reflect.KClass
 
-interface DB : DBRead, DBWrite, Closeable {
+typealias ModelMiddleware = ((ModelDB) -> ModelDB)
+typealias DataMiddleware = ((DataDB) -> DataDB)
 
-//    class OpenOptions(
-//            val serializer: Serializer<Any>? = null,
-//            val metadataExtractor: MetadataExtractor? = null,
-//            val typeTable: TypeTable? = null
-//    ) : Options.Open
+interface DB : DBRead, DBWrite, Closeable {
 
     interface Factory {
         fun disableCache()
-        fun addModelMiddleware(middleware: (ModelDB) -> ModelDB)
-        fun addDataMiddleware(middleware: (DataDB) -> DataDB)
+        fun addModelMiddleware(middleware: ModelMiddleware)
+        fun addDataMiddleware(middleware: DataMiddleware)
+        fun addOption(option: Options.Open)
     }
 
     interface Batch : DBWrite, Closeable {
