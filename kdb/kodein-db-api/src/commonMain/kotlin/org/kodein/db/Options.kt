@@ -9,4 +9,5 @@ interface Options {
     interface Open : Options
 }
 
-inline operator fun <O : Options, reified T : O> Array<out O>.invoke() = firstOrNull { it is T } as T?
+inline operator fun <reified T : Options> Array<out Options>.invoke() = firstOrNull { it is T } as T?
+inline fun <reified T : Options> Array<out Options>.all() = filterIsInstance<T>()

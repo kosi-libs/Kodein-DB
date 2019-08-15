@@ -13,7 +13,7 @@ internal interface BaseModelWrite : BaseModelBase, ModelWrite {
 
     fun Key<*>.transform(): Key<*> = this
 
-    fun didAction(action: DBListener.() -> Unit)
+    fun didAction(action: DBListener<Any>.() -> Unit)
 
     private inline fun <M: Any, T> put(model: M, options: Array<out Options.Write>, block: (Metadata, Body) -> Triple<T, Key<*>?, Int>): T {
         val metadata = mdb.getMetadata(model, options)

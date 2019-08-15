@@ -1,21 +1,14 @@
 package org.kodein.db
 
-import org.kodein.db.data.DataDB
-import org.kodein.db.model.ModelDB
 import org.kodein.memory.Closeable
 import org.kodein.memory.use
 import kotlin.reflect.KClass
 
-typealias ModelMiddleware = ((ModelDB) -> ModelDB)
-typealias DataMiddleware = ((DataDB) -> DataDB)
-
 interface DB : DBRead, DBWrite, Closeable {
 
     interface Factory {
-        fun disableCache()
-        fun addModelMiddleware(middleware: ModelMiddleware)
-        fun addDataMiddleware(middleware: DataMiddleware)
-        fun addOption(option: Options.Open)
+        fun open(path: String, vararg options: Options.Open): DB
+        fun destroy(path: String, vararg options: Options.Open)
     }
 
     interface Batch : DBWrite, Closeable {
@@ -30,8 +23,8 @@ interface DB : DBRead, DBWrite, Closeable {
 
     interface RegisterDsl<M : Any> {
         fun filter(f: (M) -> Boolean): RegisterDsl<M>
-        fun register(listener: DBListener): Closeable
-        fun register(builder: DBListener.Builder.() -> Unit): Closeable
+        fun register(listener: DBListener<M>): Closeable
+        fun register(builder: DBListener.Builder<M>.() -> Unit): Closeable
     }
 
     fun onAll(): RegisterDsl<Any>

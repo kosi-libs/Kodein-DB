@@ -26,8 +26,7 @@ object ModelDBJVM : AbstractModelDBFactory() {
     }
 
     override fun defaultMetadataExtractor(): MetadataExtractor {
-        // TODO: try to find annotation metadata extractor in the classpath
-        return NoMetadataExtractor()
+        return AnnotationMetadataExtractor()
     }
 
 }

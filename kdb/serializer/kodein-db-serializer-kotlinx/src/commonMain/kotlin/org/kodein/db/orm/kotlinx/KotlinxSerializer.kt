@@ -35,9 +35,8 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
 
     @ImplicitReflectionSerializer
     private fun getSerializer(options: Array<out Options>, type: KClass<*>): KSerializer<*> {
-        val opt: KXSerializer? = options()
         return try {
-            opt?.serializer ?: serializers[type] ?: type.serializer()
+            options<KXSerializer>()?.serializer ?: serializers[type] ?: type.serializer()
         } catch (ex: NotImplementedError) {
             throw IllegalStateException("Could not find serializer for class ${simpleNameOf(type)}. Hove you registered the serializer?", ex)
         }
@@ -52,8 +51,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
 
     @ImplicitReflectionSerializer
     override fun <M : Any> deserialize(type: KClass<M>, input: ReadBuffer, vararg options: Options.Read): M {
-        val opt: KXSerializer? = options()
-        val serializer = opt?.serializer ?: serializers[type] ?: type.serializer()
+        val serializer = options<KXSerializer>()?.serializer ?: serializers[type] ?: type.serializer()
         val bytes = input.readBytes()
         @Suppress("UNCHECKED_CAST")
         return Cbor.load(serializer as DeserializationStrategy<M>, bytes)

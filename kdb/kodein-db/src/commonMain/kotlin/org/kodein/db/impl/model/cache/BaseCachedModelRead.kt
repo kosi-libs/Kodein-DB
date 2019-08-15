@@ -16,7 +16,7 @@ internal interface BaseCachedModelRead : ModelRead, BaseCachedModelBase {
 
     val cache: ModelCache
 
-    val cacheCopyMaxSize: Long
+    val copyMaxSize: Long
 
     override fun <M : Any> get(key: Key<M>, vararg options: Options.Read): Sized<M>? {
         when {
@@ -45,7 +45,7 @@ internal interface BaseCachedModelRead : ModelRead, BaseCachedModelBase {
 
     fun maxSize(options: Array<out Options.Read>): Long {
         val optMaxSize: ModelCache.CopyMaxSize? = options.invoke()
-        return optMaxSize?.size ?: cacheCopyMaxSize
+        return optMaxSize?.maxSize ?: copyMaxSize
     }
 
     private fun <M : Any> wrapCursor(cursor: ModelCursor<M>, options: Array<out Options.Read>): ModelCursor<M> {

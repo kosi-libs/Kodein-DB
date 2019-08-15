@@ -16,7 +16,7 @@ class CacheDBTests_01_React : CacheDBTests() {
 
     @Test
     fun test00_ReactDidPutException() {
-        val listener = object : DBListener {
+        val listener = object : DBListener<Any> {
             override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException()
         }
 
@@ -33,7 +33,7 @@ class CacheDBTests_01_React : CacheDBTests() {
 
     @Test
     fun test01_ReactDidDeleteException() {
-        val listener = object : DBListener {
+        val listener = object : DBListener<Any> {
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException()
         }
 

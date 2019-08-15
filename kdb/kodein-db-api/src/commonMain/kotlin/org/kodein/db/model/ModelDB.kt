@@ -17,6 +17,6 @@ interface ModelDB : ModelWrite, ModelRead, Closeable {
 
     fun newSnapshot(vararg options: Options.Read): Snapshot
 
-    fun register(listener: DBListener): Closeable
+    fun register(listener: DBListener<Any>): Closeable
 }
 

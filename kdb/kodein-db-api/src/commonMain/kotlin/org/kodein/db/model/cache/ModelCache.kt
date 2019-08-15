@@ -5,9 +5,11 @@ import org.kodein.db.Sized
 
 interface ModelCache : ModelCacheBase {
 
+    object Disable : Options.Open
+    data class MaxSize(val maxSize: Long) : Options.Open
+    data class CopyMaxSize(val maxSize: Long) : Options.Open, Options.Read
     object Skip : Options.Read, Options.Write
     object Refresh : Options.Read
-    data class CopyMaxSize(val size: Long) : Options.Read
 
     sealed class Entry<V : Any> {
         abstract val value: V?

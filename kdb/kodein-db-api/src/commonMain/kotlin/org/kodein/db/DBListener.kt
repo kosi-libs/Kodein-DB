@@ -3,19 +3,19 @@ package org.kodein.db
 import org.kodein.db.model.Metadata
 import org.kodein.memory.Closeable
 
-interface DBListener {
+interface DBListener<in M : Any> {
 
     fun setSubscription(subscription: Closeable) {}
 
-    fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {}
+    fun willPut(model: M, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {}
 
-    fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {}
+    fun didPut(model: M, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {}
 
-    fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) {}
+    fun willDelete(key: Key<*>, getModel: () -> M?, typeName: String, options: Array<out Options.Write>) {}
 
-    fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {}
+    fun didDelete(key: Key<*>, model: M?, typeName: String, options: Array<out Options.Write>) {}
 
-    class Builder {
+    class Builder<M : Any> {
         class WillPut(val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
 
         class DidPut(private val getKey: () -> Key<*>, val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable) {
@@ -26,19 +26,19 @@ interface DBListener {
 
         class DidDelete(val key: Key<*>, val typeName: String, val options: Array<out Options.Write>)
 
-        private var willPut: (WillPut.(Any) -> Unit)? = null
-        private var didPut: (DidPut.(Any) -> Unit)? = null
+        private var willPut: (WillPut.(M) -> Unit)? = null
+        private var didPut: (DidPut.(M) -> Unit)? = null
 
-        private var willDelete: (WillDelete.(() -> Any?) -> Unit)? = null
-        private var didDelete: (DidDelete.(Any?) -> Unit)? = null
+        private var willDelete: (WillDelete.(() -> M?) -> Unit)? = null
+        private var didDelete: (DidDelete.(M?) -> Unit)? = null
 
         private var didDeleteNeedsModel = false
 
-        fun willPut(block: WillPut.(Any) -> Unit) {
+        fun willPut(block: WillPut.(M) -> Unit) {
             willPut = block
         }
 
-        fun didPut(block: DidPut.(Any) -> Unit) {
+        fun didPut(block: DidPut.(M) -> Unit) {
             didPut = block
         }
 
@@ -46,7 +46,7 @@ interface DBListener {
             willDelete = { block() }
         }
 
-        fun willDelete(block: WillDelete.(Any) -> Unit) {
+        fun willDelete(block: WillDelete.(M) -> Unit) {
             willDelete = { it()?.let { block(it) } }
         }
 
@@ -54,33 +54,33 @@ interface DBListener {
             didDelete = { block() }
         }
 
-        fun didDelete(block: DidDelete.(Any) -> Unit) {
+        fun didDelete(block: DidDelete.(M) -> Unit) {
             didDeleteNeedsModel = true
             didDelete = { it?.let { block(it) } }
         }
 
-        fun build() = object : DBListener {
+        fun build() = object : DBListener<M> {
             private lateinit var subscription: Closeable
 
             override fun setSubscription(subscription: Closeable) {
                 this.subscription = subscription
             }
 
-            override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {
+            override fun willPut(model: M, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {
                 willPut?.invoke(WillPut(typeName, options, subscription), model)
             }
 
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+            override fun didPut(model: M, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
                 didPut?.invoke(DidPut(getKey, typeName, options, subscription), model)
             }
 
-            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) {
+            override fun willDelete(key: Key<*>, getModel: () -> M?, typeName: String, options: Array<out Options.Write>) {
                 if (didDeleteNeedsModel)
                     getModel()
                 willDelete?.invoke(WillDelete(key, typeName, options, subscription), getModel)
             }
 
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {
+            override fun didDelete(key: Key<*>, model: M?, typeName: String, options: Array<out Options.Write>) {
                 didDelete?.invoke(DidDelete(key, typeName, options), model)
             }
         }

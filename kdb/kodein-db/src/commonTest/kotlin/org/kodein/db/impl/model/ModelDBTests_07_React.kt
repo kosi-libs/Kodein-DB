@@ -23,7 +23,7 @@ class ModelDBTests_07_React : ModelDBTests() {
         var willDeleteCalls = 0
         var didDeleteCalls = 0
 
-        val listener = object : DBListener {
+        val listener = object : DBListener<Any> {
             override fun setSubscription(subscription: Closeable) {
                 ++setSubscriptionCalls
             }
@@ -101,7 +101,7 @@ class ModelDBTests_07_React : ModelDBTests() {
         var willDeleteCalls = 0
         var didDeleteCalls = 0
 
-        val listener = object : DBListener {
+        val listener = object : DBListener<Any> {
             override fun setSubscription(subscription: Closeable) {
                 ++setSubscriptionCalls
             }
@@ -198,7 +198,7 @@ class ModelDBTests_07_React : ModelDBTests() {
         var willPutCalled = false
         var willDeleteCalled = false
 
-        val putListener = object : DBListener {
+        val putListener = object : DBListener<Any> {
             private lateinit var sub: Closeable
             override fun setSubscription(subscription: Closeable) { sub = subscription }
             override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {
@@ -210,7 +210,7 @@ class ModelDBTests_07_React : ModelDBTests() {
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = fail("didDelete")
         }
 
-        val deleteListener = object : DBListener {
+        val deleteListener = object : DBListener<Any> {
             private lateinit var sub: Closeable
             override fun setSubscription(subscription: Closeable) { sub = subscription }
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) {
@@ -251,21 +251,21 @@ class ModelDBTests_07_React : ModelDBTests() {
         var thirdWillDeleteCalled = false
         var thirdDidDeleteCalled = false
 
-        val firstListener = object : DBListener {
+        val firstListener = object : DBListener<Any> {
             override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) { firstWillPutCalled = true }
             override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { firstDidPutCalled = true }
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) { firstWillDeleteCalled = true }
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) { firstDidDeleteCalled = true }
         }
 
-        val secondListener = object : DBListener {
+        val secondListener = object : DBListener<Any> {
             override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) = throw IllegalStateException("willPut")
             override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { secondDidPutCalled = true }
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException("willDelete")
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) { secondDidDeleteCalled = true }
         }
 
-        val thirdListener = object : DBListener {
+        val thirdListener = object : DBListener<Any> {
             override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) { thirdWillPutCalled = true }
             override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { thirdDidPutCalled = true }
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) { thirdWillDeleteCalled = true }
@@ -309,12 +309,12 @@ class ModelDBTests_07_React : ModelDBTests() {
     @Test
     fun test03_DidOpExceptions() {
 
-        val firstListener = object : DBListener {
+        val firstListener = object : DBListener<Any> {
             override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("first didPut")
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException("first didDelete")
         }
 
-        val secondListener = object : DBListener {
+        val secondListener = object : DBListener<Any> {
             override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("second didPut")
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException("second didDelete")
         }
@@ -348,7 +348,7 @@ class ModelDBTests_07_React : ModelDBTests() {
     fun test04_LazyModel() {
         var passed = false
 
-        mdb.register(object : DBListener {
+        mdb.register(object : DBListener<Any> {
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {
                 assertNull(model)
                 passed = true

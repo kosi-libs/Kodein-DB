@@ -7,24 +7,14 @@ import kotlin.reflect.KClass
 
 internal class DBImpl(override val mdb: ModelDB) : DB, BaseDBRead, BaseDBWrite {
 
-    override fun newBatch(): DB.Batch {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun newBatch(): DB.Batch = BatchImpl(mdb.newBatch())
 
-    override fun newSnapshot(vararg options: Options.Read): DB.Snapshot {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun newSnapshot(vararg options: Options.Read): DB.Snapshot = SnapshotImpl(mdb.newSnapshot(*options))
 
-    override fun onAll(): DB.RegisterDsl<Any> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun onAll(): DB.RegisterDsl<Any> = RegisterDslImpl(mdb, emptyList())
 
-    override fun <M : Any> on(type: KClass<M>): DB.RegisterDsl<M> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun <M : Any> on(type: KClass<M>): DB.RegisterDsl<M> = RegisterDslImpl(mdb, listOf<(M) -> Boolean>({ type.isInstance(it) }))
 
-    override fun close() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun close() = mdb.close()
 
 }

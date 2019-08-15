@@ -10,9 +10,9 @@ import org.kodein.memory.util.forEachResilient
 
 internal class ModelDBImpl(val serializer: Serializer<Any>, private val metadataExtractor: MetadataExtractor, val typeTable: TypeTable, override val data: DataDB) : ModelDB, BaseModelRead, BaseModelWrite {
 
-    internal val listeners = LinkedHashSet<DBListener>()
+    internal val listeners = LinkedHashSet<DBListener<Any>>()
 
-    override fun didAction(action: DBListener.() -> Unit) = listeners.toList().forEachResilient(action)
+    override fun didAction(action: DBListener<Any>.() -> Unit) = listeners.toList().forEachResilient(action)
 
     internal fun getMetadata(model: Any, options: Array<out Options.Write>) =
             (model as? HasMetadata)?.getMetadata(this, *options) ?: metadataExtractor.extractMetadata(model, *options)
@@ -25,7 +25,7 @@ internal class ModelDBImpl(val serializer: Serializer<Any>, private val metadata
 
     override fun close() = data.close()
 
-    override fun register(listener: DBListener): Closeable {
+    override fun register(listener: DBListener<Any>): Closeable {
         val subscription = Closeable { listeners -= listener }
         if (listeners.add(listener))  listener.setSubscription(subscription)
         return subscription
