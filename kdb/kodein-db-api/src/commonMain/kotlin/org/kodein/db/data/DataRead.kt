@@ -5,7 +5,7 @@ import org.kodein.db.Value
 import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.ReadBuffer
 
-interface DataRead : DataBase {
+interface DataRead : DataKeyMaker {
 
     fun get(key: ReadBuffer, vararg options: Options.Read): Allocation?
 
@@ -20,4 +20,21 @@ interface DataRead : DataBase {
     fun findByIndex(type: String, name: String, value: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
 
     fun getIndexesOf(key: ReadBuffer, vararg options: Options.Read): List<String>
+
+    /**
+     * If true, all data read from underlying storage will be verified against corresponding checksums.
+     *
+     * (Default: false)
+     */
+    data class VerifyChecksum(val verifyChecksums: Boolean) : Options.Read
+
+    /**
+     * Should the data read for this iteration be cached in memory?
+     *
+     * Callers may wish to set this field to false for bulk scans.
+     *
+     * (Default: true)
+     */
+    data class FillCache(val fillCache: Boolean = true) : Options.Read
+
 }

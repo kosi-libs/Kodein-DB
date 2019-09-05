@@ -1,9 +1,9 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.TypeTable
+import org.kodein.db.getRef
 import org.kodein.db.model.findAllByType
 import org.kodein.db.model.putAll
-import org.kodein.db.orm.kotlinx.asRef
 import org.kodein.memory.use
 import kotlin.test.*
 
@@ -20,9 +20,9 @@ open class ModelDBTests_05_Polymorphism : ModelDBTests() {
     fun test01_Polymorphism() {
         val gilbert = Adult("Gilbert", "BRYS", Date(1, 9, 1954))
         val veronique = Adult("Véronique", "BRYS", Date(17, 10, 1957))
-        val salomon = Child("Salomon", "BRYS", Date(15, 12, 1986), mdb.getHeapKey(gilbert).asRef() to mdb.getHeapKey(veronique).asRef())
-        val maroussia = Child("Maroussia", "BRYS", Date(18, 8, 1988), mdb.getHeapKey(gilbert).asRef() to mdb.getHeapKey(veronique).asRef())
-        val benjamin = Child("Benjamin", "BRYS", Date(23, 6, 1992), mdb.getHeapKey(gilbert).asRef() to mdb.getHeapKey(veronique).asRef())
+        val salomon = Child("Salomon", "BRYS", Date(15, 12, 1986), mdb.getRef(gilbert) to mdb.getRef(veronique))
+        val maroussia = Child("Maroussia", "BRYS", Date(18, 8, 1988), mdb.getRef(gilbert) to mdb.getRef(veronique))
+        val benjamin = Child("Benjamin", "BRYS", Date(23, 6, 1992), mdb.getRef(gilbert) to mdb.getRef(veronique))
 
         mdb.putAll(listOf(gilbert, veronique, salomon, maroussia, benjamin))
 

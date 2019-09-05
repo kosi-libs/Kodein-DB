@@ -3,7 +3,6 @@ import org.kodein.internal.gradle.KodeinMPPExtension
 
 plugins {
     id("org.kodein.library.mpp-with-android")
-//    id("kotlinx-atomicfu")
 }
 
 val currentOs = org.gradle.internal.os.OperatingSystem.current()
@@ -96,14 +95,6 @@ kodein {
 
     }
 }
-
-//task<Exec>("iosX64Test") {
-//    dependsOn("linkDebugTestIosX64")
-//    group = "verification"
-//
-//    val binary = (kotlin.targets["iosX64"] as KotlinNativeTarget).binaries.getTest("DEBUG").outputFile
-//    setCommandLine("xcrun", "simctl", "spawn", "iPhone 8", binary.absolutePath, "--ktest_logger=TEAMCITY")
-//}
 
 if (kodeinAndroid.isIncluded) {
     afterEvaluate {

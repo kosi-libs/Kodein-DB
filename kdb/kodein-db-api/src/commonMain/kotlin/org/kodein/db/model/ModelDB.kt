@@ -2,21 +2,16 @@ package org.kodein.db.model
 
 import org.kodein.db.DBListener
 import org.kodein.db.Options
-import org.kodein.db.TypeTable
 import org.kodein.memory.Closeable
 
 interface ModelDB : ModelWrite, ModelRead, Closeable {
 
-    interface Batch : ModelWrite, Closeable {
-        fun write(vararg options: Options.Write)
-    }
+    fun newBatch(): ModelBatch
 
-    fun newBatch(): Batch
-
-    interface Snapshot : ModelRead, Closeable
-
-    fun newSnapshot(vararg options: Options.Read): Snapshot
+    fun newSnapshot(vararg options: Options.Read): ModelSnapshot
 
     fun register(listener: DBListener<Any>): Closeable
+
+    companion object
 }
 

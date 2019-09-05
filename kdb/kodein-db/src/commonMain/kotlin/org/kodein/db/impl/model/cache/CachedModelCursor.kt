@@ -4,9 +4,10 @@ import org.kodein.db.Options
 import org.kodein.db.Sized
 import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.cache.ModelCache
+import org.kodein.memory.Closeable
 import org.kodein.memory.io.ReadBuffer
 
-internal class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache: ModelCache) : ModelCursor<M> {
+internal class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache: ModelCache) : ModelCursor<M>, Closeable by cursor {
 
     private var cachedEntry: ModelCache.Entry.Cached<M>? = null
 
@@ -22,12 +23,7 @@ internal class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache:
         cursor.prev()
     }
 
-    private inner class Entries(val entries: ModelCursor.Entries<M>) : ModelCursor.Entries<M> {
-        override val size: Int get() = entries.size
-        override fun seekKey(i: Int) = entries.seekKey(i)
-        override fun key(i: Int) = entries.key(i)
-        override fun close() = entries.close()
-
+    private inner class Entries(val entries: ModelCursor.Entries<M>) : ModelCursor.Entries<M> by entries {
         private val cachedEntries = arrayOfNulls<ModelCache.Entry.Cached<M>>(size)
 
         override fun get(i: Int, vararg options: Options.Read): Sized<M> {
@@ -67,7 +63,5 @@ internal class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache:
     }
 
     override fun transientSeekKey() = cursor.transientSeekKey()
-
-    override fun close() = cursor.close()
 
 }

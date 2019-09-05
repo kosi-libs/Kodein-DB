@@ -1,8 +1,8 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.TypeTable
+import org.kodein.db.getRef
 import org.kodein.db.model.putAll
-import org.kodein.db.orm.kotlinx.asRef
 import org.kodein.memory.use
 import kotlin.test.*
 
@@ -19,7 +19,7 @@ open class ModelDBTests_06_All : ModelDBTests() {
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         val her = Adult("Laila", "ATIE", Date(25, 8, 1989))
-        val dog = Child("Lana", "Woof", Date(8, 7, 2017), mdb.getHeapKey(me).asRef() to mdb.getHeapKey(her).asRef())
+        val dog = Child("Lana", "Woof", Date(8, 7, 2017), mdb.getRef(me) to mdb.getRef(her))
 
         mdb.putAll(listOf(me, her, dog))
 

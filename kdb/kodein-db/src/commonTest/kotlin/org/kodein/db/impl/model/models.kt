@@ -1,15 +1,10 @@
 package org.kodein.db.impl.model
 
 import kotlinx.serialization.Serializable
-import org.kodein.db.Index
-import org.kodein.db.Options
-import org.kodein.db.Value
-import org.kodein.db.indexSet
-import org.kodein.db.model.HasMetadata
-import org.kodein.db.model.Metadata
+import org.kodein.db.*
+import org.kodein.db.model.orm.HasMetadata
+import org.kodein.db.model.orm.Metadata
 import org.kodein.db.model.ModelDB
-import org.kodein.db.orm.kotlinx.Ref
-import org.kodein.db.orm.kotlinx.get
 
 @Serializable
 data class Date(val day: Int, val month: Int, val year: Int)

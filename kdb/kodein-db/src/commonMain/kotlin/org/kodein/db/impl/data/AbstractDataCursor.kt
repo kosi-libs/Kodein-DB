@@ -1,10 +1,11 @@
 package org.kodein.db.impl.data
 
-import org.kodein.db.data.DataCursor
 import org.kodein.db.impl.utils.compareTo
 import org.kodein.db.impl.utils.startsWith
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.TransientBytes
+import org.kodein.db.data.DataCursor
+import org.kodein.memory.Closeable
 import org.kodein.memory.io.*
 
 internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, private val prefix: Allocation) : DataCursor {

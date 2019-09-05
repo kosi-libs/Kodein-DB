@@ -1,12 +1,7 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.TypeTable
-import org.kodein.db.data.DataDB
-import org.kodein.db.model.ModelDB
-import org.kodein.db.model.Serializer
+import org.kodein.db.data.DataSnapshot
+import org.kodein.db.model.ModelSnapshot
+import org.kodein.memory.Closeable
 
-internal class ModelSnapshotImpl(override val mdb: ModelDBImpl, override val data: DataDB.Snapshot) : BaseModelRead, ModelDB.Snapshot {
-
-    override fun close() = data.close()
-
-}
+internal class ModelSnapshotImpl(override val mdb: ModelDBImpl, override val data: DataSnapshot) : ModelReadBaseImpl, ModelSnapshot, Closeable by data

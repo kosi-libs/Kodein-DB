@@ -2,8 +2,10 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.data.DataCursor
 import org.kodein.db.data.DataDB
+import org.kodein.db.inDir
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.description
+import org.kodein.db.test.utils.platformTmpPath
 import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.readBytes
 import org.kodein.memory.use
@@ -12,28 +14,29 @@ import kotlin.test.BeforeTest
 import kotlin.test.assertNotNull
 import kotlin.test.fail
 
-expect object DataDBTestFactory {
-    fun destroy()
-    fun open(): DataDB
-}
-
 abstract class DataDBTests {
 
-    protected var _ddb: DataDB? = null
+    private var _ddb: DataDB? = null
 
     protected val ddb: DataDB get() = _ddb!!
 
+    private val factory = DataDB.default.inDir(platformTmpPath)
+
+    protected fun open() {
+        _ddb = factory.open("datadb")
+    }
+
     @BeforeTest
     fun setUp() {
-        DataDBTestFactory.destroy()
-        _ddb = DataDBTestFactory.open()
+        factory.destroy("datadb")
+        open()
     }
 
     @AfterTest
     fun tearDown() {
         _ddb?.close()
         _ddb = null
-        DataDBTestFactory.destroy()
+        factory.destroy("datadb")
     }
 
     fun assertCursorIs(key: ByteArray, value: ByteArray, it: DataCursor) {

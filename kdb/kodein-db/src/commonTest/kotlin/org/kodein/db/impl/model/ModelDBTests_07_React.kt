@@ -2,8 +2,8 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.Options
 import org.kodein.db.Key
-import org.kodein.db.model.Metadata
 import org.kodein.db.DBListener
+import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.Closeable
 import org.kodein.memory.use
 import org.kodein.memory.util.getShadowed

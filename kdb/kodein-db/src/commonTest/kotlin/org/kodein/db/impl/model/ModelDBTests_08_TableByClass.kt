@@ -1,6 +1,7 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.model.Serializer
+import org.kodein.db.model.orm.FSerializer
+import org.kodein.db.model.orm.Serializer
 import org.kodein.memory.io.putTable
 import org.kodein.memory.io.readTable
 import kotlin.test.Test
@@ -11,8 +12,8 @@ import kotlin.test.assertNotSame
 class ModelDBTests_08_TableByClass : ModelDBTests() {
 
     override fun testSerializer() = Serializer.ByClass {
-        +Serializer<Adult>(
-                {
+        +FSerializer<Adult>(
+                serialize = {
                     putTable {
                         string("firstName", it.firstName)
                         string("lastName", it.lastName)
@@ -21,7 +22,7 @@ class ModelDBTests_08_TableByClass : ModelDBTests() {
                         int("birth_year", it.birth.year)
                     }
                 },
-                { _ ->
+                deserialize = { _ ->
                     readTable().let {
                         Adult(it.string("firstName"), it.string("lastName"), Date(it.int("birth_day"), it.int("birth_month"), it.int("birth_year")))
                     }

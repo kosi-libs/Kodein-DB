@@ -135,6 +135,8 @@ interface LevelDB : Closeable {
      */
     fun newWriteBatch(): WriteBatch
 
+    companion object
+
     // TODO: Add these methods
 //    /**
 //     * DB implementations can export properties about their state via this method.

@@ -4,7 +4,7 @@ package org.kodein.db
 
 import kotlin.reflect.KClass
 
-interface DBRead : DBBase {
+interface DBRead : KeyMaker {
 
     operator fun <M : Any> get(key: Key<M>, vararg options: Options.Read): M?
 

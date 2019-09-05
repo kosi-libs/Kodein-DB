@@ -8,14 +8,9 @@ interface DataDB : DataWrite, DataRead, Closeable {
 
     val ldb: LevelDB
 
-    interface Batch : DataWrite, Closeable {
-        fun write(vararg options: Options.Write)
-    }
+    fun newBatch(): DataBatch
 
-    fun newBatch(): Batch
+    fun newSnapshot(vararg options: Options.Read): DataSnapshot
 
-    interface Snapshot : DataRead, Closeable
-
-    fun newSnapshot(vararg options: Options.Read): Snapshot
-
+    companion object
 }

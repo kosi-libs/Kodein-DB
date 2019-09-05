@@ -1,8 +1,8 @@
 package org.kodein.db.impl.model.cache
 
-import org.kodein.db.model.ModelDB
+import org.kodein.db.KeyMaker
+import org.kodein.db.model.ModelSnapshot
 import org.kodein.db.model.cache.ModelCache
+import org.kodein.memory.Closeable
 
-internal class CachedModelSnapshot(override val mdb: ModelDB.Snapshot, override val cache: ModelCache, override val copyMaxSize: Long) : BaseCachedModelRead, ModelDB.Snapshot {
-    override fun close()  = mdb.close()
-}
+internal class CachedModelSnapshot(override val mdb: ModelSnapshot, override val cache: ModelCache, override val copyMaxSize: Long) : CachedModelReadBase, ModelSnapshot, KeyMaker by mdb, Closeable by mdb

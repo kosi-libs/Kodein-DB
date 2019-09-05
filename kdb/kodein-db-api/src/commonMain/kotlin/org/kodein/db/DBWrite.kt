@@ -1,6 +1,6 @@
 package org.kodein.db
 
-interface DBWrite : DBBase {
+interface DBWrite : KeyMaker {
 
     fun put(model: Any, vararg options: Options.Write): Int
 

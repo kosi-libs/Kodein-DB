@@ -1,5 +1,5 @@
 plugins {
-    id("org.kodein.mpp")
+    id("org.kodein.mpp-with-android")
 }
 
 val kodeinLogVer: String by getRootProject().extra
@@ -23,6 +23,13 @@ kodein {
                 api("org.jetbrains.kotlin:kotlin-test")
                 api("org.jetbrains.kotlin:kotlin-test-junit")
                 api("junit:junit:4.12")
+            }
+        }
+
+        add(kodeinTargets.android) {
+            dependencies {
+                implementation("androidx.test.ext:junit:1.1.1")
+                implementation("androidx.test.espresso:espresso-core:3.2.0")
             }
         }
 

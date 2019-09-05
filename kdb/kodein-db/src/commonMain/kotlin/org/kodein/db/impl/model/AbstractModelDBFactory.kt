@@ -1,12 +1,14 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.*
-import org.kodein.db.data.DataDBFactory
+import org.kodein.db.data.DataDB
 import org.kodein.db.model.*
+import org.kodein.db.model.orm.MetadataExtractor
+import org.kodein.db.model.orm.Serializer
 
-abstract class AbstractModelDBFactory : ModelDBFactory {
+abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
 
-    protected abstract val ddbFactory: DataDBFactory
+    protected abstract val ddbFactory: DBFactory<DataDB>
 
     protected abstract fun defaultSerializer(): Serializer<Any>
 

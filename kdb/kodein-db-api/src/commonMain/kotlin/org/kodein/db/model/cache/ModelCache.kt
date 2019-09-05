@@ -3,7 +3,7 @@ package org.kodein.db.model.cache
 import org.kodein.db.Options
 import org.kodein.db.Sized
 
-interface ModelCache : ModelCacheBase {
+interface ModelCache : BaseModelCache {
 
     object Disable : Options.Open
     data class MaxSize(val maxSize: Long) : Options.Open

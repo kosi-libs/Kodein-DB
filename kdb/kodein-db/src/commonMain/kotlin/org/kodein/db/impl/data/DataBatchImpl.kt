@@ -1,13 +1,14 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.*
+import org.kodein.db.data.DataBatch
 import org.kodein.db.data.DataDB
 import org.kodein.db.impl.utils.putBody
 import org.kodein.db.impl.utils.withLock
 import org.kodein.memory.io.*
 import org.kodein.memory.use
 
-internal class DataBatchImpl(private val ddb: DataDBImpl) : BaseDataBase, DataDB.Batch {
+internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerImpl, DataBatch {
 
     private val batch = ddb.ldb.newWriteBatch()
 

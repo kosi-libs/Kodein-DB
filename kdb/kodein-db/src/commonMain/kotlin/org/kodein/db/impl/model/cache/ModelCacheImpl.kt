@@ -7,7 +7,7 @@ import org.kodein.db.impl.utils.newRWLock
 import org.kodein.db.impl.utils.read
 import org.kodein.db.impl.utils.write
 import org.kodein.db.model.cache.ModelCache
-import org.kodein.db.model.cache.ModelCacheBase
+import org.kodein.db.model.cache.BaseModelCache
 import kotlin.jvm.Volatile
 
 internal class ModelCacheImpl private constructor(private var internals: Internals, private val instanceMaxSize: Long) : ModelCache {
@@ -229,28 +229,28 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
         }
     }
 
-    override fun batch(block: ModelCacheBase.() -> Unit) {
+    override fun batch(block: BaseModelCache.() -> Unit) {
         lockWrite {
-            var batch: ModelCacheBase? = object : ModelCacheBase {
+            var batch: BaseModelCache? = object : BaseModelCache {
                 override fun <M : Any> getEntry(key: Key<M>): ModelCache.Entry<M> = unsafeGetEntry(key)
                 override fun <M : Any> getOrRetrieveEntry(key: Key<M>, retrieve: () -> Sized<M>?): ModelCache.Entry<M> = getOrRetrieveEntry(key, retrieve, ::run)
                 override fun <M : Any> put(key: Key<M>, value: M, size: Int) = unsafePut(key, value, size)
                 override fun <M : Any> delete(key: Key<M>): ModelCache.Entry<M> = unsafeDelete(key)
                 override fun <M : Any> evict(key: Key<M>): ModelCache.Entry<M> = unsafeEvict(key)
                 override fun clear() = renewInternals(false)
-                override fun batch(block: ModelCacheBase.() -> Unit) = throw IllegalStateException()
+                override fun batch(block: BaseModelCache.() -> Unit) = throw IllegalStateException()
             }
 
-            fun getBatch(): ModelCacheBase = batch ?: throw IllegalStateException("Do not use this object outside of the batch function")
+            fun getBatch(): BaseModelCache = batch ?: throw IllegalStateException("Do not use this object outside of the batch function")
 
-            val proxy = object : ModelCacheBase {
+            val proxy = object : BaseModelCache {
                 override fun <M : Any> getEntry(key: Key<M>): ModelCache.Entry<M> = getBatch().getEntry(key)
                 override fun <M : Any> getOrRetrieveEntry(key: Key<M>, retrieve: () -> Sized<M>?): ModelCache.Entry<M> = getBatch().getOrRetrieveEntry(key, retrieve)
                 override fun <M : Any> put(key: Key<M>, value: M, size: Int) = getBatch().put(key, value, size)
                 override fun <M : Any> delete(key: Key<M>): ModelCache.Entry<M> = getBatch().delete(key)
                 override fun <M : Any> evict(key: Key<M>): ModelCache.Entry<M> = getBatch().evict(key)
                 override fun clear() = getBatch().clear()
-                override fun batch(block: ModelCacheBase.() -> Unit) = this.block()
+                override fun batch(block: BaseModelCache.() -> Unit) = this.block()
             }
 
             proxy.block()

@@ -1,6 +1,6 @@
 package org.kodein.db
 
-import org.kodein.db.model.Metadata
+import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.Closeable
 
 interface DBListener<in M : Any> {

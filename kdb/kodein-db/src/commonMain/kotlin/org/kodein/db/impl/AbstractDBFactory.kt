@@ -1,18 +1,15 @@
 package org.kodein.db.impl
 
-import org.kodein.db.DB
-import org.kodein.db.Middleware
-import org.kodein.db.Options
+import org.kodein.db.*
 import org.kodein.db.impl.model.cache.defaultCacheCopyMaxSize
 import org.kodein.db.impl.model.cache.defaultCacheSize
 import org.kodein.db.impl.model.cache.middleware
-import org.kodein.db.invoke
-import org.kodein.db.model.ModelDBFactory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.cache.ModelCache
 
-internal abstract class AbstractDBFactory : DB.Factory {
+abstract class AbstractDBFactory : DBFactory<DB> {
 
-   internal abstract fun mdbFactory(): ModelDBFactory
+   internal abstract fun mdbFactory(): DBFactory<ModelDB>
 
     override fun open(path: String, vararg options: Options.Open): DB {
         val mdbOptions = if (options<ModelCache.Disable>() == null) {
@@ -28,5 +25,9 @@ internal abstract class AbstractDBFactory : DB.Factory {
         val mdb = mdbFactory().open(path, *mdbOptions)
 
         return DBImpl(mdb)
+    }
+
+    override fun destroy(path: String, vararg options: Options.Open) {
+        mdbFactory().destroy(path, *options)
     }
 }

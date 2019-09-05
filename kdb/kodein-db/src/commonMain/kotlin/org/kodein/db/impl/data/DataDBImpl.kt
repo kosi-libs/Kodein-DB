@@ -1,8 +1,10 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.*
+import org.kodein.db.data.DataBatch
 import org.kodein.db.data.DataDB
-import org.kodein.db.data.DataOptions
+import org.kodein.db.data.DataSnapshot
+import org.kodein.db.data.DataWrite
 import org.kodein.db.impl.utils.newLock
 import org.kodein.db.impl.utils.putBody
 import org.kodein.db.impl.utils.withLock
@@ -10,7 +12,7 @@ import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 import org.kodein.memory.use
 
-internal class DataDBImpl(override val ldb: LevelDB) : BaseDataRead, DataDB {
+internal class DataDBImpl(override val ldb: LevelDB) : DataReadBaseImpl, DataDB {
 
     override val snapshot: LevelDB.Snapshot? get() = null
 
@@ -20,9 +22,9 @@ internal class DataDBImpl(override val ldb: LevelDB) : BaseDataRead, DataDB {
         internal const val DEFAULT_CAPACITY = 16384
 
         internal fun toLdb(options: Array<out Options.Write>): LevelDB.WriteOptions {
-            val wo: DataOptions.Write = options() ?: return LevelDB.WriteOptions.DEFAULT
+            val syncOption: DataWrite.Sync = options() ?: return LevelDB.WriteOptions.DEFAULT
             return LevelDB.WriteOptions(
-                    sync = wo.sync
+                    sync = syncOption.sync
             )
         }
     }
@@ -130,9 +132,9 @@ internal class DataDBImpl(override val ldb: LevelDB) : BaseDataRead, DataDB {
         }
     }
 
-    override fun newBatch(): DataDB.Batch = DataBatchImpl(this)
+    override fun newBatch(): DataBatch = DataBatchImpl(this)
 
-    override fun newSnapshot(vararg options: Options.Read): DataDB.Snapshot = DataSnapshotImpl(ldb, ldb.newSnapshot())
+    override fun newSnapshot(vararg options: Options.Read): DataSnapshot = DataSnapshotImpl(ldb, ldb.newSnapshot())
 
     override fun close() {
         ldb.close()

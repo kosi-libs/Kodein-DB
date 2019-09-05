@@ -10,22 +10,11 @@ interface DBCursorEntry<M : Any> {
     fun transientSeekKey(): TransientBytes
 }
 
-interface DBCursor<M: Any> : DBCursorEntry<M>, Closeable {
-
-    fun isValid(): Boolean
-
-    fun next()
-    fun prev()
-
-    fun seekToFirst()
-    fun seekToLast()
-    fun seekTo(target: ReadBuffer)
+interface DBCursor<M: Any> : DBCursorEntry<M>, BaseCursor {
 
     fun nextEntries(size: Int): Entries<M>
 
-    interface Entries<M: Any> : Closeable {
-        val size: Int
-        fun seekKey(i: Int): ReadBuffer
+    interface Entries<M: Any> : BaseCursor.BaseEntries {
         fun key(i: Int): Key<M>
         operator fun get(i: Int, vararg options: Options.Read): M
     }

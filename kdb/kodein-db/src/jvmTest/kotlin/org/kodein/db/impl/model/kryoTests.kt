@@ -1,6 +1,6 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.model.Serializer
+import org.kodein.db.model.orm.Serializer
 import org.kodein.db.orm.kryo.KryoSerializer
 
 class ModelDBTests_00_PutGetDelete_Kryo : ModelDBTests_00_PutGetDelete() {

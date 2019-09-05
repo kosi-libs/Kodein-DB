@@ -1,10 +1,7 @@
 package org.kodein.db.impl.data
 
-import org.kodein.db.data.DataDB
+import org.kodein.db.data.DataSnapshot
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.memory.Closeable
 
-internal class DataSnapshotImpl(override val ldb: LevelDB, override val snapshot: LevelDB.Snapshot) : BaseDataRead, DataDB.Snapshot {
-
-    override fun close() = snapshot.close()
-
-}
+internal class DataSnapshotImpl(override val ldb: LevelDB, override val snapshot: LevelDB.Snapshot) : DataReadBaseImpl, DataSnapshot, Closeable by snapshot
