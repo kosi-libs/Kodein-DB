@@ -1,8 +1,7 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.get
-import org.kodein.db.getRef
 import org.kodein.db.model.findAllByIndex
+import org.kodein.db.model.get
 import org.kodein.memory.use
 import kotlin.test.*
 
@@ -21,8 +20,8 @@ open class ModelDBTests_04_Refs : ModelDBTests() {
         mdb.put(sjeg)
         mdb.put(pap)
 
-        mdb.put(Birth(mdb.getRef(meKey), mdb.getRef(sjeg)))
-        mdb.put(Birth(mdb.getRef(lailaKey), mdb.getRef(pap)))
+        mdb.put(Birth(meKey, mdb.getHeapKey(sjeg)))
+        mdb.put(Birth(lailaKey, mdb.getHeapKey((pap))))
 
         mdb.findAllByIndex<Birth>("date").use {
             assertTrue(it.isValid())

@@ -9,7 +9,7 @@ internal interface DBReadBase : DBRead {
     val mdb: ModelRead
 
     @Suppress("ReplaceGetOrSet")
-    override fun <M : Any> get(key: Key<M>, vararg options: Options.Read): M? = mdb.get(key, *options)?.value
+    override fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): M? = mdb.get(type, key, *options)?.value
 
     override fun findAll(vararg options: Options.Read): DBCursor<*> = DBCursorImpl(mdb.findAll(*options))
 

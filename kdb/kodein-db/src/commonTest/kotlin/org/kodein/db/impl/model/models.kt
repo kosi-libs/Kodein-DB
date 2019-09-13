@@ -1,10 +1,13 @@
 package org.kodein.db.impl.model
 
+import kotlinx.serialization.ContextualSerialization
+
 import kotlinx.serialization.Serializable
 import org.kodein.db.*
 import org.kodein.db.model.orm.HasMetadata
 import org.kodein.db.model.orm.Metadata
 import org.kodein.db.model.ModelDB
+import org.kodein.db.model.get
 
 @Serializable
 data class Date(val day: Int, val month: Int, val year: Int)
@@ -26,7 +29,7 @@ interface Person : Metadata {
 data class Adult(override val firstName: String, override val lastName: String, override val birth: Date) : Person
 
 @Serializable
-data class Child(override val firstName: String, override val lastName: String, override val birth: Date, val parents: Pair<Ref<Adult>, Ref<Adult>>) : Person
+data class Child(override val firstName: String, override val lastName: String, override val birth: Date, val parents: Pair<@ContextualSerialization Key<Adult>, @ContextualSerialization Key<Adult>>) : Person
 
 @Serializable
 data class Location(val lat: Double, val lng: Double)
@@ -37,7 +40,7 @@ data class City(val name: String, val location: Location, val postalCode: Int) :
 }
 
 @Serializable
-data class Birth(val adult: Ref<Adult>, val city: Ref<City>) : HasMetadata {
+data class Birth(@ContextualSerialization val adult: Key<Adult>, @ContextualSerialization val city: Key<City>) : HasMetadata {
     override fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata {
         val person = db[adult]!!
         return Metadata(

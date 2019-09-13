@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 
 interface ModelRead : KeyMaker {
 
-    operator fun <M : Any> get(key: Key<M>, vararg options: Options.Read): Sized<M>?
+    operator fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>?
 
     fun findAll(vararg options: Options.Read): ModelCursor<*>
 
@@ -19,6 +19,8 @@ interface ModelRead : KeyMaker {
 
     fun getIndexesOf(key: Key<*>, vararg options: Options.Read): List<String>
 }
+
+inline operator fun <reified M : Any> ModelRead.get(key: Key<M>, vararg options: Options.Read): Sized<M>? = get(M::class, key, *options)
 
 inline fun <reified M : Any> ModelRead.findAllByType(vararg options: Options.Read) = findAllByType(M::class, *options)
 

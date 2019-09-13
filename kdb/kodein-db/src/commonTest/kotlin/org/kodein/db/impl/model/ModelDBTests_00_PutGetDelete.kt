@@ -2,6 +2,8 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.Value
 import org.kodein.db.getHeapKey
+import org.kodein.db.model.delete
+import org.kodein.db.model.get
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame

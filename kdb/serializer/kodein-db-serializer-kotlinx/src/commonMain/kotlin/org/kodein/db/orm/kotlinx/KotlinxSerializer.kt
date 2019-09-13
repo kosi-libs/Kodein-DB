@@ -2,9 +2,12 @@ package org.kodein.db.orm.kotlinx
 
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.internal.HexConverter
+import kotlinx.serialization.internal.StringDescriptor
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
+import org.kodein.db.Key
 import org.kodein.db.Options
-import org.kodein.db.Ref
 import org.kodein.db.invoke
 import org.kodein.db.model.orm.Serializer
 import org.kodein.db.simpleNameOf
@@ -18,13 +21,39 @@ class KXSerializer(val serializer: KSerializer<*>) : Options.Read, Options.Write
 class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : Serializer<Any> {
     private val serializers = HashMap<KClass<*>, KSerializer<*>>()
 
-    private val encoder = Base64.encoder.withoutPadding()
-    private val decoder = Base64.decoder
+    private object KeySerializer : KSerializer<Key<*>> {
+        private val b64Encoder = Base64.encoder.withoutPadding()
+        private val b64Decoder = Base64.decoder
+
+        override val descriptor: SerialDescriptor = StringDescriptor.withName("DbKey")
+
+        override fun deserialize(decoder: Decoder): Key<*> {
+            val b64 = decoder.decodeString()
+            val bytes = KBuffer.wrap(b64Decoder.decode(b64))
+            return Key.Heap<Any>(bytes)
+        }
+
+        override fun serialize(encoder: Encoder, obj: Key<*>) {
+            val b64 = b64Encoder.encode(obj.bytes.duplicate())
+            encoder.encodeString(b64)
+        }
+
+        @Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
+        inline fun <T : Key<*>> out() = this as KSerializer<T>
+    }
 
     private val cbor = Cbor(context = SerializersModule {
-        polymorphic<org.kodein.db.Ref<*>> {
-            Ref::class with Ref.serializer()
+        contextual(KeySerializer)
+        contextual(KeySerializer.out<Key.Heap<*>>())
+        contextual(KeySerializer.out<Key.Native<*>>())
+
+        polymorphic<Key<*>> {
+            Key.Heap::class with (KeySerializer.out())
+            Key.Native::class with (KeySerializer.out())
         }
+//        polymorphic<org.kodein.db.Ref<*>> {
+//            Ref::class with Ref.serializer()
+//        }
     })
 
     inner class Builder {
@@ -69,11 +98,4 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
 //  - https://github.com/Kotlin/kotlinx.serialization/issues/259
 //  - https://github.com/Kotlin/kotlinx.serialization/issues/52
 
-    @Serializable
-/*inline*/ data class Ref(val b64: String) : org.kodein.db.Ref<Any>
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <M : Any> getRef(bytes: ReadBuffer) = Ref(encoder.encode(bytes.duplicate())) as org.kodein.db.Ref<M>
-
-    override fun getBytes(ref: org.kodein.db.Ref<*>) = KBuffer.wrap(decoder.decode((ref as Ref).b64))
 }

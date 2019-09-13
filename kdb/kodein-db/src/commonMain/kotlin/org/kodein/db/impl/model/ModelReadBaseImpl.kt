@@ -39,8 +39,8 @@ internal interface ModelReadBaseImpl : ModelKeyMakerImpl, ModelRead {
         }
     }
 
-    override fun <M : Any> get(key: Key<M>, vararg options: Options.Read): Sized<M>? {
-        return data.get(key.bytes, *options)?.use { getFrom(it, key.type, mdb.typeTable, mdb.serializer, options) }
+    override fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>? {
+        return data.get(key.bytes, *options)?.use { getFrom(it, type, mdb.typeTable, mdb.serializer, options) }
     }
 
     override fun findAll(vararg options: Options.Read): ModelCursor<*> =

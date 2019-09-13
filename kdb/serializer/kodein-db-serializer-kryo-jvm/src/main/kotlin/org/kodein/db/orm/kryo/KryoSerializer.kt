@@ -7,7 +7,6 @@ import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer
 import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy
 import org.kodein.db.Options
 import org.kodein.db.TypeTable
-import org.kodein.db.model.orm.BytesRefMapper
 import org.kodein.db.model.orm.Serializer
 import org.kodein.memory.io.*
 import org.kodein.memory.use
@@ -15,7 +14,7 @@ import org.objenesis.strategy.StdInstantiatorStrategy
 import kotlin.reflect.KClass
 
 
-class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : BytesRefMapper(), Serializer<Any> {
+class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : Serializer<Any> {
 
     override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
         Output(output.asOuputStream()).use {

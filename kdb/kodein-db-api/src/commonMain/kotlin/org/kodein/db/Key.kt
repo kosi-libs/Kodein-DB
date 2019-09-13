@@ -4,17 +4,16 @@ package org.kodein.db
 
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.*
-import kotlin.reflect.KClass
 
 
-sealed class Key<out T : Any>(val type: KClass<out T>, val bytes: ReadBuffer) {
+sealed class Key<out T : Any>(val bytes: ReadBuffer) {
     abstract fun asHeapKey(): Key<T>
-    class Heap<out T : Any>(type: KClass<out T>, bytes: ReadBuffer) : Key<T>(type, bytes) {
+    class Heap<out T : Any>(bytes: ReadBuffer) : Key<T>(bytes) {
         override fun asHeapKey(): Key<T> = this
     }
-    class Native<out T : Any>(type: KClass<out T>, private val alloc: Allocation) : Key<T>(type, alloc), Closeable {
+    class Native<out T : Any>(private val alloc: Allocation) : Key<T>(alloc), Closeable {
         override fun close() { alloc.close() }
-        override fun asHeapKey(): Key<T> = Heap(type, KBuffer.wrap(bytes.getBytesHere()))
+        override fun asHeapKey(): Key<T> = Heap(KBuffer.wrap(bytes.getBytesHere()))
     }
 
     override fun hashCode(): Int = bytes.hashCode()
@@ -25,8 +24,8 @@ sealed class Key<out T : Any>(val type: KClass<out T>, val bytes: ReadBuffer) {
     }
 }
 
-inline class TransientKey<out T : Any>(val transientKey: Key<T>) {
-    fun copyToHeap() = Key.Heap(transientKey.type, KBuffer.wrap(transientKey.bytes.getBytes(0)))
+inline class TransientKey<out T : Any>(val transientBytes: ReadBuffer) {
+    fun copyToHeap() = Key.Heap<T>(KBuffer.wrap(transientBytes.getBytes(0)))
 }
 
 inline class TransientBytes(val bytes: ReadBuffer) {

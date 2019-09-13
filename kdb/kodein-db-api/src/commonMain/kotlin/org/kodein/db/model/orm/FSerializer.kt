@@ -6,7 +6,7 @@ import org.kodein.memory.io.Writeable
 import kotlin.reflect.KClass
 
 
-class FSerializer<M : Any>(private val serialize: Writeable.(M) -> Unit, private val deserialize: ReadBuffer.(KClass<out M>) -> M, private val refMapper: RefMapper = BytesRefMapper.instance) : Serializer<M>, RefMapper by refMapper {
+class FSerializer<M : Any>(private val serialize: Writeable.(M) -> Unit, private val deserialize: ReadBuffer.(KClass<out M>) -> M) : Serializer<M> {
 
     override fun serialize(model: M, output: Writeable, vararg options: Options.Write) = output.serialize(model)
 

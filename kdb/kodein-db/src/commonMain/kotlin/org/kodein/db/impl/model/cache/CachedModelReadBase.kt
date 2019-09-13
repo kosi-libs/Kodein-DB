@@ -18,15 +18,15 @@ internal interface CachedModelReadBase : ModelRead {
 
     val copyMaxSize: Long
 
-    override fun <M : Any> get(key: Key<M>, vararg options: Options.Read): Sized<M>? {
+    override fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>? {
         when {
             ModelCache.Skip in options -> {
                 cache.evict(key)
-                return mdb.get(key, *options)
+                return mdb.get(type, key, *options)
             }
 
             ModelCache.Refresh in options -> {
-                val sized = mdb.get(key, *options)
+                val sized = mdb.get(type, key, *options)
                 if (sized != null)
                     cache.put(key.asHeapKey(), sized)
                 return sized
@@ -34,7 +34,7 @@ internal interface CachedModelReadBase : ModelRead {
 
             else -> {
                 @Suppress("UNCHECKED_CAST")
-                val entry = cache.getOrRetrieveEntry(key.asHeapKey()) { mdb.get(key, *options) }
+                val entry = cache.getOrRetrieveEntry(key.asHeapKey()) { mdb.get(type, key, *options) }
                 if (entry is ModelCache.Entry.Cached) {
                     return entry
                 }

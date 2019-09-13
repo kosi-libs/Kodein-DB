@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 
 interface DBRead : KeyMaker {
 
-    operator fun <M : Any> get(key: Key<M>, vararg options: Options.Read): M?
+    operator fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): M?
 
     fun findAll(vararg options: Options.Read): DBCursor<*>
 
@@ -32,4 +32,5 @@ interface DBRead : KeyMaker {
 
 }
 
+inline operator fun <reified M : Any> DBRead.get(key: Key<M>, vararg options: Options.Read) = get(M::class, key, *options)
 inline fun <reified M : Any> DBRead.find(vararg options: Options.Read) = find(M::class, *options)

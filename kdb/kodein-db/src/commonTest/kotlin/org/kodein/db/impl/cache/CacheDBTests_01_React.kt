@@ -5,6 +5,8 @@ import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Date
 import org.kodein.db.Key
 import org.kodein.db.DBListener
+import org.kodein.db.model.delete
+import org.kodein.db.model.get
 import org.kodein.db.model.orm.Metadata
 import kotlin.test.Test
 import kotlin.test.assertFailsWith

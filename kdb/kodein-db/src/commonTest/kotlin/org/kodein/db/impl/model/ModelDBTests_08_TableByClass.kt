@@ -1,5 +1,6 @@
 package org.kodein.db.impl.model
 
+import org.kodein.db.model.get
 import org.kodein.db.model.orm.FSerializer
 import org.kodein.db.model.orm.Serializer
 import org.kodein.memory.io.putTable
