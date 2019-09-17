@@ -10,13 +10,13 @@ internal class ModelCursorImpl<B : Any, M : B>(private val dc: DataCursor, priva
 
     override fun transientKey() = TransientKey<M>(dc.transientKey().bytes)
 
-    override fun model(vararg options: Options.Read): Sized<M> = ModelReadBaseImpl.getFrom(dc.transientValue().bytes, modelType, typeTable, serializer, options)
+    override fun model(vararg options: Options.Read): Sized<M> = ModelReadModule.getFrom(dc.transientValue().bytes, modelType, typeTable, serializer, options)
 
     private inner class Entries(private val dce: DataCursor.Entries) : ModelCursor.Entries<M>, BaseCursor.BaseEntries by dce {
 
         override fun key(i: Int) = Key.Heap<M>(dce.key(i))
 
-        override fun get(i: Int, vararg options: Options.Read): Sized<M> = ModelReadBaseImpl.getFrom(dce.get(i), modelType, typeTable, serializer, options)
+        override fun get(i: Int, vararg options: Options.Read): Sized<M> = ModelReadModule.getFrom(dce.get(i), modelType, typeTable, serializer, options)
 
     }
 

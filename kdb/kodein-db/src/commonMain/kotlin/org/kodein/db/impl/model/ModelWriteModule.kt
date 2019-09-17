@@ -10,7 +10,7 @@ import org.kodein.db.model.ModelWrite
 import org.kodein.memory.io.Allocation
 import kotlin.reflect.KClass
 
-internal interface ModelWriteBaseImpl : ModelKeyMakerImpl, ModelWrite {
+internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
 
     override val data: DataWrite
 

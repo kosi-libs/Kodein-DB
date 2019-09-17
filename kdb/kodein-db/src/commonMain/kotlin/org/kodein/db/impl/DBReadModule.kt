@@ -4,7 +4,7 @@ import org.kodein.db.*
 import org.kodein.db.model.ModelRead
 import kotlin.reflect.KClass
 
-internal interface DBReadBase : DBRead {
+internal interface DBReadModule : DBRead {
 
     val mdb: ModelRead
 

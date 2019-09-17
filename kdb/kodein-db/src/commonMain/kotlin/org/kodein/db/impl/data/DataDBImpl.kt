@@ -12,7 +12,7 @@ import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 import org.kodein.memory.use
 
-internal class DataDBImpl(override val ldb: LevelDB) : DataReadBaseImpl, DataDB {
+internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
     override val snapshot: LevelDB.Snapshot? get() = null
 

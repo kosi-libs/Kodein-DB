@@ -5,12 +5,11 @@ import org.kodein.db.Value
 import org.kodein.db.ascii.readAscii
 import org.kodein.db.data.DataCursor
 import org.kodein.db.data.DataRead
-import org.kodein.db.invoke
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 import org.kodein.memory.use
 
-internal interface DataReadBaseImpl : DataKeyMakerImpl, DataRead {
+internal interface DataReadModule : DataKeyMakerModule, DataRead {
 
     val ldb: LevelDB
     val snapshot: LevelDB.Snapshot?

@@ -6,7 +6,7 @@ import org.kodein.db.Options
 import org.kodein.db.model.ModelWrite
 import kotlin.reflect.KClass
 
-internal interface DBWriteBase : DBWrite {
+internal interface DBWriteModule : DBWrite {
 
     val mdb: ModelWrite
 

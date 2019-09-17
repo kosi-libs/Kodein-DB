@@ -7,7 +7,7 @@ import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.array
 import org.kodein.memory.io.native
 
-internal interface DataKeyMakerImpl : DataKeyMaker {
+internal interface DataKeyMakerModule : DataKeyMaker {
 
     override fun getHeapKey(type: String, primaryKey: Value): KBuffer =
             KBuffer.array(getObjectKeySize(type, primaryKey)) { putObjectKey(type, primaryKey) }

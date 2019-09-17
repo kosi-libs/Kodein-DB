@@ -5,11 +5,10 @@ import org.kodein.db.Key
 import org.kodein.db.DBListener
 import org.kodein.db.data.DataBatch
 import org.kodein.db.model.ModelBatch
-import org.kodein.db.model.ModelDB
 import org.kodein.memory.Closeable
 import org.kodein.memory.util.forEachResilient
 
-internal class ModelBatchImpl(override val mdb: ModelDBImpl, override val data: DataBatch) : ModelWriteBaseImpl, ModelBatch, Closeable by data {
+internal class ModelBatchImpl(override val mdb: ModelDBImpl, override val data: DataBatch) : ModelWriteModule, ModelBatch, Closeable by data {
 
     private val didActions = ArrayList<DBListener<Any>.() -> Unit>()
 

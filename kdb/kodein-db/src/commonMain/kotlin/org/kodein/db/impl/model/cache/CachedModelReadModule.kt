@@ -10,7 +10,7 @@ import org.kodein.db.Sized
 import org.kodein.db.model.cache.ModelCache
 import kotlin.reflect.KClass
 
-internal interface CachedModelReadBase : ModelRead {
+internal interface CachedModelReadModule : ModelRead {
 
     val mdb: ModelRead
 

@@ -6,7 +6,7 @@ import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.native
 import kotlin.reflect.KClass
 
-internal interface ModelKeyMakerImpl : KeyMaker {
+internal interface ModelKeyMakerModule : KeyMaker {
 
     val mdb: ModelDBImpl
     val data: DataKeyMaker

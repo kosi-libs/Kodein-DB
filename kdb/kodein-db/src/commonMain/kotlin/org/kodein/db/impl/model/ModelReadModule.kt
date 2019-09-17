@@ -10,7 +10,7 @@ import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.use
 import kotlin.reflect.KClass
 
-internal interface ModelReadBaseImpl : ModelKeyMakerImpl, ModelRead {
+internal interface ModelReadModule : ModelKeyMakerModule, ModelRead {
 
     override val data: DataRead
 
