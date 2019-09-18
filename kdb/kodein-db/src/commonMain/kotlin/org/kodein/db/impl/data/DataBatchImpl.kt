@@ -13,18 +13,34 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
 
     private val deleteRefKeys = ArrayList<KBuffer>()
 
+    private fun put(sb: SliceBuilder, body: Body, key: ReadBuffer, indexes: Set<Index>): Int {
+        val value = sb.newSlice { putBody(body) }
+        batch.put(key, value)
+
+        val refKey = KBuffer.array(key.remaining) { putRefKeyFromObjectKey(key) }
+        ddb.putIndexesInBatch(sb, batch, key, refKey, indexes)
+
+        deleteRefKeys += refKey
+
+        return value.remaining
+    }
+
     override fun put(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
         SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
             val key = it.newSlice { putObjectKey(type, primaryKey) }
-            val value = it.newSlice { putBody(body) }
-            batch.put(key, value)
+            return put(it, body, key, indexes)
+        }
+    }
 
-            val refKey = KBuffer.array(key.remaining) { putRefKeyFromObjectKey(key) }
-            ddb.putIndexesInBatch(it, batch, key, refKey, indexes)
+    override fun put(type: String, primaryKey: Value, key: ReadBuffer,  body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
+        SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
+            try {
+                VerificationWriteable(key.duplicate()).putObjectKey(type, primaryKey)
+            } catch (_: VerificationWriteable.DiffException) {
+                return -1
+            }
 
-            deleteRefKeys += refKey
-
-            return value.remaining
+            return put(it, body, key, indexes)
         }
     }
 
@@ -33,15 +49,7 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
         key.flip()
 
         SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
-            val value = it.newSlice { putBody(body) }
-            batch.put(key, value)
-
-            val refKey = KBuffer.array(key.remaining) { putRefKeyFromObjectKey(key) }
-            ddb.putIndexesInBatch(it, batch, key, refKey, indexes)
-
-            deleteRefKeys += refKey
-
-            return value.remaining
+            return put(it, body, key, indexes)
         }
     }
 

@@ -13,7 +13,6 @@ import org.kodein.memory.io.*
 import org.kodein.memory.use
 
 internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
-
     override val snapshot: LevelDB.Snapshot? get() = null
 
     internal val indexesLock = newLock()
@@ -74,16 +73,31 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         return value.remaining
     }
 
+    private fun put(sb: SliceBuilder, key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
+        ldb.newWriteBatch().use { batch ->
+            indexesLock.withLock {
+                val length = putInBatch(sb, batch, key, body, indexes)
+                ldb.write(batch, toLdb(options))
+                return length
+            }
+        }
+    }
+
     override fun put(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
         SliceBuilder.native(DEFAULT_CAPACITY).use {
             val key = it.newSlice { putObjectKey(type, primaryKey) }
-            ldb.newWriteBatch().use { batch ->
-                indexesLock.withLock {
-                    val length = putInBatch(it, batch, key, body, indexes)
-                    ldb.write(batch, toLdb(options))
-                    return length
-                }
+            return put(it, key, body, indexes, *options)
+        }
+    }
+
+    override fun put(type: String, primaryKey: Value, key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
+        SliceBuilder.native(DEFAULT_CAPACITY).use {
+            try {
+                VerificationWriteable(key.duplicate()).putObjectKey(type, primaryKey)
+            } catch (_: VerificationWriteable.DiffException) {
+                return -1
             }
+            return put(it, key, body, indexes, *options)
         }
     }
 

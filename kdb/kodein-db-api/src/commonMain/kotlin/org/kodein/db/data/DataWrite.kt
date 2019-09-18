@@ -13,6 +13,8 @@ interface DataWrite : DataKeyMaker {
 
     fun put(type: String, primaryKey: Value, body: Body, indexes: Set<Index> = emptySet(), vararg options: Options.Write): Int
 
+    fun put(type: String, primaryKey: Value, key: ReadBuffer, body: Body, indexes: Set<Index> = emptySet(), vararg options: Options.Write): Int
+
     fun putAndGetHeapKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index> = emptySet(), vararg options: Options.Write): Sized<KBuffer>
 
     fun putAndGetNativeKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index> = emptySet(), vararg options: Options.Write): Sized<Allocation>

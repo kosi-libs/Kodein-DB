@@ -45,6 +45,13 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
         }
     }
 
+    override fun <M : Any> put(model: M, key: Key<M>, vararg options: Options.Write): Int {
+        return put(model, options) { metadata, body ->
+            val size = data.put(mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class), metadata.primaryKey, key.bytes, body, metadata.indexes, *options)
+            Triple(size, null, size)
+        }
+    }
+
     override fun <M : Any> putAndGetHeapKey(model: M, vararg options: Options.Write): Sized<Key<M>> {
         return put(model, options) { metadata, body ->
             val (keyBuffer, size) = data.putAndGetHeapKey(mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class), metadata.primaryKey, body, metadata.indexes, *options)

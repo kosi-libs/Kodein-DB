@@ -2,6 +2,7 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.Value
 import org.kodein.db.ascii.putAscii
+import org.kodein.db.ascii.readAscii
 import org.kodein.db.impl.utils.firstIndexOf
 import org.kodein.db.impl.utils.putBody
 import org.kodein.memory.io.*

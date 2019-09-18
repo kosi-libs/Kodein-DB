@@ -10,6 +10,8 @@ interface ModelWrite : KeyMaker {
 
     fun put(model: Any, vararg options: Options.Write): Int
 
+    fun <M : Any> put(model: M, key: Key<M>, vararg options: Options.Write): Int
+
     fun <M : Any> putAndGetHeapKey(model: M, vararg options: Options.Write): Sized<Key<M>>
     fun <M : Any> putAndGetNativeKey(model: M, vararg options: Options.Write): Sized<Key.Native<M>>
 

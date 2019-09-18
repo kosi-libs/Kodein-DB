@@ -21,13 +21,17 @@ interface DB : DBRead, DBWrite, Closeable {
     fun <M : Any> on(type: KClass<M>): RegisterDsl<M>
 
 //    interface Box<T : Any> {
+//        val key: Key<T>
 //        fun get(): T?
-//        fun set(value: T)
-//        fun update(transform: (T?) -> T?)
-//        fun delete()
+//        fun set(model: T, vararg options: Options.Write)
+//        fun unbox(block: (T?) -> Unit)
+//        fun update(vararg options: Options.Write, transform: (T?) -> T?)
+//        fun delete(vararg options: Options.Write)
 //    }
 //
-//    fun <T : Any> box(model: T): Box<T>
+//    fun <M : Any> box(model: M): Box<M>
+//
+//    fun <M : Any> box(type: KClass<M>, key: Key<M>)
 
     companion object
 }
