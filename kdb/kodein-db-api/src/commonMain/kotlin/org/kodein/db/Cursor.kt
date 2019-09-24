@@ -1,16 +1,11 @@
 package org.kodein.db
 
-import org.kodein.memory.Closeable
-import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.use
 
-interface DBCursorEntry<M : Any> {
+interface Cursor<M: Any> : BaseCursor {
+
     fun transientKey(): TransientKey<M>
     fun model(vararg options: Options.Read): M
-    fun transientSeekKey(): TransientBytes
-}
-
-interface DBCursor<M: Any> : DBCursorEntry<M>, BaseCursor {
 
     fun nextEntries(size: Int): Entries<M>
 
@@ -21,21 +16,14 @@ interface DBCursor<M: Any> : DBCursorEntry<M>, BaseCursor {
 
 }
 
-fun <M : Any> DBCursor<M>.models(): Sequence<M> = sequence {
+fun <M : Any> Cursor<M>.models(): Sequence<M> = sequence {
     use {
         while (isValid())
             yield(model())
     }
 }
 
-fun <M : Any> DBCursor<M>.entries(): Sequence<DBCursorEntry<M>> = sequence {
-    use {
-        while (isValid())
-            yield(this@entries)
-    }
-}
-
-fun <M : Any> DBCursor.Entries<M>.models(): Iterable<M> = object : Iterable<M> {
+fun <M : Any> Cursor.Entries<M>.models(): Iterable<M> = object : Iterable<M> {
     override fun iterator(): Iterator<M> = iterator {
         for (i in 0 until size)
             yield(get(i))

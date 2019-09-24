@@ -7,9 +7,9 @@ import kotlin.reflect.KClass
 
 internal class DBImpl(override val mdb: ModelDB) : DB, DBReadModule, DBWriteModule, KeyMaker by mdb, Closeable by mdb {
 
-    override fun newBatch(): DBBatch = DBBatchImpl(mdb.newBatch())
+    override fun newBatch(): Batch = BatchImpl(mdb.newBatch())
 
-    override fun newSnapshot(vararg options: Options.Read): DBSnapshot = DBSnapshotImpl(mdb.newSnapshot(*options))
+    override fun newSnapshot(vararg options: Options.Read): Snapshot = SnapshotImpl(mdb.newSnapshot(*options))
 
     override fun onAll(): DB.RegisterDsl<Any> = RegisterDslImpl(mdb, emptyList())
 

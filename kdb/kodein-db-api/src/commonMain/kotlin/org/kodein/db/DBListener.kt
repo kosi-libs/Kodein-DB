@@ -18,9 +18,7 @@ interface DBListener<in M : Any> {
     class Builder<M : Any> {
         class WillPut(val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
 
-        class DidPut(private val getKey: () -> Key<*>, val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable) {
-            val key get() = getKey()
-        }
+        class DidPut(val getKey: () -> Key<*>, val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
 
         class WillDelete(val key: Key<*>, val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
 

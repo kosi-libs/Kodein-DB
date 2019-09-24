@@ -8,18 +8,18 @@ interface DBRead : KeyMaker {
 
     operator fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): M?
 
-    fun findAll(vararg options: Options.Read): DBCursor<*>
+    fun findAll(vararg options: Options.Read): Cursor<*>
 
     interface FindDsl<M : Any> {
 
         interface ByDsl<M : Any> {
 
-            fun all(): DBCursor<M>
+            fun all(): Cursor<M>
 
-            fun withValue(value: Value, isOpen: Boolean = true): DBCursor<M>
+            fun withValue(value: Value, isOpen: Boolean = true): Cursor<M>
         }
 
-        fun all(): DBCursor<M> = byPrimaryKey().all()
+        fun all(): Cursor<M> = byPrimaryKey().all()
 
         fun byPrimaryKey(): ByDsl<M>
 

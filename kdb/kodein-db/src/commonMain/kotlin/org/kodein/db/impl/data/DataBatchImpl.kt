@@ -74,7 +74,7 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
     override fun write(vararg options: Options.Write) {
         use {
             ddb.ldb.newWriteBatch().use { fullBatch ->
-                ddb.indexesLock.withLock {
+                ddb.lock.withLock {
                     for (refKey in deleteRefKeys) {
                         ddb.deleteIndexesInBatch(fullBatch, refKey)
                     }

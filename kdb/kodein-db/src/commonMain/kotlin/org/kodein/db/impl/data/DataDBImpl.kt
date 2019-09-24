@@ -15,7 +15,7 @@ import org.kodein.memory.use
 internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     override val snapshot: LevelDB.Snapshot? get() = null
 
-    internal val indexesLock = newLock()
+    internal val lock = newLock()
 
     companion object {
         internal const val DEFAULT_CAPACITY = 16384
@@ -75,7 +75,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
     private fun put(sb: SliceBuilder, key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
         ldb.newWriteBatch().use { batch ->
-            indexesLock.withLock {
+            lock.withLock {
                 val length = putInBatch(sb, batch, key, body, indexes)
                 ldb.write(batch, toLdb(options))
                 return length
@@ -107,7 +107,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
         ldb.newWriteBatch().use { batch ->
             SliceBuilder.native(DEFAULT_CAPACITY).use {
-                indexesLock.withLock {
+                lock.withLock {
                     val length = putInBatch(it, batch, key, body, indexes)
                     ldb.write(batch, toLdb(options))
                     return length
@@ -138,7 +138,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     override fun delete(key: ReadBuffer, vararg options: Options.Write) {
         ldb.newWriteBatch().use { batch ->
             SliceBuilder.native(DEFAULT_CAPACITY).use {
-                indexesLock.withLock {
+                lock.withLock {
                     deleteInBatch(it, batch, key)
                     ldb.write(batch, toLdb(options))
                 }

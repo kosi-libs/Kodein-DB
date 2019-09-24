@@ -12,3 +12,5 @@ interface DBWrite : KeyMaker {
     fun <M : Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.Write)
 
 }
+
+inline fun <reified M : Any> DBWrite.delete(key: Key<M>, vararg options: Options.Write) = delete(M::class, key, *options)

@@ -6,9 +6,9 @@ import kotlin.reflect.KClass
 
 interface DB : DBRead, DBWrite, Closeable {
 
-    fun newBatch(): DBBatch
+    fun newBatch(): Batch
 
-    fun newSnapshot(vararg options: Options.Read): DBSnapshot
+    fun newSnapshot(vararg options: Options.Read): Snapshot
 
     interface RegisterDsl<M : Any> {
         fun filter(f: (M) -> Boolean): RegisterDsl<M>
@@ -36,12 +36,12 @@ interface DB : DBRead, DBWrite, Closeable {
     companion object
 }
 
-inline fun DB.execBatch(vararg options: Options.Write, block: (DBBatch) -> Unit) =
+inline fun DB.execBatch(vararg options: Options.Write, block: (Batch) -> Unit) =
         newBatch().use {
             block(it)
             it.write(*options)
         }
 
-inline fun <R> DB.useSnaphost(vararg options: Options.Read, block: (DBSnapshot) -> R) = newSnapshot(*options).use(block)
+inline fun <R> DB.useSnaphost(vararg options: Options.Read, block: (Snapshot) -> R) = newSnapshot(*options).use(block)
 
 inline fun <reified M : Any> DB.on() = on(M::class)

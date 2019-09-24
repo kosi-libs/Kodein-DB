@@ -10,6 +10,7 @@ kodein {
 
         common.main.dependencies {
             api(project(":ldb:kodein-leveldb-api"))
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.1")
         }
 
         add(kodeinTargets.jvm)
