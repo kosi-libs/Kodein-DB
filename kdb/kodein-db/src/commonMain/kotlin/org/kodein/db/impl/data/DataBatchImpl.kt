@@ -34,19 +34,16 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
 
     override fun put(type: String, primaryKey: Value, key: ReadBuffer,  body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
         SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
-            try {
-                VerificationWriteable(key.duplicate()).putObjectKey(type, primaryKey)
-            } catch (_: VerificationWriteable.DiffException) {
-                return -1
-            }
-
+            require(verify(key.duplicate()) { putObjectKey(type, primaryKey) }) { "Bad key" }
             return put(it, body, key, indexes)
         }
     }
 
     private fun putAndSetKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, key: KBuffer): Int {
-        key.putObjectKey(type, primaryKey)
-        key.flip()
+        key.apply {
+            putObjectKey(type, primaryKey)
+            flip()
+        }
 
         SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
             return put(it, body, key, indexes)

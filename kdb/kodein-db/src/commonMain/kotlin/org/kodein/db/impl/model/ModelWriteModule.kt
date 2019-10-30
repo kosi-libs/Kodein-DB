@@ -16,13 +16,15 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
 
     fun Key<*>.transform(): Key<*> = this
 
+    fun willAction(action: DBListener<Any>.() -> Unit)
+
     fun didAction(action: DBListener<Any>.() -> Unit)
 
     private inline fun <M: Any, T> put(model: M, options: Array<out Options.Write>, block: (Metadata, Body) -> Triple<T, Key<*>?, Int>): T {
         val metadata = mdb.getMetadata(model, options)
         val typeName = mdb.typeTable.getTypeName(model::class)
-        mdb.listeners.toList().forEach { it.willPut(model, typeName, metadata, options) }
-        val body = Body {
+        willAction { willPut(model, typeName, metadata, options) }
+       val body = Body {
             it.putShort(typeName.length.toShort())
             it.putAscii(typeName)
             mdb.serializer.serialize(model, it, *options)
@@ -48,7 +50,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
     override fun <M : Any> put(model: M, key: Key<M>, vararg options: Options.Write): Int {
         return put(model, options) { metadata, body ->
             val size = data.put(mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class), metadata.primaryKey, key.bytes, body, metadata.indexes, *options)
-            Triple(size, null, size)
+            Triple(size, key, size)
         }
     }
 

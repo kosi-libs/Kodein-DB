@@ -92,11 +92,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
     override fun put(type: String, primaryKey: Value, key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
         SliceBuilder.native(DEFAULT_CAPACITY).use {
-            try {
-                VerificationWriteable(key.duplicate()).putObjectKey(type, primaryKey)
-            } catch (_: VerificationWriteable.DiffException) {
-                return -1
-            }
+            require(verify(key.duplicate()) { putObjectKey(type, primaryKey) }) { "Bad key" }
             return put(it, key, body, indexes, *options)
         }
     }

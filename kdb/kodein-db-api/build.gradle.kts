@@ -8,16 +8,24 @@ plugins {
 kodein {
     kotlin {
 
+        val coroutinesVer = "1.3.2"
+
         common.main.dependencies {
             api(project(":ldb:kodein-leveldb-api"))
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.1")
+            api("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutinesVer")
         }
 
-        add(kodeinTargets.jvm)
+        add(kodeinTargets.jvm) {
+            main.dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVer")
+            }
+        }
 
-        add(kodeinTargets.native.host)
-
-        add(kodeinTargets.native.allIos)
+        add(listOf(kodeinTargets.native.host) + kodeinTargets.native.allIos) {
+            main.dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core-native:$coroutinesVer")
+            }
+        }
 
         allTargets {
             mainCommonCompilation.kotlinOptions.freeCompilerArgs = listOf("-XXLanguage:+InlineClasses")

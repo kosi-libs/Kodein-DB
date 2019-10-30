@@ -6,7 +6,7 @@ plugins {
 kodein {
     kotlin {
 
-        val kxSerRtVer = "0.11.1"
+        val kxSerRtVer = "0.13.0"
 
         common.main.dependencies {
             api(project(":kdb:kodein-db-api"))

@@ -14,13 +14,15 @@ internal class ModelBatchImpl(override val mdb: ModelDBImpl, override val data: 
 
     override fun Key<*>.transform(): Key<*> = asHeapKey()
 
+    override fun willAction(action: DBListener<Any>.() -> Unit) = mdb.readOnListeners { toList() } .forEach(action)
+
     override fun didAction(action: DBListener<Any>.() -> Unit) { didActions.add(action) }
 
     override fun write(vararg options: Options.Write) {
         data.write(*options)
 
         didActions.forEachResilient { action ->
-            mdb.listeners.toList().forEachResilient(action)
+            mdb.readOnListeners { toList() } .forEachResilient(action)
         }
     }
 }
