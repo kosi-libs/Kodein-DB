@@ -34,19 +34,19 @@ internal interface DataReadModule : DataKeyMakerModule, DataRead {
         return DataSimpleCursor(ldb.newCursor(toLdb(options)), key)
     }
 
-    override fun findByPrimaryKey(type: String, primaryKey: Value, isOpen: Boolean, vararg options: Options.Read): DataCursor {
-        val key = Allocation.native(getObjectKeySize(type, primaryKey, isOpen)) { putObjectKey(type, primaryKey, isOpen) }
+    override fun findById(type: String, id: Value, isOpen: Boolean, vararg options: Options.Read): DataCursor {
+        val key = Allocation.native(getObjectKeySize(type, id, isOpen)) { putObjectKey(type, id, isOpen) }
         return DataSimpleCursor(ldb.newCursor(toLdb(options)), key)
     }
 
-    override fun findAllByIndex(type: String, name: String, vararg options: Options.Read): DataCursor {
-        val key = Allocation.native(getIndexKeyStartSize(type, name, null)) { putIndexKeyStart(type, name, null) }
+    override fun findAllByIndex(type: String, index: String, vararg options: Options.Read): DataCursor {
+        val key = Allocation.native(getIndexKeyStartSize(type, index, null)) { putIndexKeyStart(type, index, null) }
         val ro = toLdb(options)
         return DataIndexCursor(ldb, ldb.newCursor(ro), key, ro)
     }
 
-    override fun findByIndex(type: String, name: String, value: Value, isOpen: Boolean, vararg options: Options.Read): DataCursor {
-        val key = Allocation.native(getIndexKeyStartSize(type, name, value, isOpen)) { putIndexKeyStart(type, name, value, isOpen) }
+    override fun findByIndex(type: String, index: String, value: Value, isOpen: Boolean, vararg options: Options.Read): DataCursor {
+        val key = Allocation.native(getIndexKeyStartSize(type, index, value, isOpen)) { putIndexKeyStart(type, index, value, isOpen) }
         val ro = toLdb(options)
         return DataIndexCursor(ldb, ldb.newCursor(ro), key, ro)
     }

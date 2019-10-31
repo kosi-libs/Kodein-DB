@@ -36,7 +36,8 @@ class ModelDBTests_08_TableByClass : ModelDBTests() {
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
 
-        val key = mdb.putAndGetHeapKey(me).value
+        val key = mdb.newHeapKey(me)
+        mdb.put(key, me)
 
         val me2 = mdb[key]!!.value
 

@@ -1,12 +1,12 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.Value
-import org.kodein.db.model.findByPrimaryKey
+import org.kodein.db.model.findById
 import org.kodein.memory.use
 import kotlin.test.*
 
 @Suppress("ClassName")
-open class ModelDBTests_02_PrimaryKeys : ModelDBTests() {
+open class ModelDBTests_02_IDs : ModelDBTests() {
 
     @Test
     fun test00_FindByPk() {
@@ -16,7 +16,7 @@ open class ModelDBTests_02_PrimaryKeys : ModelDBTests() {
         mdb.put(laila)
         mdb.put(Adult("Someone", "Somewhere", Date(1, 1, 1990)))
 
-        mdb.findByPrimaryKey<Adult>(Value.ofAscii("BRYS")).use {
+        mdb.findById<Adult>(Value.ofAscii("BRYS")).use {
             assertTrue(it.isValid())
             it.model().also {
                 assertEquals(laila, it.value)
@@ -38,7 +38,7 @@ open class ModelDBTests_02_PrimaryKeys : ModelDBTests() {
         mdb.put(Adult("Salomon", "BRYS", Date(15, 12, 1986)))
         mdb.put(Adult("Laila", "BRYS", Date(25, 8, 1989)))
 
-        mdb.findByPrimaryKey<Adult>(Value.ofAscii("BRY")).use {
+        mdb.findById<Adult>(Value.ofAscii("BRY")).use {
             assertFalse(it.isValid())
         }
     }
@@ -51,7 +51,7 @@ open class ModelDBTests_02_PrimaryKeys : ModelDBTests() {
         mdb.put(laila)
         mdb.put(Adult("Someone", "Somewhere", Date(1, 1, 1990)))
 
-        mdb.findByPrimaryKey<Adult>(Value.ofAscii("BRY"), isOpen = true).use {
+        mdb.findById<Adult>(Value.ofAscii("BRY"), isOpen = true).use {
             assertTrue(it.isValid())
             it.model().also {
                 assertEquals(laila, it.value)

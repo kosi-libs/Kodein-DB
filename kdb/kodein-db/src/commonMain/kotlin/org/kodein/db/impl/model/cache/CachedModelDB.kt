@@ -10,20 +10,14 @@ internal class CachedModelDB(override val mdb: ModelDB, override val cache: Mode
 
     // https://youtrack.jetbrains.com/issue/KT-20996
     private val listener: DBListener<Any> = object : DBListener<Any> {
-        override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
-            if (ModelCache.Skip in options) {
-                cache.evict(getKey())
-            } else {
-                cache.put(getKey().asHeapKey(), model, size)
-            }
+        override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+            if (ModelCache.Skip in options) cache.evict(key)
+            else cache.put(key.asHeapKey(), model, size)
         }
 
         override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {
-            if (ModelCache.Skip in options) {
-                cache.evict(key)
-            } else {
-                cache.delete(key)
-            }
+            if (ModelCache.Skip in options) cache.evict(key)
+            else cache.delete(key)
         }
     }
 

@@ -2,7 +2,6 @@ package org.kodein.db.orm.kotlinx
 
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.Cbor
-import kotlinx.serialization.internal.HexConverter
 import kotlinx.serialization.internal.StringDescriptor
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
@@ -10,7 +9,7 @@ import org.kodein.db.Key
 import org.kodein.db.Options
 import org.kodein.db.invoke
 import org.kodein.db.model.orm.Serializer
-import org.kodein.db.simpleNameOf
+import org.kodein.db.simpleTypeNameOf
 import org.kodein.memory.io.*
 import org.kodein.memory.text.Base64
 import kotlin.jvm.JvmOverloads
@@ -75,7 +74,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
         return try {
             options<KXSerializer>()?.serializer ?: serializers[type] ?: type.serializer()
         } catch (ex: NotImplementedError) {
-            throw IllegalStateException("Could not find serializer for class ${simpleNameOf(type)}. Hove you registered the serializer?", ex)
+            throw IllegalStateException("Could not find serializer for class ${simpleTypeNameOf(type)}. Hove you registered the serializer?", ex)
         }
     }
 

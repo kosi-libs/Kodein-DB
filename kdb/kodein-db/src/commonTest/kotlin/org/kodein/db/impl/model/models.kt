@@ -18,7 +18,7 @@ interface Person : Metadata {
     val lastName: String
     val birth: Date
 
-    override val primaryKey: Value get() = Value.ofAscii(lastName, firstName)
+    override val id: Value get() = Value.ofAscii(lastName, firstName)
     override val indexes: Set<Index> get() = indexSet(
             "firstName" to Value.ofAscii(firstName),
             "birth" to Value.of(birth.year, birth.month, birth.day)
@@ -36,7 +36,7 @@ data class Location(val lat: Double, val lng: Double)
 
 @Serializable
 data class City(val name: String, val location: Location, val postalCode: Int) : Metadata {
-    override val primaryKey get() = Value.ofAscii(name)
+    override val id get() = Value.ofAscii(name)
 }
 
 @Serializable
@@ -44,7 +44,7 @@ data class Birth(@ContextualSerialization val adult: Key<Adult>, @ContextualSeri
     override fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata {
         val person = db[adult]!!
         return Metadata(
-                primaryKey = person.value.primaryKey,
+                id = person.value.id,
                 indexes = indexSet(
                         "city" to Value.ofAscii(db[city]!!.value.name),
                         "date" to Value.of(person.value.birth.year, person.value.birth.month, person.value.birth.day)

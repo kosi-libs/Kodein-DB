@@ -17,7 +17,7 @@ class CacheDBTests_02_batch : CacheDBTests() {
     fun test00_BatchPut() {
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.getHeapKey(me)
+        val key = mdb.newHeapKey(me)
 
         mdb.newBatch().use {
             it.put(me)
@@ -34,7 +34,8 @@ class CacheDBTests_02_batch : CacheDBTests() {
     fun test01_BatchDelete() {
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.putAndGetHeapKey(me).value
+        val key = mdb.newHeapKey(me)
+        mdb.put(key, me)
 
         mdb.newBatch().use {
             it.delete(key)

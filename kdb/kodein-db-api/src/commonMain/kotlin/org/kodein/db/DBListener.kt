@@ -9,7 +9,7 @@ interface DBListener<in M : Any> {
 
     fun willPut(model: M, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {}
 
-    fun didPut(model: M, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {}
+    fun didPut(model: M, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {}
 
     fun willDelete(key: Key<*>, getModel: () -> M?, typeName: String, options: Array<out Options.Write>) {}
 
@@ -18,7 +18,7 @@ interface DBListener<in M : Any> {
     class Builder<M : Any> {
         class WillPut(val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
 
-        class DidPut(val getKey: () -> Key<*>, val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
+        class DidPut(val key: Key<*>, val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
 
         class WillDelete(val key: Key<*>, val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
 
@@ -68,8 +68,8 @@ interface DBListener<in M : Any> {
                 willPut?.invoke(WillPut(typeName, options, subscription), model)
             }
 
-            override fun didPut(model: M, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
-                didPut?.invoke(DidPut(getKey, typeName, options, subscription), model)
+            override fun didPut(model: M, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+                didPut?.invoke(DidPut(key, typeName, options, subscription), model)
             }
 
             override fun willDelete(key: Key<*>, getModel: () -> M?, typeName: String, options: Array<out Options.Write>) {

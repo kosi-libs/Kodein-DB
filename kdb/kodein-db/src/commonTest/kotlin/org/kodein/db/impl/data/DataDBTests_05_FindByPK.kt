@@ -14,11 +14,11 @@ class DataDBTests_05_FindByPK : DataDBTests() {
 
     @Test
     fun test00_FindByPKCompositeKey() {
-        ddb.put("Test", Value.ofAscii("aaa", "a"), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("aaa", "b"), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findByPrimaryKey("Test", Value.ofAscii("aaa")).use {
+        ddb.findById("Test", Value.ofAscii("aaa")).use {
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "aaa", 0, 'a', 0), byteArray("ValueAa1!"), it)
             assertBytesEquals(it.transientKey().bytes, it.transientSeekKey().bytes)
@@ -33,11 +33,11 @@ class DataDBTests_05_FindByPK : DataDBTests() {
 
     @Test
     fun test01_FindByPKReverseCompositeKey() {
-        ddb.put("Test", Value.ofAscii("aaa", "a"), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("aaa", "b"), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findByPrimaryKey("Test", Value.ofAscii("aaa")).use {
+        ddb.findById("Test", Value.ofAscii("aaa")).use {
             assertTrue(it.isValid())
             it.seekToLast()
             assertTrue(it.isValid())
@@ -54,10 +54,10 @@ class DataDBTests_05_FindByPK : DataDBTests() {
 
     @Test
     fun test02_FindByPKUnknownKey() {
-        ddb.put( "Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put( "Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put( ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put( ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findByPrimaryKey("Test", Value.ofAscii("ccc")).use {
+        ddb.findById("Test", Value.ofAscii("ccc")).use {
             assertFalse(it.isValid())
         }
     }

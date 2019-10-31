@@ -19,11 +19,11 @@ interface DBRead : KeyMaker {
             fun withValue(value: Value, isOpen: Boolean = true): Cursor<M>
         }
 
-        fun all(): Cursor<M> = byPrimaryKey().all()
+        fun all(): Cursor<M> = byId().all()
 
-        fun byPrimaryKey(): ByDsl<M>
+        fun byId(): ByDsl<M>
 
-        fun byIndex(name: String): ByDsl<M>
+        fun byIndex(index: String): ByDsl<M>
     }
 
     fun <M : Any> find(type: KClass<M>, vararg options: Options.Read): FindDsl<M>

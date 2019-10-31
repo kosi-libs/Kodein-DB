@@ -13,9 +13,9 @@ class DataDBTests_03_FindAll : DataDBTests() {
 
     @Test
     fun test00_FindAll() {
-        ddb.put("Test1", Value.ofAscii("aaa"), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test1", Value.ofAscii("bbb"), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test2", Value.ofAscii("ccc"), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test1", Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test1", Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test2", Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAll().use {
             assertTrue(it.isValid())
@@ -33,9 +33,9 @@ class DataDBTests_03_FindAll : DataDBTests() {
 
     @Test
     fun test01_FindAllReverse() {
-        ddb.put("Test1", Value.ofAscii("aaa"), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test1", Value.ofAscii("bbb"), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test2", Value.ofAscii("ccc"), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test1", Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test1", Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test2", Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAll().use {
             it.seekToLast()

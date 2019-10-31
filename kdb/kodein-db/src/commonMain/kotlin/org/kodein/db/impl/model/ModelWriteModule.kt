@@ -5,77 +5,56 @@ import org.kodein.db.ascii.putAscii
 import org.kodein.db.ascii.readAscii
 import org.kodein.db.data.DataWrite
 import org.kodein.db.impl.data.getObjectKeyType
+import org.kodein.db.impl.data.putObjectKey
 import org.kodein.db.model.orm.Metadata
 import org.kodein.db.model.ModelWrite
-import org.kodein.memory.io.Allocation
+import org.kodein.memory.Closeable
+import org.kodein.memory.io.mark
+import org.kodein.memory.io.verify
+import org.kodein.memory.use
 import kotlin.reflect.KClass
 
 internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
 
     override val data: DataWrite
 
-    fun Key<*>.transform(): Key<*> = this
-
     fun willAction(action: DBListener<Any>.() -> Unit)
 
     fun didAction(action: DBListener<Any>.() -> Unit)
 
-    private inline fun <M: Any, T> put(model: M, options: Array<out Options.Write>, block: (Metadata, Body) -> Triple<T, Key<*>?, Int>): T {
+    fun handleCloseable(closeable: Closeable): Closeable
+
+    private fun <M: Any> put(model: M, options: Array<out Options.Write>, block: (String, Metadata) -> Pair<Key<*>, Closeable>): Int {
         val metadata = mdb.getMetadata(model, options)
         val typeName = mdb.typeTable.getTypeName(model::class)
-        willAction { willPut(model, typeName, metadata, options) }
+        val rootTypeName = mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class)
+        willAction { willPut(model, rootTypeName, metadata, options) }
         val body = Body {
             it.putShort(typeName.length.toShort())
             it.putAscii(typeName)
             mdb.serializer.serialize(model, it, *options)
         }
-        val (ret, k, size) = block(metadata, body)
-        var key = k
-        val getKey: () -> Key<*> = {
-            if (key == null)
-                key = Key.Heap<M>(data.getHeapKey(typeName, metadata.primaryKey))
-            key!!
-        }
-        didAction { didPut(model, getKey, typeName, metadata, size, options) }
-        return ret
-    }
-
-    override fun put(model: Any, vararg options: Options.Write): Int {
-        return put(model, options) { metadata, body ->
-            val size = data.put(mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class), metadata.primaryKey, body, metadata.indexes, *options)
-            Triple(size, null, size)
+        val (key, closeable) = block(rootTypeName, metadata)
+        closeable.use {
+            val size = data.put(key.bytes, body, metadata.indexes, *options)
+            didAction { didPut(model, key, rootTypeName, metadata, size, options) }
+            return size
         }
     }
 
-    override fun <M : Any> put(model: M, key: Key<M>, vararg options: Options.Write): Int {
-        return put(model, options) { metadata, body ->
-            val size = data.put(mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class), metadata.primaryKey, key.bytes, body, metadata.indexes, *options)
-            Triple(size, key, size)
+    override fun put(model: Any, vararg options: Options.Write): Int =
+        put(model, options) { rootTypeName, metadata ->
+            val key = Key.Native<Any>(data.newNativeKey(rootTypeName, metadata.id))
+            Pair(key, handleCloseable(key))
         }
-    }
 
-    override fun <M : Any> putAndGetHeapKey(model: M, vararg options: Options.Write): Sized<Key<M>> {
-        return put(model, options) { metadata, body ->
-            val (keyBuffer, size) = data.putAndGetHeapKey(mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class), metadata.primaryKey, body, metadata.indexes, *options)
-            val key = Key.Heap<M>(keyBuffer) as Key<M>
-            Triple(Sized(key, size), key, size)
-        }
-    }
-
-    override fun <M : Any> putAndGetNativeKey(model: M, vararg options: Options.Write): Sized<Key.Native<M>> {
-        var alloc: Allocation? = null
-        try {
-            return put(model, options) { metadata, body ->
-                val (keyBuffer, size) = data.putAndGetNativeKey(mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class), metadata.primaryKey, body, metadata.indexes, *options)
-                alloc = keyBuffer
-                val key = Key.Native<M>(keyBuffer)
-                Triple(Sized(key, size), key, size)
+    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int =
+        put(model, options) { rootTypeName, metadata ->
+            mark(key.bytes) {
+                verify(key.bytes) { putObjectKey(rootTypeName, metadata.id) }
             }
-        } catch (t: Throwable) {
-            alloc?.close()
-            throw t
+            key to Closeable {}
         }
-    }
 
     override fun <M: Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.Write) {
         val typeName = getObjectKeyType(key.bytes).readAscii()

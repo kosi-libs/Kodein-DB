@@ -2,7 +2,6 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.Value
 import org.kodein.db.ascii.putAscii
-import org.kodein.db.ascii.readAscii
 import org.kodein.db.impl.utils.firstIndexOf
 import org.kodein.db.impl.utils.putBody
 import org.kodein.memory.io.*
@@ -15,33 +14,41 @@ private object Prefix {
 
 private const val NULL = 0.toByte()
 
+internal fun ReadBuffer.verifyObjectKey() {
+    mark(this) {
+        require(read() == Prefix.OBJECT) { "Bad key" }
+        require(read() == NULL) { "Bad key" }
+        require(firstIndexOf(NULL, 2) > 0) { "Bad key" }
+    }
+}
+
 internal val objectEmptyPrefix: KBuffer = KBuffer.array(2).apply {
     put(Prefix.OBJECT)
     put(NULL)
     flip()
 }
 
-internal fun Writeable.putObjectKey(type: String, primaryKey: Value?, isOpen: Boolean = false) {
+internal fun Writeable.putObjectKey(type: String, id: Value?, isOpen: Boolean = false) {
     put(Prefix.OBJECT)
     put(NULL)
 
     putAscii(type)
     put(NULL)
 
-    if (primaryKey != null) {
-        putBody(primaryKey)
+    if (id != null) {
+        putBody(id)
         if (!isOpen)
             put(NULL)
     }
 }
 
-internal fun getObjectKeySize(type: String, primaryKey: Value?, isOpen: Boolean = false): Int {
+internal fun getObjectKeySize(type: String, id: Value?, isOpen: Boolean = false): Int {
     var size = (
             2                      // PREFIX_OBJECT + NULL
         +   type.length + 1)       // type + NULL
 
-    if (primaryKey != null) {
-        size += primaryKey.size    // primaryKey
+    if (id != null) {
+        size += id.size    // id
         if (!isOpen)
             size += 1              // NULL
     }

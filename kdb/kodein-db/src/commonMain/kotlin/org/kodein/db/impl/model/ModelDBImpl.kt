@@ -26,6 +26,8 @@ internal class ModelDBImpl(val serializer: Serializer<Any>, private val metadata
 
     override fun didAction(action: DBListener<Any>.() -> Unit) = readOnListeners { toList() } .forEachResilient(action)
 
+    override fun handleCloseable(closeable: Closeable): Closeable = closeable
+
     internal fun getMetadata(model: Any, options: Array<out Options.Write>) =
             (model as? HasMetadata)?.getMetadata(this, *options) ?: metadataExtractor.extractMetadata(model, *options)
 

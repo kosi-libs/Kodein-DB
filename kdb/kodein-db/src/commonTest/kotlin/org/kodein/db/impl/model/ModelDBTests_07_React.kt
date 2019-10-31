@@ -33,21 +33,21 @@ class ModelDBTests_07_React : ModelDBTests() {
             override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {
                 assertSame(me, model)
                 assertEquals("Adult", typeName)
-                assertEquals(me.primaryKey, metadata.primaryKey)
+                assertEquals(me.id, metadata.id)
                 assertEquals(me.indexes, metadata.indexes)
                 ++willPutCalls
             }
 
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
                 assertSame(me, model)
                 assertEquals("Adult", typeName)
-                assertEquals(me.primaryKey, metadata.primaryKey)
+                assertEquals(me.id, metadata.id)
                 assertEquals(me.indexes, metadata.indexes)
                 ++didPutCalls
             }
 
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) {
-                assertEquals(mdb.getHeapKey(me), key)
+                assertEquals(mdb.newHeapKey(me), key)
                 assertEquals("Adult", typeName)
                 val model = getModel()
                 assertNotSame(me, model)
@@ -57,7 +57,7 @@ class ModelDBTests_07_React : ModelDBTests() {
             }
 
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {
-                assertEquals(mdb.getHeapKey(me), key)
+                assertEquals(mdb.newHeapKey(me), key)
                 assertNotSame(me, model)
                 assertEquals(me, model)
                 assertEquals("Adult", typeName)
@@ -74,7 +74,7 @@ class ModelDBTests_07_React : ModelDBTests() {
         assertEquals(0, willDeleteCalls)
         assertEquals(0, didDeleteCalls)
 
-        val key = mdb.putAndGetHeapKey(me).value
+        mdb.put(me)
 
         assertEquals(1, setSubscriptionCalls)
         assertEquals(1, willPutCalls)
@@ -82,7 +82,7 @@ class ModelDBTests_07_React : ModelDBTests() {
         assertEquals(0, willDeleteCalls)
         assertEquals(0, didDeleteCalls)
 
-        mdb.delete(key)
+        mdb.delete(mdb.newHeapKey(me))
 
         assertEquals(1, setSubscriptionCalls)
         assertEquals(1, willPutCalls)
@@ -116,7 +116,7 @@ class ModelDBTests_07_React : ModelDBTests() {
                 ++willPutCalls
             }
 
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
                 if (didPutCalls == 0)
                     assertSame(me, model)
                 else
@@ -134,10 +134,10 @@ class ModelDBTests_07_React : ModelDBTests() {
 
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {
                 if (didDeleteCalls == 0) {
-                    assertEquals(mdb.getHeapKey(me), key)
+                    assertEquals(mdb.newHeapKey(me), key)
                     assertEquals(me, model)
                 } else {
-                    assertEquals(mdb.getHeapKey(her), key)
+                    assertEquals(mdb.newHeapKey(her), key)
                     assertEquals(her, model)
                 }
                 ++didDeleteCalls
@@ -156,8 +156,10 @@ class ModelDBTests_07_React : ModelDBTests() {
         lateinit var herKey: Key<Adult>
 
         mdb.newBatch().use {
-            meKey = it.putAndGetHeapKey(me).value
-            herKey = it.putAndGetHeapKey(her).value
+            meKey = it.newHeapKey(me)
+            herKey = it.newHeapKey(her)
+            it.put(meKey, me)
+            it.put(herKey, her)
 
             assertEquals(1, setSubscriptionCalls)
             assertEquals(2, willPutCalls)
@@ -207,7 +209,7 @@ class ModelDBTests_07_React : ModelDBTests() {
                 sub.close()
                 willPutCalled = true
             }
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = fail("didPut")
+            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = fail("didPut")
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) = fail("willDeltete")
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = fail("didDelete")
         }
@@ -228,7 +230,9 @@ class ModelDBTests_07_React : ModelDBTests() {
         assertFalse(willPutCalled)
         assertFalse(willDeleteCalled)
 
-        val key = mdb.putAndGetHeapKey(Adult("Salomon", "BRYS", Date(15, 12, 1986))).value
+        val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
+        val key = mdb.newHeapKey(me)
+        mdb.put(key, me)
 
         assertTrue(willPutCalled)
         assertFalse(willDeleteCalled)
@@ -255,21 +259,21 @@ class ModelDBTests_07_React : ModelDBTests() {
 
         val firstListener = object : DBListener<Any> {
             override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) { firstWillPutCalled = true }
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { firstDidPutCalled = true }
+            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { firstDidPutCalled = true }
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) { firstWillDeleteCalled = true }
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) { firstDidDeleteCalled = true }
         }
 
         val secondListener = object : DBListener<Any> {
             override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) = throw IllegalStateException("willPut")
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { secondDidPutCalled = true }
+            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { secondDidPutCalled = true }
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException("willDelete")
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) { secondDidDeleteCalled = true }
         }
 
         val thirdListener = object : DBListener<Any> {
             override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) { thirdWillPutCalled = true }
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { thirdDidPutCalled = true }
+            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { thirdDidPutCalled = true }
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) { thirdWillDeleteCalled = true }
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) { thirdDidDeleteCalled = true }
         }
@@ -279,7 +283,7 @@ class ModelDBTests_07_React : ModelDBTests() {
         mdb.register(thirdListener)
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.getHeapKey(me)
+        val key = mdb.newHeapKey(me)
 
         val putEx = assertFailsWith<IllegalStateException>("willPut") {
             mdb.put(me)
@@ -312,12 +316,12 @@ class ModelDBTests_07_React : ModelDBTests() {
     fun test03_DidOpExceptions() {
 
         val firstListener = object : DBListener<Any> {
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("first didPut")
+            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("first didPut")
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException("first didDelete")
         }
 
         val secondListener = object : DBListener<Any> {
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("second didPut")
+            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("second didPut")
             override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException("second didDelete")
         }
 
@@ -325,7 +329,7 @@ class ModelDBTests_07_React : ModelDBTests() {
         mdb.register(secondListener)
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.getHeapKey(me)
+        val key = mdb.newHeapKey(me)
 
         val putEx = assertFailsWith<IllegalStateException>("first didPut") {
             mdb.put(me)
@@ -359,8 +363,8 @@ class ModelDBTests_07_React : ModelDBTests() {
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
 
-        val key = mdb.putAndGetHeapKey(me).value
-        mdb.delete(key)
+        mdb.put(me)
+        mdb.delete(mdb.newHeapKey(me))
 
         assertTrue(passed)
     }

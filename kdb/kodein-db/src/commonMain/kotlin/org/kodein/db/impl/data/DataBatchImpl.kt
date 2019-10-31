@@ -28,44 +28,15 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
         return value.remaining
     }
 
-    override fun put(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
-        SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
-            val key = it.newSlice { putObjectKey(type, primaryKey) }
-            return put(it, body, key, indexes)
-        }
-    }
-
-    override fun put(type: String, primaryKey: Value, key: ReadBuffer,  body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
-        SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
-            require(verify(key.duplicate()) { putObjectKey(type, primaryKey) }) { "Bad key" }
-            return put(it, body, key, indexes)
-        }
-    }
-
-    private fun putAndSetKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, key: KBuffer): Int {
-        key.apply {
-            putObjectKey(type, primaryKey)
-            flip()
-        }
-
+    override fun put(key: ReadBuffer,  body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
+        key.verifyObjectKey()
         SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
             return put(it, body, key, indexes)
         }
-    }
-
-    override fun putAndGetHeapKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Sized<KBuffer> {
-        val key = KBuffer.array(getObjectKeySize(type, primaryKey))
-        val length = putAndSetKey(type, primaryKey, body, indexes, key)
-        return Sized(key, length)
-    }
-
-    override fun putAndGetNativeKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Sized<Allocation> {
-        val key = Allocation.native(getObjectKeySize(type, primaryKey))
-        val length = putAndSetKey(type, primaryKey, body, indexes, key)
-        return Sized(key, length)
     }
 
     override fun delete(key: ReadBuffer, vararg options: Options.Write) {
+        key.verifyObjectKey()
         batch.delete(key)
         val refKey = KBuffer.array(key.remaining) { putRefKeyFromObjectKey(key) }
         deleteRefKeys += refKey

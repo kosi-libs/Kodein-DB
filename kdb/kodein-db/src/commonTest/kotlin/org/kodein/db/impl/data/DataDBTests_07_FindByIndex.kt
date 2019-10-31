@@ -14,10 +14,10 @@ class DataDBTests_07_FindByIndex : DataDBTests() {
 
     @Test
     fun test00_FindByIndexAll() {
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC2!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC2!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex("Test", "Symbols").use {
             assertTrue(it.isValid())
@@ -34,10 +34,10 @@ class DataDBTests_07_FindByIndex : DataDBTests() {
 
     @Test
     fun test01_FindByIndexReverse() {
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC2!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC2!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex("Test", "Symbols").use {
             assertTrue(it.isValid())
@@ -63,9 +63,9 @@ class DataDBTests_07_FindByIndex : DataDBTests() {
 
     @Test
     fun test03_FindByIndexNothingInEmptyCollection() {
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex("Yeah", "Symbols").use {
             assertFalse(it.isValid())
@@ -74,9 +74,9 @@ class DataDBTests_07_FindByIndex : DataDBTests() {
 
     @Test
     fun test04_FindByIndexNothingInEmptyIndex() {
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex("Test", "Names").use {
             assertFalse(it.isValid())
@@ -85,11 +85,11 @@ class DataDBTests_07_FindByIndex : DataDBTests() {
 
     @Test
     fun test05_FindByIndexComposite() {
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC2!"), indexSet("Symbols" to Value.ofAscii("alpha", "gamma")))
-        ddb.put("Test", Value.ofAscii("ddd"), Value.ofAscii("ValueE1!"), indexSet("Symbols" to Value.ofAscii("delta", "gamma")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC2!"), indexSet("Symbols" to Value.ofAscii("alpha", "gamma")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ddd")), Value.ofAscii("ValueE1!"), indexSet("Symbols" to Value.ofAscii("delta", "gamma")))
 
         ddb.findByIndex("Test", "Symbols", Value.ofAscii("alpha")).use {
             assertTrue(it.isValid())
@@ -106,11 +106,11 @@ class DataDBTests_07_FindByIndex : DataDBTests() {
 
     @Test
     fun test06_FindByIndexReverseComposite() {
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC2!"), indexSet("Symbols" to Value.ofAscii("alpha", "gamma")))
-        ddb.put("Test", Value.ofAscii("ddd"), Value.ofAscii("ValueE1!"), indexSet("Symbols" to Value.ofAscii("delta", "gamma")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC2!"), indexSet("Symbols" to Value.ofAscii("alpha", "gamma")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ddd")), Value.ofAscii("ValueE1!"), indexSet("Symbols" to Value.ofAscii("delta", "gamma")))
 
         ddb.findByIndex("Test", "Symbols", Value.ofAscii("alpha")).use {
             assertTrue(it.isValid())
@@ -129,10 +129,10 @@ class DataDBTests_07_FindByIndex : DataDBTests() {
 
     @Test
     fun test07_FindByIndexCompositeUnknown() {
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("alpha", "gamma")))
-        ddb.put("Test", Value.ofAscii("ddd"), Value.ofAscii("ValueE1!"), indexSet("Symbols" to Value.ofAscii("delta", "gamma")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("alpha", "gamma")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ddd")), Value.ofAscii("ValueE1!"), indexSet("Symbols" to Value.ofAscii("delta", "gamma")))
 
         ddb.findByIndex("Test", "Symbols", Value.ofAscii("gamma")).use {
             assertFalse(it.isValid())
@@ -141,8 +141,8 @@ class DataDBTests_07_FindByIndex : DataDBTests() {
 
     @Test
     fun test08_FindByEmptyIndex() {
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("index" to Value.ofAscii("value")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("index" to Value.ofAscii("")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("index" to Value.ofAscii("value")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("index" to Value.ofAscii("")))
 
         ddb.findByIndex("Test", "index", Value.ofAscii("")).use {
             assertTrue(it.isValid())

@@ -19,7 +19,7 @@ class CacheDBTests_01_React : CacheDBTests() {
     @Test
     fun test00_ReactDidPutException() {
         val listener = object : DBListener<Any> {
-            override fun didPut(model: Any, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException()
+            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException()
         }
 
         mdb.register(listener)
@@ -30,7 +30,7 @@ class CacheDBTests_01_React : CacheDBTests() {
             mdb.put(me)
         }
 
-        assertSame(me, mdb[mdb.getHeapKey(me)]!!.value)
+        assertSame(me, mdb[mdb.newHeapKey(me)]!!.value)
     }
 
     @Test
@@ -42,7 +42,8 @@ class CacheDBTests_01_React : CacheDBTests() {
         mdb.register(listener)
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.putAndGetHeapKey(me).value
+        val key = mdb.newHeapKey(me)
+        mdb.put(me)
 
         assertFailsWith<IllegalStateException> {
             mdb.delete(key)

@@ -9,10 +9,10 @@ import org.kodein.memory.io.native
 
 internal interface DataKeyMakerModule : DataKeyMaker {
 
-    override fun getHeapKey(type: String, primaryKey: Value): KBuffer =
-            KBuffer.array(getObjectKeySize(type, primaryKey)) { putObjectKey(type, primaryKey) }
+    override fun newHeapKey(type: String, id: Value): KBuffer =
+            KBuffer.array(getObjectKeySize(type, id)) { putObjectKey(type, id) }
 
-    override fun getNativeKey(type: String, primaryKey: Value): Allocation =
-            Allocation.native(getObjectKeySize(type, primaryKey)) { putObjectKey(type, primaryKey) }
+    override fun newNativeKey(type: String, id: Value): Allocation =
+            Allocation.native(getObjectKeySize(type, id)) { putObjectKey(type, id) }
 
 }

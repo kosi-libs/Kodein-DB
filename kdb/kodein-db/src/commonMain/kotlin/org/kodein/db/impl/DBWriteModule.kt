@@ -10,11 +10,8 @@ internal interface DBWriteModule : DBWrite {
 
     val mdb: ModelWrite
 
-    override fun put(model: Any, vararg options: Options.Write): Int = mdb.put(model, *options)
-
-    override fun <M : Any> putAndGetHeapKey(model: M, vararg options: Options.Write): Key<M> = mdb.putAndGetHeapKey(model, *options).value
-
-    override fun <M : Any> putAndGetNativeKey(model: M, vararg options: Options.Write): Key.Native<M> = mdb.putAndGetNativeKey(model, *options).value
+    override fun put(model: Any, vararg options: Options.Write) { mdb.put(model, *options) }
+    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write) { mdb.put(key, model, *options) }
 
     override fun <M : Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.Write) = mdb.delete(type, key, *options)
 }

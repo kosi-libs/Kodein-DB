@@ -48,8 +48,8 @@ class AnnotationMetadataExtractor : MetadataExtractor {
         val type = model.javaClass
 
         val getters = cache.getOrPut(type) {
-            val pk = type.methods.find { it.isAnnotationPresent(PrimaryKey::class.java) }?.let { ValueGetter.OfMethod(it) }
-                    ?: type.fields.find { it.isAnnotationPresent(PrimaryKey::class.java) }?.let { ValueGetter.OfField(it) }
+            val pk = type.methods.find { it.isAnnotationPresent(Id::class.java) }?.let { ValueGetter.OfMethod(it) }
+                    ?: type.fields.find { it.isAnnotationPresent(Id::class.java) }?.let { ValueGetter.OfField(it) }
                     ?: error("$type has no primary key")
 
             val indexGetters = (

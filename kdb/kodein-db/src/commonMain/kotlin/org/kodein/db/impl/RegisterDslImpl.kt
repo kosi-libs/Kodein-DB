@@ -15,8 +15,8 @@ internal class RegisterDslImpl<M : Any>(private val mdb: ModelDB, val filters: L
             if (filters.all { it(model) }) listener.willPut(model, typeName, metadata, options)
         }
 
-        override fun didPut(model: M, getKey: () -> Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
-            if (filters.all { it(model) }) listener.didPut(model, getKey, typeName, metadata, size, options)
+        override fun didPut(model: M, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+            if (filters.all { it(model) }) listener.didPut(model, key, typeName, metadata, size, options)
         }
 
         override fun willDelete(key: Key<*>, getModel: () -> M?, typeName: String, options: Array<out Options.Write>) {

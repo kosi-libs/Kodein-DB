@@ -2,7 +2,7 @@ package org.kodein.db.model
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class PrimaryKey
+annotation class Id
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)

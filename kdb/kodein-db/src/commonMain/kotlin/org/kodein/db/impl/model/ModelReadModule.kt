@@ -49,14 +49,14 @@ internal interface ModelReadModule : ModelKeyMakerModule, ModelRead {
     override fun <M : Any> findAllByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M> =
             ModelCursorImpl(data.findAllByType(mdb.typeTable.getTypeName(type), *options), mdb.typeTable, mdb.serializer, type)
 
-    override fun <M : Any> findByPrimaryKey(type: KClass<M>, primaryKey: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findByPrimaryKey(mdb.typeTable.getTypeName(type), primaryKey, isOpen, *options), mdb.typeTable, mdb.serializer, type)
+    override fun <M : Any> findById(type: KClass<M>, id: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =
+            ModelCursorImpl(data.findById(mdb.typeTable.getTypeName(type), id, isOpen, *options), mdb.typeTable, mdb.serializer, type)
 
-    override fun <M : Any> findAllByIndex(type: KClass<M>, name: String, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findAllByIndex(mdb.typeTable.getTypeName(type), name, *options), mdb.typeTable, mdb.serializer, type)
+    override fun <M : Any> findAllByIndex(type: KClass<M>, index: String, vararg options: Options.Read): ModelCursor<M> =
+            ModelCursorImpl(data.findAllByIndex(mdb.typeTable.getTypeName(type), index, *options), mdb.typeTable, mdb.serializer, type)
 
-    override fun <M : Any> findByIndex(type: KClass<M>, name: String, value: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findByIndex(mdb.typeTable.getTypeName(type), name, value, isOpen, *options), mdb.typeTable, mdb.serializer, type)
+    override fun <M : Any> findByIndex(type: KClass<M>, index: String, value: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =
+            ModelCursorImpl(data.findByIndex(mdb.typeTable.getTypeName(type), index, value, isOpen, *options), mdb.typeTable, mdb.serializer, type)
 
     override fun getIndexesOf(key: Key<*>, vararg options: Options.Read): List<String> =
             data.getIndexesOf(key.bytes, *options)

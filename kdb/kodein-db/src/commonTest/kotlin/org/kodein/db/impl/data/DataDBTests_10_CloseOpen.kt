@@ -12,19 +12,19 @@ class DataDBTests_10_CloseOpen : DataDBTests() {
 
     @Test
     fun test090_PutCloseOpenGet() {
-        ddb.put("Test", Value.ofAscii("key"), Value.ofAscii("value"))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("key")), Value.ofAscii("value"))
 
         ddb.close()
 
         open()
 
-        val key = ddb.getHeapKey("Test", Value.ofAscii("key"))
+        val key = ddb.newHeapKey("Test", Value.ofAscii("key"))
         assertBytesEquals(byteArray("value"), ddb.get(key)!!)
     }
 
     @Test
     fun test091_PutCloseOpenIter() {
-        ddb.put("Test", Value.ofAscii("key"), Value.ofAscii("value"))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("key")), Value.ofAscii("value"))
 
         ddb.close()
 

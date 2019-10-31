@@ -50,9 +50,9 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
         val ref = sb.newSlice {
             for (index in indexes) {
-                val indexKeySize = getIndexKeySize(key, index.name, index.value)
+                val indexKeySize = getIndexKeySize(key, index.index, index.value)
                 putInt(indexKeySize)
-                val indexKey = subSlice { putIndexKey(key, index.name, index.value) }
+                val indexKey = subSlice { putIndexKey(key, index.index, index.value) }
                 batch.put(indexKey, key)
             }
         }
@@ -86,45 +86,11 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         }
     }
 
-    override fun put(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
+    override fun put(key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
+        key.verifyObjectKey()
         SliceBuilder.native(DEFAULT_CAPACITY).use {
-            val key = it.newSlice { putObjectKey(type, primaryKey) }
             return put(it, key, body, indexes, *options)
         }
-    }
-
-    override fun put(type: String, primaryKey: Value, key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
-        SliceBuilder.native(DEFAULT_CAPACITY).use {
-            require(verify(key.duplicate()) { putObjectKey(type, primaryKey) }) { "Bad key" }
-            return put(it, key, body, indexes, *options)
-        }
-    }
-
-    private fun putAndSetKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, key: KBuffer, options: Array<out Options.Write>): Int {
-        key.putObjectKey(type, primaryKey)
-        key.flip()
-
-        ldb.newWriteBatch().use { batch ->
-            SliceBuilder.native(DEFAULT_CAPACITY).use {
-                lock.withLock {
-                    val length = putInBatch(it, batch, key, body, indexes)
-                    ldb.write(batch, toLdb(options))
-                    return length
-                }
-            }
-        }
-    }
-
-    override fun putAndGetHeapKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Sized<KBuffer> {
-        val key = KBuffer.array(getObjectKeySize(type, primaryKey))
-        val length = putAndSetKey(type, primaryKey, body, indexes, key, options)
-        return Sized(key, length)
-    }
-
-    override fun putAndGetNativeKey(type: String, primaryKey: Value, body: Body, indexes: Set<Index>, vararg options: Options.Write): Sized<Allocation> {
-        val key = Allocation.native(getObjectKeySize(type, primaryKey))
-        val length = putAndSetKey(type, primaryKey, body, indexes, key, options)
-        return Sized(key, length)
     }
 
     private fun deleteInBatch(sb: SliceBuilder, batch: LevelDB.WriteBatch, key: ReadBuffer) {
@@ -135,6 +101,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     }
 
     override fun delete(key: ReadBuffer, vararg options: Options.Write) {
+        key.verifyObjectKey()
         val checks = options.all<Check>()
         ldb.newWriteBatch().use { batch ->
             SliceBuilder.native(DEFAULT_CAPACITY).use {

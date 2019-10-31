@@ -12,16 +12,18 @@ open class ModelDBTests_04_Refs : ModelDBTests() {
     fun test00_Refs() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         val laila = Adult("Laila", "BRYS", Date(25, 8, 1989))
-        val meKey = mdb.putAndGetHeapKey(me).value
-        val lailaKey = mdb.putAndGetHeapKey(laila).value
+        val meKey = mdb.newHeapKey(me)
+        mdb.put(meKey, me)
+        val lailaKey = mdb.newHeapKey(laila)
+        mdb.put(lailaKey, laila)
 
         val sjeg = City("Saint Julien En Genevois", Location(46.1443, 6.0826), 74160)
         val pap = City("Pointe À Pitre", Location(16.2333, -61.5167), 97110)
         mdb.put(sjeg)
         mdb.put(pap)
 
-        mdb.put(Birth(meKey, mdb.getHeapKey(sjeg)))
-        mdb.put(Birth(lailaKey, mdb.getHeapKey((pap))))
+        mdb.put(Birth(meKey, mdb.newHeapKey(sjeg)))
+        mdb.put(Birth(lailaKey, mdb.newHeapKey((pap))))
 
         mdb.findAllByIndex<Birth>("date").use {
             assertTrue(it.isValid())

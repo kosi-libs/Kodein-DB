@@ -12,8 +12,8 @@ class DataDBTests_09_Batch : DataDBTests() {
     fun test00_BatchPut() {
 
         val batch = ddb.newBatch()
-        batch.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        batch.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        batch.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        batch.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
         assertDBIs()
 
@@ -32,13 +32,13 @@ class DataDBTests_09_Batch : DataDBTests() {
     @Test
     fun test01_BatchDelete() {
 
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put("Test", Value.ofAscii("bbb"), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put("Test", Value.ofAscii("ccc"), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         val batch = ddb.newBatch()
-        batch.delete(ddb.getHeapKey("Test", Value.ofAscii("aaa")))
-        batch.delete(ddb.getHeapKey("Test", Value.ofAscii("bbb")))
+        batch.delete(ddb.newHeapKey("Test", Value.ofAscii("aaa")))
+        batch.delete(ddb.newHeapKey("Test", Value.ofAscii("bbb")))
 
         assertDBIs(
                 byteArray('i', 0, "Test", 0, "Numbers", 0, "forty", 0, "two", 0, "bbb", 0) to byteArray('o', 0, "Test", 0, "bbb", 0),
@@ -65,11 +65,11 @@ class DataDBTests_09_Batch : DataDBTests() {
     fun test02_BatchOverride() {
 
         val batch = ddb.newBatch()
-        batch.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValueBatch!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        batch.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueBatch!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
 
         assertDBIs()
 
-        ddb.put("Test", Value.ofAscii("aaa"), Value.ofAscii("ValuePut!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValuePut!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
         assertDBIs(
                 byteArray('i', 0, "Test", 0, "Numbers", 0, "forty", 0, "two", 0, "aaa", 0) to byteArray('o', 0, "Test", 0, "aaa", 0),

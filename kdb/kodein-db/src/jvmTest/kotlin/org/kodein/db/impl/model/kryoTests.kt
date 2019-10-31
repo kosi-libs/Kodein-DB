@@ -11,7 +11,7 @@ class ModelDBTests_01_Types_Kryo : ModelDBTests_01_Types() {
     override fun testSerializer(): Serializer<Any> = KryoSerializer()
 }
 
-class ModelDBTests_02_PrimaryKeys_Kryo : ModelDBTests_02_PrimaryKeys() {
+class ModelDBTests_02_IDs_Kryo : ModelDBTests_02_IDs() {
     override fun testSerializer(): Serializer<Any> = KryoSerializer()
 }
 

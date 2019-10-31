@@ -6,15 +6,15 @@ import org.kodein.db.Value
 import org.kodein.db.model.ModelDB
 
 interface Metadata : HasMetadata {
-    val primaryKey: Value
+    val id: Value
     val indexes: Set<Index> get() = emptySet()
 
     override fun getMetadata(db: ModelDB, vararg options: Options.Write) = this
 
-    private class Impl(override val primaryKey: Value, override val indexes: Set<Index> = emptySet()) : Metadata
+    private class Impl(override val id: Value, override val indexes: Set<Index> = emptySet()) : Metadata
 
     companion object {
-        operator fun invoke(primaryKey: Value, indexes: Set<Index> = emptySet()): Metadata = Impl(primaryKey, indexes)
+        operator fun invoke(id: Value, indexes: Set<Index> = emptySet()): Metadata = Impl(id, indexes)
     }
 }
 

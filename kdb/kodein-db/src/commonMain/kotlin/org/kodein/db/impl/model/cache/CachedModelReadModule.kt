@@ -60,11 +60,11 @@ internal interface CachedModelReadModule : ModelRead {
 
     override fun <M : Any> findAllByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findAllByType(type, *options), options)
 
-    override fun <M : Any> findByPrimaryKey(type: KClass<M>, primaryKey: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findByPrimaryKey(type, primaryKey, isOpen, *options), options)
+    override fun <M : Any> findById(type: KClass<M>, id: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findById(type, id, isOpen, *options), options)
 
-    override fun <M : Any> findAllByIndex(type: KClass<M>, name: String, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findAllByIndex(type, name, *options), options)
+    override fun <M : Any> findAllByIndex(type: KClass<M>, index: String, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findAllByIndex(type, index, *options), options)
 
-    override fun <M : Any> findByIndex(type: KClass<M>, name: String, value: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findByIndex(type, name, value, isOpen, *options), options)
+    override fun <M : Any> findByIndex(type: KClass<M>, index: String, value: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findByIndex(type, index, value, isOpen, *options), options)
 
     override fun getIndexesOf(key: Key<*>, vararg options: Options.Read): List<String> = mdb.getIndexesOf(key, *options)
 
