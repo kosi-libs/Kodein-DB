@@ -24,7 +24,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
         val metadata = mdb.getMetadata(model, options)
         val typeName = mdb.typeTable.getTypeName(model::class)
         willAction { willPut(model, typeName, metadata, options) }
-       val body = Body {
+        val body = Body {
             it.putShort(typeName.length.toShort())
             it.putAscii(typeName)
             mdb.serializer.serialize(model, it, *options)
@@ -88,7 +88,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
             }
             model
         }
-        mdb.listeners.toList().forEach { it.willDelete(key, getModel, typeName, options)}
+        willAction { willDelete(key, getModel, typeName, options) }
         data.delete(key.bytes, *options)
         didAction { didDelete(key, model, typeName, options) }
     }

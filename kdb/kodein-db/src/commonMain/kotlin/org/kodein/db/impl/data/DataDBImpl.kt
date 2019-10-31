@@ -5,6 +5,7 @@ import org.kodein.db.data.DataBatch
 import org.kodein.db.data.DataDB
 import org.kodein.db.data.DataSnapshot
 import org.kodein.db.data.DataWrite
+import org.kodein.db.impl.Check
 import org.kodein.db.impl.utils.newLock
 import org.kodein.db.impl.utils.putBody
 import org.kodein.db.impl.utils.withLock
@@ -74,8 +75,10 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     }
 
     private fun put(sb: SliceBuilder, key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
+        val checks = options.all<Check>()
         ldb.newWriteBatch().use { batch ->
             lock.withLock {
+                checks.forEach { it.block() }
                 val length = putInBatch(sb, batch, key, body, indexes)
                 ldb.write(batch, toLdb(options))
                 return length
@@ -132,9 +135,11 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     }
 
     override fun delete(key: ReadBuffer, vararg options: Options.Write) {
+        val checks = options.all<Check>()
         ldb.newWriteBatch().use { batch ->
             SliceBuilder.native(DEFAULT_CAPACITY).use {
                 lock.withLock {
+                    checks.forEach { it.block() }
                     deleteInBatch(it, batch, key)
                     ldb.write(batch, toLdb(options))
                 }
