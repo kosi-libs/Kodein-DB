@@ -14,7 +14,7 @@ interface BaseCursor : Closeable {
     fun seekToLast()
     fun seekTo(target: ReadBuffer)
 
-    fun transientSeekKey(): TransientBytes
+    fun transientSeekKey(): ReadBuffer
 
 
     interface BaseEntries : Closeable {

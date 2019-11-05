@@ -1,11 +1,9 @@
 package org.kodein.db.impl.data
 
+import org.kodein.db.data.DataCursor
 import org.kodein.db.impl.utils.compareTo
 import org.kodein.db.impl.utils.startsWith
 import org.kodein.db.leveldb.LevelDB
-import org.kodein.db.TransientBytes
-import org.kodein.db.data.DataCursor
-import org.kodein.memory.Closeable
 import org.kodein.memory.io.*
 
 internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, private val prefix: Allocation) : DataCursor {
@@ -97,28 +95,28 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
 
     protected abstract fun thisKey(): KBuffer
 
-    final override fun transientKey(): TransientBytes {
+    final override fun transientKey(): ReadBuffer {
         if (!isValid())
             throw IllegalStateException("Cursor is not valid")
 
-        return  TransientBytes(thisKey().duplicate())
+        return  thisKey().duplicate()
     }
 
     protected abstract fun thisValue(): Allocation
 
-    final override fun transientValue(): TransientBytes {
+    final override fun transientValue(): ReadBuffer {
         if (!isValid())
             throw IllegalStateException("Cursor is not valid")
 
-        cachedValue?.let { return TransientBytes(it.duplicate()) }
+        cachedValue?.let { return it.duplicate() }
 
-        return TransientBytes(thisValue().also { cachedValue = it } .duplicate())
+        return thisValue().also { cachedValue = it } .duplicate()
     }
 
-    final override fun transientSeekKey(): TransientBytes {
+    final override fun transientSeekKey(): ReadBuffer {
         if (!isValid())
             throw IllegalStateException("Cursor is not valid")
-        return TransientBytes(itKey())
+        return itKey()
     }
 
     abstract class AbstractEntries<A: LevelDB.Cursor.ValuesArrayBase>(protected val array: A) : DataCursor.Entries {

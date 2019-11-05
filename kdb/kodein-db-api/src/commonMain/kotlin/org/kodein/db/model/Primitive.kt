@@ -1,10 +1,38 @@
-package org.kodein.db.impl.model
+package org.kodein.db.model
 
+import org.kodein.db.Index
+import org.kodein.db.Options
 import org.kodein.db.Value
 import org.kodein.db.model.orm.Metadata
+import org.kodein.db.model.orm.Serializer
+import org.kodein.memory.io.*
+import kotlin.reflect.KClass
 
-sealed class Primitive(override val id: Value): Metadata
+data class IntPrimitive(override val id: Value, val value: Int) : Metadata {
+    override val indexes get() = setOf(Index("value", Value.of(value)))
 
-class IntPrimitive(id: Value, val value: Int) : Primitive(id)
-class LongPrimitive(id: Value, val value: Long) : Primitive(id)
-class DoublePrimitive(id: Value, val value: Double) : Primitive(id)
+    object S : Serializer<IntPrimitive> {
+        override fun serialize(model: IntPrimitive, output: Writeable, vararg options: Options.Write) = output.putInt(model.value)
+        override fun deserialize(type: KClass<out IntPrimitive>, transientId: ReadBuffer, input: ReadBuffer, vararg options: Options.Read) = IntPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readInt())
+    }
+}
+
+data class LongPrimitive(override val id: Value, val value: Long) : Metadata {
+    override val indexes get() = setOf(Index("value", Value.of(value)))
+
+    object S : Serializer<LongPrimitive> {
+        override fun serialize(model: LongPrimitive, output: Writeable, vararg options: Options.Write) = output.putLong(model.value)
+        override fun deserialize(type: KClass<out LongPrimitive>, transientId: ReadBuffer, input: ReadBuffer, vararg options: Options.Read) = LongPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readLong())
+    }
+}
+
+data class DoublePrimitive(override val id: Value, val value: Double) : Metadata {
+    object S : Serializer<DoublePrimitive> {
+        override fun serialize(model: DoublePrimitive, output: Writeable, vararg options: Options.Write) = output.putDouble(model.value)
+        override fun deserialize(type: KClass<out DoublePrimitive>, transientId: ReadBuffer, input: ReadBuffer, vararg options: Options.Read) = DoublePrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readDouble())
+    }
+}
+
+fun Primitive(id: Value, value: Int) = IntPrimitive(id, value)
+fun Primitive(id: Value, value: Long) = LongPrimitive(id, value)
+fun Primitive(id: Value, value: Double) = DoublePrimitive(id, value)

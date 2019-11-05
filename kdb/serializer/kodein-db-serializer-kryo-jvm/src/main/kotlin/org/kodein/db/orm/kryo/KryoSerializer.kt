@@ -22,9 +22,9 @@ class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : 
         }
     }
 
-    override fun <M : Any> deserialize(type: KClass<M>, input: ReadBuffer, vararg options: Options.Read): M {
+    override fun deserialize(type: KClass<out Any>, transientId: ReadBuffer, input: ReadBuffer, vararg options: Options.Read): Any {
         Input(input.asInputStream()).use {
-            return kryo.readObject<M>(it, type.java)
+            return kryo.readObject(it, type.java)
         }
     }
 

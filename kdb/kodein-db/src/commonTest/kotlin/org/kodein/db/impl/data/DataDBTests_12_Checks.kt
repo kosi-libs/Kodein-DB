@@ -62,8 +62,7 @@ class DataDBTests_12_Checks : DataDBTests() {
 
         ddb.newBatch().use {
             it.put(key, Value.of(42))
-            it.addWriteOptions(Check { check(ddb.get(key)!!.readInt() == 21) })
-            it.write()
+            it.write(Check { check(ddb.get(key)!!.readInt() == 21) })
         }
 
         assertEquals(42, ddb.get(key)!!.readInt())
@@ -76,9 +75,8 @@ class DataDBTests_12_Checks : DataDBTests() {
 
         ddb.newBatch().use {
             it.put(key, Value.of(42))
-            it.addWriteOptions(Check { check(ddb.get(key)!!.readInt() == 0) })
             assertFailsWith<IllegalStateException> {
-                it.write()
+                it.write(Check { check(ddb.get(key)!!.readInt() == 0) })
             }
         }
 

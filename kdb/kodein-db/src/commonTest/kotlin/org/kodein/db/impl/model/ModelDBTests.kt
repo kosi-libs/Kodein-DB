@@ -20,7 +20,7 @@ abstract class ModelDBTests {
 
     private val factory = ModelDB.default.inDir(platformTmpPath)
 
-    open fun testSerializer(): Serializer<Any> = KotlinxSerializer {
+    open fun testSerializer(): Serializer<Any>? = KotlinxSerializer {
         +Adult.serializer()
         +Child.serializer()
         +Location.serializer()
@@ -28,15 +28,18 @@ abstract class ModelDBTests {
         +Birth.serializer()
     }
 
+    open fun testClassSerializers(): List<DBClassSerializer<*>> = emptyList()
+
     open fun testMetadataExtractor(): MetadataExtractor? = null
 
     open fun testTypeTable(): TypeTable? = null
 
     open fun newModelDB(): ModelDB {
         val options = ArrayList<Options.Open>()
-        options.add(DBSerializer(testSerializer()))
+        testSerializer()?.let { options.add(DBSerializer(it)) }
         testMetadataExtractor()?.let { options.add(DBMetadataExtractor(it)) }
         testTypeTable()?.let { options.add(DBTypeTable(it)) }
+        testClassSerializers().forEach { options.add(it) }
 
         return factory.open("modeldb", *options.toTypedArray())
     }

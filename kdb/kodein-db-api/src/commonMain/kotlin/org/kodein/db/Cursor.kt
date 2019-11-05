@@ -1,10 +1,11 @@
 package org.kodein.db
 
+import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.use
 
 interface Cursor<M: Any> : BaseCursor {
 
-    fun transientKey(): TransientKey<M>
+    fun transientKey(): Key.Transient<M>
     fun model(vararg options: Options.Read): M
 
     fun nextEntries(size: Int): Entries<M>

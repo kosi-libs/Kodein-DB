@@ -29,7 +29,7 @@ internal class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache:
         override fun get(i: Int, vararg options: Options.Read): Sized<M> {
             if (cachedEntries[i] == null) {
                 @Suppress("UNCHECKED_CAST")
-                cachedEntries[i] = cache.getOrRetrieveEntry(transientKey().copyToHeap().asHeapKey()) { entries.get(i, *options) } as ModelCache.Entry.Cached<M>
+                cachedEntries[i] = cache.getOrRetrieveEntry(transientKey().asHeapKey()) { entries.get(i, *options) } as ModelCache.Entry.Cached<M>
             }
             return cachedEntries[i]!!
         }
@@ -57,7 +57,7 @@ internal class CachedModelCursor<M : Any>(val cursor: ModelCursor<M>, val cache:
     override fun model(vararg options: Options.Read): Sized<M> {
         if (cachedEntry == null) {
             @Suppress("UNCHECKED_CAST")
-            cachedEntry = cache.getOrRetrieveEntry(transientKey().copyToHeap()) { cursor.model(*options) } as ModelCache.Entry.Cached<M>
+            cachedEntry = cache.getOrRetrieveEntry(transientKey().asHeapKey()) { cursor.model(*options) } as ModelCache.Entry.Cached<M>
         }
         return cachedEntry!!
     }

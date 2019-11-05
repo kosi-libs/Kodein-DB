@@ -12,9 +12,7 @@ object ModelDBNative : AbstractModelDBFactory() {
 
     override val ddbFactory: DBFactory<DataDB> get() = DataDBNative
 
-    override fun defaultSerializer(): Serializer<Any> {
-        throw IllegalStateException("Because there is no reflexivity, you need to manually add the KotlinXSerializer in ModelDB.OpenOptions.")
-    }
+    override fun defaultSerializer(): Serializer<Any>? = null
 
     override fun defaultMetadataExtractor(): MetadataExtractor = NoMetadataExtractor()
 

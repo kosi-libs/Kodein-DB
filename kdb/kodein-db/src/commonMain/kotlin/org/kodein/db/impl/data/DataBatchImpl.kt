@@ -14,8 +14,6 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
 
     private val deleteRefKeys = ArrayList<KBuffer>()
 
-    val writeOptions = ArrayList<Options.Write>()
-
     private fun put(sb: SliceBuilder, body: Body, key: ReadBuffer, indexes: Set<Index>): Int {
         val value = sb.newSlice { putBody(body) }
         batch.put(key, value)
@@ -43,8 +41,7 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
     }
 
     override fun write(vararg options: Options.Write) {
-        val allOptions = (writeOptions + options).toTypedArray()
-        val checks = allOptions.all<Check>()
+        val checks = options.all<Check>()
         use {
             ddb.ldb.newWriteBatch().use { fullBatch ->
                 ddb.lock.withLock {
@@ -54,14 +51,10 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
 
                     fullBatch.append(batch)
 
-                    ddb.ldb.write(fullBatch, DataDBImpl.toLdb(allOptions))
+                    ddb.ldb.write(fullBatch, DataDBImpl.toLdb(options))
                 }
             }
         }
-    }
-
-    override fun addWriteOptions(vararg options: Options.Write) {
-        writeOptions += options
     }
 
     override fun close() = batch.close()

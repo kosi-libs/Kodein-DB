@@ -21,11 +21,11 @@ class DataDBTests_04_FindByType : DataDBTests() {
         ddb.findAllByType("Test").use {
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "aaa", 0), byteArray("ValueA1!"), it)
-            assertBytesEquals(it.transientKey().bytes, it.transientSeekKey().bytes)
+            assertBytesEquals(it.transientKey(), it.transientSeekKey())
             it.next()
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "bbb", 0), byteArray("ValueB2!"), it)
-            assertBytesEquals(it.transientKey().bytes, it.transientSeekKey().bytes)
+            assertBytesEquals(it.transientKey(), it.transientSeekKey())
             it.next()
             assertFalse(it.isValid())
         }
@@ -42,11 +42,11 @@ class DataDBTests_04_FindByType : DataDBTests() {
             it.seekToLast()
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "bbb", 0), byteArray("ValueB1!"), it)
-            assertBytesEquals(it.transientKey().bytes, it.transientSeekKey().bytes)
+            assertBytesEquals(it.transientKey(), it.transientSeekKey())
             it.prev()
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "aaa", 0), byteArray("ValueA1!"), it)
-            assertBytesEquals(it.transientKey().bytes, it.transientSeekKey().bytes)
+            assertBytesEquals(it.transientKey(), it.transientSeekKey())
             it.prev()
             assertFalse(it.isValid())
         }

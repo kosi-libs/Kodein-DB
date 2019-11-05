@@ -32,7 +32,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
         val body = Body {
             it.putShort(typeName.length.toShort())
             it.putAscii(typeName)
-            mdb.serializer.serialize(model, it, *options)
+            mdb.serialize(model, it, *options)
         }
         val (key, closeable) = block(rootTypeName, metadata)
         closeable.use {
