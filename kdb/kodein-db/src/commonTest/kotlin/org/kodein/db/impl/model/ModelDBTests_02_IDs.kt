@@ -16,20 +16,20 @@ open class ModelDBTests_02_IDs : ModelDBTests() {
         mdb.put(laila)
         mdb.put(Adult("Someone", "Somewhere", Date(1, 1, 1990)))
 
-        mdb.findById<Adult>(Value.ofAscii("BRYS")).use {
-            assertTrue(it.isValid())
-            it.model().also {
+        mdb.findById<Adult>(Value.ofAscii("BRYS")).use { cursor ->
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(laila, it.model)
                 assertNotSame(laila, it.model)
             }
-            it.next()
-            assertTrue(it.isValid())
-            it.model().also {
+            cursor.next()
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(salomon, it.model)
                 assertNotSame(salomon, it.model)
             }
-            it.next()
-            assertFalse(it.isValid())
+            cursor.next()
+            assertFalse(cursor.isValid())
         }
     }
 
@@ -51,20 +51,20 @@ open class ModelDBTests_02_IDs : ModelDBTests() {
         mdb.put(laila)
         mdb.put(Adult("Someone", "Somewhere", Date(1, 1, 1990)))
 
-        mdb.findById<Adult>(Value.ofAscii("BRY"), isOpen = true).use {
-            assertTrue(it.isValid())
-            it.model().also {
+        mdb.findById<Adult>(Value.ofAscii("BRY"), isOpen = true).use { cursor ->
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(laila, it.model)
                 assertNotSame(laila, it.model)
             }
-            it.next()
-            assertTrue(it.isValid())
-            it.model().also {
+            cursor.next()
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(salomon, it.model)
                 assertNotSame(salomon, it.model)
             }
-            it.next()
-            assertFalse(it.isValid())
+            cursor.next()
+            assertFalse(cursor.isValid())
         }
     }
 

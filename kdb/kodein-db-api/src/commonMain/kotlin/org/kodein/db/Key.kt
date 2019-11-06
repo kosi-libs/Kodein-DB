@@ -5,6 +5,7 @@ package org.kodein.db
 import org.kodein.memory.io.ReadBuffer
 
 
+@Suppress("unused")
 class Key<out T : Any>(val bytes: ReadBuffer) {
     override fun hashCode(): Int = bytes.hashCode()
     override fun equals(other: Any?): Boolean {

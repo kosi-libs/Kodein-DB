@@ -19,26 +19,26 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.put(notMe)
         mdb.put(laila)
 
-        mdb.findAllByIndex<Adult>("firstName").use {
-            assertTrue(it.isValid())
-            it.model().also {
+        mdb.findAllByIndex<Adult>("firstName").use { cursor ->
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(laila, it.model)
                 assertNotSame(laila, it.model)
             }
-            it.next()
-            assertTrue(it.isValid())
-            it.model().also {
+            cursor.next()
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(me, it.model)
                 assertNotSame(me, it.model)
             }
-            it.next()
-            assertTrue(it.isValid())
-            it.model().also {
+            cursor.next()
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(notMe, it.model)
                 assertNotSame(notMe, it.model)
             }
-            it.next()
-            assertFalse(it.isValid())
+            cursor.next()
+            assertFalse(cursor.isValid())
         }
     }
 
@@ -51,20 +51,20 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.put(notMe)
         mdb.put(laila)
 
-        mdb.findByIndex<Adult>("firstName", Value.ofAscii("Salomon")).use {
-            assertTrue(it.isValid())
-            it.model().also {
+        mdb.findByIndex<Adult>("firstName", Value.ofAscii("Salomon")).use { cursor ->
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(me, it.model)
                 assertNotSame(me, it.model)
             }
-            it.next()
-            assertTrue(it.isValid())
-            it.model().also {
+            cursor.next()
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(notMe, it.model)
                 assertNotSame(notMe, it.model)
             }
-            it.next()
-            assertFalse(it.isValid())
+            cursor.next()
+            assertFalse(cursor.isValid())
         }
 
     }
@@ -80,26 +80,26 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.put(sarah)
         mdb.put(laila)
 
-        mdb.findByIndex<Adult>("firstName", Value.ofAscii("Sa"), isOpen = true).use {
-            assertTrue(it.isValid())
-            it.model().also {
+        mdb.findByIndex<Adult>("firstName", Value.ofAscii("Sa"), isOpen = true).use { cursor ->
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(me, it.model)
                 assertNotSame(me, it.model)
             }
-            it.next()
-            assertTrue(it.isValid())
-            it.model().also {
+            cursor.next()
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(notMe, it.model)
                 assertNotSame(notMe, it.model)
             }
-            it.next()
-            assertTrue(it.isValid())
-            it.model().also {
+            cursor.next()
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(sarah, it.model)
                 assertNotSame(sarah, it.model)
             }
-            it.next()
-            assertFalse(it.isValid())
+            cursor.next()
+            assertFalse(cursor.isValid())
         }
 
     }

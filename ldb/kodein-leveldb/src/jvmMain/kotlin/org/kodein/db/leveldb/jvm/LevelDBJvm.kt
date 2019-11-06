@@ -10,7 +10,7 @@ import java.util.*
 
 
 object LevelDBJvm : LevelDBFactory by LevelDBJNI.Factory {
-    init {
+     init {
         val resourcesProps = javaClass.getResourceAsStream("/info.properties").use { Properties().apply { load(it) } }
         val os = resourcesProps["os"]!!
         val version = resourcesProps["version"]!!
@@ -52,14 +52,14 @@ object LevelDBJvm : LevelDBFactory by LevelDBJNI.Factory {
                 digest.digest().toHexString()
             }
 
-            if (hex != sha1)
-                throw IllegalStateException("Extraction failed or library was tampered with.")
+            check(hex == sha1) { "Extraction failed or library was tampered with." }
 
             Files.newOutputStream(info).use {
                 resourcesProps.store(it, null)
             }
         }
 
+        @Suppress("UnsafeDynamicallyLoadedCode")
         System.load(lib.toAbsolutePath().toAbsolutePath().toString())
     }
 }

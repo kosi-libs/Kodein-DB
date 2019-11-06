@@ -66,26 +66,22 @@ internal fun Writeable.putRefKeyFromObjectKey(objectKey: ReadBuffer) {
 
 internal fun getObjectKeyType(key: ReadBuffer): ReadBuffer {
     val typeEnd = key.firstIndexOf(NULL, key.position + 2)
-    if (typeEnd == -1)
-        throw IllegalStateException()
+    check(typeEnd != -1)
     return key.slice(2, typeEnd - 2)
 }
 
 internal fun getObjectKeyID(key: ReadBuffer): ReadBuffer {
     val typeEnd = key.firstIndexOf(NULL, key.position + 2)
-    if (typeEnd == -1)
-        throw IllegalStateException()
+    check(typeEnd != -1)
     return key.slice(typeEnd + 1)
 }
 
 internal fun getIndexKeyName(key: ReadBuffer): ReadBuffer {
     val typeEnd = key.firstIndexOf(NULL, key.position + 2)
-    if (typeEnd == -1)
-        throw IllegalStateException()
+    check(typeEnd != -1)
 
     val nameEnd = key.firstIndexOf(NULL, typeEnd + 1)
-    if (nameEnd == -1)
-        throw IllegalStateException()
+    check(nameEnd != -1)
 
     val nameSize = nameEnd - typeEnd - 1
     return key.slice(typeEnd + 1, nameSize)
@@ -129,6 +125,7 @@ internal fun getIndexKeySize(objectKey: ReadBuffer, name: String, value: Value):
     )
 }
 
+@Suppress("DuplicatedCode")
 internal fun Writeable.putIndexKeyStart(type: String, name: String, value: Value?, isOpen: Boolean = false) {
     put(Prefix.INDEX)
     put(NULL)

@@ -23,8 +23,8 @@ interface TypeTable {
         init {
 
             fun add(type: Type<*>, root: Type.Root<*>) {
-                if (type.name in byName) throw IllegalArgumentException("Both type ${simpleTypeNameOf(byName[type.name]!!.type)} and type ${simpleTypeNameOf(type.type)} are mapped to name ${type.name}")
-                if (type.type in byClass) throw IllegalArgumentException("Type ${simpleTypeNameOf(type.type)} is mapped to both name ${byClass[type.type]!!} and name ${type.name}")
+                require(type.name !in byName) { "Both type ${simpleTypeNameOf(byName[type.name]!!.type)} and type ${simpleTypeNameOf(type.type)} are mapped to name ${type.name}" }
+                require(type.type !in byClass) { "Type ${simpleTypeNameOf(type.type)} is mapped to both name ${byClass[type.type]!!} and name ${type.name}" }
 
                 this.byClass[type.type] = type
                 this.byName[type.name] = type

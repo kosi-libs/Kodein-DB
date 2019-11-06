@@ -45,7 +45,7 @@ class CacheDBTests_04_Options : CacheDBTests() {
 
         assertSame(me, mdb[key]!!.model)
 
-        val otherMe = mdb.get(key, ModelCache.Refresh)!!.model
+        val otherMe = mdb[key, ModelCache.Refresh]!!.model
 
         assertNotSame(me, otherMe)
         assertSame(otherMe, mdb[key]!!.model)

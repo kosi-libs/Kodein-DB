@@ -56,8 +56,8 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
 
         val it = map.entries.iterator()
         while (true) {
-            if (size < 0) throw IllegalStateException("Cache size is $size")
-            if (size != 0L && !it.hasNext()) throw IllegalStateException("Cache is empty but size is $size")
+            check(size >= 0) { "Cache size is $size" }
+            check(!(size != 0L && !it.hasNext())) { "Cache is empty but size is $size" }
 
             if (size <= maxSize || !it.hasNext())
                 break
@@ -132,7 +132,7 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
                 @Suppress("UNCHECKED_CAST")
                 val newEntry = if (sized != null) ModelCache.Entry.Cached(sized.model, sized.size) else ModelCache.Entry.Deleted as ModelCache.Entry<M>
 
-                internals.map.put(key, newEntry)
+                internals.map[key] = newEntry
                 ++internals.retrieveCount
 
                 newEntry
@@ -153,7 +153,7 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
 
     private fun copyIfNeeded() {
         val count = internals.refCount.value
-        if (count < 1) throw IllegalStateException("refCount < 1")
+        check(count >= 1) { "refCount < 1" }
         if (count == 1) return
 
         renewInternals(true)

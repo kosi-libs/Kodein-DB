@@ -10,4 +10,4 @@ annotation class Indexed(val name: String)
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Indexes(val name: String)
+annotation class Indexes

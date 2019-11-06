@@ -36,18 +36,10 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
             val b64 = b64Encoder.encode(obj.bytes.duplicate())
             encoder.encodeString(b64)
         }
-
-        @Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
-        inline fun <T : Key<*>> out() = this as KSerializer<T>
     }
 
     private val cbor = Cbor(context = SerializersModule {
         contextual(KeySerializer)
-//        contextual(KeySerializer.out<Key<*>>())
-
-//        polymorphic<Key<*>> {
-//            Key::class with (KeySerializer.out())
-//        }
     })
 
     inner class Builder {

@@ -20,8 +20,7 @@ internal class CachedModelBatch(private val cmdb: CachedModelDB, private val bat
 
     override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int {
         val size = batch.put(key, model, *options)
-        val heapKey = key//.asHeapKey()
-        reacts.add { didPut(model, heapKey, size, options) }
+        reacts.add { didPut(model, key, size, options) }
         return size
     }
 

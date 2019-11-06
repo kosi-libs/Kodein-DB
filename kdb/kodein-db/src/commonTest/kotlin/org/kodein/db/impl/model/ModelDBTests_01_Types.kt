@@ -15,20 +15,20 @@ open class ModelDBTests_01_Types : ModelDBTests() {
         mdb.put(laila)
         mdb.put(City("Paris", Location(48.864716, 2.349014), 75000))
 
-        mdb.findAllByType<Adult>().use {
-            assertTrue(it.isValid())
-            it.model().also {
+        mdb.findAllByType<Adult>().use { cursor ->
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(laila, it.model)
                 assertNotSame(laila, it.model)
             }
-            it.next()
-            assertTrue(it.isValid())
-            it.model().also {
+            cursor.next()
+            assertTrue(cursor.isValid())
+            cursor.model().also {
                 assertEquals(salomon, it.model)
                 assertNotSame(salomon, it.model)
             }
-            it.next()
-            assertFalse(it.isValid())
+            cursor.next()
+            assertFalse(cursor.isValid())
         }
     }
 

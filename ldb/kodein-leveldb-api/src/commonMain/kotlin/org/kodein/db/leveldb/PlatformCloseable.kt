@@ -6,17 +6,15 @@ import org.kodein.memory.Closeable
 
 abstract class PlatformCloseable(private val name: String, val handler: Handler?, val options: LevelDB.Options) : Closeable {
 
-    private val stackTrace: StackTrace?
+    private val stackTrace = if (options.loggerFactory != null && options.trackClosableAllocation) {
+        StackTrace.current()
+    } else {
+        null
+    }
 
     private val closed = atomic(false)
 
     init {
-        if (options.loggerFactory != null && options.trackClosableAllocation) {
-            stackTrace = StackTrace.current()
-        } else {
-            stackTrace = null
-        }
-
         @Suppress("LeakingThis")
         handler?.add(this)
     }
@@ -37,10 +35,7 @@ abstract class PlatformCloseable(private val name: String, val handler: Handler?
         doClose()
     }
 
-    fun checkIsOpen() {
-        if (closed.value)
-            throw IllegalStateException("$name has been closed")
-    }
+    fun checkIsOpen() = check(!closed.value) { "$name has been closed" }
 
     fun closeBad() {
         if (closed.getAndSet(true))

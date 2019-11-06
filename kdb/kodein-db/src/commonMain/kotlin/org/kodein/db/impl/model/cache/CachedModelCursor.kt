@@ -21,7 +21,7 @@ internal class CachedModelCursor<M : Any>(override val cursor: ModelCursor<M>, v
         override fun get(i: Int, vararg options: Options.Read): Sized<M> {
             if (cachedEntries[i] == null) {
                 @Suppress("UNCHECKED_CAST")
-                cachedEntries[i] = cache.getOrRetrieveEntry(key()) { entries.get(i, *options) } as ModelCache.Entry.Cached<M>
+                cachedEntries[i] = cache.getOrRetrieveEntry(key()) { @Suppress("ReplaceGetOrSet") entries.get(i, *options) } as ModelCache.Entry.Cached<M>
             }
             return cachedEntries[i]!!
         }

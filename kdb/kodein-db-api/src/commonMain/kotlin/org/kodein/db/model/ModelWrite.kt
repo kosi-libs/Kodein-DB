@@ -15,6 +15,6 @@ interface ModelWrite : KeyMaker {
 
 inline fun <reified M : Any> ModelWrite.delete(key: Key<M>, vararg options: Options.Write) = delete(M::class, key, *options)
 
-fun ModelWrite.putAll(models: Iterable<Any>, vararg options: Options.Write) = models.forEach { put<Any>(it, *options) }
+fun ModelWrite.putAll(models: Iterable<Any>, vararg options: Options.Write) = models.forEach { put(it, *options) }
 
-operator fun ModelWrite.plusAssign(model: Any) { put<Any>(model) }
+operator fun ModelWrite.plusAssign(model: Any) { put(model) }

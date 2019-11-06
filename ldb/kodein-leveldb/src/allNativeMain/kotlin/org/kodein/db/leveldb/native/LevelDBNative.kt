@@ -164,7 +164,6 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
                     NativeBytes(value, valueSize.value.toInt(), dbHandler, this@LevelDBNative.options)
                 else
                     null
-
             }
         }
         throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
@@ -196,17 +195,7 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
 
         val newKey = cursor.transientValue()
 
-        options.usePointer { optionsPtr ->
-            return ldbCall {
-                val valueSize = alloc<size_tVar>()
-                val value = leveldb_get(nonNullPtr, optionsPtr, newKey.pointer(), newKey.remaining.convert(), valueSize.ptr, it.ptr)
-                if (value != null)
-                    NativeBytes(value, valueSize.value.toInt(), dbHandler, this@LevelDBNative.options)
-                else
-                    null
-            }
-        }
-        throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
+        return get(newKey, options)
     }
 
     internal class Cursor internal constructor(ptr: CPointer<leveldb_iterator_t>, handler: Handler, options: LevelDB.Options) : PointerBound<leveldb_iterator_t>(ptr, "Cursor", handler, options), LevelDB.Cursor {

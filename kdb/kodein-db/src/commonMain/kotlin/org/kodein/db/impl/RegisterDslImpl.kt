@@ -8,9 +8,9 @@ import org.kodein.db.model.ModelDB
 import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.Closeable
 
-internal class RegisterDslImpl<M : Any>(private val mdb: ModelDB, val filters: List<(M) -> Boolean>) : DB.RegisterDsl<M> {
+internal class RegisterDslImpl<M : Any>(private val mdb: ModelDB, private val filters: List<(M) -> Boolean>) : DB.RegisterDsl<M> {
 
-    class FilteredListener<M : Any>(val listener: DBListener<M>, val filters: List<(M) -> Boolean>) : DBListener<M> {
+    class FilteredListener<M : Any>(private val listener: DBListener<M>, private val filters: List<(M) -> Boolean>) : DBListener<M> {
         override fun willPut(model: M, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {
             if (filters.all { it(model) }) listener.willPut(model, typeName, metadata, options)
         }

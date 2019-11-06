@@ -18,10 +18,12 @@ internal interface CachedModelReadModule : ModelRead {
         when {
             ModelCache.Skip in options -> {
                 cache.evict(key)
+                @Suppress("ReplaceGetOrSet")
                 return mdb.get(type, key, *options)
             }
 
             ModelCache.Refresh in options -> {
+                @Suppress("ReplaceGetOrSet")
                 val sized = mdb.get(type, key, *options)
                 if (sized != null)
                     cache.put(key, sized)
@@ -30,7 +32,10 @@ internal interface CachedModelReadModule : ModelRead {
 
             else -> {
                 @Suppress("UNCHECKED_CAST")
-                val entry = cache.getOrRetrieveEntry(key) { mdb.get(type, key, *options) }
+                val entry = cache.getOrRetrieveEntry(key) {
+                    @Suppress("ReplaceGetOrSet")
+                    mdb.get(type, key, *options)
+                }
                 if (entry is ModelCache.Entry.Cached) {
                     return entry
                 }

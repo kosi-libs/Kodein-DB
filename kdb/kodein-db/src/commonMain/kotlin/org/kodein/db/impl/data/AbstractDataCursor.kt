@@ -93,8 +93,7 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
     protected abstract fun thisKey(): KBuffer
 
     final override fun transientKey(): ReadBuffer {
-        if (!isValid())
-            throw IllegalStateException("Cursor is not valid")
+        check(isValid()) { "Cursor is not valid" }
 
         return  thisKey().duplicate()
     }
@@ -102,8 +101,7 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
     protected abstract fun thisValue(): Allocation
 
     final override fun transientValue(): ReadBuffer {
-        if (!isValid())
-            throw IllegalStateException("Cursor is not valid")
+        check(isValid()) { "Cursor is not valid" }
 
         cachedValue?.let { return it.duplicate() }
 
@@ -111,8 +109,7 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
     }
 
     final override fun transientSeekKey(): ReadBuffer {
-        if (!isValid())
-            throw IllegalStateException("Cursor is not valid")
+        check(isValid()) { "Cursor is not valid" }
         return itKey()
     }
 

@@ -41,7 +41,7 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
                     ?: throw IllegalArgumentException("No serializer found for type $type")
 
     internal fun getListeners() = listenersLock.read { listeners.toList() }
-    internal fun <T> writeOnListeners(action: MutableSet<DBListener<Any>>.() -> T) = listenersLock.write { listeners.action() }
+    private fun <T> writeOnListeners(action: MutableSet<DBListener<Any>>.() -> T) = listenersLock.write { listeners.action() }
 
     override fun willAction(action: DBListener<Any>.() -> Unit) = getListeners().forEach(action)
 

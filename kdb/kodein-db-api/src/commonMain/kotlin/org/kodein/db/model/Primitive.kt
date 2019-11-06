@@ -36,6 +36,9 @@ data class DoublePrimitive(override val id: Value, val value: Double) : Metadata
     }
 }
 
+@Suppress("FunctionName")
 fun Primitive(id: Value, value: Int) = IntPrimitive(id, value)
+@Suppress("FunctionName")
 fun Primitive(id: Value, value: Long) = LongPrimitive(id, value)
+@Suppress("FunctionName")
 fun Primitive(id: Value, value: Double) = DoublePrimitive(id, value)

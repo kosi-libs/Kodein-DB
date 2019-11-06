@@ -5,8 +5,8 @@ import org.kodein.memory.io.Writeable
 
 
 fun Writeable.putAscii(str: CharSequence) {
-    for (i in 0 until str.length)
-        put(str[i].toByte())
+    for (char in str)
+        put(char.toByte())
 }
 
 fun Readable.readAscii(size: Int = remaining): String {

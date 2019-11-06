@@ -1,3 +1,5 @@
+@file:Suppress("ClassName")
+
 package org.kodein.db.impl.model
 
 import org.kodein.db.model.orm.Serializer

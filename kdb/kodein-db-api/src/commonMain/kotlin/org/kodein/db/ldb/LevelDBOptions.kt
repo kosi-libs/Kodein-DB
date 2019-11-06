@@ -4,6 +4,7 @@ import org.kodein.db.Options
 import org.kodein.db.leveldb.LevelDB
 
 
+@Suppress("unused")
 sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelDB.Options) : Options.Open {
 
     /**

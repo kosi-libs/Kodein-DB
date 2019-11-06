@@ -9,4 +9,5 @@ object DBJvm : AbstractDBFactory() {
     override fun mdbFactory(): DBFactory<ModelDB> = ModelDBJvm
 }
 
+@Suppress("unused")
 actual val DB.Companion.default: DBFactory<DB> get() = DBJvm
