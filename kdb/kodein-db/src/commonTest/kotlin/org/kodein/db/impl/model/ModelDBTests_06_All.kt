@@ -3,7 +3,10 @@ package org.kodein.db.impl.model
 import org.kodein.db.TypeTable
 import org.kodein.db.model.putAll
 import org.kodein.memory.use
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @Suppress("ClassName")
 open class ModelDBTests_06_All : ModelDBTests() {

@@ -1,13 +1,10 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.Options
-import org.kodein.db.Key
 import org.kodein.db.DBListener
+import org.kodein.db.Options
 import org.kodein.db.data.DataBatch
 import org.kodein.db.model.ModelBatch
 import org.kodein.memory.Closeable
-import org.kodein.memory.closeAll
-import org.kodein.memory.useAll
 import org.kodein.memory.util.MaybeThrowable
 import org.kodein.memory.util.forEachCatchTo
 import org.kodein.memory.util.forEachResilient

@@ -3,9 +3,7 @@ package org.kodein.db.leveldb.jvm
 import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.jni.LevelDBJNI
 import org.kodein.memory.text.toHexString
-import java.lang.IllegalStateException
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.*

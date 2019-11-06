@@ -1,10 +1,9 @@
 package org.kodein.db.impl.model
 
+import org.kodein.db.DBListener
 import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.data.DataDB
-import org.kodein.db.DBListener
-import org.kodein.db.Value
 import org.kodein.db.impl.utils.newRWLock
 import org.kodein.db.impl.utils.read
 import org.kodein.db.impl.utils.write

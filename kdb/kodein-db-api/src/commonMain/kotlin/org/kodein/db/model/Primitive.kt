@@ -5,7 +5,10 @@ import org.kodein.db.Options
 import org.kodein.db.Value
 import org.kodein.db.model.orm.Metadata
 import org.kodein.db.model.orm.Serializer
-import org.kodein.memory.io.*
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.Writeable
+import org.kodein.memory.io.arrayCopy
 import kotlin.reflect.KClass
 
 data class IntPrimitive(override val id: Value, val value: Int) : Metadata {

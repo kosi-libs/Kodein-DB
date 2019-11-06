@@ -1,7 +1,7 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.Value
 import org.kodein.db.Check
+import org.kodein.db.Value
 import org.kodein.db.model.Primitive
 import org.kodein.db.model.delete
 import org.kodein.db.model.get

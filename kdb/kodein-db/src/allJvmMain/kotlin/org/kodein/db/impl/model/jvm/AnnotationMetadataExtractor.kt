@@ -3,7 +3,9 @@ package org.kodein.db.impl.model.jvm
 import org.kodein.db.Index
 import org.kodein.db.Options
 import org.kodein.db.Value
-import org.kodein.db.model.*
+import org.kodein.db.model.Id
+import org.kodein.db.model.Indexed
+import org.kodein.db.model.Indexes
 import org.kodein.db.model.orm.Metadata
 import org.kodein.db.model.orm.MetadataExtractor
 import java.lang.reflect.Field

@@ -1,7 +1,6 @@
 package org.kodein.db.model.orm
 
 import org.kodein.db.Options
-import org.kodein.db.Value
 import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.io.Writeable
 import kotlin.reflect.KClass

@@ -1,7 +1,7 @@
 package org.kodein.db.impl.data
 
-import org.kodein.db.Value
 import org.kodein.db.Check
+import org.kodein.db.Value
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
 import kotlin.test.Test

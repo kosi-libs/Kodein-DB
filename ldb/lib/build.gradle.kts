@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.targets.js.npm.SemVer
 import org.kodein.internal.gradle.isExcluded
-import java.util.Properties
+import java.util.*
 
 val buildAll = tasks.create("build") {
     group = "build"

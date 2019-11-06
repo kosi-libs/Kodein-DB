@@ -1,6 +1,9 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.*
+import org.kodein.db.BaseCursor
+import org.kodein.db.Key
+import org.kodein.db.Options
+import org.kodein.db.Sized
 import org.kodein.db.data.DataCursor
 import org.kodein.db.impl.data.getObjectKeyID
 import org.kodein.db.model.ModelCursor

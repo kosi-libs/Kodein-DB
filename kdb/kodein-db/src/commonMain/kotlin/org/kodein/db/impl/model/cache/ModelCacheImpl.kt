@@ -6,8 +6,8 @@ import org.kodein.db.Sized
 import org.kodein.db.impl.utils.newRWLock
 import org.kodein.db.impl.utils.read
 import org.kodein.db.impl.utils.write
-import org.kodein.db.model.cache.ModelCache
 import org.kodein.db.model.cache.BaseModelCache
+import org.kodein.db.model.cache.ModelCache
 import kotlin.jvm.Volatile
 
 internal class ModelCacheImpl private constructor(private var internals: Internals, private val instanceMaxSize: Long) : ModelCache {

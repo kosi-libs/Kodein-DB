@@ -4,8 +4,8 @@ import org.kodein.db.DB
 import org.kodein.db.DBListener
 import org.kodein.db.Key
 import org.kodein.db.Options
-import org.kodein.db.model.orm.Metadata
 import org.kodein.db.model.ModelDB
+import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.Closeable
 
 internal class RegisterDslImpl<M : Any>(private val mdb: ModelDB, val filters: List<(M) -> Boolean>) : DB.RegisterDsl<M> {

@@ -1,6 +1,9 @@
 package org.kodein.db.model
 
-import org.kodein.db.*
+import org.kodein.db.Key
+import org.kodein.db.KeyAndSize
+import org.kodein.db.KeyMaker
+import org.kodein.db.Options
 import kotlin.reflect.KClass
 
 interface ModelWrite : KeyMaker {

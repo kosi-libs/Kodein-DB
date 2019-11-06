@@ -1,8 +1,8 @@
 package org.kodein.db.impl.utils
 
-import kotlin.concurrent.write as ktWrite
 import kotlin.concurrent.read as ktRead
 import kotlin.concurrent.withLock as ktWithLock
+import kotlin.concurrent.write as ktWrite
 
 
 actual typealias Lock = java.util.concurrent.locks.ReentrantLock

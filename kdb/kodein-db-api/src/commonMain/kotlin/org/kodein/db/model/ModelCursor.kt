@@ -1,6 +1,9 @@
 package org.kodein.db.model
 
-import org.kodein.db.*
+import org.kodein.db.BaseCursor
+import org.kodein.db.Key
+import org.kodein.db.Options
+import org.kodein.db.Sized
 
 interface ModelCursor<M : Any> : BaseCursor {
 

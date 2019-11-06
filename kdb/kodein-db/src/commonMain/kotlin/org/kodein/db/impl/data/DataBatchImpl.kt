@@ -2,15 +2,15 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.*
 import org.kodein.db.data.DataBatch
-import org.kodein.db.Check
 import org.kodein.db.impl.utils.putBody
 import org.kodein.db.impl.utils.withLock
-import org.kodein.memory.io.*
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.SliceBuilder
+import org.kodein.memory.io.array
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
-import org.kodein.memory.util.forEachCatch
 import org.kodein.memory.util.forEachCatchTo
-import org.kodein.memory.util.forEachResilient
 
 internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, DataBatch {
 

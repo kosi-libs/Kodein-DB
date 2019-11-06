@@ -6,12 +6,10 @@ import org.kodein.db.ascii.readAscii
 import org.kodein.db.data.DataWrite
 import org.kodein.db.impl.data.getObjectKeyType
 import org.kodein.db.impl.data.putObjectKey
-import org.kodein.db.model.orm.Metadata
 import org.kodein.db.model.ModelWrite
-import org.kodein.memory.Closeable
+import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.io.mark
 import org.kodein.memory.io.verify
-import org.kodein.memory.use
 import kotlin.reflect.KClass
 
 internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {

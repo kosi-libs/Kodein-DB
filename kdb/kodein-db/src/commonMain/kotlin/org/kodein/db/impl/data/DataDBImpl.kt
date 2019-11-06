@@ -5,12 +5,13 @@ import org.kodein.db.data.DataBatch
 import org.kodein.db.data.DataDB
 import org.kodein.db.data.DataSnapshot
 import org.kodein.db.data.DataWrite
-import org.kodein.db.Check
 import org.kodein.db.impl.utils.newLock
 import org.kodein.db.impl.utils.putBody
 import org.kodein.db.impl.utils.withLock
 import org.kodein.db.leveldb.LevelDB
-import org.kodein.memory.io.*
+import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.SliceBuilder
+import org.kodein.memory.io.hasRemaining
 import org.kodein.memory.use
 import org.kodein.memory.util.forEachResilient
 
@@ -114,10 +115,10 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
         checks.filter { it.needsLock.not() } .forEach { it.block() }
         ldb.newWriteBatch().use { batch ->
-            SliceBuilder.native(DEFAULT_CAPACITY).use {
+            SliceBuilder.native(DEFAULT_CAPACITY).use { sb ->
                 lock.withLock {
                     checks.filter { it.needsLock } .forEach { it.block() }
-                    deleteInBatch(it, batch, key)
+                    deleteInBatch(sb, batch, key)
                     ldb.write(batch, toLdb(options))
                     reacts.filter { it.needsLock } .forEachResilient { it.block(-1) }
                 }

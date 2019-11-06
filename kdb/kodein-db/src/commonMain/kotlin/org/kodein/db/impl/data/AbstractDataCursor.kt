@@ -76,13 +76,10 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
     final override fun seekToLast() {
         cacheReset()
         if (lastKey == null) {
-            val key = Allocation.native(prefix.remaining + CORK.size)
-
-            key.putBytes(prefix.duplicate())
-            key.putBytes(CORK)
-            key.flip()
-
-            lastKey = key
+            lastKey = Allocation.native(prefix.remaining + CORK.size) {
+                putBytes(prefix.duplicate())
+                putBytes(CORK)
+            }
         }
         it.seekTo(lastKey!!)
         while (it.isValid() && it.transientKey().startsWith(prefix))

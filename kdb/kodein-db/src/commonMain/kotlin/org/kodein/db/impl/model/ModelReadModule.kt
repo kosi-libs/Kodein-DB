@@ -1,6 +1,9 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.*
+import org.kodein.db.Key
+import org.kodein.db.Options
+import org.kodein.db.Sized
+import org.kodein.db.Value
 import org.kodein.db.ascii.readAscii
 import org.kodein.db.data.DataRead
 import org.kodein.db.impl.data.getObjectKeyID

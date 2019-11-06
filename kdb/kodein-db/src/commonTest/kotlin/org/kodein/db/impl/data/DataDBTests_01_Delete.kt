@@ -3,7 +3,6 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.indexSet
 import org.kodein.db.test.utils.byteArray
-import org.kodein.memory.use
 import kotlin.test.Test
 
 @Suppress("ClassName")

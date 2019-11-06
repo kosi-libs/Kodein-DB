@@ -1,6 +1,9 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.*
+import org.kodein.db.Key
+import org.kodein.db.KeyMaker
+import org.kodein.db.Options
+import org.kodein.db.Value
 import org.kodein.db.data.DataKeyMaker
 import kotlin.reflect.KClass
 

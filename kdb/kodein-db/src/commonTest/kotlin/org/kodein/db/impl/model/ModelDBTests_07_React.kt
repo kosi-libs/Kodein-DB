@@ -1,8 +1,8 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.Options
-import org.kodein.db.Key
 import org.kodein.db.DBListener
+import org.kodein.db.Key
+import org.kodein.db.Options
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
 import org.kodein.db.model.orm.Metadata
