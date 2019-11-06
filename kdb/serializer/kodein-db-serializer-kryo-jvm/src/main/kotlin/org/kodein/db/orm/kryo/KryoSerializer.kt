@@ -17,6 +17,7 @@ import org.objenesis.strategy.StdInstantiatorStrategy
 import kotlin.reflect.KClass
 
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : Serializer<Any> {
 
     override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {

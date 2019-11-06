@@ -51,18 +51,25 @@ fun ByteArray.description(): String {
             2 -> sb.append("x" + b.toInt().toString(16))
         }
     }
+
     if (type == 1)
         sb.append("\"")
     return sb.toString()
 }
 
-fun assertBytesEquals(expected: ByteArray, actual: ByteArray) {
-    if (!expected.contentEquals(actual))
-        fail("Bytes are not equal:\nExpected: ${expected.description()}\nActual:   ${actual.description()}")
+@UseExperimental(ExperimentalUnsignedTypes::class)
+fun ByteArray.hex(): String = joinToString { it.toUByte().toUInt().toString(16).toUpperCase().padStart(2, '0') }
+
+fun assertBytesEquals(expected: ByteArray, actual: ByteArray, description: Boolean = true) {
+    if (!expected.contentEquals(actual)) {
+        if (description)
+            fail("Bytes are not equal:\nExpected: ${expected.description()}\nActual:   ${actual.description()}")
+        else
+            fail("Bytes are not equal:\nExpected: ${expected.hex()}\nActual:   ${actual.hex()}")    }
 }
 
-fun assertBytesEquals(expected: ByteArray, actual: ReadBuffer) =
-        assertBytesEquals(expected, actual.duplicate().readBytes())
+fun assertBytesEquals(expected: ByteArray, actual: ReadBuffer, description: Boolean = true) =
+        assertBytesEquals(expected, actual.duplicate().readBytes(), description)
 
-fun assertBytesEquals(expected: ReadBuffer, actual: ReadBuffer) =
-        assertBytesEquals(expected.getBytes(expected.position), actual.getBytes(actual.position))
+fun assertBytesEquals(expected: ReadBuffer, actual: ReadBuffer, description: Boolean = true) =
+        assertBytesEquals(expected.getBytes(expected.position), actual.getBytes(actual.position), description)

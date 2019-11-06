@@ -27,7 +27,7 @@ class DataKeysTests_01_KeyInfos {
             it.putObjectKey("Test", Value.ofAscii("one", "two"))
             it.flip()
             val id = getObjectKeyID(it)
-            assertBytesEquals(byteArray("one", 0, "two", 0), id)
+            assertBytesEquals(byteArray("one", 0, "two"), id)
         }
     }
 

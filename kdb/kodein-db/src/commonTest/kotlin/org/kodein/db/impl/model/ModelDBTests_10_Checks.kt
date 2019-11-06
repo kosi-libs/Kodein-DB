@@ -13,7 +13,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 @Suppress("ClassName")
-class ModelDBTests_09_Checks : ModelDBTests() {
+class ModelDBTests_10_Checks : ModelDBTests() {
 
     @Test
     fun test00_putOK() {

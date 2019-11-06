@@ -1,6 +1,5 @@
 package org.kodein.db.model
 
-import org.kodein.db.Index
 import org.kodein.db.Options
 import org.kodein.db.Value
 import org.kodein.db.model.orm.Metadata
@@ -12,8 +11,6 @@ import org.kodein.memory.io.arrayCopy
 import kotlin.reflect.KClass
 
 data class IntPrimitive(override val id: Value, val value: Int) : Metadata {
-    override val indexes get() = setOf(Index("value", Value.of(value)))
-
     object S : Serializer<IntPrimitive> {
         override fun serialize(model: IntPrimitive, output: Writeable, vararg options: Options.Write) = output.putInt(model.value)
         override fun deserialize(type: KClass<out IntPrimitive>, transientId: ReadBuffer, input: ReadBuffer, vararg options: Options.Read) = IntPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readInt())
@@ -21,8 +18,6 @@ data class IntPrimitive(override val id: Value, val value: Int) : Metadata {
 }
 
 data class LongPrimitive(override val id: Value, val value: Long) : Metadata {
-    override val indexes get() = setOf(Index("value", Value.of(value)))
-
     object S : Serializer<LongPrimitive> {
         override fun serialize(model: LongPrimitive, output: Writeable, vararg options: Options.Write) = output.putLong(model.value)
         override fun deserialize(type: KClass<out LongPrimitive>, transientId: ReadBuffer, input: ReadBuffer, vararg options: Options.Read) = LongPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readLong())

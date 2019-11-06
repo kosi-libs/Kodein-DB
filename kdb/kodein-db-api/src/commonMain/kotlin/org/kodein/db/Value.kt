@@ -74,6 +74,7 @@ interface Value : Body {
                     dst.putBytes(values[pos], 0, values[pos].size)
                 }
                 override fun size(pos: Int) = values[pos].size
+                override fun toString() = values.joinToString()
             }
         }
 
@@ -83,6 +84,7 @@ interface Value : Body {
                     dst.putBytes(values[pos].duplicate())
                 }
                 override fun size(pos: Int) = values[pos].remaining
+                override fun toString() = values.joinToString()
             }
         }
 
@@ -93,15 +95,17 @@ interface Value : Body {
                     value.writeInto(dst)
                 }
                 override fun size(pos: Int) = values[pos].size
+                override fun toString() = values.joinToString()
             }
         }
 
         fun of(vararg values: Boolean): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
-                    dst.put((if (values[pos]) 0 else 1).toByte())
+                    dst.put((if (values[pos]) 1 else 0).toByte())
                 }
                 override fun size(pos: Int) = 1
+                override fun toString() = values.joinToString()
             }
         }
 
@@ -111,6 +115,7 @@ interface Value : Body {
                     dst.put(values[pos])
                 }
                 override fun size(pos: Int) = 1
+                override fun toString() = values.joinToString()
             }
         }
 
@@ -120,6 +125,7 @@ interface Value : Body {
                     dst.putShort(values[pos])
                 }
                 override fun size(pos: Int) = 2
+                override fun toString() = values.joinToString()
             }
         }
 
@@ -128,8 +134,8 @@ interface Value : Body {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putInt(values[pos])
                 }
-
                 override fun size(pos: Int) = 4
+                override fun toString() = values.joinToString()
             }
         }
 
@@ -138,8 +144,8 @@ interface Value : Body {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putLong(values[pos])
                 }
-
                 override fun size(pos: Int) = 8
+                override fun toString() = values.joinToString()
             }
         }
 
@@ -149,6 +155,7 @@ interface Value : Body {
                     dst.put(values[pos].toByte())
                 }
                 override fun size(pos: Int) = 1
+                override fun toString() = values.joinToString()
             }
         }
 
@@ -159,6 +166,7 @@ interface Value : Body {
                     dst.putAscii(values[pos])
                 }
                 override fun size(pos: Int) = values[pos].length
+                override fun toString() = values.joinToString()
             }
         }
 
@@ -166,10 +174,11 @@ interface Value : Body {
             if (values.isEmpty())
                 return emptyValue
 
-            val sized = Array<Value>(values.size) {
+            val sized = Array(values.size) {
                 when (val value = values[it]) {
                     is Value ->  value
-                    is ByteArray -> of(*value)
+                    is ByteArray -> of(value)
+                    is ReadBuffer -> of(value)
                     is Allocation -> of(value)
                     is Boolean ->  of((if (value) 1 else 0).toByte())
                     is Byte ->  of(value)

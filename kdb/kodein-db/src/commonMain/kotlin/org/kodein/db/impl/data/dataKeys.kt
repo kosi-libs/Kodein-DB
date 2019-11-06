@@ -73,7 +73,7 @@ internal fun getObjectKeyType(key: ReadBuffer): ReadBuffer {
 internal fun getObjectKeyID(key: ReadBuffer): ReadBuffer {
     val typeEnd = key.firstIndexOf(NULL, key.position + 2)
     check(typeEnd != -1)
-    return key.slice(typeEnd + 1)
+    return key.slice(typeEnd + 1, key.limit - typeEnd - 2)
 }
 
 internal fun getIndexKeyName(key: ReadBuffer): ReadBuffer {
@@ -102,6 +102,7 @@ private fun Writeable.putIndexKey(type: ReadBuffer, id: ReadBuffer, name: String
         put(NULL)
 
         putBytes(id)
+        put(NULL)
     }
 }
 
@@ -121,7 +122,7 @@ internal fun getIndexKeySize(objectKey: ReadBuffer, name: String, value: Value):
         +   type.remaining + 1  // type + NULL
         +   name.length + 1     // name + NULL
         +   value.size + 1      // value + NULL
-        +   id.remaining        // id
+        +   id.remaining + 1    // id + NULL
     )
 }
 

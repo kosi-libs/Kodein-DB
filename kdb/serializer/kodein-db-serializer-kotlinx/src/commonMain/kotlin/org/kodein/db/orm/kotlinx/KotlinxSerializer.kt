@@ -54,8 +54,6 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
         Builder().block()
     }
 
-    fun <T : Any> register(type: KClass<T>, serializer: KSerializer<T>) { serializers[type] = serializer }
-
     @ImplicitReflectionSerializer
     private fun getSerializer(options: Array<out Options>, type: KClass<*>): KSerializer<*> {
         return try {
