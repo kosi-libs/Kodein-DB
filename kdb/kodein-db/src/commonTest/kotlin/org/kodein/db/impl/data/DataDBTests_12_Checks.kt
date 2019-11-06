@@ -14,7 +14,7 @@ class DataDBTests_12_Checks : DataDBTests() {
 
     @Test
     fun test00_putOK() {
-        val key = ddb.newHeapKey("int", Value.ofAscii("test"))
+        val key = ddb.newKey("int", Value.ofAscii("test"))
 
         ddb.put(key, Value.of(21))
         ddb.put(key, Value.of(42), emptySet(), Check { check(ddb.get(key)!!.readInt() == 21) })
@@ -24,7 +24,7 @@ class DataDBTests_12_Checks : DataDBTests() {
 
     @Test
     fun test01_putKO() {
-        val key = ddb.newHeapKey("int", Value.ofAscii("test"))
+        val key = ddb.newKey("int", Value.ofAscii("test"))
 
         ddb.put(key, Value.of(21))
         assertFailsWith<IllegalStateException> {
@@ -36,7 +36,7 @@ class DataDBTests_12_Checks : DataDBTests() {
 
     @Test
     fun test02_deleteOK() {
-        val key = ddb.newHeapKey("int", Value.ofAscii("test"))
+        val key = ddb.newKey("int", Value.ofAscii("test"))
         ddb.put(key, Value.of(42))
 
         ddb.delete(key, Check { check(ddb.get(key)!!.readInt() == 42) })
@@ -46,11 +46,11 @@ class DataDBTests_12_Checks : DataDBTests() {
 
     @Test
     fun test03_deleteKO() {
-        val key = ddb.newHeapKey("int", Value.ofAscii("test"))
+        val key = ddb.newKey("int", Value.ofAscii("test"))
         ddb.put(key, Value.of(42))
 
         assertFailsWith<IllegalStateException> {
-            ddb.delete(key, Check { check(ddb.get(ddb.newHeapKey("int", Value.ofAscii("test")))!!.readInt() == 0) })
+            ddb.delete(key, Check { check(ddb.get(ddb.newKey("int", Value.ofAscii("test")))!!.readInt() == 0) })
         }
 
         assertEquals(42, ddb.get(key)!!.readInt())
@@ -58,7 +58,7 @@ class DataDBTests_12_Checks : DataDBTests() {
 
     @Test
     fun test04_batchOK() {
-        val key = ddb.newHeapKey("int", Value.ofAscii("test"))
+        val key = ddb.newKey("int", Value.ofAscii("test"))
         ddb.put(key, Value.of(21))
 
         ddb.newBatch().use { batch ->
@@ -71,7 +71,7 @@ class DataDBTests_12_Checks : DataDBTests() {
 
     @Test
     fun test05_batchKO() {
-        val key = ddb.newHeapKey("int", Value.ofAscii("test"))
+        val key = ddb.newKey("int", Value.ofAscii("test"))
         ddb.put(key, Value.of(21))
 
         ddb.newBatch().use { batch ->

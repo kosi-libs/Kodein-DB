@@ -11,13 +11,13 @@ interface ModelCache : BaseModelCache {
     object Skip : Options.Read, Options.Write
     object Refresh : Options.Read
 
-    sealed class Entry<V : Any> {
-        abstract val value: V?
+    sealed class Entry<M : Any> {
+        abstract val model: M?
         abstract val size: Int
 
-        data class Cached<V : Any>(override val value: V, override val size: Int) : Entry<V>(), Sized<V>
-        object Deleted : Entry<Nothing>() { override val value = null ; override val size: Int = 8 }
-        object NotInCache : Entry<Nothing>() { override val value = null ; override val size: Int = 0 }
+        data class Cached<M : Any>(override val model: M, override val size: Int) : Entry<M>(), Sized<M>
+        object Deleted : Entry<Nothing>() { override val model = null ; override val size: Int = 8 }
+        object NotInCache : Entry<Nothing>() { override val model = null ; override val size: Int = 0 }
     }
 
     val entryCount: Int

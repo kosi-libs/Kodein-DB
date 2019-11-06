@@ -19,14 +19,14 @@ open class ModelDBTests_02_IDs : ModelDBTests() {
         mdb.findById<Adult>(Value.ofAscii("BRYS")).use {
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(laila, it.value)
-                assertNotSame(laila, it.value)
+                assertEquals(laila, it.model)
+                assertNotSame(laila, it.model)
             }
             it.next()
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(salomon, it.value)
-                assertNotSame(salomon, it.value)
+                assertEquals(salomon, it.model)
+                assertNotSame(salomon, it.model)
             }
             it.next()
             assertFalse(it.isValid())
@@ -54,14 +54,14 @@ open class ModelDBTests_02_IDs : ModelDBTests() {
         mdb.findById<Adult>(Value.ofAscii("BRY"), isOpen = true).use {
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(laila, it.value)
-                assertNotSame(laila, it.value)
+                assertEquals(laila, it.model)
+                assertNotSame(laila, it.model)
             }
             it.next()
             assertTrue(it.isValid())
             it.model().also {
-                assertEquals(salomon, it.value)
-                assertNotSame(salomon, it.value)
+                assertEquals(salomon, it.model)
+                assertNotSame(salomon, it.model)
             }
             it.next()
             assertFalse(it.isValid())

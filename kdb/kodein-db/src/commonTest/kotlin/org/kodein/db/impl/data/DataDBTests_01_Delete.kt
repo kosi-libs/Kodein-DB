@@ -11,7 +11,7 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test00_DeleteWithoutIndex() {
-        val key = ddb.newHeapKey("Test", Value.ofAscii("aaa", "bbb"))
+        val key = ddb.newKey("Test", Value.ofAscii("aaa", "bbb"))
         ddb.put(key, Value.ofAscii("ValueAB1"))
         ddb.delete(key)
 
@@ -21,10 +21,9 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test01_DeleteWithIndex() {
-        ddb.newNativeKey("Test", Value.ofAscii("aaa")).use { key ->
-            ddb.put(key, Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta"), "Numbers" to Value.ofAscii("forty", "two")))
-            ddb.delete(key)
-        }
+        val key = ddb.newKey("Test", Value.ofAscii("aaa"))
+        ddb.put(key, Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta"), "Numbers" to Value.ofAscii("forty", "two")))
+        ddb.delete(key)
 
         assertDBIs(
         )
@@ -32,8 +31,8 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test02_DeleteUnknown() {
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        val key = ddb.newHeapKey("Test", Value.ofAscii("bbb"))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        val key = ddb.newKey("Test", Value.ofAscii("bbb"))
         ddb.delete(key)
 
         assertDBIs(
@@ -45,9 +44,9 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test03_Delete1of2() {
-        val key = ddb.newHeapKey("Test", Value.ofAscii("aaa"))
+        val key = ddb.newKey("Test", Value.ofAscii("aaa"))
         ddb.put(key, Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
         ddb.delete(key)
 
         assertDBIs(

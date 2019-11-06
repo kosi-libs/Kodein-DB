@@ -44,10 +44,10 @@ data class Birth(@ContextualSerialization val adult: Key<Adult>, @ContextualSeri
     override fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata {
         val person = db[adult]!!
         return Metadata(
-                id = person.value.id,
+                id = person.model.id,
                 indexes = indexSet(
-                        "city" to Value.ofAscii(db[city]!!.value.name),
-                        "date" to Value.of(person.value.birth.year, person.value.birth.month, person.value.birth.day)
+                        "city" to Value.ofAscii(db[city]!!.model.name),
+                        "date" to Value.of(person.model.birth.year, person.model.birth.month, person.model.birth.day)
                 )
         )
     }

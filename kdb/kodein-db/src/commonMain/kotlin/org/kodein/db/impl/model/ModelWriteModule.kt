@@ -22,9 +22,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
 
     fun didAction(action: DBListener<Any>.() -> Unit)
 
-    fun handleCloseable(closeable: Closeable): Closeable
-
-    private fun <M: Any> put(model: M, options: Array<out Options.Write>, block: (String, Metadata) -> Pair<Key<*>, Closeable>): Int {
+    private fun <M: Any> put(model: M, options: Array<out Options.Write>, block: (String, Metadata) -> Key<M>): KeyAndSize<M> {
         val metadata = mdb.getMetadata(model, options)
         val typeName = mdb.typeTable.getTypeName(model::class)
         val rootTypeName = mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class)
@@ -34,18 +32,16 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
             it.putAscii(typeName)
             mdb.serialize(model, it, *options)
         }
-        val (key, closeable) = block(rootTypeName, metadata)
-        closeable.use {
-            val size = data.put(key.bytes, body, metadata.indexes, *options)
-            didAction { didPut(model, key, rootTypeName, metadata, size, options) }
-            return size
-        }
+        val key = block(rootTypeName, metadata)
+        val size = data.put(key.bytes, body, metadata.indexes, *options)
+        didAction { didPut(model, key, rootTypeName, metadata, size, options) }
+        return KeyAndSize(key, size)
     }
 
-    override fun put(model: Any, vararg options: Options.Write): Int =
+    override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> =
         put(model, options) { rootTypeName, metadata ->
-            val key = Key.Native<Any>(data.newNativeKey(rootTypeName, metadata.id))
-            Pair(key, handleCloseable(key))
+            val key = Key<M>(data.newKey(rootTypeName, metadata.id))
+            key
         }
 
     override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int =
@@ -53,8 +49,8 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
             mark(key.bytes) {
                 verify(key.bytes) { putObjectKey(rootTypeName, metadata.id) }
             }
-            key to Closeable {}
-        }
+            key
+        }.size
 
     override fun <M: Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.Write) {
         val typeName = getObjectKeyType(key.bytes).readAscii()
@@ -62,7 +58,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
         var model: Any? = null
         val getModel: () -> Any? = {
             if (!fetched) {
-                model = mdb[type, key]?.value
+                model = mdb[type, key]?.model
                 fetched = true
             }
             model

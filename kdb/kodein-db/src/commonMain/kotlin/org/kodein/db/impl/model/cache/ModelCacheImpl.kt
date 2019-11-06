@@ -130,7 +130,7 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
                 val sized = retrieve()
 
                 @Suppress("UNCHECKED_CAST")
-                val newEntry = if (sized != null) ModelCache.Entry.Cached(sized.value, sized.size) else ModelCache.Entry.Deleted as ModelCache.Entry<M>
+                val newEntry = if (sized != null) ModelCache.Entry.Cached(sized.model, sized.size) else ModelCache.Entry.Deleted as ModelCache.Entry<M>
 
                 internals.map.put(key, newEntry)
                 ++internals.retrieveCount

@@ -12,7 +12,7 @@ internal class CachedModelDB(override val mdb: ModelDB, override val cache: Mode
 
     internal fun didPut(model: Any, key: Key<*>, size: Int, options: Array<out Options>) {
         if (ModelCache.Skip in options) cache.evict(key)
-        else cache.put(key.asHeapKey(), model, size)
+        else cache.put(key, model, size)
     }
 
     internal fun didDelete(key: Key<*>, options: Array<out Options.Write>) {
@@ -20,10 +20,10 @@ internal class CachedModelDB(override val mdb: ModelDB, override val cache: Mode
         else cache.delete(key)
     }
 
-    override fun put(model: Any, vararg options: Options.Write): Int {
-        mdb.newNativeKey(model, *options).use { key ->
-            return mdb.put(key, model, *(options + React(true) { didPut(model, key, it, options) }))
-        }
+    override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> {
+        val key = mdb.newKey(model, *options)
+        val size = mdb.put(key, model, *(options + React(true) { didPut(model, key, it, options) }))
+        return KeyAndSize(key, size)
     }
 
     override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int {

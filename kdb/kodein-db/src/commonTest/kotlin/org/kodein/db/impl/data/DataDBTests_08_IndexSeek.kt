@@ -15,9 +15,9 @@ class DataDBTests_08_IndexSeek : DataDBTests() {
 
     @Test
     fun test00_SeekIndex() {
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex("Test", "Symbols").use {
             assertTrue(it.isValid())
@@ -31,9 +31,9 @@ class DataDBTests_08_IndexSeek : DataDBTests() {
 
     @Test
     fun test01_SeekIndexBefore() {
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex("Test", "Symbols").use {
             assertTrue(it.isValid())
@@ -45,9 +45,9 @@ class DataDBTests_08_IndexSeek : DataDBTests() {
 
     @Test
     fun test02_SeekIndexAfter() {
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ValueA1!")), Value.ofAscii("aaa"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ValueB1!")), Value.ofAscii("bbb"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("ValueC1!")), Value.ofAscii("ccc"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("ValueA1!")), Value.ofAscii("aaa"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("ValueB1!")), Value.ofAscii("bbb"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("ValueC1!")), Value.ofAscii("ccc"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex("Test", "Symbols").use {
             assertTrue(it.isValid())

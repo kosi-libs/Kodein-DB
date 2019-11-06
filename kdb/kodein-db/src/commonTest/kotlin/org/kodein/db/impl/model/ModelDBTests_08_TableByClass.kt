@@ -40,10 +40,10 @@ class ModelDBTests_08_TableByClass : ModelDBTests() {
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
 
-        val key = mdb.newHeapKey(me)
+        val key = mdb.newKey(me)
         mdb.put(key, me)
 
-        val me2 = mdb[key]!!.value
+        val me2 = mdb[key]!!.model
 
         assertEquals(me, me2)
         assertNotSame(me, me2)

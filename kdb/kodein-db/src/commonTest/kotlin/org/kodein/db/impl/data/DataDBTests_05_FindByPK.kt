@@ -14,9 +14,9 @@ class DataDBTests_05_FindByPK : DataDBTests() {
 
     @Test
     fun test00_FindByPKCompositeKey() {
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findById("Test", Value.ofAscii("aaa")).use {
             assertTrue(it.isValid())
@@ -33,9 +33,9 @@ class DataDBTests_05_FindByPK : DataDBTests() {
 
     @Test
     fun test01_FindByPKReverseCompositeKey() {
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put(ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findById("Test", Value.ofAscii("aaa")).use {
             assertTrue(it.isValid())
@@ -54,8 +54,8 @@ class DataDBTests_05_FindByPK : DataDBTests() {
 
     @Test
     fun test02_FindByPKUnknownKey() {
-        ddb.put( ddb.newHeapKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put( ddb.newHeapKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put( ddb.newKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put( ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findById("Test", Value.ofAscii("ccc")).use {
             assertFalse(it.isValid())

@@ -6,8 +6,6 @@ import org.kodein.memory.io.KBuffer
 
 interface DataKeyMaker {
 
-    fun newHeapKey(type: String, id: Value): KBuffer
-
-    fun newNativeKey(type: String, id: Value): Allocation
+    fun newKey(type: String, id: Value): KBuffer
 
 }

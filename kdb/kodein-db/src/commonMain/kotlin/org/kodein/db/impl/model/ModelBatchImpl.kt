@@ -16,23 +16,14 @@ internal class ModelBatchImpl(override val mdb: ModelDBImpl, override val data: 
 
     private val didActions = ArrayList<DBListener<Any>.() -> Unit>()
 
-    private val closeables = ArrayList<Closeable>()
-
-    override fun handleCloseable(closeable: Closeable): Closeable {
-        closeables += closeable
-        return Closeable {}
-    }
-
     override fun willAction(action: DBListener<Any>.() -> Unit) = mdb.getListeners().forEach(action)
 
     override fun didAction(action: DBListener<Any>.() -> Unit) { didActions.add(action) }
 
     override fun write(afterErrors: MaybeThrowable, vararg options: Options.Write) {
-        closeables.useAll {
-            data.write(afterErrors, *options)
+        data.write(afterErrors, *options)
 
-            val listeners = mdb.getListeners()
-            didActions.forEachCatchTo(afterErrors) { listeners.forEachResilient(it) }
-        }
+        val listeners = mdb.getListeners()
+        didActions.forEachCatchTo(afterErrors) { listeners.forEachResilient(it) }
     }
 }

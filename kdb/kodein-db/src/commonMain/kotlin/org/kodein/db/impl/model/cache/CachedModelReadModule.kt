@@ -28,13 +28,13 @@ internal interface CachedModelReadModule : ModelRead {
             ModelCache.Refresh in options -> {
                 val sized = mdb.get(type, key, *options)
                 if (sized != null)
-                    cache.put(key.asHeapKey(), sized)
+                    cache.put(key, sized)
                 return sized
             }
 
             else -> {
                 @Suppress("UNCHECKED_CAST")
-                val entry = cache.getOrRetrieveEntry(key.asHeapKey()) { mdb.get(type, key, *options) }
+                val entry = cache.getOrRetrieveEntry(key) { mdb.get(type, key, *options) }
                 if (entry is ModelCache.Entry.Cached) {
                     return entry
                 }

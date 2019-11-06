@@ -30,7 +30,7 @@ class CacheDBTests_01_React : CacheDBTests() {
             mdb.put(me)
         }
 
-        assertSame(me, mdb[mdb.newHeapKey(me)]!!.value)
+        assertSame(me, mdb[mdb.newKey(me)]!!.model)
     }
 
     @Test
@@ -42,7 +42,7 @@ class CacheDBTests_01_React : CacheDBTests() {
         mdb.register(listener)
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newHeapKey(me)
+        val key = mdb.newKey(me)
         mdb.put(me)
 
         assertFailsWith<IllegalStateException> {

@@ -18,34 +18,34 @@ class ModelDBTests_09_Checks : ModelDBTests() {
     @Test
     fun test00_putOK() {
         val int = Primitive(Value.ofAscii("test"), 21)
-        val key = mdb.newHeapKey(int)
+        val key = mdb.newKey(int)
         mdb.put(key, int)
 
-        mdb.put(key, int.copy(value = 42), Check { check(mdb[key]!!.value.value == 21) })
+        mdb.put(key, int.copy(value = 42), Check { check(mdb[key]!!.model.value == 21) })
 
-        assertEquals(42, mdb[key]!!.value.value)
+        assertEquals(42, mdb[key]!!.model.value)
     }
 
     @Test
     fun test01_putKO() {
         val int = Primitive(Value.ofAscii("test"), 21)
-        val key = mdb.newHeapKey(int)
+        val key = mdb.newKey(int)
         mdb.put(key, int)
 
         assertFailsWith<IllegalStateException> {
-            mdb.put(key, int.copy(value = 42), Check { check(mdb[key]!!.value.value == 0) })
+            mdb.put(key, int.copy(value = 42), Check { check(mdb[key]!!.model.value == 0) })
         }
 
-        assertEquals(21, mdb[key]!!.value.value)
+        assertEquals(21, mdb[key]!!.model.value)
     }
 
     @Test
     fun test02_deleteOK() {
         val int = Primitive(Value.ofAscii("test"), 42)
-        val key = mdb.newHeapKey(int)
+        val key = mdb.newKey(int)
         mdb.put(key, int)
 
-        mdb.delete(key, Check { check(mdb[key]!!.value.value == 42) })
+        mdb.delete(key, Check { check(mdb[key]!!.model.value == 42) })
 
         assertNull(mdb[key])
     }
@@ -53,44 +53,44 @@ class ModelDBTests_09_Checks : ModelDBTests() {
     @Test
     fun test03_deleteKO() {
         val int = Primitive(Value.ofAscii("test"), 42)
-        val key = mdb.newHeapKey(int)
+        val key = mdb.newKey(int)
         mdb.put(key, int)
 
         assertFailsWith<IllegalStateException> {
-            mdb.delete(key, Check { check(mdb[key]!!.value.value == 0) })
+            mdb.delete(key, Check { check(mdb[key]!!.model.value == 0) })
         }
 
-        assertEquals(42, mdb[key]!!.value.value)
+        assertEquals(42, mdb[key]!!.model.value)
     }
 
     @Test
     fun test04_batchOK() {
         val int = Primitive(Value.ofAscii("test"), 21)
-        val key = mdb.newHeapKey(int)
+        val key = mdb.newKey(int)
         mdb.put(key, int)
 
         mdb.newBatch().use { batch ->
             batch.put(key, int.copy(value = 42))
-            MaybeThrowable().also { batch.write(it, Check { check(mdb[key]!!.value.value == 21) }) }.shoot()
+            MaybeThrowable().also { batch.write(it, Check { check(mdb[key]!!.model.value == 21) }) }.shoot()
         }
 
-        assertEquals(42, mdb[key]!!.value.value)
+        assertEquals(42, mdb[key]!!.model.value)
     }
 
     @Test
     fun test05_batchKO() {
         val int = Primitive(Value.ofAscii("test"), 21)
-        val key = mdb.newHeapKey(int)
+        val key = mdb.newKey(int)
         mdb.put(key, int)
 
         mdb.newBatch().use { batch ->
             batch.put(key, int)
             assertFailsWith<IllegalStateException> {
-                MaybeThrowable().also { batch.write(it, Check { check(mdb[key]!!.value.value == 0) }) }.shoot()
+                MaybeThrowable().also { batch.write(it, Check { check(mdb[key]!!.model.value == 0) }) }.shoot()
             }
         }
 
-        assertEquals(21, mdb[key]!!.value.value)
+        assertEquals(21, mdb[key]!!.model.value)
     }
 
 }

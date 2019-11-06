@@ -29,7 +29,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
         override fun deserialize(decoder: Decoder): Key<*> {
             val b64 = decoder.decodeString()
             val bytes = KBuffer.wrap(b64Decoder.decode(b64))
-            return Key.Heap<Any>(bytes)
+            return Key<Any>(bytes)
         }
 
         override fun serialize(encoder: Encoder, obj: Key<*>) {
@@ -43,15 +43,10 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
 
     private val cbor = Cbor(context = SerializersModule {
         contextual(KeySerializer)
-        contextual(KeySerializer.out<Key.Heap<*>>())
-        contextual(KeySerializer.out<Key.Native<*>>())
+//        contextual(KeySerializer.out<Key<*>>())
 
-        polymorphic<Key<*>> {
-            Key.Heap::class with (KeySerializer.out())
-            Key.Native::class with (KeySerializer.out())
-        }
-//        polymorphic<org.kodein.db.Ref<*>> {
-//            Ref::class with Ref.serializer()
+//        polymorphic<Key<*>> {
+//            Key::class with (KeySerializer.out())
 //        }
     })
 

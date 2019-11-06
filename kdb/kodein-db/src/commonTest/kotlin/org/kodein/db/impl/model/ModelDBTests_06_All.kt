@@ -18,19 +18,19 @@ open class ModelDBTests_06_All : ModelDBTests() {
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         val her = Adult("Laila", "ATIE", Date(25, 8, 1989))
-        val dog = Child("Lana", "Woof", Date(8, 7, 2017), mdb.newHeapKey(me) to mdb.newHeapKey(her))
+        val dog = Child("Lana", "Woof", Date(8, 7, 2017), mdb.newKey(me) to mdb.newKey(her))
 
         mdb.putAll(listOf(me, her, dog))
 
         mdb.findAll().use {
             assertTrue(it.isValid())
-            assertEquals(her, it.model().value)
+            assertEquals(her, it.model().model)
             it.next()
             assertTrue(it.isValid())
-            assertEquals(me, it.model().value)
+            assertEquals(me, it.model().model)
             it.next()
             assertTrue(it.isValid())
-            assertEquals(dog, it.model().value)
+            assertEquals(dog, it.model().model)
             it.next()
             assertFalse(it.isValid())
         }

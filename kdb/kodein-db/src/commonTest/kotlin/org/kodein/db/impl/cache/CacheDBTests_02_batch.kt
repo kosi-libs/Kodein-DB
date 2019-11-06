@@ -17,7 +17,7 @@ class CacheDBTests_02_batch : CacheDBTests() {
     @Test
     fun test00_Put() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newHeapKey(me)
+        val key = mdb.newKey(me)
 
         mdb.newBatch().use { batch ->
             batch.put(me)
@@ -27,13 +27,13 @@ class CacheDBTests_02_batch : CacheDBTests() {
             MaybeThrowable().also { batch.write(it) } .shoot()
         }
 
-        assertSame(me, mdb[key]!!.value)
+        assertSame(me, mdb[key]!!.model)
     }
 
     @Test
     fun test01_Delete() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newHeapKey(me)
+        val key = mdb.newKey(me)
         mdb.put(key, me)
 
         mdb.newBatch().use { batch ->

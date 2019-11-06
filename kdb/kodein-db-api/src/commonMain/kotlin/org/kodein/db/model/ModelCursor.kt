@@ -1,14 +1,12 @@
 package org.kodein.db.model
 
 import org.kodein.db.*
-import org.kodein.memory.Closeable
-import org.kodein.memory.io.ReadBuffer
 
 interface ModelCursor<M : Any> : BaseCursor {
 
     fun nextEntries(size: Int): Entries<M>
 
-    fun transientKey(): Key.Transient<M>
+    fun key(): Key<M>
     fun model(vararg options: Options.Read): Sized<M>
 
     interface Entries<M: Any> : BaseCursor.BaseEntries {

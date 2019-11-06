@@ -9,9 +9,7 @@ internal interface ModelKeyMakerModule : KeyMaker {
     val mdb: ModelDBImpl
     val data: DataKeyMaker
 
-    override fun <M : Any> newHeapKey(type: KClass<M>, id: Value) = Key.Heap<M>(data.newHeapKey(mdb.typeTable.getTypeName(type), id))
-    override fun <M : Any> newNativeKey(type: KClass<M>, id: Value) = Key.Native<M>(data.newNativeKey(mdb.typeTable.getTypeName(type), id))
+    override fun <M : Any> newKey(type: KClass<M>, id: Value) = Key<M>(data.newKey(mdb.typeTable.getTypeName(type), id))
 
-    override fun <M : Any> newHeapKey(model: M, vararg options: Options.Write) = Key.Heap<M>(data.newHeapKey(mdb.typeTable.getTypeName(model::class), mdb.getMetadata(model, options).id))
-    override fun <M : Any> newNativeKey(model: M, vararg options: Options.Write) = Key.Native<M>(data.newNativeKey(mdb.typeTable.getTypeName(model::class), mdb.getMetadata(model, options).id))
+    override fun <M : Any> newKey(model: M, vararg options: Options.Write) = Key<M>(data.newKey(mdb.typeTable.getTypeName(model::class), mdb.getMetadata(model, options).id))
 }

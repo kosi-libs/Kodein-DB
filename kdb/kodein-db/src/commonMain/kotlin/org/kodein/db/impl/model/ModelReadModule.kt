@@ -6,7 +6,6 @@ import org.kodein.db.data.DataRead
 import org.kodein.db.impl.data.getObjectKeyID
 import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.ModelRead
-import org.kodein.db.model.orm.Serializer
 import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.use
 import kotlin.reflect.KClass
@@ -41,7 +40,7 @@ internal interface ModelReadModule : ModelKeyMakerModule, ModelRead {
     }
 
     override fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>? {
-        return data.get(key.bytes, *options)?.use { getFrom(it, getObjectKeyID(key.asHeapKey().bytes), type, mdb, options) }
+        return data.get(key.bytes, *options)?.use { getFrom(it, getObjectKeyID(key.bytes), type, mdb, options) }
     }
 
     override fun findAll(vararg options: Options.Read): ModelCursor<*> =
