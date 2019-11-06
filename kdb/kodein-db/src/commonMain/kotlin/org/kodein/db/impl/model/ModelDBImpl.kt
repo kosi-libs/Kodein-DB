@@ -41,12 +41,12 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
                     ?: defaultSerializer?.deserialize(type, transientId, input, *options)
                     ?: throw IllegalArgumentException("No serializer found for type $type")
 
-    internal fun <T> readOnListeners(action: Set<DBListener<Any>>.() -> T) = listenersLock.read { listeners.action() }
+    internal fun getListeners() = listenersLock.read { listeners.toList() }
     internal fun <T> writeOnListeners(action: MutableSet<DBListener<Any>>.() -> T) = listenersLock.write { listeners.action() }
 
-    override fun willAction(action: DBListener<Any>.() -> Unit) = readOnListeners { toList() } .forEach(action)
+    override fun willAction(action: DBListener<Any>.() -> Unit) = getListeners().forEach(action)
 
-    override fun didAction(action: DBListener<Any>.() -> Unit) = readOnListeners { toList() } .forEachResilient(action)
+    override fun didAction(action: DBListener<Any>.() -> Unit) = getListeners().forEachResilient(action)
 
     override fun handleCloseable(closeable: Closeable): Closeable = closeable
 

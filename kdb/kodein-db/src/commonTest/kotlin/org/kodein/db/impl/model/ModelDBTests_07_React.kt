@@ -8,6 +8,7 @@ import org.kodein.db.model.get
 import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.Closeable
 import org.kodein.memory.use
+import org.kodein.memory.util.MaybeThrowable
 import org.kodein.memory.util.getShadowed
 import kotlin.test.*
 
@@ -155,11 +156,11 @@ class ModelDBTests_07_React : ModelDBTests() {
         lateinit var meKey: Key<Adult>
         lateinit var herKey: Key<Adult>
 
-        mdb.newBatch().use {
-            meKey = it.newHeapKey(me)
-            herKey = it.newHeapKey(her)
-            it.put(meKey, me)
-            it.put(herKey, her)
+        mdb.newBatch().use { batch ->
+            meKey = batch.newHeapKey(me)
+            herKey = batch.newHeapKey(her)
+            batch.put(meKey, me)
+            batch.put(herKey, her)
 
             assertEquals(1, setSubscriptionCalls)
             assertEquals(2, willPutCalls)
@@ -167,7 +168,7 @@ class ModelDBTests_07_React : ModelDBTests() {
             assertEquals(0, willDeleteCalls)
             assertEquals(0, didDeleteCalls)
 
-            it.write()
+            MaybeThrowable().also { batch.write(it) }.shoot()
         }
 
         assertEquals(1, setSubscriptionCalls)
@@ -176,9 +177,9 @@ class ModelDBTests_07_React : ModelDBTests() {
         assertEquals(0, willDeleteCalls)
         assertEquals(0, didDeleteCalls)
 
-        mdb.newBatch().use {
-            it.delete(meKey)
-            it.delete(herKey)
+        mdb.newBatch().use { batch ->
+            batch.delete(meKey)
+            batch.delete(herKey)
 
             assertEquals(1, setSubscriptionCalls)
             assertEquals(2, willPutCalls)
@@ -186,7 +187,7 @@ class ModelDBTests_07_React : ModelDBTests() {
             assertEquals(2, willDeleteCalls)
             assertEquals(0, didDeleteCalls)
 
-            it.write()
+            MaybeThrowable().also { batch.write(it) }.shoot()
         }
 
         assertEquals(1, setSubscriptionCalls)

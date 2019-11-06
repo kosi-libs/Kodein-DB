@@ -1,11 +1,12 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.Value
-import org.kodein.db.impl.Check
+import org.kodein.db.Check
 import org.kodein.db.model.Primitive
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
 import org.kodein.memory.use
+import org.kodein.memory.util.MaybeThrowable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -68,9 +69,9 @@ class ModelDBTests_09_Checks : ModelDBTests() {
         val key = mdb.newHeapKey(int)
         mdb.put(key, int)
 
-        mdb.newBatch().use {
-            it.put(key, int.copy(value = 42))
-            it.write(Check { check(mdb[key]!!.value.value == 21) })
+        mdb.newBatch().use { batch ->
+            batch.put(key, int.copy(value = 42))
+            MaybeThrowable().also { batch.write(it, Check { check(mdb[key]!!.value.value == 21) }) }.shoot()
         }
 
         assertEquals(42, mdb[key]!!.value.value)
@@ -82,10 +83,10 @@ class ModelDBTests_09_Checks : ModelDBTests() {
         val key = mdb.newHeapKey(int)
         mdb.put(key, int)
 
-        mdb.newBatch().use {
-            it.put(key, int)
+        mdb.newBatch().use { batch ->
+            batch.put(key, int)
             assertFailsWith<IllegalStateException> {
-                it.write(Check { check(mdb[key]!!.value.value == 0) })
+                MaybeThrowable().also { batch.write(it, Check { check(mdb[key]!!.value.value == 0) }) }.shoot()
             }
         }
 

@@ -3,6 +3,7 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.indexSet
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.util.MaybeThrowable
 import kotlin.test.Test
 
 @Suppress("ClassName")
@@ -17,7 +18,7 @@ class DataDBTests_09_Batch : DataDBTests() {
 
         assertDBIs()
 
-        batch.write()
+        MaybeThrowable().also { batch.write(it) } .shoot()
 
         assertDBIs(
                 byteArray('i', 0, "Test", 0, "Numbers", 0, "forty", 0, "two", 0, "bbb", 0) to byteArray('o', 0, "Test", 0, "bbb", 0),
@@ -52,7 +53,7 @@ class DataDBTests_09_Batch : DataDBTests() {
                 byteArray('r', 0, "Test", 0, "ccc", 0) to byteArray(0, 0, 0, 31, 'i', 0, "Test", 0, "Symbols", 0, "gamma", 0, "delta", 0, "ccc", 0)
         )
 
-        batch.write()
+        MaybeThrowable().also { batch.write(it) } .shoot()
 
         assertDBIs(
                 byteArray('i', 0, "Test", 0, "Symbols", 0, "gamma", 0, "delta", 0, "ccc", 0) to byteArray('o', 0, "Test", 0, "ccc", 0),
@@ -77,7 +78,7 @@ class DataDBTests_09_Batch : DataDBTests() {
                 byteArray('r', 0, "Test", 0, "aaa", 0) to byteArray(0, 0, 0, 29, 'i', 0, "Test", 0, "Numbers", 0, "forty", 0, "two", 0, "aaa", 0)
         )
 
-        batch.write()
+        MaybeThrowable().also { batch.write(it) } .shoot()
 
         assertDBIs(
                 byteArray('i', 0, "Test", 0, "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0) to byteArray('o', 0, "Test", 0, "aaa", 0),

@@ -7,6 +7,9 @@ import org.kodein.db.data.DataBatch
 import org.kodein.db.model.ModelBatch
 import org.kodein.memory.Closeable
 import org.kodein.memory.closeAll
+import org.kodein.memory.useAll
+import org.kodein.memory.util.MaybeThrowable
+import org.kodein.memory.util.forEachCatchTo
 import org.kodein.memory.util.forEachResilient
 
 internal class ModelBatchImpl(override val mdb: ModelDBImpl, override val data: DataBatch) : ModelWriteModule, ModelBatch, Closeable by data {
@@ -20,17 +23,16 @@ internal class ModelBatchImpl(override val mdb: ModelDBImpl, override val data: 
         return Closeable {}
     }
 
-    override fun willAction(action: DBListener<Any>.() -> Unit) = mdb.readOnListeners { toList() } .forEach(action)
+    override fun willAction(action: DBListener<Any>.() -> Unit) = mdb.getListeners().forEach(action)
 
     override fun didAction(action: DBListener<Any>.() -> Unit) { didActions.add(action) }
 
-    override fun write(vararg options: Options.Write) {
-        data.write(*options)
+    override fun write(afterErrors: MaybeThrowable, vararg options: Options.Write) {
+        closeables.useAll {
+            data.write(afterErrors, *options)
 
-        didActions.forEachResilient { action ->
-            mdb.readOnListeners { toList() } .forEachResilient(action)
+            val listeners = mdb.getListeners()
+            didActions.forEachCatchTo(afterErrors) { listeners.forEachResilient(it) }
         }
-
-        closeables.closeAll()
     }
 }

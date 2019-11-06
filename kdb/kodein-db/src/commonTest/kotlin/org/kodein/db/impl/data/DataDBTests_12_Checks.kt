@@ -1,8 +1,9 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.Value
-import org.kodein.db.impl.Check
+import org.kodein.db.Check
 import org.kodein.memory.use
+import org.kodein.memory.util.MaybeThrowable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -60,9 +61,9 @@ class DataDBTests_12_Checks : DataDBTests() {
         val key = ddb.newHeapKey("int", Value.ofAscii("test"))
         ddb.put(key, Value.of(21))
 
-        ddb.newBatch().use {
-            it.put(key, Value.of(42))
-            it.write(Check { check(ddb.get(key)!!.readInt() == 21) })
+        ddb.newBatch().use { batch ->
+            batch.put(key, Value.of(42))
+            MaybeThrowable().also { batch.write(it, Check { check(ddb.get(key)!!.readInt() == 21) }) }.shoot()
         }
 
         assertEquals(42, ddb.get(key)!!.readInt())
@@ -73,10 +74,10 @@ class DataDBTests_12_Checks : DataDBTests() {
         val key = ddb.newHeapKey("int", Value.ofAscii("test"))
         ddb.put(key, Value.of(21))
 
-        ddb.newBatch().use {
-            it.put(key, Value.of(42))
+        ddb.newBatch().use { batch ->
+            batch.put(key, Value.of(42))
             assertFailsWith<IllegalStateException> {
-                it.write(Check { check(ddb.get(key)!!.readInt() == 0) })
+                MaybeThrowable().also { batch.write(it, Check { check(ddb.get(key)!!.readInt() == 0) }) }.shoot()
             }
         }
 

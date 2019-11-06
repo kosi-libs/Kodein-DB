@@ -5,13 +5,14 @@ import org.kodein.db.data.DataBatch
 import org.kodein.db.data.DataDB
 import org.kodein.db.data.DataSnapshot
 import org.kodein.db.data.DataWrite
-import org.kodein.db.impl.Check
+import org.kodein.db.Check
 import org.kodein.db.impl.utils.newLock
 import org.kodein.db.impl.utils.putBody
 import org.kodein.db.impl.utils.withLock
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 import org.kodein.memory.use
+import org.kodein.memory.util.forEachResilient
 
 internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     override val snapshot: LevelDB.Snapshot? get() = null
@@ -76,14 +77,20 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
     private fun put(sb: SliceBuilder, key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
         val checks = options.all<Check>()
-        ldb.newWriteBatch().use { batch ->
+        val reacts = options.all<React>()
+
+        checks.filter { it.needsLock.not() } .forEach { it.block() }
+        val length = ldb.newWriteBatch().use { batch ->
             lock.withLock {
-                checks.forEach { it.block() }
+                checks.filter { it.needsLock } .forEach { it.block() }
                 val length = putInBatch(sb, batch, key, body, indexes)
                 ldb.write(batch, toLdb(options))
-                return length
+                reacts.filter { it.needsLock } .forEachResilient { it.block(length) }
+                length
             }
         }
+        reacts.filter { it.needsLock.not() } .forEachResilient { it.block(length) }
+        return length
     }
 
     override fun put(key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
@@ -103,15 +110,20 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     override fun delete(key: ReadBuffer, vararg options: Options.Write) {
         key.verifyObjectKey()
         val checks = options.all<Check>()
+        val reacts = options.all<React>()
+
+        checks.filter { it.needsLock.not() } .forEach { it.block() }
         ldb.newWriteBatch().use { batch ->
             SliceBuilder.native(DEFAULT_CAPACITY).use {
                 lock.withLock {
-                    checks.forEach { it.block() }
+                    checks.filter { it.needsLock } .forEach { it.block() }
                     deleteInBatch(it, batch, key)
                     ldb.write(batch, toLdb(options))
+                    reacts.filter { it.needsLock } .forEachResilient { it.block(-1) }
                 }
             }
         }
+        reacts.filter { it.needsLock.not() } .forEachResilient { it.block(-1) }
     }
 
     override fun newBatch(): DataBatch = DataBatchImpl(this)

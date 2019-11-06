@@ -1,4 +1,5 @@
 package org.kodein.db
+import kotlin.collections.plus as kotlinPlus
 
 interface Options {
 
@@ -13,4 +14,6 @@ inline operator fun <reified T : Options> Array<out Options>.invoke() = firstOrN
 inline fun <reified T : Options> Array<out Options>.all() = filterIsInstance<T>()
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Options> Array<out T>.and(add: T) = (this as Array<T>) + add
+//fun <T : Options> Array<out T>.and(add: T) = (this as Array<T>) + add
+
+operator fun <T : Options> Array<out T>.plus(add: T) = (this as Array<T>).kotlinPlus(add)
