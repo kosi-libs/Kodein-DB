@@ -7,13 +7,6 @@ interface Cursor<M: Any> : BaseCursor {
     fun key(): Key<M>
     fun model(vararg options: Options.Read): M
 
-    fun nextEntries(size: Int): Entries<M>
-
-    interface Entries<M: Any> : BaseCursor.BaseEntries {
-        fun key(i: Int): Key<M>
-        operator fun get(i: Int, vararg options: Options.Read): M
-    }
-
 }
 
 fun <M : Any> Cursor<M>.models(): Sequence<M> = sequence {
@@ -33,17 +26,5 @@ fun <M : Any> Cursor<M>.entries(): Sequence<Entry<M>> = sequence {
             yield(Entry(key(), model()))
             next()
         }
-    }
-}
-
-fun <M : Any> Cursor.Entries<M>.models(): Iterable<M> = Iterable {
-    iterator {
-        for (i in 0 until size) yield(get(i))
-    }
-}
-
-fun <M : Any> Cursor.Entries<M>.entries(): Iterable<Entry<M>> = Iterable {
-    iterator {
-        for (i in 0 until size) yield(Entry(key(i), get(i)))
     }
 }

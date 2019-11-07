@@ -2,13 +2,10 @@ package org.kodein.db.leveldb.jni
 
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.LevelDBFactory
-import org.kodein.db.leveldb.PlatformCloseable
 import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.io.wrap
-import java.nio.ByteBuffer
-import java.util.*
 
 /**
  * Native implementation of the LevelDB interface, using Google's C++ LevelDB.
@@ -200,94 +197,6 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
 
         private val itHandler = Handler()
 
-        internal abstract class AbstractBytesArray(
-                name: String,
-                // There are probably less buffer pointers than there are entries. All unused slots are set to zero.
-                private val ptrs: LongArray,
-                // There are probably less buffers than there are entries. All unused slots are set to null.
-                protected val buffers: Array<ByteBuffer?>,
-                // There might be less entry than this array length. _length should always be used in place of this arrays length.
-                protected val indexes: IntArray,
-                // There might be less entry than this array length. _length should always be used in place of this arrays length.
-                protected val keys: IntArray,
-                // There might be less entry than this array length. _length should always be used in place of this arrays length.
-                protected val values: IntArray,
-                // There might be less entry than this array length. _length should always be used in place of this arrays length.
-                protected val limit: IntArray,
-                handler: Handler?,
-                options: LevelDB.Options
-        ) : PlatformCloseable(name, handler, options), LevelDB.Cursor.ValuesArrayBase {
-
-            final override val size: Int
-
-            init {
-
-                // The length (= number of entries) can be found as either the number of indexes values before the first -1, or the length of the indexes array if no -1 is found.
-                var i = 0
-                while (i < indexes.size) {
-                    if (indexes[i] == -1)
-                        break
-                    ++i
-                }
-                size = i
-            }
-
-            companion object {
-//                @JvmStatic private external fun n_Release(ptrs: LongArray)
-            }
-
-            override fun getKey(i: Int): KBuffer {
-                val index = indexes[i]
-                if (index == -1)
-                    throw ArrayIndexOutOfBoundsException(i)
-                val key = buffers[index]!!.duplicate()
-                key.position(keys[i])
-                key.limit(values[i])
-                return KBuffer.wrap(key.slice())
-            }
-
-            override fun getValue(i: Int): KBuffer? {
-                val index = indexes[i]
-                if (index == -1)
-                    throw ArrayIndexOutOfBoundsException(i)
-                if (limit[i] == -1)
-                    return null
-                val value = buffers[index]!!.duplicate()
-                value.position(values[i])
-                value.limit(limit[i])
-                return KBuffer.wrap(value.slice())
-            }
-
-            override fun platformClose() {
-                Native.iteratorArrayRelease(ptrs)
-                Arrays.fill(ptrs, 0)
-            }
-        }
-
-        internal class BytesArray(ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, keys: IntArray, values: IntArray, limit: IntArray, handler: Handler?, options: LevelDB.Options)
-            : AbstractBytesArray("CursorArray", ptrs, buffers, indexes, keys, values, limit, handler, options), LevelDB.Cursor.ValuesArray {
-
-            override fun getValue(i: Int) = super.getValue(i)!!
-        }
-
-        internal class IndirectBytesArray(ptrs: LongArray, buffers: Array<ByteBuffer?>, indexes: IntArray, private val indirectKeys: IntArray?, keys: IntArray, values: IntArray, limit: IntArray, handler: Handler?, options: LevelDB.Options)
-            : AbstractBytesArray("CursorIndirectArray", ptrs, buffers, indexes, keys, values, limit, handler, options), LevelDB.Cursor.IndirectValuesArray {
-
-            override fun getIntermediateKey(i: Int): KBuffer {
-                if (indirectKeys == null)
-                    return getKey(i)
-
-                val index = indexes[i]
-                if (index == -1)
-                    throw ArrayIndexOutOfBoundsException(i)
-                val key = buffers[index]!!.duplicate()
-                key.position(indirectKeys[i])
-                key.limit(keys[i])
-                return KBuffer.wrap(key.slice())
-            }
-        }
-
-
         override fun isValid(): Boolean {
             return Native.iteratorValid(nonZeroPtr)
         }
@@ -312,34 +221,6 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
 
         override fun next() {
             Native.iteratorNext(nonZeroPtr)
-        }
-
-        override fun nextArray(size: Int, bufferSize: Int): LevelDB.Cursor.ValuesArray {
-            val ptrs = LongArray(size)
-            val buffers = arrayOfNulls<ByteBuffer>(size)
-            val indexes = IntArray(size)
-            val keys = IntArray(size)
-            val values = IntArray(size)
-            val limits = IntArray(size)
-
-            Native.iteratorArrayNext(nonZeroPtr, ptrs, buffers, indexes, keys, values, limits, if (bufferSize == -1) options.defaultCursorArrayBufferSize else bufferSize)
-
-            return BytesArray(ptrs, buffers, indexes, keys, values, limits, itHandler, options)
-        }
-
-        override fun nextIndirectArray(db: LevelDB, size: Int, bufferSize: Int, options: LevelDB.ReadOptions): LevelDB.Cursor.IndirectValuesArray {
-            val ptrs = LongArray(size)
-            val buffers = arrayOfNulls<ByteBuffer>(size)
-            val indexes = IntArray(size)
-            val intermediateKeys = IntArray(size)
-            val keys = IntArray(size)
-            val values = IntArray(size)
-            val limits = IntArray(size)
-
-            Native.iteratorArrayNextIndirect((db as LevelDBJNI).nonZeroPtr, nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot), ptrs, buffers, indexes, intermediateKeys, keys, values, limits, if (bufferSize == -1) this.options.defaultCursorArrayBufferSize else bufferSize)
-
-            return IndirectBytesArray(ptrs, buffers, indexes, intermediateKeys, keys, values, limits, itHandler, this.options)
-
         }
 
         override fun prev() {

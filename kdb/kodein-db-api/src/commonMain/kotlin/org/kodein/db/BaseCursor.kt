@@ -16,10 +16,4 @@ interface BaseCursor : Closeable {
 
     fun transientSeekKey(): ReadBuffer
 
-
-    interface BaseEntries : Closeable {
-        val size: Int
-        fun seekKey(i: Int): ReadBuffer
-    }
-
 }

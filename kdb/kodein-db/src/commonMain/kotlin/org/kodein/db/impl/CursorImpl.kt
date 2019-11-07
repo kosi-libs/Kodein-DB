@@ -12,14 +12,4 @@ internal class CursorImpl<M : Any>(private val cursor: ModelCursor<M>) : Cursor<
 
     override fun model(vararg options: Options.Read): M = cursor.model(*options).model
 
-    override fun nextEntries(size: Int): Cursor.Entries<M> = EntriesImpl(cursor.nextEntries(size))
-
-    internal class EntriesImpl<M : Any>(private val entries : ModelCursor.Entries<M>) : Cursor.Entries<M>, BaseCursor.BaseEntries by entries {
-
-        override fun key(i: Int): Key<M> = entries.key(i)
-
-        @Suppress("ReplaceGetOrSet")
-        override fun get(i: Int, vararg options: Options.Read): M = entries.get(i, *options).model
-    }
-
 }

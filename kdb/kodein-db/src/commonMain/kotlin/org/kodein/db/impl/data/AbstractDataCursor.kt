@@ -113,36 +113,6 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
         return itKey()
     }
 
-    abstract class AbstractEntries<A: LevelDB.Cursor.ValuesArrayBase>(protected val array: A) : DataCursor.Entries {
-        private val cachedArrayKeys = arrayOfNulls<KBuffer>(array.size)
-        private val cachedValues = arrayOfNulls<KBuffer>(array.size)
-
-        final override val size get() = array.size
-
-        protected fun arrayKey(i: Int) = cachedArrayKeys[i] ?: array.getKey(i).also { cachedArrayKeys[i] = it }
-
-        protected abstract fun thisSeekKey(i: Int): KBuffer
-
-        final override fun seekKey(i: Int) = thisSeekKey(i).duplicate()
-
-        protected abstract fun thisKey(i: Int): KBuffer
-
-        final override fun key(i: Int) = thisKey(i).duplicate()
-
-        protected abstract fun thisValue(i: Int): KBuffer
-
-        final override fun get(i: Int): KBuffer {
-            cachedValues[i]?.let { return it.duplicate() }
-
-            val value = thisValue(i)
-            cachedValues[i] = value
-            return value.duplicate()
-        }
-
-        final override fun close()  = array.close()
-
-    }
-
     companion object {
         private val CORK = ByteArray(16) { 0xFF.toByte() }
     }

@@ -25,24 +25,7 @@ internal class DataIndexCursor internal constructor(private val ldb: LevelDB, it
         options.snapshot?.close()
     }
 
-    override fun nextEntries(size: Int): DataCursor.Entries {
-        check(isValid()) { "Cursor is not valid" }
-        cacheReset()
-        return Entries(it.nextIndirectArray(ldb, size))
-    }
-
     override fun thisKey() = itValue()
 
     override fun thisValue() = ldb.get(itValue(), options) ?: throw IllegalStateException("Index entry points to invalid object entry")
-
-    private inner class Entries internal constructor(array: LevelDB.Cursor.IndirectValuesArray) : AbstractEntries<LevelDB.Cursor.IndirectValuesArray>(array) {
-
-        private val cachedArrayIntermediateKeys = arrayOfNulls<KBuffer>(array.size)
-
-        override fun thisSeekKey(i: Int) = arrayKey(i)
-
-        override fun thisKey(i: Int) = cachedArrayIntermediateKeys[i] ?: array.getIntermediateKey(i).also { cachedArrayIntermediateKeys[i] = it }
-
-        override fun thisValue(i: Int) = array.getValue(i) ?: throw IllegalStateException("Index entry points to invalid object entry")
-    }
 }

@@ -1,6 +1,5 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.BaseCursor
 import org.kodein.db.Key
 import org.kodein.db.Options
 import org.kodein.db.Sized
@@ -26,14 +25,4 @@ internal class ModelCursorImpl<B : Any, M : B>(override val cursor: DataCursor, 
     override fun key() = key ?: Key<M>(KBuffer.wrap(cursor.transientKey().getBytesHere())).also { key = it }
 
     override fun model(vararg options: Options.Read): Sized<M> = model ?: ModelReadModule.getFrom(cursor.transientValue(), getObjectKeyID(cursor.transientKey()), modelType, mdb, options).also { model = it }
-
-    private inner class Entries(private val dce: DataCursor.Entries) : ModelCursor.Entries<M>, BaseCursor.BaseEntries by dce {
-
-        override fun key(i: Int) = Key<M>(dce.key(i))
-
-        override fun get(i: Int, vararg options: Options.Read): Sized<M> = ModelReadModule.getFrom(dce[i], getObjectKeyID(dce.key(i)), modelType, mdb, options)
-
-    }
-
-    override fun nextEntries(size: Int): ModelCursor.Entries<M> = Entries(cursor.nextEntries(size))
 }

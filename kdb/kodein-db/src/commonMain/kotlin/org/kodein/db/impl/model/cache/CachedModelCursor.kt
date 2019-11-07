@@ -15,20 +15,6 @@ internal class CachedModelCursor<M : Any>(override val cursor: ModelCursor<M>, v
         cachedEntry = null
     }
 
-    private inner class Entries(val entries: ModelCursor.Entries<M>) : ModelCursor.Entries<M> by entries {
-        private val cachedEntries = arrayOfNulls<ModelCache.Entry.Cached<M>>(size)
-
-        override fun get(i: Int, vararg options: Options.Read): Sized<M> {
-            if (cachedEntries[i] == null) {
-                @Suppress("UNCHECKED_CAST")
-                cachedEntries[i] = cache.getOrRetrieveEntry(key()) { @Suppress("ReplaceGetOrSet") entries.get(i, *options) } as ModelCache.Entry.Cached<M>
-            }
-            return cachedEntries[i]!!
-        }
-    }
-
-    override fun nextEntries(size: Int): ModelCursor.Entries<M> = Entries(cursor.nextEntries(size))
-
     override fun key() = cursor.key()
 
     override fun model(vararg options: Options.Read): Sized<M> {
