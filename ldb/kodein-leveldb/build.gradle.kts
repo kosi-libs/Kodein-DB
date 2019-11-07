@@ -5,7 +5,7 @@ plugins {
     id("org.kodein.library.mpp-with-android")
 }
 
-val currentOs = org.gradle.internal.os.OperatingSystem.current()
+val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
 
 evaluationDependsOn(":ldb:jni")
 evaluationDependsOn(":ldb:lib")

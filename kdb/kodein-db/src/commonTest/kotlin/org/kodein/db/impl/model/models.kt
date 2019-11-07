@@ -25,7 +25,9 @@ interface Person : Metadata {
 }
 
 @Serializable
-data class Adult(override val firstName: String, override val lastName: String, override val birth: Date) : Person
+data class Adult(override val firstName: String, override val lastName: String, override val birth: Date) : Person {
+    val fullName get() = "$firstName $lastName"
+}
 
 @Serializable
 data class Child(override val firstName: String, override val lastName: String, override val birth: Date, val parents: Pair<@ContextualSerialization Key<Adult>, @ContextualSerialization Key<Adult>>) : Person
@@ -35,7 +37,8 @@ data class Location(val lat: Double, val lng: Double)
 
 @Serializable
 data class City(val name: String, val location: Location, val postalCode: Int) : Metadata {
-    override val id get() = Value.ofAscii(name)
+    override val id get() = Value.of(postalCode)
+    override val indexes: Set<Index> get() = indexSet("name" to Value.ofAscii(name))
 }
 
 @Serializable

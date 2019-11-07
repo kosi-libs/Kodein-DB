@@ -26,6 +26,7 @@ internal class DataIndexCursor internal constructor(private val ldb: LevelDB, it
     }
 
     override fun nextEntries(size: Int): DataCursor.Entries {
+        check(isValid()) { "Cursor is not valid" }
         cacheReset()
         return Entries(it.nextIndirectArray(ldb, size))
     }

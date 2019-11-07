@@ -16,7 +16,7 @@ interface DBRead : KeyMaker {
 
             fun all(): Cursor<M>
 
-            fun withValue(value: Value, isOpen: Boolean = true): Cursor<M>
+            fun withValue(value: Value, isOpen: Boolean = false): Cursor<M>
         }
 
         fun all(): Cursor<M> = byId().all()

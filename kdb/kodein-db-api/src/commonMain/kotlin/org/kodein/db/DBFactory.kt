@@ -11,4 +11,4 @@ interface DBFactory<T : Any> {
 }
 
 fun <T : Any> DBFactory<T>.prefixed(prefix: String) = DBFactory.Based(prefix, this)
-fun <T : Any> DBFactory<T>.inDir(path: String) = DBFactory.Based("$path/", this)
+fun <T : Any> DBFactory<T>.inDir(path: String) = prefixed("$path/")

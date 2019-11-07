@@ -18,14 +18,32 @@ interface Cursor<M: Any> : BaseCursor {
 
 fun <M : Any> Cursor<M>.models(): Sequence<M> = sequence {
     use {
-        while (isValid())
+        while (isValid()) {
             yield(model())
+            next()
+        }
     }
 }
 
-fun <M : Any> Cursor.Entries<M>.models(): Iterable<M> = object : Iterable<M> {
-    override fun iterator(): Iterator<M> = iterator {
-        for (i in 0 until size)
-            yield(get(i))
+data class Entry<M : Any>(val key: Key<M>, val model: M)
+
+fun <M : Any> Cursor<M>.entries(): Sequence<Entry<M>> = sequence {
+    use {
+        while (isValid()) {
+            yield(Entry(key(), model()))
+            next()
+        }
+    }
+}
+
+fun <M : Any> Cursor.Entries<M>.models(): Iterable<M> = Iterable {
+    iterator {
+        for (i in 0 until size) yield(get(i))
+    }
+}
+
+fun <M : Any> Cursor.Entries<M>.entries(): Iterable<Entry<M>> = Iterable {
+    iterator {
+        for (i in 0 until size) yield(Entry(key(i), get(i)))
     }
 }

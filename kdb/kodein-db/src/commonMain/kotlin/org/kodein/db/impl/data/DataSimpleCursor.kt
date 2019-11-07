@@ -8,6 +8,7 @@ import org.kodein.memory.io.asManagedAllocation
 internal class DataSimpleCursor internal constructor(it: LevelDB.Cursor, prefix: Allocation) : AbstractDataCursor(it, prefix) {
 
     override fun nextEntries(size: Int): DataCursor.Entries {
+        check(isValid()) { "Cursor is not valid" }
         cacheReset()
         return Entries(it.nextArray(size))
     }
