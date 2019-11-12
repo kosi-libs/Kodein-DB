@@ -1,12 +1,12 @@
 package org.kodein.db.impl.model
 
-import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable
 import org.kodein.db.*
 import org.kodein.db.model.ModelDB
 import org.kodein.db.model.get
 import org.kodein.db.model.orm.HasMetadata
 import org.kodein.db.model.orm.Metadata
+import org.kodein.memory.util.UUID
 
 @Serializable
 data class Date(val day: Int, val month: Int, val year: Int)
@@ -17,6 +17,8 @@ interface Person : Metadata {
     val lastName: String
     val birth: Date
 
+    val fullName get() = "$firstName $lastName"
+
     override val id: Value get() = Value.ofAscii(lastName, firstName)
     override val indexes: Set<Index> get() = indexSet(
             "firstName" to Value.ofAscii(firstName),
@@ -25,12 +27,10 @@ interface Person : Metadata {
 }
 
 @Serializable
-data class Adult(override val firstName: String, override val lastName: String, override val birth: Date) : Person {
-    val fullName get() = "$firstName $lastName"
-}
+data class Adult(override val firstName: String, override val lastName: String, override val birth: Date) : Person
 
 @Serializable
-data class Child(override val firstName: String, override val lastName: String, override val birth: Date, val parents: Pair<@ContextualSerialization Key<Adult>, @ContextualSerialization Key<Adult>>) : Person
+data class Child(override val firstName: String, override val lastName: String, override val birth: Date, val parents: Pair<Key<Adult>, Key<Adult>>) : Person
 
 @Serializable
 data class Location(val lat: Double, val lng: Double)
@@ -42,7 +42,12 @@ data class City(val name: String, val location: Location, val postalCode: Int) :
 }
 
 @Serializable
-data class Birth(@ContextualSerialization val adult: Key<Adult>, @ContextualSerialization val city: Key<City>) : HasMetadata {
+data class Message(val uid: UUID, val from: Key<Person>, val message: String) : Metadata {
+    override val id get() = Value.of(uid)
+}
+
+@Serializable
+data class Birth(val adult: Key<Adult>, val city: Key<City>) : HasMetadata {
     override fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata {
         val person = db[adult]!!
         return Metadata(

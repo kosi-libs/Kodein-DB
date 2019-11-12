@@ -45,7 +45,7 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
     }
 
     override fun write(afterErrors: MaybeThrowable, vararg options: Options.Write) {
-        val checks = options.all<Check>()
+        val checks = options.all<Anticipate>()
         val reacts = options.all<React>()
         use {
             checks.filter { it.needsLock.not() } .forEach { it.block() }

@@ -4,7 +4,7 @@ import kotlinx.atomicfu.atomic
 import org.kodein.memory.Closeable
 
 
-abstract class PlatformCloseable(private val name: String, val handler: Handler?, val options: LevelDB.Options) : Closeable {
+abstract class PlatformCloseable(private val name: String, private val handler: Handler?, val options: LevelDB.Options) : Closeable {
 
     private val stackTrace = if (options.loggerFactory != null && options.trackClosableAllocation) {
         StackTrace.current()

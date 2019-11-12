@@ -15,9 +15,11 @@ import kotlinx.cinterop.*
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.LevelDBException
 import org.kodein.db.leveldb.LevelDBFactory
-import org.kodein.db.leveldb.PlatformCloseable
 import org.kodein.db.libleveldb.*
-import org.kodein.memory.io.*
+import org.kodein.memory.io.Allocation
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.wrap
 import platform.posix.size_tVar
 
 private inline fun <T> ldbCall(crossinline block: MemScope.(CPointerVar<ByteVar>) -> T): T = memScoped {

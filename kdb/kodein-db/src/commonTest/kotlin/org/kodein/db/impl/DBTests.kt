@@ -1,6 +1,7 @@
 package org.kodein.db.impl
 
 import org.kodein.db.DB
+import org.kodein.db.DBWrite
 import org.kodein.db.Options
 import org.kodein.db.impl.model.*
 import org.kodein.db.inDir
@@ -54,14 +55,18 @@ abstract class DBTests {
         val pap = City("Pointe À Pitre", Location(16.2333, -61.5167), 97110)
     }
 
-    protected fun inflateDB() {
-        db.put(Models.paris)
-        val sjeg = db.put(Models.sjeg)
-        val pap = db.put(Models.pap)
-        val salomon = db.put(Models.salomon)
-        val laila = db.put(Models.laila)
-        db.put(Birth(salomon, sjeg))
-        db.put(Birth(laila, pap))
+    protected fun DBWrite.inflateModels() {
+        put(Models.paris)
+        put(Models.sjeg)
+        put(Models.pap)
+        put(Models.salomon)
+        put(Models.laila)
+    }
+
+    protected fun DBWrite.inflateDB() {
+        inflateModels()
+        put(Birth(newKey(Models.salomon), newKey(Models.sjeg)))
+        put(Birth(newKey(Models.laila), newKey(Models.pap)))
     }
 
 }

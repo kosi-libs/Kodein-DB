@@ -52,8 +52,8 @@ val generation = task<Exec>("generateJniHeaders") {
     dependsOn(configure)
 }
 
-val javaHome = System.getProperty("java.home").let { if (it.endsWith("/jre")) file("$it/..").absolutePath else it }
-val currentOs = org.gradle.internal.os.OperatingSystem.current()
+val javaHome: String = System.getProperty("java.home").let { if (it.endsWith("/jre")) file("$it/..").absolutePath else it }
+val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
 val currentOsName = currentOs.name.toLowerCase().replace(" ", "")
 
 library {
@@ -68,12 +68,12 @@ library {
         from("$buildDir/nativeHeaders")
     }
 
-    if (currentOs.isLinux()) {
+    if (currentOs.isLinux) {
         privateHeaders {
             from("$javaHome/include/linux")
         }
     }
-    else if (currentOs.isMacOsX()) {
+    else if (currentOs.isMacOsX) {
         privateHeaders {
             from("$javaHome/include/darwin")
         }
@@ -82,7 +82,7 @@ library {
     binaries.configureEach {
         compileTask.get().apply {
             dependsOn(generation)
-            macros.put("_GLIBCXX_USE_CXX11_ABI", "0")
+            macros["_GLIBCXX_USE_CXX11_ABI"] = "0"
         }
         compileTask.get().dependsOn(generation)
         compileTask.get().dependsOn(project(":ldb:lib").tasks["buildHostLeveldb"])
@@ -92,7 +92,7 @@ library {
                     "-L${project(":ldb:lib").buildDir}/out/host/lib",
                     "-lleveldb", "-lsnappy", "-lcrc32c"
             )
-            if (currentOs.isLinux()) {
+            if (currentOs.isLinux) {
                 linkTask.get().linkerArgs.addAll(
                         "-static-libgcc", "-static-libstdc++"
                 )

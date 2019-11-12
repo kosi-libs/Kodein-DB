@@ -2,8 +2,8 @@ plugins {
     id("org.kodein.mpp-with-android")
 }
 
-val kodeinLogVer: String by getRootProject().extra
-val kodeinMemoryVer: String by getRootProject().extra
+val kodeinLogVer: String by rootProject.extra
+val kodeinMemoryVer: String by rootProject.extra
 
 kodein {
     kotlin {

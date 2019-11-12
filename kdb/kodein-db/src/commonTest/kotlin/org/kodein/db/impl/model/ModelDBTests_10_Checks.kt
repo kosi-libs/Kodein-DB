@@ -1,6 +1,6 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.Check
+import org.kodein.db.Anticipate
 import org.kodein.db.Value
 import org.kodein.db.model.Primitive
 import org.kodein.db.model.delete
@@ -21,7 +21,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
         val key = mdb.newKey(int)
         mdb.put(key, int)
 
-        mdb.put(key, int.copy(value = 42), Check { check(mdb[key]!!.model.value == 21) })
+        mdb.put(key, int.copy(value = 42), Anticipate { check(mdb[key]!!.model.value == 21) })
 
         assertEquals(42, mdb[key]!!.model.value)
     }
@@ -33,7 +33,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
         mdb.put(key, int)
 
         assertFailsWith<IllegalStateException> {
-            mdb.put(key, int.copy(value = 42), Check { check(mdb[key]!!.model.value == 0) })
+            mdb.put(key, int.copy(value = 42), Anticipate { check(mdb[key]!!.model.value == 0) })
         }
 
         assertEquals(21, mdb[key]!!.model.value)
@@ -45,7 +45,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
         val key = mdb.newKey(int)
         mdb.put(key, int)
 
-        mdb.delete(key, Check { check(mdb[key]!!.model.value == 42) })
+        mdb.delete(key, Anticipate { check(mdb[key]!!.model.value == 42) })
 
         assertNull(mdb[key])
     }
@@ -57,7 +57,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
         mdb.put(key, int)
 
         assertFailsWith<IllegalStateException> {
-            mdb.delete(key, Check { check(mdb[key]!!.model.value == 0) })
+            mdb.delete(key, Anticipate { check(mdb[key]!!.model.value == 0) })
         }
 
         assertEquals(42, mdb[key]!!.model.value)
@@ -71,7 +71,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
 
         mdb.newBatch().use { batch ->
             batch.put(key, int.copy(value = 42))
-            MaybeThrowable().also { batch.write(it, Check { check(mdb[key]!!.model.value == 21) }) }.shoot()
+            MaybeThrowable().also { batch.write(it, Anticipate { check(mdb[key]!!.model.value == 21) }) }.shoot()
         }
 
         assertEquals(42, mdb[key]!!.model.value)
@@ -86,7 +86,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
         mdb.newBatch().use { batch ->
             batch.put(key, int)
             assertFailsWith<IllegalStateException> {
-                MaybeThrowable().also { batch.write(it, Check { check(mdb[key]!!.model.value == 0) }) }.shoot()
+                MaybeThrowable().also { batch.write(it, Anticipate { check(mdb[key]!!.model.value == 0) }) }.shoot()
             }
         }
 

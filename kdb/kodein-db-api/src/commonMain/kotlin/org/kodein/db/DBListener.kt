@@ -22,7 +22,7 @@ interface DBListener<in M : Any> {
 
         class WillDelete(val key: Key<*>, val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
 
-        class DidDelete(val key: Key<*>, val typeName: String, val options: Array<out Options.Write>)
+        class DidDelete(val key: Key<*>, val typeName: String, val options: Array<out Options.Write>, val subscription: Closeable)
 
         private var willPut: (WillPut.(M) -> Unit)? = null
         private var didPut: (DidPut.(M) -> Unit)? = null
@@ -44,7 +44,7 @@ interface DBListener<in M : Any> {
             willDelete = { block() }
         }
 
-        fun willDelete(block: WillDelete.(M) -> Unit) {
+        fun willDeleteIt(block: WillDelete.(M) -> Unit) {
             willDelete = { it()?.let { block(it) } }
         }
 
@@ -52,7 +52,7 @@ interface DBListener<in M : Any> {
             didDelete = { block() }
         }
 
-        fun didDelete(block: DidDelete.(M) -> Unit) {
+        fun didDeleteIt(block: DidDelete.(M) -> Unit) {
             didDeleteNeedsModel = true
             didDelete = { it?.let { block(it) } }
         }
@@ -79,7 +79,7 @@ interface DBListener<in M : Any> {
             }
 
             override fun didDelete(key: Key<*>, model: M?, typeName: String, options: Array<out Options.Write>) {
-                didDelete?.invoke(DidDelete(key, typeName, options), model)
+                didDelete?.invoke(DidDelete(key, typeName, options, subscription), model)
             }
         }
 

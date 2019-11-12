@@ -11,6 +11,8 @@ import org.kodein.memory.Closeable
 internal class RegisterDslImpl<M : Any>(private val mdb: ModelDB, private val filters: List<(M) -> Boolean>) : DB.RegisterDsl<M> {
 
     class FilteredListener<M : Any>(private val listener: DBListener<M>, private val filters: List<(M) -> Boolean>) : DBListener<M> {
+        override fun setSubscription(subscription: Closeable)  = listener.setSubscription(subscription)
+
         override fun willPut(model: M, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {
             if (filters.all { it(model) }) listener.willPut(model, typeName, metadata, options)
         }

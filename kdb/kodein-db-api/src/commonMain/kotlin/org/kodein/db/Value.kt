@@ -2,6 +2,8 @@ package org.kodein.db
 
 import org.kodein.db.ascii.putAscii
 import org.kodein.memory.io.*
+import org.kodein.memory.util.UUID
+import org.kodein.memory.util.putUUID
 
 interface Value : Body {
 
@@ -149,6 +151,16 @@ interface Value : Body {
             }
         }
 
+        fun of(vararg values: UUID): Value {
+            return object : Value.ZeroSpacedValues(values.size) {
+                override fun write(dst: Writeable, pos: Int) {
+                    dst.putUUID(values[pos])
+                }
+                override fun size(pos: Int) = 16
+                override fun toString() = values.joinToString()
+            }
+        }
+
         fun ofAscii(vararg values: Char): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
@@ -186,6 +198,7 @@ interface Value : Body {
                     is Short ->  of(value)
                     is Int ->  of(value)
                     is Long ->  of(value)
+                    is UUID -> of(value)
                     is String ->  ofAscii(value)
                     else -> throw IllegalArgumentException("invalid value: $value")
                 }

@@ -1,6 +1,5 @@
 package org.kodein.db.impl.data
 
-import org.kodein.db.data.DataCursor
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.asManagedAllocation

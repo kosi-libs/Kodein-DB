@@ -77,7 +77,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     }
 
     private fun put(sb: SliceBuilder, key: ReadBuffer, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
-        val checks = options.all<Check>()
+        val checks = options.all<Anticipate>()
         val reacts = options.all<React>()
 
         checks.filter { it.needsLock.not() } .forEach { it.block() }
@@ -110,7 +110,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
     override fun delete(key: ReadBuffer, vararg options: Options.Write) {
         key.verifyObjectKey()
-        val checks = options.all<Check>()
+        val checks = options.all<Anticipate>()
         val reacts = options.all<React>()
 
         checks.filter { it.needsLock.not() } .forEach { it.block() }

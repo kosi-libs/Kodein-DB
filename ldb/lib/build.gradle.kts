@@ -139,8 +139,7 @@ addTarget("konan") {
 
 if (withAndroid) {
     val localPropsFile = rootProject.file("local.properties")
-    if (!localPropsFile.exists())
-        throw IllegalStateException("Please create android root local.properties")
+    check(localPropsFile.exists()) { "Please create android root local.properties" }
     val localProps = localPropsFile.inputStream().use { Properties().apply { load(it) } }
     val sdkDir = localProps["sdk.dir"]?.let { file(it) }
             ?: throw IllegalStateException("Please set sdk.dir android sdk path in root local.properties")
