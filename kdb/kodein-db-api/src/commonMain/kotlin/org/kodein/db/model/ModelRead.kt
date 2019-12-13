@@ -1,9 +1,12 @@
 package org.kodein.db.model
 
-import org.kodein.db.*
+import org.kodein.db.Key
+import org.kodein.db.Options
+import org.kodein.db.Sized
+import org.kodein.db.Value
 import kotlin.reflect.KClass
 
-interface ModelRead : KeyMaker {
+interface ModelRead : ModelKeyMaker {
 
     operator fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>?
 

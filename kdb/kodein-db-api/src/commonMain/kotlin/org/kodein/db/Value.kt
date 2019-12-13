@@ -186,6 +186,9 @@ interface Value : Body {
             if (values.isEmpty())
                 return emptyValue
 
+            if (values.size == 1 && values[0] is Value)
+                return values[0] as Value
+
             val sized = Array(values.size) {
                 when (val value = values[it]) {
                     is Value ->  value

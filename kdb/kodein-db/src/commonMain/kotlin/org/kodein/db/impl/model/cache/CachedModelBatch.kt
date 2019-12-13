@@ -2,17 +2,18 @@ package org.kodein.db.impl.model.cache
 
 import org.kodein.db.*
 import org.kodein.db.model.ModelBatch
+import org.kodein.db.model.ModelKeyMaker
 import org.kodein.memory.Closeable
 import org.kodein.memory.util.MaybeThrowable
 import org.kodein.memory.util.forEachCatchTo
 import kotlin.reflect.KClass
 
-internal class CachedModelBatch(private val cmdb: CachedModelDB, private val batch: ModelBatch) : ModelBatch, KeyMaker by batch, Closeable by batch {
+internal class CachedModelBatch(private val cmdb: CachedModelDB, private val batch: ModelBatch) : ModelBatch, ModelKeyMaker by batch, Closeable by batch {
 
     private val reacts = ArrayList<CachedModelDB.() -> Unit>()
 
     override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> {
-        val key = newKey(model)
+        val key = newKeyFrom(model)
         val size = batch.put(key, model, *options)
         reacts.add { didPut(model, key, size, options) }
         return KeyAndSize(key, size)

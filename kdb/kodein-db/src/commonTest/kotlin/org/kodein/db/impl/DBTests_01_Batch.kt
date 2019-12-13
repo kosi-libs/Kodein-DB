@@ -19,7 +19,7 @@ open class DBTests_01_Batch : DBTests() {
 
         val counter = db[counterKey]!!
         db.execBatch {
-            put(Message(uid, db.newKey(Models.salomon), "Coucou !"))
+            put(Message(uid, db.newKeyFrom(Models.salomon), "Coucou !"))
             put(counter.copy(value = counter.value + 1))
             addOptions(Anticipate(true) { check(db[counterKey]!!.value == counter.value) })
         }
@@ -39,7 +39,7 @@ open class DBTests_01_Batch : DBTests() {
         val counter = db[counterKey]!!
         assertFailsWith<IllegalStateException> {
             db.execBatch {
-                put(Message(uid, db.newKey(Models.salomon), "Coucou !"))
+                put(Message(uid, db.newKeyFrom(Models.salomon), "Coucou !"))
                 put(counter.copy(value = counter.value + 1))
                 addOptions(Anticipate(true) { check(db[counterKey]!!.value == counter.value + 1) })
             }

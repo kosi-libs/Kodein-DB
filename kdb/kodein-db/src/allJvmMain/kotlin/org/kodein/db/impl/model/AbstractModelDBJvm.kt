@@ -1,6 +1,8 @@
 package org.kodein.db.impl.model
 
+import org.kodein.db.TypeTable
 import org.kodein.db.impl.model.jvm.AnnotationMetadataExtractor
+import org.kodein.db.impl.model.jvm.AnnotationTypeTable
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.Serializer
 
@@ -19,8 +21,7 @@ abstract class AbstractModelDBJvm : AbstractModelDBFactory() {
         return serializerClass?.getConstructor()?.newInstance() as? Serializer<Any>
     }
 
-    final override fun defaultMetadataExtractor(): MetadataExtractor {
-        return AnnotationMetadataExtractor()
-    }
+    final override fun defaultMetadataExtractor(): MetadataExtractor = AnnotationMetadataExtractor()
 
+    final override fun defaultTypeTable(): TypeTable? = AnnotationTypeTable()
 }

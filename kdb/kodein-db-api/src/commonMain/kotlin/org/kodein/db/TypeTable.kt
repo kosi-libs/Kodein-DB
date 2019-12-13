@@ -12,7 +12,7 @@ interface TypeTable {
 
     fun getRootOf(type: KClass<*>): KClass<*>?
 
-    private class Impl(roots: Iterable<Type.Root<*>>, val defaultNameOf: (KClass<*>) -> String) : TypeTable {
+    private class Impl(roots: Iterable<Type.Root<*>>, val defaultNameOf: (KClass<*>) -> String, val defaultClassOf: (String) -> KClass<*>?) : TypeTable {
 
         private val byClass = HashMap<KClass<*>, Type<*>>()
 
@@ -40,7 +40,7 @@ interface TypeTable {
 
         override fun getTypeName(type: KClass<*>) = byClass[type]?.name ?: defaultNameOf(type)
 
-        override fun getTypeClass(name: String): KClass<*>? = byName[name]?.type
+        override fun getTypeClass(name: String): KClass<*>? = byName[name]?.type ?: defaultClassOf(name)
 
         override fun getRegisteredClasses(): Set<KClass<*>> = byClass.keys
 
@@ -76,6 +76,6 @@ interface TypeTable {
     }
 
     companion object {
-        operator fun invoke(defaultNameOf: (KClass<*>) -> String = ::simpleTypeNameOf, builder: Builder.() -> Unit = {}): TypeTable = Impl(Builder(defaultNameOf).apply(builder).roots, defaultNameOf)
+        operator fun invoke(defaultNameOf: (KClass<*>) -> String = ::simpleTypeNameOf, defaultClassOf: (String) -> KClass<*>? = { null }, builder: Builder.() -> Unit = {}): TypeTable = Impl(Builder(defaultNameOf).apply(builder).roots, defaultNameOf, defaultClassOf)
     }
 }

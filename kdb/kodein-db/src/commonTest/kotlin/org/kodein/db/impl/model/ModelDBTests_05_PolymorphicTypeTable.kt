@@ -7,7 +7,7 @@ import org.kodein.memory.use
 import kotlin.test.*
 
 @Suppress("ClassName")
-open class ModelDBTests_05_Polymorphism : ModelDBTests() {
+open class ModelDBTests_05_PolymorphicTypeTable : ModelDBTests() {
 
     override fun testTypeTable() = TypeTable {
         root<Person>()
@@ -16,12 +16,12 @@ open class ModelDBTests_05_Polymorphism : ModelDBTests() {
     }
 
     @Test
-    fun test01_Polymorphism() {
+    fun test00_PolymorphicTypeTable() {
         val gilbert = Adult("Gilbert", "BRYS", Date(1, 9, 1954))
         val veronique = Adult("Véronique", "BRYS", Date(17, 10, 1957))
-        val salomon = Child("Salomon", "BRYS", Date(15, 12, 1986), mdb.newKey(gilbert) to mdb.newKey(veronique))
-        val maroussia = Child("Maroussia", "BRYS", Date(18, 8, 1988), mdb.newKey(gilbert) to mdb.newKey(veronique))
-        val benjamin = Child("Benjamin", "BRYS", Date(23, 6, 1992), mdb.newKey(gilbert) to mdb.newKey(veronique))
+        val salomon = Child("Salomon", "BRYS", Date(15, 12, 1986), mdb.newKeyFrom(gilbert) to mdb.newKeyFrom(veronique))
+        val maroussia = Child("Maroussia", "BRYS", Date(18, 8, 1988), mdb.newKeyFrom(gilbert) to mdb.newKeyFrom(veronique))
+        val benjamin = Child("Benjamin", "BRYS", Date(23, 6, 1992), mdb.newKeyFrom(gilbert) to mdb.newKeyFrom(veronique))
 
         mdb.putAll(listOf(gilbert, veronique, salomon, maroussia, benjamin))
 

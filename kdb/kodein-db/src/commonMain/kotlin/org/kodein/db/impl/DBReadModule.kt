@@ -19,15 +19,11 @@ internal interface DBReadModule : DBRead {
 
     class FindDslImpl<M : Any>(private val mdb: ModelRead, private val type: KClass<M>, private val options: Array<out Options.Read>) : DBRead.FindDsl<M> {
 
-        override fun byId(): DBRead.FindDsl.ByDsl<M> = object : DBRead.FindDsl.ByDsl<M> {
-            override fun all(): Cursor<M> = CursorImpl(mdb.findAllByType(type, *options))
-            override fun withValue(value: Value, isOpen: Boolean): Cursor<M> = CursorImpl(mdb.findById(type, value, isOpen, *options))
-        }
+        override fun byId(vararg id: Any, isOpen: Boolean): Cursor<M> =
+            CursorImpl(if (id.isEmpty()) mdb.findAllByType(type, *options) else mdb.findById(type, Value.ofAll(*id), isOpen, *options))
 
-        override fun byIndex(index: String): DBRead.FindDsl.ByDsl<M> = object : DBRead.FindDsl.ByDsl<M> {
-            override fun all(): Cursor<M> = CursorImpl(mdb.findAllByIndex(type, index, *options))
-            override fun withValue(value: Value, isOpen: Boolean): Cursor<M> = CursorImpl(mdb.findByIndex(type, index, value, isOpen, *options))
-        }
+        override fun byIndex(index: String, vararg value: Any, isOpen: Boolean): Cursor<M> =
+                CursorImpl(if (value.isEmpty()) mdb.findAllByIndex(type, index, *options) else mdb.findByIndex(type, index, Value.ofAll(*value), isOpen, *options))
 
     }
 

@@ -20,6 +20,12 @@ interface Metadata : HasMetadata {
 
 interface MetadataExtractor {
     fun extractMetadata(model: Any, vararg options: Options.Write): Metadata
+
+    companion object {
+        operator fun invoke(extractor: (Any) -> Metadata) = object : MetadataExtractor {
+            override fun extractMetadata(model: Any, vararg options: Options.Write): Metadata = extractor.invoke(model)
+        }
+    }
 }
 
 class NoMetadataExtractor : MetadataExtractor {

@@ -1,6 +1,7 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.DBFactory
+import org.kodein.db.TypeTable
 import org.kodein.db.data.DataDB
 import org.kodein.db.impl.data.DataDBNative
 import org.kodein.db.model.ModelDB
@@ -14,8 +15,9 @@ object ModelDBNative : AbstractModelDBFactory() {
 
     override fun defaultSerializer(): Serializer<Any>? = null
 
-    override fun defaultMetadataExtractor(): MetadataExtractor = NoMetadataExtractor()
+    override fun defaultMetadataExtractor(): MetadataExtractor? = null
 
+    override fun defaultTypeTable(): TypeTable? = null
 }
 
 actual val ModelDB.Companion.default: DBFactory<ModelDB> get() = ModelDBNative

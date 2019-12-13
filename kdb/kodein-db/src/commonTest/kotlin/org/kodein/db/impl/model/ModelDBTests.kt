@@ -32,7 +32,7 @@ abstract class ModelDBTests {
 
     open fun testMetadataExtractor(): MetadataExtractor? = null
 
-    open fun testTypeTable(): TypeTable? = null
+    open fun testTypeTable(): TypeTable? = TypeTable()
 
     open fun newModelDB(): ModelDB {
         val options = ArrayList<Options.Open>()

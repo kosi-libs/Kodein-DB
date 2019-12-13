@@ -38,8 +38,9 @@ class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : 
                 allowStructureUpdate: Boolean = true,
                 allowDeserializationWithoutConstructor: Boolean = true
         ) = Kryo().apply {
-            if (typeTable != null) {
-                typeTable.getRegisteredClasses().forEach { register(it.java) }
+            val registered = typeTable?.getRegisteredClasses()
+            if (registered != null && registered.isNotEmpty()) {
+                registered.forEach { register(it.java) }
             } else {
                 isRegistrationRequired = false
             }

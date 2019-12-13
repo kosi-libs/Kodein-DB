@@ -15,7 +15,7 @@ class CacheDBTests_04_Options : CacheDBTests() {
     fun test00_putSkip() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         assertEquals(0, cache.entryCount)
-        val key = mdb.newKey(me)
+        val key = mdb.newKeyFrom(me)
         mdb.put(key, me, ModelCache.Skip)
         assertEquals(0, cache.entryCount)
         val otherMe = mdb[key]!!.model
@@ -40,7 +40,7 @@ class CacheDBTests_04_Options : CacheDBTests() {
     @Test
     fun test02_putRefresh() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newKey(me)
+        val key = mdb.newKeyFrom(me)
         mdb.put(me)
 
         assertSame(me, mdb[key]!!.model)

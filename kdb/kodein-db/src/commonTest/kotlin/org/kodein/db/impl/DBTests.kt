@@ -1,11 +1,9 @@
 package org.kodein.db.impl
 
-import org.kodein.db.DB
-import org.kodein.db.DBWrite
-import org.kodein.db.Options
+import org.kodein.db.*
 import org.kodein.db.impl.model.*
-import org.kodein.db.inDir
 import org.kodein.db.model.DBSerializer
+import org.kodein.db.model.DBTypeTable
 import org.kodein.db.orm.kotlinx.KotlinxSerializer
 import org.kodein.db.test.utils.platformTmpPath
 import kotlin.test.AfterTest
@@ -18,7 +16,7 @@ abstract class DBTests {
 
     protected val db: DB get() = _db!!
 
-    private val factory = DB.default.inDir(platformTmpPath)
+    private val factory = DB.inDir(platformTmpPath)
 
     protected val kxSerializer = KotlinxSerializer {
         +Adult.serializer()
@@ -28,7 +26,7 @@ abstract class DBTests {
         +Birth.serializer()
     }
 
-    open fun options(): Array<out Options.Open> = arrayOf(DBSerializer(kxSerializer))
+    open fun options(): Array<out Options.Open> = arrayOf(DBSerializer(kxSerializer), DBTypeTable(TypeTable()))
 
     protected fun open() {
         _db = factory.open("testdb", *options())
@@ -65,8 +63,8 @@ abstract class DBTests {
 
     protected fun DBWrite.inflateDB() {
         inflateModels()
-        put(Birth(newKey(Models.salomon), newKey(Models.sjeg)))
-        put(Birth(newKey(Models.laila), newKey(Models.pap)))
+        put(Birth(newKeyFrom(Models.salomon), newKeyFrom(Models.sjeg)))
+        put(Birth(newKeyFrom(Models.laila), newKeyFrom(Models.pap)))
     }
 
 }

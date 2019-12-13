@@ -12,18 +12,11 @@ interface DBRead : KeyMaker {
 
     interface FindDsl<M : Any> {
 
-        interface ByDsl<M : Any> {
+        fun all(): Cursor<M> = byId()
 
-            fun all(): Cursor<M>
+        fun byId(vararg id: Any, isOpen: Boolean = false): Cursor<M>
 
-            fun withValue(value: Value, isOpen: Boolean = false): Cursor<M>
-        }
-
-        fun all(): Cursor<M> = byId().all()
-
-        fun byId(): ByDsl<M>
-
-        fun byIndex(index: String): ByDsl<M>
+        fun byIndex(index: String, vararg value: Any, isOpen: Boolean = false): Cursor<M>
     }
 
     fun <M : Any> find(type: KClass<M>, vararg options: Options.Read): FindDsl<M>

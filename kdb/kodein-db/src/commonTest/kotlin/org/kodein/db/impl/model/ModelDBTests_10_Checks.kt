@@ -13,12 +13,12 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 @Suppress("ClassName")
-class ModelDBTests_10_Checks : ModelDBTests() {
+open class ModelDBTests_10_Checks : ModelDBTests() {
 
     @Test
     fun test00_putOK() {
         val int = Primitive(Value.ofAscii("test"), 21)
-        val key = mdb.newKey(int)
+        val key = mdb.newKeyFrom(int)
         mdb.put(key, int)
 
         mdb.put(key, int.copy(value = 42), Anticipate { check(mdb[key]!!.model.value == 21) })
@@ -29,7 +29,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
     @Test
     fun test01_putKO() {
         val int = Primitive(Value.ofAscii("test"), 21)
-        val key = mdb.newKey(int)
+        val key = mdb.newKeyFrom(int)
         mdb.put(key, int)
 
         assertFailsWith<IllegalStateException> {
@@ -42,7 +42,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
     @Test
     fun test02_deleteOK() {
         val int = Primitive(Value.ofAscii("test"), 42)
-        val key = mdb.newKey(int)
+        val key = mdb.newKeyFrom(int)
         mdb.put(key, int)
 
         mdb.delete(key, Anticipate { check(mdb[key]!!.model.value == 42) })
@@ -53,7 +53,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
     @Test
     fun test03_deleteKO() {
         val int = Primitive(Value.ofAscii("test"), 42)
-        val key = mdb.newKey(int)
+        val key = mdb.newKeyFrom(int)
         mdb.put(key, int)
 
         assertFailsWith<IllegalStateException> {
@@ -66,7 +66,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
     @Test
     fun test04_batchOK() {
         val int = Primitive(Value.ofAscii("test"), 21)
-        val key = mdb.newKey(int)
+        val key = mdb.newKeyFrom(int)
         mdb.put(key, int)
 
         mdb.newBatch().use { batch ->
@@ -80,7 +80,7 @@ class ModelDBTests_10_Checks : ModelDBTests() {
     @Test
     fun test05_batchKO() {
         val int = Primitive(Value.ofAscii("test"), 21)
-        val key = mdb.newKey(int)
+        val key = mdb.newKeyFrom(int)
         mdb.put(key, int)
 
         mdb.newBatch().use { batch ->

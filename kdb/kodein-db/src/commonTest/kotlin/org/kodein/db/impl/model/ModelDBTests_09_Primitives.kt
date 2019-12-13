@@ -9,7 +9,7 @@ import org.kodein.memory.io.array
 import kotlin.test.*
 
 @Suppress("ClassName")
-class ModelDBTests_09_Primitives : ModelDBTests() {
+open class ModelDBTests_09_Primitives : ModelDBTests() {
 
     @Test
     fun test00_Int() {

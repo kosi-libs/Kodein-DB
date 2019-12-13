@@ -3,7 +3,7 @@ package org.kodein.db.impl.model
 import org.kodein.db.Value
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
-import org.kodein.db.newKey
+import org.kodein.db.model.newKey
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
@@ -15,7 +15,7 @@ open class ModelDBTests_00_PutGetDelete : ModelDBTests() {
     @Test
     fun test00_putGetByKey() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newKey(me)
+        val key = mdb.newKeyFrom(me)
         mdb.put(key, me)
         val otherMe = mdb[key]?.model
         assertEquals(me, otherMe)
@@ -41,7 +41,7 @@ open class ModelDBTests_00_PutGetDelete : ModelDBTests() {
     @Test
     fun test03_deleteByKey() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newKey(me)
+        val key = mdb.newKeyFrom(me)
         mdb.put(key, me)
         mdb.delete(key)
         assertNull(mdb[key])

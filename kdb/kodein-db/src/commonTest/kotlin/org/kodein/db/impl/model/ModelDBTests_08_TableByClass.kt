@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
 
 @Suppress("ClassName")
-class ModelDBTests_08_TableByClass : ModelDBTests() {
+open class ModelDBTests_08_TableByClass : ModelDBTests() {
 
     override fun testSerializer(): Serializer<Any>? = null
 
@@ -40,7 +40,7 @@ class ModelDBTests_08_TableByClass : ModelDBTests() {
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
 
-        val key = mdb.newKey(me)
+        val key = mdb.newKeyFrom(me)
         mdb.put(key, me)
 
         val me2 = mdb[key]!!.model

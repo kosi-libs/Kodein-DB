@@ -83,8 +83,8 @@ open class DBTests_03_Listeners : DBTests() {
             }
         }
 
-        db.delete(db.newKey(Models.salomon))
-        db.delete(db.newKey(Models.laila))
+        db.delete(db.newKeyFrom(Models.salomon))
+        db.delete(db.newKeyFrom(Models.laila))
     }
 
     @Test
@@ -126,8 +126,8 @@ open class DBTests_03_Listeners : DBTests() {
             }
         }
 
-        db.delete(db.newKey(Models.salomon))
-        db.delete(db.newKey(Models.laila))
+        db.delete(db.newKeyFrom(Models.salomon))
+        db.delete(db.newKeyFrom(Models.laila))
     }
 
     @Test
@@ -204,8 +204,8 @@ open class DBTests_03_Listeners : DBTests() {
         }
 
         db.execBatch {
-            delete(newKey(Models.salomon))
-            delete(newKey(Models.laila))
+            delete(newKeyFrom(Models.salomon))
+            delete(newKeyFrom(Models.laila))
             dBatchApplied = true
         }
     }

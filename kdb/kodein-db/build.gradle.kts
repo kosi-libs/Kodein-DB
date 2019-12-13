@@ -34,6 +34,7 @@ kodein {
 
             test.dependencies {
                 implementation(project(":kdb:serializer:kodein-db-serializer-kryo-jvm"))
+                implementation("org.xerial:sqlite-jdbc:3.28.0")
             }
         }
 

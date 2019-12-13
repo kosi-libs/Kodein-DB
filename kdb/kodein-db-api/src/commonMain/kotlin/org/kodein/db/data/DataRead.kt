@@ -35,6 +35,6 @@ interface DataRead : DataKeyMaker {
      *
      * (Default: true)
      */
-    data class FillCache(val fillCache: Boolean = true) : Options.Read
+    data class FillCache(val fillCache: Boolean) : Options.Read
 
 }

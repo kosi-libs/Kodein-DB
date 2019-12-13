@@ -21,7 +21,7 @@ class CacheDBTests_03_Cursor : CacheDBTests() {
         mdb.putAll(listOf(me, her))
         cache.clear()
 
-        mdb[mdb.newKey(her)]
+        mdb[mdb.newKeyFrom(her)]
 
         mdb.findAllByType<Adult>().use {
             it as CachedModelCursor<*>
