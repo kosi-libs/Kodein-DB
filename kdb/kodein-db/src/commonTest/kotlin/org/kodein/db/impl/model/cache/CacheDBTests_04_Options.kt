@@ -1,8 +1,7 @@
-package org.kodein.db.impl.cache
+package org.kodein.db.impl.model.cache
 
 import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Date
-import org.kodein.db.impl.model.cache.CachedModelCursor
 import org.kodein.db.model.cache.ModelCache
 import org.kodein.db.model.get
 import org.kodein.memory.use

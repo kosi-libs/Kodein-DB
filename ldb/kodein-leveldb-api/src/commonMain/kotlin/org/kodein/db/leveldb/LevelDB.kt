@@ -441,11 +441,11 @@ interface LevelDB : Closeable {
              */
             val repairOnCorruption: Boolean = false,
 
-            val loggerFactory: LoggerFactory? = null,
+            val loggerFactory: LoggerFactory = LoggerFactory.default,
 
             val trackClosableAllocation: Boolean = false,
 
-            val defaultCursorArrayBufferSize: Int = 4096
+            val failOnBadClose: Boolean = false
 
 //            val comparator: ???
     ) {

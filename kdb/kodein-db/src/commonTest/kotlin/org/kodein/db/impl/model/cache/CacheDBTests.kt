@@ -1,8 +1,6 @@
-package org.kodein.db.impl.cache
+package org.kodein.db.impl.model.cache
 
 import org.kodein.db.impl.model.ModelDBTests
-import org.kodein.db.impl.model.cache.CachedModelDB
-import org.kodein.db.impl.model.cache.ModelCacheImpl
 import org.kodein.db.model.ModelDB
 import org.kodein.db.model.cache.ModelCache
 import kotlin.test.AfterTest

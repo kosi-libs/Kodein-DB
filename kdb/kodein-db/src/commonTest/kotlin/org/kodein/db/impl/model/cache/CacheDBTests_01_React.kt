@@ -1,4 +1,4 @@
-package org.kodein.db.impl.cache
+package org.kodein.db.impl.model.cache
 
 import org.kodein.db.DBListener
 import org.kodein.db.Key

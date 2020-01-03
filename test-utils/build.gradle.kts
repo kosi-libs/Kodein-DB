@@ -8,7 +8,7 @@ val kodeinMemoryVer: String by rootProject.extra
 kodein {
     kotlin {
         common.main.dependencies {
-            api("org.kodein.log:kodein-log-api:$kodeinLogVer")
+            api("org.kodein.log:kodein-log:$kodeinLogVer")
             api("org.kodein.memory:kodein-memory:$kodeinMemoryVer")
             api(project(":ldb:kodein-leveldb-api"))
 
@@ -16,7 +16,7 @@ kodein {
             api("org.jetbrains.kotlin:kotlin-test-annotations-common")
         }
 
-        add(kodeinTargets.jvm) {
+        add(kodeinTargets.jvm.jvm) {
             target.setCompileClasspath()
 
             main.dependencies {
@@ -26,7 +26,7 @@ kodein {
             }
         }
 
-        add(kodeinTargets.android) {
+        add(kodeinTargets.jvm.android) {
             dependencies {
                 implementation("androidx.test.ext:junit:1.1.1")
                 implementation("androidx.test.espresso:espresso-core:3.2.0")
@@ -36,5 +36,9 @@ kodein {
         add(kodeinTargets.native.host)
 
         add(kodeinTargets.native.allIos)
+
+        allTargets {
+            mainCommonCompilation.kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+        }
     }
 }

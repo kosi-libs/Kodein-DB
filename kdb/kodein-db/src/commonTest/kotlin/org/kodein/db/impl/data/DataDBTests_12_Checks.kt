@@ -17,9 +17,15 @@ class DataDBTests_12_Checks : DataDBTests() {
         val key = ddb.newKey("int", Value.ofAscii("test"))
 
         ddb.put(key, Value.of(21))
-        ddb.put(key, Value.of(42), emptySet(), Anticipate { check(ddb.get(key)!!.readInt() == 21) })
+        ddb.put(key, Value.of(42), emptySet(), Anticipate {
+            ddb.get(key)!!.use {
+                check(it.readInt() == 21)
+            }
+        })
 
-        assertEquals(42, ddb.get(key)!!.readInt())
+        ddb.get(key)!!.use {
+            assertEquals(42, it.readInt())
+        }
     }
 
     @Test
@@ -28,10 +34,16 @@ class DataDBTests_12_Checks : DataDBTests() {
 
         ddb.put(key, Value.of(21))
         assertFailsWith<IllegalStateException> {
-            ddb.put(key, Value.of(42), emptySet(), Anticipate { check(ddb.get(key)!!.readInt() == 0) })
+            ddb.put(key, Value.of(42), emptySet(), Anticipate {
+                ddb.get(key)!!.use {
+                    check(it.readInt() == 0)
+                }
+            })
         }
 
-        assertEquals(21, ddb.get(key)!!.readInt())
+        ddb.get(key)!!.use {
+            assertEquals(21, it.readInt())
+        }
     }
 
     @Test
@@ -39,7 +51,11 @@ class DataDBTests_12_Checks : DataDBTests() {
         val key = ddb.newKey("int", Value.ofAscii("test"))
         ddb.put(key, Value.of(42))
 
-        ddb.delete(key, Anticipate { check(ddb.get(key)!!.readInt() == 42) })
+        ddb.delete(key, Anticipate {
+            ddb.get(key)!!.use {
+                check(it.readInt() == 42)
+            }
+        })
 
         assertNull(ddb.get(key))
     }
@@ -50,10 +66,16 @@ class DataDBTests_12_Checks : DataDBTests() {
         ddb.put(key, Value.of(42))
 
         assertFailsWith<IllegalStateException> {
-            ddb.delete(key, Anticipate { check(ddb.get(ddb.newKey("int", Value.ofAscii("test")))!!.readInt() == 0) })
+            ddb.delete(key, Anticipate {
+                ddb.get(ddb.newKey("int", Value.ofAscii("test")))!!.use {
+                    check(it.readInt() == 0)
+                }
+            })
         }
 
-        assertEquals(42, ddb.get(key)!!.readInt())
+        ddb.get(key)!!.use {
+            assertEquals(42, it.readInt())
+        }
     }
 
     @Test
@@ -63,10 +85,18 @@ class DataDBTests_12_Checks : DataDBTests() {
 
         ddb.newBatch().use { batch ->
             batch.put(key, Value.of(42))
-            MaybeThrowable().also { batch.write(it, Anticipate { check(ddb.get(key)!!.readInt() == 21) }) }.shoot()
+            MaybeThrowable().also {
+                batch.write(it, Anticipate {
+                    ddb.get(key)!!.use {
+                        check(it.readInt() == 21)
+                    }
+                })
+            }.shoot()
         }
 
-        assertEquals(42, ddb.get(key)!!.readInt())
+        ddb.get(key)!!.use {
+            assertEquals(42, it.readInt())
+        }
     }
 
     @Test
@@ -77,11 +107,19 @@ class DataDBTests_12_Checks : DataDBTests() {
         ddb.newBatch().use { batch ->
             batch.put(key, Value.of(42))
             assertFailsWith<IllegalStateException> {
-                MaybeThrowable().also { batch.write(it, Anticipate { check(ddb.get(key)!!.readInt() == 0) }) }.shoot()
+                MaybeThrowable().also {
+                    batch.write(it, Anticipate {
+                        ddb.get(key)!!.use {
+                            check(it.readInt() == 0)
+                        }
+                    })
+                }.shoot()
             }
         }
 
-        assertEquals(21, ddb.get(key)!!.readInt())
+        ddb.get(key)!!.use {
+            assertEquals(21, it.readInt())
+        }
     }
 
 }

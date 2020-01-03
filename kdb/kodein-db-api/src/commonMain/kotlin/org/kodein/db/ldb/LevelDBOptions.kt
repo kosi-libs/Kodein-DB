@@ -2,6 +2,7 @@ package org.kodein.db.ldb
 
 import org.kodein.db.Options
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.log.LoggerFactory
 
 
 @Suppress("unused")
@@ -140,14 +141,14 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      */
     data class RepairOnCorruption(val repairOnCorruption: Boolean): LevelDBOptions({ copy(repairOnCorruption = repairOnCorruption) })
 
-    data class LoggerFactory(val loggerFactory: org.kodein.log.LoggerFactory?): LevelDBOptions({ copy(loggerFactory = loggerFactory) })
-
-    data class TrackClosableAllocation(val trackClosableAllocation: Boolean): LevelDBOptions({ copy(trackClosableAllocation = trackClosableAllocation) })
-
-    data class DefaultCursorArrayBufferSize(val defaultCursorArrayBufferSize: Int): LevelDBOptions({ copy(defaultCursorArrayBufferSize = defaultCursorArrayBufferSize) })
-
     companion object {
         fun new(options: Array<out Options.Open>) = options.filterIsInstance<LevelDBOptions>().fold(LevelDB.Options.DEFAULT) { l, o -> o.transform(l) }
     }
 
 }
+
+data class DBLoggerFactory(val loggerFactory: LoggerFactory): LevelDBOptions({ copy(loggerFactory = loggerFactory) })
+
+data class TrackClosableAllocation(val trackClosableAllocation: Boolean): LevelDBOptions({ copy(trackClosableAllocation = trackClosableAllocation) })
+
+data class FailOnBadClose(val failOnBadClose: Boolean): LevelDBOptions({ copy(failOnBadClose = failOnBadClose) })

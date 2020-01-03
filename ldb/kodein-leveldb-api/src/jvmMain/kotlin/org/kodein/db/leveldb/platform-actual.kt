@@ -5,15 +5,7 @@ import java.util.*
 actual class StackTrace(private val elements: Array<StackTraceElement>) {
 
     actual fun write(on: Appendable) {
-        var i = 0
-        while (i < elements.size && !elements[i].className.startsWith("com.soberdb.leveldb"))
-            ++i
-        while (i < elements.size && elements[i].className.startsWith("com.soberdb.leveldb"))
-            ++i
-        while (i < elements.size) {
-            on.append("\n    at ").append(elements[i].toString())
-            ++i
-        }
+        on.append(elements.joinToString("\n"))
     }
 
     actual companion object {

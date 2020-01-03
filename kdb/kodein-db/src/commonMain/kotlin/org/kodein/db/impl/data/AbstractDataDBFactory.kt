@@ -15,7 +15,6 @@ abstract class AbstractDataDBFactory : DBFactory<DataDB> {
     override fun open(path: String, vararg options: Options.Open): DataDB {
         val levelMiddlewares = options.all<Middleware.Level>().map { it.middleware }
         val dataMiddlewares = options.all<Middleware.Data>().map { it.middleware }
-
         val ldb = levelMiddlewares.fold(ldbFactory.open(path, LevelDBOptions.new(options))) { ldb, middleware -> middleware(ldb) }
 
         return dataMiddlewares.fold(DataDBImpl(ldb) as DataDB) { ddb, middleware -> middleware(ddb) }

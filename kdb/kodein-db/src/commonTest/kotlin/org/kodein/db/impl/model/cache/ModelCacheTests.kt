@@ -1,10 +1,9 @@
-package org.kodein.db.impl.cache
+package org.kodein.db.impl.model.cache
 
 import org.kodein.db.Key
 import org.kodein.db.Sized
 import org.kodein.db.Value
 import org.kodein.db.impl.data.putObjectKey
-import org.kodein.db.impl.model.cache.ModelCacheImpl
 import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.io.SliceBuilder
 import kotlin.test.Test

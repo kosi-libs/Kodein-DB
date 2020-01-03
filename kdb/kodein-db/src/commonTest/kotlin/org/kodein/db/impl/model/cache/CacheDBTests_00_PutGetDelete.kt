@@ -1,4 +1,4 @@
-package org.kodein.db.impl.cache
+package org.kodein.db.impl.model.cache
 
 import org.kodein.db.Value
 import org.kodein.db.impl.model.Adult
@@ -6,7 +6,6 @@ import org.kodein.db.impl.model.Date
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
 import org.kodein.db.model.newKey
-import org.kodein.db.newKey
 import kotlin.test.Test
 import kotlin.test.assertNull
 import kotlin.test.assertSame

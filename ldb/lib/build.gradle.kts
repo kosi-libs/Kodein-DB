@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.targets.js.npm.SemVer
-import org.kodein.internal.gradle.isExcluded
 import java.util.*
 
 val buildAll = tasks.create("build") {
@@ -8,7 +7,11 @@ val buildAll = tasks.create("build") {
 
 val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
 
-val withAndroid = !isExcluded("android")
+val excludedTargets = (project.findProperty("excludeTargets") as String?)
+        ?.split(",")
+        ?.map { it.trim() }
+        ?: emptyList()
+val withAndroid = "android" !in excludedTargets
 
 class CMakeOptions {
     val defines = HashMap<String, ArrayList<String>>()

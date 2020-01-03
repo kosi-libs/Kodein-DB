@@ -1,16 +1,16 @@
 package org.kodein.db.test.utils
 
+import org.kodein.log.LogFrontend
 import org.kodein.log.Logger
-import org.kodein.log.LoggerFilter
+import kotlin.reflect.KClass
 
 class AssertLogger {
-    var count = 0
-    var last: Logger.Entry? = null
+    val entries = ArrayList<Triple<KClass<*>, Logger.Entry, String?>>()
 
-    val filter: LoggerFilter = {
-        ++count
-        last = it
-        it
+    val frontEnd: LogFrontend = { c ->
+        { e, m ->
+            entries += Triple(c, e, m)
+        }
     }
 
 }

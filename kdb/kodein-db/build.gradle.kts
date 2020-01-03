@@ -22,12 +22,11 @@ kodein {
 
             test.dependencies {
                 implementation(project(":test-utils"))
-
                 implementation(project(":kdb:serializer:kodein-db-serializer-kotlinx"))
             }
         }
 
-        add(kodeinTargets.jvm) {
+        add(kodeinTargets.jvm.jvm) {
             main.dependencies {
                 implementation("org.jetbrains.kotlinx:atomicfu:$kotlinxAtomicFuVer")
             }
@@ -38,7 +37,7 @@ kodein {
             }
         }
 
-        add(kodeinTargets.android) {
+        add(kodeinTargets.jvm.android) {
             main.dependencies {
                 implementation("org.jetbrains.kotlinx:atomicfu:$kotlinxAtomicFuVer")
             }

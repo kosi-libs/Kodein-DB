@@ -6,7 +6,7 @@ import org.kodein.memory.Closeable
 
 abstract class PlatformCloseable(private val name: String, private val handler: Handler?, val options: LevelDB.Options) : Closeable {
 
-    private val stackTrace = if (options.loggerFactory != null && options.trackClosableAllocation) {
+    private val stackTrace = if (options.trackClosableAllocation) {
         StackTrace.current()
     } else {
         null
@@ -41,18 +41,19 @@ abstract class PlatformCloseable(private val name: String, private val handler: 
         if (closed.getAndSet(true))
             return
 
-        val logger = options.loggerFactory?.invoke(this::class)
-        if (logger != null) {
-            if (stackTrace == null) {
-                logger.warning("$name has not been properly closed. To track its allocation, open the DB with trackClosableAllocation = true")
-                doClose()
-                return
-            }
-
-            val message = StringBuilder("$name must be closed. Creation stack trace:\n")
-            stackTrace.write(message)
-            logger.warning(message.toString())
+        val logger = options.loggerFactory.newLogger(this::class)
+        if (stackTrace == null) {
+            if (!options.failOnBadClose) logger.warning { "$name has not been properly closed. To track its allocation, set trackClosableAllocation." }
+            doClose()
+            if (options.failOnBadClose) error("$name has not been properly closed. To track its allocation, set trackClosableAllocation.")
+            return
         }
+
+        val message = StringBuilder("$name must be closed. Creation stack trace:\n")
+        stackTrace.write(message)
+
+        if (!options.failOnBadClose) logger.warning { message.toString() }
+        else error(message.toString())
 
         doClose()
     }

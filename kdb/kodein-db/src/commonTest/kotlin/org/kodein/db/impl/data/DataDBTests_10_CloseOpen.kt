@@ -3,6 +3,7 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -19,7 +20,9 @@ class DataDBTests_10_CloseOpen : DataDBTests() {
         open()
 
         val key = ddb.newKey("Test", Value.ofAscii("key"))
-        assertBytesEquals(byteArray("value"), ddb.get(key)!!)
+        ddb.get(key)!!.use {
+            assertBytesEquals(byteArray("value"), it)
+        }
     }
 
     @Test

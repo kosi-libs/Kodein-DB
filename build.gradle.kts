@@ -2,8 +2,9 @@ plugins {
     id("org.kodein.root")
 }
 
-val kotlinxAtomicFuVer by extra { "0.12.9" }
-val kotlinxCoroutinesVer by extra { "1.2.2" }
+val kotlinxAtomicFuVer by extra { "0.14.1" } // CAUTION: also change in buildscript!
+val kotlinxSerializationVer by extra { "0.14.0" }
+val kotlinxCoroutinesVer by extra { "1.3.3" }
 val kodeinLogVer by extra { "0.1.0" }
 val kodeinMemoryVer by extra { "0.1.0" }
 
@@ -13,7 +14,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.12.9")
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.14.1")
     }
 }
 

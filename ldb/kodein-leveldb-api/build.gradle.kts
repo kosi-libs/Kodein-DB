@@ -9,11 +9,11 @@ val kodeinMemoryVer: String by getRootProject().extra
 kodein {
     kotlin {
         common.main.dependencies {
-            api("org.kodein.log:kodein-log-api:$kodeinLogVer")
+            api("org.kodein.log:kodein-log:$kodeinLogVer")
             api("org.kodein.memory:kodein-memory:$kodeinMemoryVer")
         }
 
-        add(kodeinTargets.jvm) {
+        add(kodeinTargets.jvm.jvm) {
             target.setCompileClasspath()
         }
 

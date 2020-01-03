@@ -37,12 +37,12 @@ kodein {
 
         common.test.dependencies {
             implementation(project(":test-utils"))
-            implementation("org.kodein.log:kodein-log-frontend-print:$kodeinLogVer")
+            implementation("org.kodein.log:kodein-log:$kodeinLogVer")
         }
 
-        add(kodeinTargets.android)
+        add(kodeinTargets.jvm.android)
 
-        add(kodeinTargets.jvm) {
+        add(kodeinTargets.jvm.jvm) {
             (tasks[mainCompilation.processResourcesTaskName] as ProcessResources).apply {
                 dependsOn(
                         project(":ldb:jni").tasks["linkRelease"],
@@ -85,12 +85,14 @@ kodein {
             configureCInterop("konan")
         }
 
-        add(listOf(kodeinTargets.native.iosArm32, kodeinTargets.native.iosArm64)) {
-            configureCInterop("iosOs")
-        }
+        if (currentOs.isMacOsX) {
+            add(listOf(kodeinTargets.native.iosArm32, kodeinTargets.native.iosArm64)) {
+                configureCInterop("iphone")
+            }
 
-        add(kodeinTargets.native.iosX64) {
-            configureCInterop("iosSimulator64")
+            add(kodeinTargets.native.iosX64) {
+                configureCInterop("iosSimulator")
+            }
         }
 
     }
