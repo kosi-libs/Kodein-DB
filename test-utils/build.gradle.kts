@@ -27,7 +27,7 @@ kodein {
         }
 
         add(kodeinTargets.jvm.android) {
-            dependencies {
+            main.dependencies {
                 implementation("androidx.test.ext:junit:1.1.1")
                 implementation("androidx.test.espresso:espresso-core:3.2.0")
             }
