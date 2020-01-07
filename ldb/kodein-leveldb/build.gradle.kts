@@ -87,11 +87,11 @@ kodein {
 
         if (currentOs.isMacOsX) {
             add(listOf(kodeinTargets.native.iosArm32, kodeinTargets.native.iosArm64)) {
-                configureCInterop("iphone")
+                configureCInterop("iosOs")
             }
 
             add(kodeinTargets.native.iosX64) {
-                configureCInterop("iosSimulator")
+                configureCInterop("iosSimulator64")
             }
         }
 
