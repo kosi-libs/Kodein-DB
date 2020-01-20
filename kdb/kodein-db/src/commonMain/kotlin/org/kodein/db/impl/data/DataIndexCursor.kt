@@ -1,10 +1,9 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.leveldb.LevelDB
-import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.KBuffer
 
-internal class DataIndexCursor internal constructor(private val ldb: LevelDB, it: LevelDB.Cursor, prefix: Allocation, options: LevelDB.ReadOptions) : AbstractDataCursor(it, prefix) {
+internal class DataIndexCursor internal constructor(private val ldb: LevelDB, it: LevelDB.Cursor, prefix: ByteArray, options: LevelDB.ReadOptions) : AbstractDataCursor(it, prefix) {
 
     private var cachedItValue: KBuffer? = null
 

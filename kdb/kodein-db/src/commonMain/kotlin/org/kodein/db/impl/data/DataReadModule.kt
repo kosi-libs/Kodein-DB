@@ -28,39 +28,36 @@ internal interface DataReadModule : DataKeyMakerModule, DataRead {
 
     override fun get(key: ReadBuffer, vararg options: Options.Read): Allocation? = ldb.get(key, toLdb(options))
 
-    override fun findAll(vararg options: Options.Read): DataCursor = DataSimpleCursor(ldb.newCursor(toLdb(options)), objectEmptyPrefix.asManagedAllocation())
+    override fun findAll(vararg options: Options.Read): DataCursor = DataSimpleCursor(ldb.newCursor(toLdb(options)), objectEmptyPrefix)
 
     override fun findAllByType(type: String, vararg options: Options.Read): DataCursor {
-        Allocation.native(getObjectKeySize(type, null)) { putObjectKey(type, null) } .transfer { key ->
-            ldb.newCursor(toLdb(options)).transfer { cursor ->
-                return DataSimpleCursor(cursor, key)
-            }
+        val prefix = KBuffer.array(getObjectKeySize(type, null)) { putObjectKey(type, null) } .array
+        ldb.newCursor(toLdb(options)).transfer { cursor ->
+            return DataSimpleCursor(cursor, prefix)
         }
     }
 
     override fun findById(type: String, id: Value, isOpen: Boolean, vararg options: Options.Read): DataCursor {
-        Allocation.native(getObjectKeySize(type, id, isOpen)) { putObjectKey(type, id, isOpen) } .transfer { key ->
-            ldb.newCursor(toLdb(options)).transfer { cursor ->
-                return DataSimpleCursor(cursor, key)
-            }
+        val prefix = KBuffer.array(getObjectKeySize(type, id, isOpen)) { putObjectKey(type, id, isOpen) } .array
+        ldb.newCursor(toLdb(options)).transfer { cursor ->
+            return DataSimpleCursor(cursor, prefix)
         }
     }
 
     override fun findAllByIndex(type: String, index: String, vararg options: Options.Read): DataCursor {
         val ro = toLdb(options)
-        Allocation.native(getIndexKeyStartSize(type, index, null)) { putIndexKeyStart(type, index, null) } .transfer { key ->
-            ldb.newCursor(ro).transfer { cursor ->
-                return DataIndexCursor(ldb, cursor, key, ro)
-            }
+        val prefix = KBuffer.array(getIndexKeyStartSize(type, index, null)) { putIndexKeyStart(type, index, null) } .array
+        ldb.newCursor(ro).transfer { cursor ->
+            return DataIndexCursor(ldb, cursor, prefix, ro)
         }
+
     }
 
     override fun findByIndex(type: String, index: String, value: Value, isOpen: Boolean, vararg options: Options.Read): DataCursor {
         val ro = toLdb(options)
-        Allocation.native(getIndexKeyStartSize(type, index, value, isOpen)) { putIndexKeyStart(type, index, value, isOpen) } .transfer { key ->
-            ldb.newCursor(ro).transfer { cursor ->
-                return DataIndexCursor(ldb, cursor, key, ro)
-            }
+        val prefix = KBuffer.array(getIndexKeyStartSize(type, index, value, isOpen)) { putIndexKeyStart(type, index, value, isOpen) } .array
+        ldb.newCursor(ro).transfer { cursor ->
+            return DataIndexCursor(ldb, cursor, prefix, ro)
         }
     }
 

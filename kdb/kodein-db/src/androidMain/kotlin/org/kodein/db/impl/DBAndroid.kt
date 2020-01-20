@@ -10,4 +10,4 @@ object DBAndroid : AbstractDBFactory() {
 }
 
 @Suppress("unused")
-actual val DB.Companion.default: DBFactory<DB> get() = DBAndroid
+actual val DB.Companion.factory: DBFactory<DB> get() = DBAndroid

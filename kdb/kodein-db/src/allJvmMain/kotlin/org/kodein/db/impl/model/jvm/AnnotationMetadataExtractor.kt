@@ -41,12 +41,12 @@ class AnnotationMetadataExtractor : MetadataExtractor {
 
         class OfField(override val member: Field) : ValueGetter() {
             override fun result(model: Any): Any? {
-                val wasAcessible = member.isAccessible
-                if (!wasAcessible) member.isAccessible = true
+                @Suppress("DEPRECATION") val wasAccessible = member.isAccessible
+                if (!wasAccessible) member.isAccessible = true
                 try {
                     return member.get(model)
                 } finally {
-                    if (!wasAcessible) member.isAccessible = false
+                    if (!wasAccessible) member.isAccessible = false
                 }
             }
         }

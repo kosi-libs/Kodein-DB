@@ -51,7 +51,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
 
     @ImplicitReflectionSerializer
     override fun deserialize(type: KClass<out Any>, transientId: ReadBuffer, input: ReadBuffer, vararg options: Options.Read): Any {
-        val serializer = options<KXSerializer>()?.serializer ?: serializers[type] ?: type.serializer()
+        val serializer = options<KXSerializer>()?.serializer ?: serializers[type] ?: type.serializer().also { serializers[type] = it }
         val bytes = input.readBytes()
         @Suppress("UNCHECKED_CAST")
         return cbor.load(serializer as DeserializationStrategy<Any>, bytes)

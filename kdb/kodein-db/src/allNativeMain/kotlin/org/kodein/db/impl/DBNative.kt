@@ -13,4 +13,4 @@ object DBNative : AbstractDBFactory() {
 }
 
 @Suppress("unused")
-actual val DB.Companion.default: DBFactory<DB> get() = DBNative
+actual val DB.Companion.factory: DBFactory<DB> get() = DBNative

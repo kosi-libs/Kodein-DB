@@ -6,7 +6,7 @@ import org.kodein.db.impl.utils.startsWith
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 
-internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, private val prefix: Allocation) : DataCursor {
+internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, private val prefix: ByteArray) : DataCursor {
 
     private var cachedValid: Boolean? = null
     private var cachedItKey: KBuffer? = null
@@ -34,7 +34,6 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
         lastKey?.close()
 
         it.close()
-        prefix.close()
         cacheReset()
     }
 
@@ -70,14 +69,14 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
 
     final override fun seekToFirst() {
         cacheReset()
-        it.seekTo(prefix)
+        it.seekTo(KBuffer.wrap(prefix))
     }
 
     final override fun seekToLast() {
         cacheReset()
         if (lastKey == null) {
-            lastKey = Allocation.native(prefix.remaining + CORK.size) {
-                putBytes(prefix.duplicate())
+            lastKey = Allocation.native(prefix.size + CORK.size) {
+                putBytes(prefix)
                 putBytes(CORK)
             }
         }

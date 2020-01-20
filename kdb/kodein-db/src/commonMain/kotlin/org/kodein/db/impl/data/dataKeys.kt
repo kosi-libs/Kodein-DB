@@ -22,11 +22,7 @@ internal fun ReadBuffer.verifyObjectKey() {
     }
 }
 
-internal val objectEmptyPrefix: KBuffer = KBuffer.array(2).apply {
-    put(Prefix.OBJECT)
-    put(NULL)
-    flip()
-}
+internal val objectEmptyPrefix: ByteArray = byteArrayOf(Prefix.OBJECT, NULL)
 
 internal fun Writeable.putObjectKey(type: String, id: Value?, isOpen: Boolean = false) {
     put(Prefix.OBJECT)

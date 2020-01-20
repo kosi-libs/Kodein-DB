@@ -3,6 +3,7 @@ package org.kodein.db.impl.utils
 import org.kodein.db.Body
 import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.io.Writeable
+import org.kodein.memory.io.getBytes
 import kotlin.math.min
 
 @Suppress("NOTHING_TO_INLINE")
@@ -17,23 +18,20 @@ internal fun ReadBuffer.firstIndexOf(search: Byte, startAt: Int = 0): Int {
     return -1
 }
 
-internal fun ReadBuffer.startsWith(prefix: ReadBuffer): Boolean {
-    if (this.remaining < prefix.remaining)
+internal fun ReadBuffer.startsWith(prefix: ByteArray): Boolean {
+    if (this.remaining < prefix.size)
         return false
 
-    for (i in 0 until prefix.remaining) {
-        if (this[position + i] != prefix[prefix.position + i])
-            return false
-    }
+    val start = this.getBytes(this.position, prefix.size)
 
-    return true
+    return prefix.contentEquals(start)
 }
 
-internal operator fun ReadBuffer.compareTo(other: ReadBuffer): Int {
-    for (i in 0 until min(remaining, other.remaining)) {
-        val cmp = this[position + i] - other[other.position + i]
+internal operator fun ReadBuffer.compareTo(other: ByteArray): Int {
+    for (i in 0 until min(remaining, other.size)) {
+        val cmp = this[position + i] - other[i]
         if (cmp != 0)
             return 0
     }
-    return remaining - other.remaining
+    return remaining - other.size
 }
