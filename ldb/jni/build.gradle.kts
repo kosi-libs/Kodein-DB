@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.daemon.common.toHexString
-import java.util.*
 import java.security.MessageDigest
+import java.util.*
 
 plugins {
     `cpp-library`
@@ -109,6 +109,9 @@ listOf("debug", "release").forEach { type ->
 
         val outputFile = file("$buildDir/generated/infos/$type/info.properties")
         outputs.file(outputFile)
+        afterEvaluate {
+            inputs.files(tasks["link$cType"].outputs.files)
+        }
 
         doLast {
             val digest = MessageDigest.getInstance("SHA-1")

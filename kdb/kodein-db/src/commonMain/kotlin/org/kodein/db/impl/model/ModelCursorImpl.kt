@@ -24,5 +24,5 @@ internal class ModelCursorImpl<B : Any, M : B>(override val cursor: DataCursor, 
 
     override fun key() = key ?: Key<M>(KBuffer.wrap(cursor.transientKey().getBytesHere())).also { key = it }
 
-    override fun model(vararg options: Options.Read): Sized<M> = model ?: ModelReadModule.getFrom(cursor.transientValue(), getObjectKeyID(cursor.transientKey()), modelType, mdb, options).also { model = it }
+    override fun model(vararg options: Options.Read): Sized<M> = model ?: ModelReadModule.getFrom(cursor.transientValue(), getObjectKeyID(key().bytes), modelType, mdb, options).also { model = it }
 }

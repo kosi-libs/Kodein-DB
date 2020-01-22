@@ -81,5 +81,4 @@ internal object Native {
     @JvmStatic external fun writeBatchClear(wbPtr: Long)
 
     @JvmStatic external fun writeBatchAppend(wbPtr: Long, sourcePtr: Long)
-
 }

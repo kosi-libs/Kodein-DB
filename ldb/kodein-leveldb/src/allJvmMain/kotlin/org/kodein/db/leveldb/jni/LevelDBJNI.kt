@@ -192,10 +192,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
 
     }
 
-
     private class Cursor internal constructor(ptr: Long, handler: Handler, options: LevelDB.Options) : NativeBound(ptr, "Cursor", handler, options), LevelDB.Cursor {
-
-        private val itHandler = Handler()
 
         override fun isValid(): Boolean {
             return Native.iteratorValid(nonZeroPtr)
@@ -233,10 +230,6 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
 
         override fun transientValue(): KBuffer {
             return KBuffer.wrap(Native.iteratorValue(nonZeroPtr))
-        }
-
-        override fun beforeClose() {
-            itHandler.close()
         }
 
         override fun release(ptr: Long) {
