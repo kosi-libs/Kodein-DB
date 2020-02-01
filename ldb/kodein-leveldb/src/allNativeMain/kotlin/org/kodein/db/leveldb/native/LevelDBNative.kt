@@ -16,10 +16,7 @@ import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.LevelDBException
 import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.libleveldb.*
-import org.kodein.memory.io.Allocation
-import org.kodein.memory.io.KBuffer
-import org.kodein.memory.io.ReadBuffer
-import org.kodein.memory.io.wrap
+import org.kodein.memory.io.*
 import platform.posix.size_tVar
 
 private inline fun <T> ldbCall(crossinline block: MemScope.(CPointerVar<ByteVar>) -> T): T = memScoped {
@@ -131,15 +128,15 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         }
     }
 
-    override fun put(key: ReadBuffer, value: ReadBuffer, options: LevelDB.WriteOptions) {
+    override fun put(key: ReadMemory, value: ReadMemory, options: LevelDB.WriteOptions) {
         options.usePointer { optionsPtr ->
-            ldbCall { leveldb_put(nonNullPtr, optionsPtr, key.pointer(), key.remaining.convert(), value.pointer(), value.remaining.convert(), it.ptr) }
+            ldbCall { leveldb_put(nonNullPtr, optionsPtr, key.pointer(), key.size.convert(), value.pointer(), value.size.convert(), it.ptr) }
         }
     }
 
-    override fun delete(key: ReadBuffer, options: LevelDB.WriteOptions) {
+    override fun delete(key: ReadMemory, options: LevelDB.WriteOptions) {
         options.usePointer { optionsPtr ->
-            ldbCall { leveldb_delete(nonNullPtr, optionsPtr, key.pointer(), key.remaining.convert(), it.ptr) }
+            ldbCall { leveldb_delete(nonNullPtr, optionsPtr, key.pointer(), key.size.convert(), it.ptr) }
         }
     }
 
@@ -157,11 +154,11 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         }
     }
 
-    override fun get(key: ReadBuffer, options: LevelDB.ReadOptions): Allocation? {
+    override fun get(key: ReadMemory, options: LevelDB.ReadOptions): Allocation? {
         options.usePointer { optionsPtr ->
             return ldbCall {
                 val valueSize = alloc<size_tVar>()
-                val value = leveldb_get(nonNullPtr, optionsPtr, key.pointer(), key.remaining.convert(), valueSize.ptr, it.ptr)
+                val value = leveldb_get(nonNullPtr, optionsPtr, key.pointer(), key.size.convert(), valueSize.ptr, it.ptr)
                 if (value != null)
                     NativeBytes(value, valueSize.value.toInt(), dbHandler, this@LevelDBNative.options)
                 else
@@ -171,11 +168,11 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
         throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
     }
 
-    override fun indirectGet(key: ReadBuffer, options: LevelDB.ReadOptions): Allocation? {
+    override fun indirectGet(key: ReadMemory, options: LevelDB.ReadOptions): Allocation? {
         options.usePointer { optionsPtr ->
             val (newKey, newKeySize) = ldbCall {
                 val newKeySize = alloc<size_tVar>()
-                val newKey = leveldb_get(nonNullPtr, optionsPtr, key.pointer(), key.remaining.convert(), newKeySize.ptr, it.ptr)
+                val newKey = leveldb_get(nonNullPtr, optionsPtr, key.pointer(), key.size.convert(), newKeySize.ptr, it.ptr)
                 newKey to newKeySize.value
             }
             if (newKey == null)
@@ -227,8 +224,8 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
             ldbItCall { leveldb_iter_seek_to_last(nonNullPtr) }
         }
 
-        override fun seekTo(target: ReadBuffer) {
-            ldbItCall { leveldb_iter_seek(nonNullPtr, target.pointer(), target.remaining.convert()) }
+        override fun seekTo(target: ReadMemory) {
+            ldbItCall { leveldb_iter_seek(nonNullPtr, target.pointer(), target.size.convert()) }
         }
 
         override fun next() {
@@ -285,12 +282,12 @@ class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: Level
 
     internal class WriteBatch internal constructor(ptr: CPointer<leveldb_writebatch_t>, handler: Handler, options: LevelDB.Options) : PointerBound<leveldb_writebatch_t>(ptr, "WriteBatch", handler, options), LevelDB.WriteBatch {
 
-        override fun put(key: ReadBuffer, value: ReadBuffer) {
-            leveldb_writebatch_put(nonNullPtr, key.pointer(), key.remaining.convert(), value.pointer(), value.remaining.convert())
+        override fun put(key: ReadMemory, value: ReadMemory) {
+            leveldb_writebatch_put(nonNullPtr, key.pointer(), key.size.convert(), value.pointer(), value.size.convert())
         }
 
-        override fun delete(key: ReadBuffer) {
-            leveldb_writebatch_delete(nonNullPtr, key.pointer(), key.remaining.convert())
+        override fun delete(key: ReadMemory) {
+            leveldb_writebatch_delete(nonNullPtr, key.pointer(), key.size.convert())
         }
 
         override fun release(ptr: CPointer<leveldb_writebatch_t>) {

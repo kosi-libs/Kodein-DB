@@ -4,7 +4,10 @@ import org.kodein.db.Value
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
 import org.kodein.memory.io.Allocation
+import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.native
+import org.kodein.memory.text.Charset
+import org.kodein.memory.text.wrap
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,7 +18,7 @@ class DataKeysTests_02_IndexKey {
     @Test
     fun test00_SimpleIndexKey() {
         Allocation.native(32).use { objectKey ->
-            objectKey.putObjectKey("Test", Value.ofAscii("one"))
+            objectKey.putObjectKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("one"))
             objectKey.flip()
 
             val indexSize = getIndexKeySize(objectKey, "Symbols", Value.ofAscii("alpha"))
@@ -31,7 +34,7 @@ class DataKeysTests_02_IndexKey {
     @Test
     fun test01_CompositeIndexKey() {
         Allocation.native(32).use { objectKey ->
-            objectKey.putObjectKey("Test", Value.ofAscii("one", "two"))
+            objectKey.putObjectKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("one", "two"))
             objectKey.flip()
 
             val indexSize = getIndexKeySize(objectKey, "Symbols", Value.ofAscii("alpha", "beta"))

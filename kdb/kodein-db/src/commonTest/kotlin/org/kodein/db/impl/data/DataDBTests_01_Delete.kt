@@ -3,6 +3,9 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.indexSet
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.text.Charset
+import org.kodein.memory.text.wrap
 import kotlin.test.Test
 
 @Suppress("ClassName")
@@ -10,7 +13,7 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test00_DeleteWithoutIndex() {
-        val key = ddb.newKey("Test", Value.ofAscii("aaa", "bbb"))
+        val key = ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa", "bbb"))
         ddb.put(key, Value.ofAscii("ValueAB1"))
         ddb.delete(key)
 
@@ -20,7 +23,7 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test01_DeleteWithIndex() {
-        val key = ddb.newKey("Test", Value.ofAscii("aaa"))
+        val key = ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa"))
         ddb.put(key, Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta"), "Numbers" to Value.ofAscii("forty", "two")))
         ddb.delete(key)
 
@@ -30,8 +33,8 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test02_DeleteUnknown() {
-        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        val key = ddb.newKey("Test", Value.ofAscii("bbb"))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        val key = ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("bbb"))
         ddb.delete(key)
 
         assertDBIs(
@@ -43,9 +46,9 @@ class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test03_Delete1of2() {
-        val key = ddb.newKey("Test", Value.ofAscii("aaa"))
+        val key = ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa"))
         ddb.put(key, Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
         ddb.delete(key)
 
         assertDBIs(

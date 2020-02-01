@@ -4,8 +4,8 @@ package org.kodein.db.leveldb
 import org.kodein.log.LoggerFactory
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.Allocation
-import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 
 /**
  * Google's LevelDB in Java.
@@ -26,7 +26,7 @@ interface LevelDB : Closeable {
      * @param value The value ov the entry to put.
      * @param options Options that control this write operation.
      */
-    fun put(key: ReadBuffer, value: ReadBuffer, options: WriteOptions = WriteOptions.DEFAULT)
+    fun put(key: ReadMemory, value: ReadMemory, options: WriteOptions = WriteOptions.DEFAULT)
 
     /**
      * Delete an entry from the database.
@@ -34,7 +34,7 @@ interface LevelDB : Closeable {
      * @param key The key of the entry to delete.
      * @param options Options that control this write operation.
      */
-    fun delete(key: ReadBuffer, options: WriteOptions = WriteOptions.DEFAULT)
+    fun delete(key: ReadMemory, options: WriteOptions = WriteOptions.DEFAULT)
 
     /**
      * Write a batch atomically to the database.
@@ -59,7 +59,7 @@ interface LevelDB : Closeable {
      * @param options Options that control this read operation.
      * @return The entry value.
      */
-    fun get(key: ReadBuffer, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
+    fun get(key: ReadMemory, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Get an entry value bytes by following the value of the given key.
@@ -78,7 +78,7 @@ interface LevelDB : Closeable {
      * @param options Options that control this read operation.
      * @return The found entry value
      */
-    fun indirectGet(key: ReadBuffer, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
+    fun indirectGet(key: ReadMemory, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Get an entry value bytes by following the value of the cursor current key.
@@ -182,14 +182,14 @@ interface LevelDB : Closeable {
          * @param key The key of the entry to put.
          * @param value The value ov the entry to put.
          */
-        fun put(key: ReadBuffer, value: ReadBuffer)
+        fun put(key: ReadMemory, value: ReadMemory)
 
         /**
          * Registers a key whose entry is to be deleted from the database.
          *
          * @param key The key of the entry to delete.
          */
-        fun delete(key: ReadBuffer)
+        fun delete(key: ReadMemory)
 
         /**
          * Clear all updates buffered in this batch.
@@ -246,7 +246,7 @@ interface LevelDB : Closeable {
          *
          * @param target The key to seek to.
          */
-        fun seekTo(target: ReadBuffer)
+        fun seekTo(target: ReadMemory)
 
         /**
          * Position the cursor on the entry right next after the current one.
@@ -269,7 +269,7 @@ interface LevelDB : Closeable {
          *
          * @return The key bytes.
          */
-        fun transientKey(): KBuffer
+        fun transientKey(): ReadBuffer
 
         /**
          * Get a Buffer containing the current value.
@@ -278,7 +278,7 @@ interface LevelDB : Closeable {
          *
          * @return The value bytes.
          */
-        fun transientValue(): KBuffer
+        fun transientValue(): ReadBuffer
 
         override fun close()
     }
@@ -320,7 +320,7 @@ interface LevelDB : Closeable {
             /**
              * If true, the implementation will do aggressive checking of the data it is processing and will stop early if it detects any errors.
              *
-             * This may have unforeseen ramifications: for example, a corruption of one DB entry may cause a large number of entries to become unReadBuffer or for the entire DB to become unopenable.
+             * This may have unforeseen ramifications: for example, a corruption of one DB entry may cause a large number of entries to become unreadable or for the entire DB to become unopenable.
              *
              * (Default: false)
              */
@@ -507,20 +507,6 @@ interface LevelDB : Closeable {
             val DEFAULT = WriteOptions()
         }
     }
-
-//    interface Table {
-//        fun newCursor(options: ReadOptions = ReadOptions.DEFAULT): Cursor
-//        fun approximateOffsetOf(key: Bytes)
-//
-//        interface Builder {
-//            fun add(key: Bytes, value: Bytes)
-//            fun flush()
-//            fun finish()
-//            fun abandon()
-//            fun numEntries(): Int
-//            fun fileSize(): Long
-//        }
-//    }
 
 }
 

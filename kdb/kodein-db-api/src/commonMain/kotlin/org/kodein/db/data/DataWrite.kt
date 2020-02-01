@@ -3,13 +3,13 @@ package org.kodein.db.data
 import org.kodein.db.Body
 import org.kodein.db.Index
 import org.kodein.db.Options
-import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 
 interface DataWrite : DataKeyMaker {
 
-    fun put(key: ReadBuffer, body: Body, indexes: Set<Index> = emptySet(), vararg options: Options.Write): Int
+    fun put(key: ReadMemory, body: Body, indexes: Set<Index> = emptySet(), vararg options: Options.Write): Int
 
-    fun delete(key: ReadBuffer, vararg options: Options.Write)
+    fun delete(key: ReadMemory, vararg options: Options.Write)
 
     /**
      * If true, the write will be flushed from the operating system buffer cache (by calling WritableFile::Sync()) before the write is considered complete.

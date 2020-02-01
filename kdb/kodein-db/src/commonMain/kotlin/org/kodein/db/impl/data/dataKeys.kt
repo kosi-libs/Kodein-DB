@@ -14,21 +14,19 @@ private object Prefix {
 
 private const val NULL = 0.toByte()
 
-internal fun ReadBuffer.verifyObjectKey() {
-    mark(this) {
-        require(read() == Prefix.OBJECT) { "Bad key" }
-        require(read() == NULL) { "Bad key" }
-        require(firstIndexOf(NULL, 2) > 0) { "Bad key" }
-    }
+internal fun ReadMemory.verifyObjectKey() {
+    require(get(0) == Prefix.OBJECT) { "Bad key" }
+    require(get(1) == NULL) { "Bad key" }
+    require(firstIndexOf(NULL, 2) > 0) { "Bad key" }
 }
 
 internal val objectEmptyPrefix: ByteArray = byteArrayOf(Prefix.OBJECT, NULL)
 
-internal fun Writeable.putObjectKey(type: String, id: Value?, isOpen: Boolean = false) {
+internal fun Writeable.putObjectKey(type: ReadMemory, id: Value?, isOpen: Boolean = false) {
     put(Prefix.OBJECT)
     put(NULL)
 
-    putAscii(type)
+    putBytes(type.duplicate())
     put(NULL)
 
     if (id != null) {
@@ -38,10 +36,10 @@ internal fun Writeable.putObjectKey(type: String, id: Value?, isOpen: Boolean = 
     }
 }
 
-internal fun getObjectKeySize(type: String, id: Value?, isOpen: Boolean = false): Int {
+internal fun getObjectKeySize(typeSize: Int, id: Value?, isOpen: Boolean = false): Int {
     var size = (
             2                      // PREFIX_OBJECT + NULL
-        +   type.length + 1)       // type + NULL
+        +   typeSize + 1)       // type + NULL
 
     if (id != null) {
         size += id.size    // id
@@ -52,28 +50,28 @@ internal fun getObjectKeySize(type: String, id: Value?, isOpen: Boolean = false)
     return size
 }
 
-internal fun Writeable.putRefKeyFromObjectKey(objectKey: ReadBuffer) {
-    mark(objectKey) {
+internal fun Writeable.putRefKeyFromObjectKey(objectKey: ReadMemory) {
+    objectKey.markBuffer {
         put(Prefix.REFERENCE)
-        objectKey.skip(1)
-        putBytes(objectKey)
+        it.skip(1)
+        putBytes(it)
     }
 }
 
-internal fun getObjectKeyType(key: ReadBuffer): ReadBuffer {
-    val typeEnd = key.firstIndexOf(NULL, key.position + 2)
+internal fun getObjectKeyType(key: ReadMemory): ReadBuffer {
+    val typeEnd = key.firstIndexOf(NULL, 2)
     check(typeEnd != -1)
     return key.slice(2, typeEnd - 2)
 }
 
-internal fun getObjectKeyID(key: ReadBuffer): ReadBuffer {
-    val typeEnd = key.firstIndexOf(NULL, key.position + 2)
+internal fun getObjectKeyID(key: ReadMemory): ReadBuffer {
+    val typeEnd = key.firstIndexOf(NULL, 2)
     check(typeEnd != -1)
-    return key.slice(typeEnd + 1, key.limit - typeEnd - 2)
+    return key.slice(typeEnd + 1, key.size - typeEnd - 2)
 }
 
-internal fun getIndexKeyName(key: ReadBuffer): ReadBuffer {
-    val typeEnd = key.firstIndexOf(NULL, key.position + 2)
+internal fun getIndexKeyName(key: ReadMemory): ReadBuffer {
+    val typeEnd = key.firstIndexOf(NULL, 2)
     check(typeEnd != -1)
 
     val nameEnd = key.firstIndexOf(NULL, typeEnd + 1)
@@ -83,51 +81,49 @@ internal fun getIndexKeyName(key: ReadBuffer): ReadBuffer {
     return key.slice(typeEnd + 1, nameSize)
 }
 
-private fun Writeable.putIndexKey(type: ReadBuffer, id: ReadBuffer, name: String, value: Value) {
-    mark(type, id) {
-        put(Prefix.INDEX)
-        put(NULL)
+private fun Writeable.putIndexKey(type: ReadMemory, id: ReadMemory, name: String, value: Value) {
+    put(Prefix.INDEX)
+    put(NULL)
 
-        putBytes(type)
-        put(NULL)
+    type.markBuffer { putBytes(it) }
+    put(NULL)
 
-        putAscii(name)
-        put(NULL)
+    putAscii(name)
+    put(NULL)
 
-        putBody(value)
-        put(NULL)
+    putBody(value)
+    put(NULL)
 
-        putBytes(id)
-        put(NULL)
-    }
+    id.markBuffer { putBytes(it) }
+    put(NULL)
 }
 
-internal fun Writeable.putIndexKey(objectKey: ReadBuffer, name: String, value: Value) {
+internal fun Writeable.putIndexKey(objectKey: ReadMemory, name: String, value: Value) {
     val type = getObjectKeyType(objectKey)
     val id = getObjectKeyID(objectKey)
 
     putIndexKey(type, id, name, value)
 }
 
-internal fun getIndexKeySize(objectKey: ReadBuffer, name: String, value: Value): Int {
+internal fun getIndexKeySize(objectKey: ReadMemory, name: String, value: Value): Int {
     val type = getObjectKeyType(objectKey)
     val id = getObjectKeyID(objectKey)
 
     return (
             2                   // PREFIX_INDEX + NULL
-        +   type.remaining + 1  // type + NULL
+        +   type.size + 1  // type + NULL
         +   name.length + 1     // name + NULL
         +   value.size + 1      // value + NULL
-        +   id.remaining + 1    // id + NULL
+        +   id.size + 1    // id + NULL
     )
 }
 
 @Suppress("DuplicatedCode")
-internal fun Writeable.putIndexKeyStart(type: String, name: String, value: Value?, isOpen: Boolean = false) {
+internal fun Writeable.putIndexKeyStart(type: ReadMemory, name: String, value: Value?, isOpen: Boolean = false) {
     put(Prefix.INDEX)
     put(NULL)
 
-    putAscii(type)
+    type.markBuffer { putBytes(it) }
     put(NULL)
 
     putAscii(name)
@@ -140,10 +136,10 @@ internal fun Writeable.putIndexKeyStart(type: String, name: String, value: Value
     }
 }
 
-internal fun getIndexKeyStartSize(type: String, name: String, value: Value?, isOpen: Boolean = false): Int {
+internal fun getIndexKeyStartSize(type: ReadMemory, name: String, value: Value?, isOpen: Boolean = false): Int {
     var size = (
             2                           // PREFIX_INDEX + NULL
-        +   type.length + 1             // type + NULL
+        +   type.size + 1               // type + NULL
         +   name.length + 1             // name + NULL
     )
 

@@ -13,6 +13,7 @@ import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.Serializer
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.Writeable
 import org.kodein.memory.util.forEachResilient
 import kotlin.reflect.KClass
@@ -35,7 +36,7 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
                     ?: throw IllegalArgumentException("No serializer found for type ${model::class}")
 
     @Suppress("UNCHECKED_CAST")
-    internal fun deserialize(type: KClass<out Any>, transientId: ReadBuffer, input: ReadBuffer, vararg options: Options.Read): Any =
+    internal fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any =
             (classSerializers[type] as? Serializer<Any>)?.deserialize(type, transientId, input, *options)
                     ?: defaultSerializer?.deserialize(type, transientId, input, *options)
                     ?: throw IllegalArgumentException("No serializer found for type $type")

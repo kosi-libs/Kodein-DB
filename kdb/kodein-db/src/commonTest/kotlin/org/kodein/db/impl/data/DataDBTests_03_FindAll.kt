@@ -3,6 +3,9 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.indexSet
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.text.Charset
+import org.kodein.memory.text.wrap
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -13,9 +16,9 @@ class DataDBTests_03_FindAll : DataDBTests() {
 
     @Test
     fun test00_FindAll() {
-        ddb.put(ddb.newKey("Test1", Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey("Test1", Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey("Test2", Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test1", Charset.ASCII), Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test1", Charset.ASCII), Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test2", Charset.ASCII), Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAll().use {
             assertTrue(it.isValid())
@@ -33,9 +36,9 @@ class DataDBTests_03_FindAll : DataDBTests() {
 
     @Test
     fun test01_FindAllReverse() {
-        ddb.put(ddb.newKey("Test1", Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey("Test1", Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey("Test2", Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test1", Charset.ASCII), Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test1", Charset.ASCII), Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test2", Charset.ASCII), Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAll().use {
             it.seekToLast()

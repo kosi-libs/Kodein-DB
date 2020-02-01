@@ -68,8 +68,8 @@ fun assertBytesEquals(expected: ByteArray, actual: ByteArray, description: Boole
             fail("Bytes are not equal:\nExpected: ${expected.hex()}\nActual:   ${actual.hex()}")    }
 }
 
-fun assertBytesEquals(expected: ByteArray, actual: ReadBuffer, description: Boolean = true) =
+fun assertBytesEquals(expected: ByteArray, actual: ReadMemory, description: Boolean = true) =
         assertBytesEquals(expected, actual.duplicate().readBytes(), description)
 
-fun assertBytesEquals(expected: ReadBuffer, actual: ReadBuffer, description: Boolean = true) =
-        assertBytesEquals(expected.getBytes(expected.position), actual.getBytes(actual.position), description)
+fun assertBytesEquals(expected: ReadBuffer, actual: ReadMemory, description: Boolean = true) =
+        assertBytesEquals(expected.getBytes(expected.position), actual.getBytes(0), description)

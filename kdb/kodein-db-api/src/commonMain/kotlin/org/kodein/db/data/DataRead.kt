@@ -3,23 +3,23 @@ package org.kodein.db.data
 import org.kodein.db.Options
 import org.kodein.db.Value
 import org.kodein.memory.io.Allocation
-import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 
 interface DataRead : DataKeyMaker {
 
-    fun get(key: ReadBuffer, vararg options: Options.Read): Allocation?
+    fun get(key: ReadMemory, vararg options: Options.Read): Allocation?
 
     fun findAll(vararg options: Options.Read): DataCursor
 
-    fun findAllByType(type: String, vararg options: Options.Read): DataCursor
+    fun findAllByType(type: ReadMemory, vararg options: Options.Read): DataCursor
 
-    fun findById(type: String, id: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
+    fun findById(type: ReadMemory, id: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
 
-    fun findAllByIndex(type: String, index: String, vararg options: Options.Read): DataCursor
+    fun findAllByIndex(type: ReadMemory, index: String, vararg options: Options.Read): DataCursor
 
-    fun findByIndex(type: String, index: String, value: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
+    fun findByIndex(type: ReadMemory, index: String, value: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
 
-    fun getIndexesOf(key: ReadBuffer, vararg options: Options.Read): List<String>
+    fun getIndexesOf(key: ReadMemory, vararg options: Options.Read): List<String>
 
     /**
      * If true, all data read from underlying storage will be verified against corresponding checksums.

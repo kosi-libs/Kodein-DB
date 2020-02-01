@@ -6,10 +6,12 @@ import org.kodein.db.model.get
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.array
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotSame
 
 @Suppress("ClassName")
-open class ModelDBTests_09_Primitives : ModelDBTests() {
+open class ModelDBTests_08_Primitives : ModelDBTests() {
 
     @Test
     fun test00_Int() {

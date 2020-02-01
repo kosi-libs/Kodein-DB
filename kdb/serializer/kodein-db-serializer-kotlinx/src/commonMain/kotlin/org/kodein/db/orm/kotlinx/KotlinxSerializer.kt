@@ -7,9 +7,9 @@ import org.kodein.db.invoke
 import org.kodein.db.model.orm.Serializer
 import org.kodein.db.simpleTypeNameOf
 import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.Writeable
 import org.kodein.memory.io.readBytes
-import kotlin.collections.HashMap
 import kotlin.collections.set
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
@@ -50,7 +50,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
     }
 
     @ImplicitReflectionSerializer
-    override fun deserialize(type: KClass<out Any>, transientId: ReadBuffer, input: ReadBuffer, vararg options: Options.Read): Any {
+    override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
         val serializer = options<KXSerializer>()?.serializer ?: serializers[type] ?: type.serializer().also { serializers[type] = it }
         val bytes = input.readBytes()
         @Suppress("UNCHECKED_CAST")

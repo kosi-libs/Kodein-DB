@@ -1,7 +1,7 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.BaseCursor
-import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 
 interface ResettableCursorModule : BaseCursor {
     val cursor: BaseCursor
@@ -30,7 +30,7 @@ interface ResettableCursorModule : BaseCursor {
         cursor.seekToLast()
     }
 
-    override fun seekTo(target: ReadBuffer) {
+    override fun seekTo(target: ReadMemory) {
         reset()
         cursor.seekTo(target)
     }

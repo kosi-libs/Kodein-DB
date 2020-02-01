@@ -5,13 +5,13 @@ package org.kodein.db
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.StringDescriptor
 import org.kodein.memory.io.KBuffer
-import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.wrap
 import org.kodein.memory.text.Base64
 
 @Suppress("unused")
 @Serializable(with = Key.KxSerializer::class)
-class Key<out T : Any>(val bytes: ReadBuffer) {
+class Key<out T : Any>(val bytes: ReadMemory) {
     override fun hashCode(): Int = bytes.hashCode()
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

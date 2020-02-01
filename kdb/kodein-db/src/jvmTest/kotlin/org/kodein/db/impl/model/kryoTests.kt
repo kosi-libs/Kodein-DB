@@ -51,22 +51,12 @@ class ModelDBTests_07_React_Kryo : ModelDBTests_07_React() {
     override fun testTypeTable() = TypeTable.withFullName()
 }
 
-class ModelDBTests_08_TableByClass_Kryo : ModelDBTests_08_TableByClass() {
+class ModelDBTests_08_Primitives_Kryo : ModelDBTests_08_Primitives() {
     override fun testSerializer(): Serializer<Any> = KryoSerializer()
     override fun testTypeTable() = TypeTable.withFullName()
 }
 
-class ModelDBTests_09_Primitives_Kryo : ModelDBTests_09_Primitives() {
-    override fun testSerializer(): Serializer<Any> = KryoSerializer()
-    override fun testTypeTable() = TypeTable.withFullName()
-}
-
-class ModelDBTests_10_Checks_Kryo : ModelDBTests_10_Checks() {
-    override fun testSerializer(): Serializer<Any> = KryoSerializer()
-    override fun testTypeTable() = TypeTable.withFullName()
-}
-
-class ModelDBTests_11_MetadataExtractor_Kryo : ModelDBTests_11_MetadataExtractor() {
+class ModelDBTests_09_Checks_Kryo : ModelDBTests_09_Checks() {
     override fun testSerializer(): Serializer<Any> = KryoSerializer()
     override fun testTypeTable() = TypeTable.withFullName()
 }

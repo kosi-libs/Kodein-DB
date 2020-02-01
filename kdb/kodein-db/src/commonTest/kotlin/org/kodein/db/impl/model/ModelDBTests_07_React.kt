@@ -7,6 +7,9 @@ import org.kodein.db.model.delete
 import org.kodein.db.model.get
 import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.Closeable
+import org.kodein.memory.io.ReadMemory
+import org.kodein.memory.text.Charset
+import org.kodein.memory.text.getString
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
 import org.kodein.memory.util.getShadowed
@@ -31,25 +34,25 @@ open class ModelDBTests_07_React : ModelDBTests() {
                 ++setSubscriptionCalls
             }
 
-            override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {
+            override fun willPut(model: Any, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {
                 assertSame(me, model)
-                assertEquals("Adult", typeName.split(".").last())
+                assertEquals("Adult", typeName.getString(0, Charset.ASCII).split(".").last())
                 assertEquals(me.id, metadata.id)
                 assertEquals(me.indexes, metadata.indexes)
                 ++willPutCalls
             }
 
-            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
                 assertSame(me, model)
-                assertEquals("Adult", typeName.split(".").last())
+                assertEquals("Adult", typeName.getString(0, Charset.ASCII).split(".").last())
                 assertEquals(me.id, metadata.id)
                 assertEquals(me.indexes, metadata.indexes)
                 ++didPutCalls
             }
 
-            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) {
+            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
                 assertEquals(mdb.newKeyFrom(me), key)
-                assertEquals("Adult", typeName.split(".").last())
+                assertEquals("Adult", typeName.getString(0, Charset.ASCII).split(".").last())
                 val model = getModel()
                 assertNotSame(me, model)
                 assertEquals(me, model)
@@ -57,11 +60,11 @@ open class ModelDBTests_07_React : ModelDBTests() {
                 ++willDeleteCalls
             }
 
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
                 assertEquals(mdb.newKeyFrom(me), key)
                 assertNotSame(me, model)
                 assertEquals(me, model)
-                assertEquals("Adult", typeName.split(".").last())
+                assertEquals("Adult", typeName.getString(0, Charset.ASCII).split(".").last())
                 ++didDeleteCalls
             }
         }
@@ -109,7 +112,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
                 ++setSubscriptionCalls
             }
 
-            override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {
+            override fun willPut(model: Any, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {
                 if (willPutCalls == 0)
                     assertSame(me, model)
                 else
@@ -117,7 +120,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
                 ++willPutCalls
             }
 
-            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
                 if (didPutCalls == 0)
                     assertSame(me, model)
                 else
@@ -125,7 +128,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
                 ++didPutCalls
             }
 
-            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) {
+            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
                 if (willDeleteCalls == 0)
                     assertEquals(me, getModel())
                 else
@@ -133,7 +136,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
                 ++willDeleteCalls
             }
 
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
                 if (didDeleteCalls == 0) {
                     assertEquals(mdb.newKeyFrom(me), key)
                     assertEquals(me, model)
@@ -206,23 +209,23 @@ open class ModelDBTests_07_React : ModelDBTests() {
         val putListener = object : DBListener<Any> {
             private lateinit var sub: Closeable
             override fun setSubscription(subscription: Closeable) { sub = subscription }
-            override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) {
+            override fun willPut(model: Any, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {
                 sub.close()
                 willPutCalled = true
             }
-            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = fail("didPut")
-            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) = fail("willDeltete")
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = fail("didDelete")
+            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) = fail("didPut")
+            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: ReadMemory, options: Array<out Options.Write>) = fail("willDeltete")
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) = fail("didDelete")
         }
 
         val deleteListener = object : DBListener<Any> {
             private lateinit var sub: Closeable
             override fun setSubscription(subscription: Closeable) { sub = subscription }
-            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) {
+            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
                 sub.close()
                 willDeleteCalled = true
             }
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = fail("didDelete")
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) = fail("didDelete")
         }
 
         mdb.register(putListener)
@@ -259,24 +262,24 @@ open class ModelDBTests_07_React : ModelDBTests() {
         var thirdDidDeleteCalled = false
 
         val firstListener = object : DBListener<Any> {
-            override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) { firstWillPutCalled = true }
-            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { firstDidPutCalled = true }
-            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) { firstWillDeleteCalled = true }
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) { firstDidDeleteCalled = true }
+            override fun willPut(model: Any, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) { firstWillPutCalled = true }
+            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) { firstDidPutCalled = true }
+            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: ReadMemory, options: Array<out Options.Write>) { firstWillDeleteCalled = true }
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) { firstDidDeleteCalled = true }
         }
 
         val secondListener = object : DBListener<Any> {
-            override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) = throw IllegalStateException("willPut")
-            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { secondDidPutCalled = true }
-            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException("willDelete")
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) { secondDidDeleteCalled = true }
+            override fun willPut(model: Any, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) = throw IllegalStateException("willPut")
+            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) { secondDidPutCalled = true }
+            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: ReadMemory, options: Array<out Options.Write>) = throw IllegalStateException("willDelete")
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) { secondDidDeleteCalled = true }
         }
 
         val thirdListener = object : DBListener<Any> {
-            override fun willPut(model: Any, typeName: String, metadata: Metadata, options: Array<out Options.Write>) { thirdWillPutCalled = true }
-            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) { thirdDidPutCalled = true }
-            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: String, options: Array<out Options.Write>) { thirdWillDeleteCalled = true }
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) { thirdDidDeleteCalled = true }
+            override fun willPut(model: Any, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) { thirdWillPutCalled = true }
+            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) { thirdDidPutCalled = true }
+            override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: ReadMemory, options: Array<out Options.Write>) { thirdWillDeleteCalled = true }
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) { thirdDidDeleteCalled = true }
         }
 
         mdb.register(firstListener)
@@ -317,13 +320,13 @@ open class ModelDBTests_07_React : ModelDBTests() {
     fun test03_DidOpExceptions() {
 
         val firstListener = object : DBListener<Any> {
-            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("first didPut")
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException("first didDelete")
+            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("first didPut")
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) = throw IllegalStateException("first didDelete")
         }
 
         val secondListener = object : DBListener<Any> {
-            override fun didPut(model: Any, key: Key<*>, typeName: String, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("second didPut")
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) = throw IllegalStateException("second didDelete")
+            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException("second didPut")
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) = throw IllegalStateException("second didDelete")
         }
 
         mdb.register(firstListener)
@@ -356,7 +359,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
         var passed = false
 
         mdb.register(object : DBListener<Any> {
-            override fun didDelete(key: Key<*>, model: Any?, typeName: String, options: Array<out Options.Write>) {
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
                 assertNull(model)
                 passed = true
             }

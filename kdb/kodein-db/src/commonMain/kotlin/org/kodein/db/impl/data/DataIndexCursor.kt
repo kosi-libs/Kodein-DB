@@ -1,11 +1,11 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.leveldb.LevelDB
-import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.ReadBuffer
 
 internal class DataIndexCursor internal constructor(private val ldb: LevelDB, it: LevelDB.Cursor, prefix: ByteArray, options: LevelDB.ReadOptions) : AbstractDataCursor(it, prefix) {
 
-    private var cachedItValue: KBuffer? = null
+    private var cachedItValue: ReadBuffer? = null
 
     private val options: LevelDB.ReadOptions = if (options.snapshot == null) options.copy(snapshot = ldb.newSnapshot()) else options
 

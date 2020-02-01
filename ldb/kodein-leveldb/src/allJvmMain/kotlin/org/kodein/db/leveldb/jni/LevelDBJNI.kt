@@ -4,7 +4,7 @@ import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.KBuffer
-import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.wrap
 
 /**
@@ -52,7 +52,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
         dbHandler.close()
     }
 
-    override fun put(key: ReadBuffer, value: ReadBuffer, options: LevelDB.WriteOptions) {
+    override fun put(key: ReadMemory, value: ReadMemory, options: LevelDB.WriteOptions) {
         val directKey = key.directByteBuffer()
         val directValue = value.directByteBuffer()
 
@@ -71,7 +71,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
         }
     }
 
-    override fun delete(key: ReadBuffer, options: LevelDB.WriteOptions) {
+    override fun delete(key: ReadMemory, options: LevelDB.WriteOptions) {
         val directKey = key.directByteBuffer()
         if (directKey != null) {
             Native.deleteB(nonZeroPtr, directKey, directKey.position(), directKey.remaining(), options.sync)
@@ -85,7 +85,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
         Native.write(nonZeroPtr, (batch as WriteBatch).nonZeroPtr, options.sync)
     }
 
-    override fun get(key: ReadBuffer, options: LevelDB.ReadOptions): Allocation? {
+    override fun get(key: ReadMemory, options: LevelDB.ReadOptions): Allocation? {
         val directKey = key.directByteBuffer()
         val valuePtr = if (directKey != null) {
             Native.getB(nonZeroPtr, directKey, directKey.position(), directKey.remaining(), options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot))
@@ -97,7 +97,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
 
     }
 
-    override fun indirectGet(key: ReadBuffer, options: LevelDB.ReadOptions): Allocation? {
+    override fun indirectGet(key: ReadMemory, options: LevelDB.ReadOptions): Allocation? {
         val directKey = key.directByteBuffer()
         val valuePtr = if (directKey != null) {
             Native.indirectGetB(nonZeroPtr, directKey, directKey.position(), directKey.remaining(), options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot))
@@ -141,7 +141,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
 
     private class WriteBatch internal constructor(ptr: Long, handler: Handler, options: LevelDB.Options) : NativeBound(ptr, "WriteBatch", handler, options), LevelDB.WriteBatch {
 
-        override fun put(key: ReadBuffer, value: ReadBuffer) {
+        override fun put(key: ReadMemory, value: ReadMemory) {
             val directKey = key.directByteBuffer()
             val directValue = value.directByteBuffer()
 
@@ -160,7 +160,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
             }
         }
 
-        override fun delete(key: ReadBuffer) {
+        override fun delete(key: ReadMemory) {
             val directKey = key.directByteBuffer()
             if (directKey != null) {
                 Native.writeBatchDeleteB(nonZeroPtr, directKey, directKey.position(), directKey.remaining())
@@ -206,7 +206,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
             Native.iteratorSeekToLast(nonZeroPtr)
         }
 
-        override fun seekTo(target: ReadBuffer) {
+        override fun seekTo(target: ReadMemory) {
             val directTarget = target.directByteBuffer()
             if (directTarget != null) {
                 Native.iteratorSeekB(nonZeroPtr, directTarget, directTarget.position(), directTarget.remaining())

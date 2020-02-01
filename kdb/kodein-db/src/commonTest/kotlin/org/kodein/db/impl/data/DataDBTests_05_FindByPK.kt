@@ -4,6 +4,9 @@ import org.kodein.db.Value
 import org.kodein.db.indexSet
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.io.KBuffer
+import org.kodein.memory.text.Charset
+import org.kodein.memory.text.wrap
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -14,11 +17,11 @@ class DataDBTests_05_FindByPK : DataDBTests() {
 
     @Test
     fun test00_FindByPKCompositeKey() {
-        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findById("Test", Value.ofAscii("aaa")).use {
+        ddb.findById(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa")).use {
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, "Test", 0, "aaa", 0, 'a', 0), byteArray("ValueAa1!"), it)
             assertBytesEquals(it.transientKey(), it.transientSeekKey())
@@ -33,11 +36,11 @@ class DataDBTests_05_FindByPK : DataDBTests() {
 
     @Test
     fun test01_FindByPKReverseCompositeKey() {
-        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey("Test", Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put(ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findById("Test", Value.ofAscii("aaa")).use {
+        ddb.findById(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa")).use {
             assertTrue(it.isValid())
             it.seekToLast()
             assertTrue(it.isValid())
@@ -54,10 +57,10 @@ class DataDBTests_05_FindByPK : DataDBTests() {
 
     @Test
     fun test02_FindByPKUnknownKey() {
-        ddb.put( ddb.newKey("Test", Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put( ddb.newKey("Test", Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put( ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put( ddb.newKey(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
 
-        ddb.findById("Test", Value.ofAscii("ccc")).use {
+        ddb.findById(KBuffer.wrap("Test", Charset.ASCII), Value.ofAscii("ccc")).use {
             assertFalse(it.isValid())
         }
     }

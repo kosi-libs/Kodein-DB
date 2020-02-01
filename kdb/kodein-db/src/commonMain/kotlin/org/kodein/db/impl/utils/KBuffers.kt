@@ -1,15 +1,13 @@
 package org.kodein.db.impl.utils
 
 import org.kodein.db.Body
-import org.kodein.memory.io.ReadBuffer
-import org.kodein.memory.io.Writeable
-import org.kodein.memory.io.getBytes
+import org.kodein.memory.io.*
 import kotlin.math.min
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun Writeable.putBody(value: Body) = value.writeInto(this)
 
-internal fun ReadBuffer.firstIndexOf(search: Byte, startAt: Int = 0): Int {
+internal fun ReadMemory.firstIndexOf(search: Byte, startAt: Int = 0): Int {
     for (index in startAt until limit) {
         if (get(index) == search)
             return index
@@ -18,11 +16,11 @@ internal fun ReadBuffer.firstIndexOf(search: Byte, startAt: Int = 0): Int {
     return -1
 }
 
-internal fun ReadBuffer.startsWith(prefix: ByteArray): Boolean {
-    if (this.remaining < prefix.size)
+internal fun ReadMemory.startsWith(prefix: ByteArray): Boolean {
+    if (this.size < prefix.size)
         return false
 
-    val start = this.getBytes(this.position, prefix.size)
+    val start = this.getBytes(0, prefix.size)
 
     return prefix.contentEquals(start)
 }

@@ -1,7 +1,6 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.data.DataCursor
-import org.kodein.db.impl.utils.compareTo
 import org.kodein.db.impl.utils.startsWith
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
@@ -9,8 +8,8 @@ import org.kodein.memory.io.*
 internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, private val prefix: ByteArray) : DataCursor {
 
     private var cachedValid: Boolean? = null
-    private var cachedItKey: KBuffer? = null
-    private var cachedValue: Allocation? = null
+    private var cachedItKey: ReadMemory? = null
+    private var cachedValue: ReadAllocation? = null
 
     private var lastKey: Allocation? = null
 
@@ -25,7 +24,7 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
         cachedValue = null
     }
 
-    protected fun itKey(): KBuffer {
+    protected fun itKey(): ReadMemory {
         return cachedItKey ?: it.transientKey().also { cachedItKey = it }
     }
 
@@ -51,9 +50,7 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
         it.prev()
     }
 
-    final override fun seekTo(target: ReadBuffer) {
-        if (!target.hasRemaining())
-            return
+    final override fun seekTo(target: ReadMemory) {
         cacheReset()
         if (!target.startsWith(prefix)) {
             if (target > prefix) {
@@ -89,25 +86,25 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
             it.seekToLast()
     }
 
-    protected abstract fun thisKey(): KBuffer
+    protected abstract fun thisKey(): ReadMemory
 
-    final override fun transientKey(): ReadBuffer {
+    final override fun transientKey(): ReadMemory {
         check(isValid()) { "Cursor is not valid" }
 
         return  thisKey().duplicate()
     }
 
-    protected abstract fun thisValue(): Allocation
+    protected abstract fun thisValue(): ReadAllocation
 
-    final override fun transientValue(): ReadBuffer {
+    final override fun transientValue(): ReadMemory {
         check(isValid()) { "Cursor is not valid" }
 
         cachedValue?.let { return it.duplicate() }
 
-        return thisValue().also { cachedValue = it } .duplicate()
+        return thisValue().also { cachedValue = it }
     }
 
-    final override fun transientSeekKey(): ReadBuffer {
+    final override fun transientSeekKey(): ReadMemory {
         check(isValid()) { "Cursor is not valid" }
         return itKey()
     }

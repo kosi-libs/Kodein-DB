@@ -4,12 +4,14 @@ import org.kodein.db.Key
 import org.kodein.db.Options
 import org.kodein.db.Sized
 import org.kodein.db.Value
-import org.kodein.db.ascii.readAscii
+import org.kodein.db.ascii.getAscii
 import org.kodein.db.data.DataRead
 import org.kodein.db.impl.data.getObjectKeyID
 import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.ModelRead
-import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
+import org.kodein.memory.io.compareTo
+import org.kodein.memory.io.markBuffer
 import org.kodein.memory.use
 import kotlin.reflect.KClass
 
@@ -18,26 +20,29 @@ internal interface ModelReadModule : ModelKeyMakerModule, ModelRead {
     override val data: DataRead
 
     companion object {
-        internal fun <M : Any> getFrom(buffer: ReadBuffer, transientId: ReadBuffer, type: KClass<out M>, mdb: ModelDBImpl, options: Array<out Options.Read>): Sized<M> {
-            val typeLength = buffer.readShort()
-            val typeName = buffer.readAscii(typeLength.toInt())
+        internal fun <M : Any> getFrom(body: ReadMemory, transientId: ReadMemory, type: KClass<out M>, mdb: ModelDBImpl, options: Array<out Options.Read>): Sized<M> {
+            body.markBuffer { buffer ->
+                val typeLength = buffer.readShort().toInt()
+                val typeName = buffer.slice(buffer.position, typeLength)
+                buffer.skip(typeLength)
 
-            val realType = mdb.typeTable.getTypeClass(typeName) ?: run {
-                check(type != Any::class) { "Type $typeName is not declared in type table." }
-                val expectedTypeName = mdb.typeTable.getTypeName(type)
-                check(typeName == expectedTypeName) { "Type $typeName is not declared in type table and do not match expected type $expectedTypeName." }
-                type
+                val realType = mdb.typeTable.getTypeClass(typeName) ?: run {
+                    check(type != Any::class) { "Type ${typeName.getAscii()} is not declared in type table." }
+                    val expectedTypeName = mdb.typeTable.getTypeName(type)
+                    check(typeName.compareTo(expectedTypeName) == 0) { "Type ${typeName.getAscii()} is not declared in type table and do not match expected type ${expectedTypeName.getAscii()}." }
+                    type
+                }
+
+                @Suppress("UNCHECKED_CAST")
+                realType as KClass<M>
+
+                val r = buffer.remaining
+
+                @Suppress("UNCHECKED_CAST")
+                val model = mdb.deserialize(realType, transientId, buffer, *options) as M
+
+                return Sized(model, r - buffer.remaining)
             }
-
-            @Suppress("UNCHECKED_CAST")
-            realType as KClass<M>
-
-            val r = buffer.remaining
-
-            @Suppress("UNCHECKED_CAST")
-            val model = mdb.deserialize(realType, transientId, buffer, *options) as M
-
-            return Sized(model, r - buffer.remaining)
         }
 
     }

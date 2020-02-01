@@ -1,7 +1,7 @@
 package org.kodein.db
 
 import org.kodein.memory.Closeable
-import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 
 interface BaseCursor : Closeable {
 
@@ -12,8 +12,8 @@ interface BaseCursor : Closeable {
 
     fun seekToFirst()
     fun seekToLast()
-    fun seekTo(target: ReadBuffer)
+    fun seekTo(target: ReadMemory)
 
-    fun transientSeekKey(): ReadBuffer
+    fun transientSeekKey(): ReadMemory
 
 }

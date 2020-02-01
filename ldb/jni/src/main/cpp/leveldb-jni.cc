@@ -1,8 +1,6 @@
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
 
-//#include <cstdint>
-
 #include "kodein/org_kodein_db_leveldb_jni_Native.h"
 
 #include "leveldb/cache.h"
@@ -11,10 +9,8 @@
 #include "leveldb/filter_policy.h"
 #include "leveldb/write_batch.h"
 
-//#include <sstream>
-//#include <ctime>
-//#include <iostream>
-//#include <cstdio>
+#include <chrono>
+#include <iostream>
 
 static jclass LevelDBExceptionClass;
 
