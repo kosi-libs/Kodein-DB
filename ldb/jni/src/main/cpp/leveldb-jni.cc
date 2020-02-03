@@ -12,6 +12,33 @@
 #include <chrono>
 #include <iostream>
 
+
+# if defined(__linux__) || defined(__CYGWIN__)
+# 	include <endian.h>
+# elif defined(__APPLE__)
+#     include <libkern/OSByteOrder.h>
+#     define htobe32(x) OSSwapHostToBigInt32(x)
+# elif defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__) || defined(__DragonFly__)
+#     include <sys/endian.h>
+# elif defined(_WIN16) || defined(_WIN32) || defined(_WIN64) || defined(__WINDOWS__)
+#     include <windows.h>
+#     if BYTE_ORDER == LITTLE_ENDIAN
+#         if defined(_MSC_VER)
+#             include <stdlib.h>
+#             define htobe32(x) _byteswap_ulong(x)
+#         elif defined(__GNUC__) || defined(__clang__)
+#             define htobe32(x) __builtin_bswap32(x)
+#         else
+#             error platform not supported
+#         endif
+# 	 else
+#         define htobe32(x) (x)
+#     endif
+# else
+#     error platform not supported
+# endif
+
+
 static jclass LevelDBExceptionClass;
 
 //class PrintLogger : public leveldb::Logger {
@@ -377,78 +404,120 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorRelease (JN
 	delete it;
 }
 
-JNIEXPORT jboolean JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorValid (JNIEnv *env, jclass, jlong itPtr) {
-    CAST(leveldb::Iterator, it);
+//JNIEXPORT jboolean JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorValid (JNIEnv *env, jclass, jlong itPtr) {
+//    CAST(leveldb::Iterator, it);
+//
+//	return it->Valid();
+//}
 
-	return it->Valid();
+void putLens(JNIEnv *env, leveldb::Iterator *it, jintArray lens) {
+    bool valid = it->Valid();
+    size_t valueLen = valid ? it->value().size() : -1;
+
+    auto ints = (jint *) env->GetPrimitiveArrayCritical(lens, nullptr);
+    ints[0] = valid ? (int) it->key().size() : -1;
+    ints[1] = valid ? (int) it->value().size() : -1;
+    env->ReleasePrimitiveArrayCritical(lens, ints, 0);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekToFirst (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekToFirst (JNIEnv *env, jclass, jlong itPtr, jintArray lens) {
     CAST(leveldb::Iterator, it);
 
 	it->SeekToFirst();
 
-    CHECK_STATUS(it->status(),)
+    CHECK_STATUS(it->status(), )
+
+    putLens(env, it, lens);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekToLast (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekToLast (JNIEnv *env, jclass, jlong itPtr, jintArray lens) {
     CAST(leveldb::Iterator, it);
 
 	it->SeekToLast();
 
-    CHECK_STATUS(it->status(),)
+    CHECK_STATUS(it->status(), )
+
+    putLens(env, it, lens);
 }
 
-void J_LevelDBJNI_Iterator_Seek(JNIEnv *env, jlong itPtr, Bytes key) {
+void J_LevelDBJNI_Iterator_Seek(JNIEnv *env, jlong itPtr, Bytes key, jintArray lens) {
     CAST(leveldb::Iterator, it);
 
     it->Seek(key.slice);
 
-    CHECK_STATUS(it->status(),)
+    CHECK_STATUS(it->status(), )
+
+    putLens(env, it, lens);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekB (JNIEnv *env, jclass, jlong itPtr, jobject keyBytes, jint keyOffset, jint keyLen) {
-    J_LevelDBJNI_Iterator_Seek(env, itPtr, BYTES_S(key));
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekB (JNIEnv *env, jclass, jlong itPtr, jobject keyBytes, jint keyOffset, jint keyLen, jintArray lens) {
+    J_LevelDBJNI_Iterator_Seek(env, itPtr, BYTES_S(key), lens);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekA (JNIEnv *env, jclass, jlong itPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen) {
-    J_LevelDBJNI_Iterator_Seek(env, itPtr, BYTES_S(key));
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorSeekA (JNIEnv *env, jclass, jlong itPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jintArray lens) {
+    J_LevelDBJNI_Iterator_Seek(env, itPtr, BYTES_S(key), lens);
 }
 
-JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorNext (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorNext (JNIEnv *env, jclass, jlong itPtr, jintArray lens) {
     CAST(leveldb::Iterator, it);
 
 	it->Next();
 
-    CHECK_STATUS(it->status(),)
+    CHECK_STATUS(it->status(), )
+
+    putLens(env, it, lens);
 }
 
-JNIEXPORT void Java_org_kodein_db_leveldb_jni_Native_iteratorPrev (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void Java_org_kodein_db_leveldb_jni_Native_iteratorPrev (JNIEnv *env, jclass, jlong itPtr, jintArray lens) {
     CAST(leveldb::Iterator, it);
 
 	it->Prev();
 
-    CHECK_STATUS(it->status(),)
+    CHECK_STATUS(it->status(), )
+
+    putLens(env, it, lens);
 }
 
-JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorKey (JNIEnv *env, jclass, jlong itPtr) {
+//jobject toBuffer(JNIEnv *env, leveldb::Slice slice, jobject buffer) {
+//    if (buffer == nullptr || (slice.size() + 4) > env->GetDirectBufferCapacity(buffer)) {
+//        if (buffer != nullptr) {
+//            delete[] (char *) env->GetDirectBufferAddress(buffer);
+//        }
+//        size_t cap = (((slice.size() + 4) / 1024) + 1) * 1024;
+//        buffer = env->NewDirectByteBuffer(new char[cap], cap);
+//    }
+//
+//    char *buf = (char *) env->GetDirectBufferAddress(buffer);
+//    *((int32_t *) buf) = htobe32(slice.size());
+//    memcpy((buf + 4), slice.data(), slice.size());
+//
+//    return buffer;
+//}
+
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorKey (JNIEnv *env, jclass, jlong itPtr, jobject buffer) {
     CAST(leveldb::Iterator, it);
 
-	CHECK_IT_VALID(nullptr)
+//	CHECK_IT_VALID(nullptr)
 
 	leveldb::Slice key = it->key();
 
-	return env->NewDirectByteBuffer((void *) key.data(), key.size());
+    memcpy(env->GetDirectBufferAddress(buffer), key.data(), key.size());
+
+//	return toBuffer(env, key, buffer);
+//	return env->NewDirectByteBuffer((void *) key.data(), key.size());
 }
 
-JNIEXPORT jobject JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorValue (JNIEnv *env, jclass, jlong itPtr) {
+JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorValue (JNIEnv *env, jclass, jlong itPtr, jobject buffer) {
     CAST(leveldb::Iterator, it);
 
-	CHECK_IT_VALID(nullptr)
+//	CHECK_IT_VALID(nullptr)
 
 	leveldb::Slice value = it->value();
 
-	return env->NewDirectByteBuffer((void *) value.data(), value.size());
+    memcpy(env->GetDirectBufferAddress(buffer), value.data(), value.size());
+
+//  return toBuffer(env, value, buffer);
+//	return env->NewDirectByteBuffer((void *) value.data(), value.size());
 }
 
 

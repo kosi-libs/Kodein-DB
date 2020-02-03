@@ -50,19 +50,19 @@ internal object Native {
     @JvmStatic external fun iteratorNew(dbPtr: Long, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
     @JvmStatic external fun iteratorRelease(itPtr: Long)
 
-    @JvmStatic external fun iteratorValid(itPtr: Long): Boolean
+//    @JvmStatic external fun iteratorValid(itPtr: Long): Boolean
 
-    @JvmStatic external fun iteratorSeekToFirst(itPtr: Long)
-    @JvmStatic external fun iteratorSeekToLast(itPtr: Long)
+    @JvmStatic external fun iteratorSeekToFirst(itPtr: Long, lens: IntArray)
+    @JvmStatic external fun iteratorSeekToLast(itPtr: Long, lens: IntArray)
 
-    @JvmStatic external fun iteratorSeekB(itPtr: Long, target: ByteBuffer, targetOffset: Int, targetLength: Int)
-    @JvmStatic external fun iteratorSeekA(itPtr: Long, target: ByteArray, targetOffset: Int, targetLength: Int)
+    @JvmStatic external fun iteratorSeekB(itPtr: Long, target: ByteBuffer, targetOffset: Int, targetLength: Int, lens: IntArray)
+    @JvmStatic external fun iteratorSeekA(itPtr: Long, target: ByteArray, targetOffset: Int, targetLength: Int, lens: IntArray)
 
-    @JvmStatic external fun iteratorNext(itPtr: Long)
-    @JvmStatic external fun iteratorPrev(itPtr: Long)
+    @JvmStatic external fun iteratorNext(itPtr: Long, lens: IntArray)
+    @JvmStatic external fun iteratorPrev(itPtr: Long, lens: IntArray)
 
-    @JvmStatic external fun iteratorKey(itPtr: Long): ByteBuffer
-    @JvmStatic external fun iteratorValue(itPtr: Long): ByteBuffer
+    @JvmStatic external fun iteratorKey(itPtr: Long, buffer: ByteBuffer)
+    @JvmStatic external fun iteratorValue(itPtr: Long, buffer: ByteBuffer)
 
     @JvmStatic external fun snapshotNew(dbPtr: Long): Long
     @JvmStatic external fun snapshotRelease(dbPtr: Long, snapshotPtr: Long)

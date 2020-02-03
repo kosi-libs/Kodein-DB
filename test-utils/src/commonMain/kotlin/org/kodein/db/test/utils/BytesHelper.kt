@@ -71,5 +71,5 @@ fun assertBytesEquals(expected: ByteArray, actual: ByteArray, description: Boole
 fun assertBytesEquals(expected: ByteArray, actual: ReadMemory, description: Boolean = true) =
         assertBytesEquals(expected, actual.duplicate().readBytes(), description)
 
-fun assertBytesEquals(expected: ReadBuffer, actual: ReadMemory, description: Boolean = true) =
-        assertBytesEquals(expected.getBytes(expected.position), actual.getBytes(0), description)
+fun assertBytesEquals(expected: ReadMemory, actual: ReadMemory, description: Boolean = true) =
+        assertBytesEquals(expected.getBytes(0), actual.getBytes(0), description)

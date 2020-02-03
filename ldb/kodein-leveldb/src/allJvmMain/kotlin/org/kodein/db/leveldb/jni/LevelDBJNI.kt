@@ -1,11 +1,10 @@
 package org.kodein.db.leveldb.jni
 
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.leveldb.LevelDBException
 import org.kodein.db.leveldb.LevelDBFactory
-import org.kodein.memory.io.Allocation
-import org.kodein.memory.io.KBuffer
-import org.kodein.memory.io.ReadMemory
-import org.kodein.memory.io.wrap
+import org.kodein.memory.io.*
+import java.nio.ByteBuffer
 
 /**
  * Native implementation of the LevelDB interface, using Google's C++ LevelDB.
@@ -194,42 +193,64 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
 
     private class Cursor internal constructor(ptr: Long, handler: Handler, options: LevelDB.Options) : NativeBound(ptr, "Cursor", handler, options), LevelDB.Cursor {
 
+        private val lens = IntArray(2) { -1 }
+
+        private var keyBuffer: JvmNioKBuffer? = null
+        private var valueBuffer: JvmNioKBuffer? = null
+
         override fun isValid(): Boolean {
-            return Native.iteratorValid(nonZeroPtr)
+            return lens[0] >= 0
         }
 
         override fun seekToFirst() {
-            Native.iteratorSeekToFirst(nonZeroPtr)
+            Native.iteratorSeekToFirst(nonZeroPtr, lens)
         }
 
         override fun seekToLast() {
-            Native.iteratorSeekToLast(nonZeroPtr)
+            Native.iteratorSeekToLast(nonZeroPtr, lens)
         }
 
         override fun seekTo(target: ReadMemory) {
             val directTarget = target.directByteBuffer()
             if (directTarget != null) {
-                Native.iteratorSeekB(nonZeroPtr, directTarget, directTarget.position(), directTarget.remaining())
+                Native.iteratorSeekB(nonZeroPtr, directTarget, directTarget.position(), directTarget.remaining(), lens)
             } else {
                 val arrayTarget = target.array()
-                Native.iteratorSeekA(nonZeroPtr, arrayTarget.array, arrayTarget.offset, arrayTarget.length)
+                Native.iteratorSeekA(nonZeroPtr, arrayTarget.array, arrayTarget.offset, arrayTarget.length, lens)
             }
         }
 
         override fun next() {
-            Native.iteratorNext(nonZeroPtr)
+            Native.iteratorNext(nonZeroPtr, lens)
         }
 
         override fun prev() {
-            Native.iteratorPrev(nonZeroPtr)
+            Native.iteratorPrev(nonZeroPtr, lens)
+        }
+
+        companion object {
+            private fun getBuffer(len: Int, buffer: JvmNioKBuffer?): JvmNioKBuffer {
+                if (len < 0) throw LevelDBException("Cursor is not valid")
+                val realBuffer =
+                    if (buffer == null || buffer.capacity < len) JvmNioKBuffer(ByteBuffer.allocateDirect(((len / 1024) + 1) * 1024))
+                    else buffer
+                realBuffer.limit = len
+                return realBuffer
+            }
         }
 
         override fun transientKey(): KBuffer {
-            return KBuffer.wrap(Native.iteratorKey(nonZeroPtr))
+            val buffer = getBuffer(lens[0], keyBuffer)
+            keyBuffer = buffer
+            Native.iteratorKey(nonZeroPtr, buffer.byteBuffer)
+            return buffer
         }
 
         override fun transientValue(): KBuffer {
-            return KBuffer.wrap(Native.iteratorValue(nonZeroPtr))
+            val buffer = getBuffer(lens[1], valueBuffer)
+            valueBuffer = buffer
+            Native.iteratorValue(nonZeroPtr, buffer.byteBuffer)
+            return buffer
         }
 
         override fun release(ptr: Long) {
