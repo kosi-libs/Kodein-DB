@@ -12,6 +12,7 @@ import org.kodein.db.model.ModelRead
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.compareTo
 import org.kodein.memory.io.markBuffer
+import org.kodein.memory.io.viewBuffer
 import org.kodein.memory.use
 import kotlin.reflect.KClass
 
@@ -23,15 +24,16 @@ internal interface ModelReadModule : ModelKeyMakerModule, ModelRead {
         internal fun <M : Any> getFrom(body: ReadMemory, transientId: ReadMemory, type: KClass<out M>, mdb: ModelDBImpl, options: Array<out Options.Read>): Sized<M> {
             body.markBuffer { buffer ->
                 val typeLength = buffer.readShort().toInt()
-                val typeName = buffer.slice(buffer.position, typeLength)
-                buffer.skip(typeLength)
-
-                val realType = mdb.typeTable.getTypeClass(typeName) ?: run {
-                    check(type != Any::class) { "Type ${typeName.getAscii()} is not declared in type table." }
-                    val expectedTypeName = mdb.typeTable.getTypeName(type)
-                    check(typeName.compareTo(expectedTypeName) == 0) { "Type ${typeName.getAscii()} is not declared in type table and do not match expected type ${expectedTypeName.getAscii()}." }
-                    type
+                val realType = buffer.viewBuffer(buffer.position, typeLength) { typeName ->
+                    mdb.typeTable.getTypeClass(typeName) ?: run {
+                        check(type != Any::class) { "Type ${typeName.getAscii()} is not declared in type table." }
+                        val expectedTypeName = mdb.typeTable.getTypeName(type)
+                        check(typeName.compareTo(expectedTypeName) == 0) { "Type ${typeName.getAscii()} is not declared in type table and do not match expected type ${expectedTypeName.getAscii()}." }
+                        type
+                    }
                 }
+
+                buffer.skip(typeLength)
 
                 @Suppress("UNCHECKED_CAST")
                 realType as KClass<M>

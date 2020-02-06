@@ -412,7 +412,6 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_iteratorRelease (JN
 
 void putLens(JNIEnv *env, leveldb::Iterator *it, jintArray lens) {
     bool valid = it->Valid();
-    size_t valueLen = valid ? it->value().size() : -1;
 
     auto ints = (jint *) env->GetPrimitiveArrayCritical(lens, nullptr);
     ints[0] = valid ? (int) it->key().size() : -1;

@@ -25,6 +25,7 @@ package-lock.json
 *.a
 *.o
 *.so
+cmake-build-debug/
 
 # C++
 .cxx
