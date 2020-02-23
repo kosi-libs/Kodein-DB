@@ -4,6 +4,8 @@ import org.kodein.db.Value
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
 import org.kodein.db.model.newKey
+import org.kodein.db.test.utils.description
+import org.kodein.memory.io.getBytes
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
@@ -25,8 +27,9 @@ open class ModelDBTests_00_PutGetDelete : ModelDBTests() {
     @Test
     fun test01_putGetCreateKey() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        mdb.put(me)
+        println(mdb.put(me).key.bytes.getBytes(0).description())
         val key = mdb.newKey<Adult>(Value.ofAscii("BRYS", "Salomon"))
+        println(key.bytes.getBytes(0).description())
         val otherMe = mdb[key]?.model
         assertEquals(me, otherMe)
         assertNotSame(me, otherMe)

@@ -3,12 +3,9 @@ package org.kodein.db.impl.model.cache
 import org.kodein.db.Key
 import org.kodein.db.Sized
 import org.kodein.db.Value
-import org.kodein.db.impl.data.putObjectKey
+import org.kodein.db.impl.data.putDocumentKey
 import org.kodein.db.model.cache.ModelCache
-import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.SliceBuilder
-import org.kodein.memory.text.Charset
-import org.kodein.memory.text.wrap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -22,7 +19,7 @@ class ModelCacheTests  {
     fun putGetDeleteRemove() {
         val cache = ModelCacheImpl(1024)
 
-        val key = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("name")) })
+        val key = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("name")) })
 
         assertEquals(0, cache.entryCount)
         assertEquals(0, cache.missCount)
@@ -68,7 +65,7 @@ class ModelCacheTests  {
     fun getOrRetrieve() {
         val cache = ModelCacheImpl(1024)
 
-        val key = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("name")) })
+        val key = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("name")) })
 
         assertEquals(0, cache.retrieveCount)
         cache.getOrRetrieve(key) { Sized("Salomon", 7) }
@@ -78,8 +75,8 @@ class ModelCacheTests  {
 
     @Test
     fun evict() {
-        val k1 = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("1")) })
-        val k2 = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("2")) })
+        val k1 = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("1")) })
+        val k2 = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("2")) })
 
         val cache = ModelCacheImpl(100)
         cache.put(k1, "O", 50)
@@ -92,8 +89,8 @@ class ModelCacheTests  {
 
     @Test
     fun copyPutInCopy() {
-        val me = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("me")) })
-        val her = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("her")) })
+        val me = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("me")) })
+        val her = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("her")) })
 
 
         val cache = ModelCacheImpl(1024)
@@ -112,8 +109,8 @@ class ModelCacheTests  {
 
     @Test
     fun copyPutInOriginal() {
-        val me = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("me")) })
-        val her = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("her")) })
+        val me = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("me")) })
+        val her = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("her")) })
 
         val cache = ModelCacheImpl(1024)
         cache.put(me, "Salomon", 7)
@@ -131,8 +128,8 @@ class ModelCacheTests  {
 
     @Test
     fun clean() {
-        val me = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("me")) })
-        val her = Key<String>(SliceBuilder.array(1024).newSlice { putObjectKey(KBuffer.wrap("String", Charset.ASCII), Value.ofAscii("her")) })
+        val me = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("me")) })
+        val her = Key<String>(SliceBuilder.array(1024).newSlice { putDocumentKey(1, Value.ofAscii("her")) })
 
         val cache = ModelCacheImpl(1024)
         cache.put(me, "Salomon", 7)

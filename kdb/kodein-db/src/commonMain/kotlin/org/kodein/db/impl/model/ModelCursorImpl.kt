@@ -4,7 +4,7 @@ import org.kodein.db.Key
 import org.kodein.db.Options
 import org.kodein.db.Sized
 import org.kodein.db.data.DataCursor
-import org.kodein.db.impl.data.getObjectKeyID
+import org.kodein.db.impl.data.getDocumentKeyID
 import org.kodein.db.model.ModelCursor
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.KBuffer
@@ -24,5 +24,5 @@ internal class ModelCursorImpl<B : Any, M : B>(override val cursor: DataCursor, 
 
     override fun key() = key ?: Key<M>(KBuffer.wrap(cursor.transientKey().getBytes(0))).also { key = it }
 
-    override fun model(vararg options: Options.Read): Sized<M> = model ?: ModelReadModule.getFrom(cursor.transientValue(), getObjectKeyID(key().bytes), modelType, mdb, options).also { model = it }
+    override fun model(vararg options: Options.Read): Sized<M> = model ?: ModelReadModule.getFrom(cursor.transientValue(), getDocumentKeyID(key().bytes), modelType, mdb, options).also { model = it }
 }

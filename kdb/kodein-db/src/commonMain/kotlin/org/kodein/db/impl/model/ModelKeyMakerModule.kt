@@ -12,7 +12,7 @@ internal interface ModelKeyMakerModule : ModelKeyMaker {
     val mdb: ModelDBImpl
     val data: DataKeyMaker
 
-    override fun <M : Any> newKey(type: KClass<M>, id: Value) = Key<M>(data.newKey(mdb.typeTable.getTypeName(type), id))
+    override fun <M : Any> newKey(type: KClass<M>, id: Value) = Key<M>(data.newKey(mdb.getTypeId(mdb.typeTable.getTypeName(type)), id))
 
-    override fun <M : Any> newKeyFrom(model: M, vararg options: Options.Write) = Key<M>(data.newKey(mdb.typeTable.getTypeName(model::class), mdb.getMetadata(model, options).id))
+    override fun <M : Any> newKeyFrom(model: M, vararg options: Options.Write) = Key<M>(data.newKey(mdb.getTypeId(mdb.typeTable.getTypeName(model::class)), mdb.getMetadata(model, options).id))
 }

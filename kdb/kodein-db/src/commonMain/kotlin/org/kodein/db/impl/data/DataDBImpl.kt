@@ -17,6 +17,7 @@ import org.kodein.memory.use
 import org.kodein.memory.util.forEachResilient
 
 internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
+
     override val snapshot: LevelDB.Snapshot? get() = null
 
     internal val lock = newLock()
@@ -65,7 +66,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
     private fun putInBatch(sb: SliceBuilder, batch: LevelDB.WriteBatch, key: ReadMemory, body: Body, indexes: Set<Index>): Int {
         val refKey = sb.newSlice {
-            putRefKeyFromObjectKey(key)
+            putRefKeyFromDocumentKey(key)
         }
 
         deleteIndexesInBatch(batch, refKey)
@@ -78,7 +79,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     }
 
     override fun put(key: ReadMemory, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
-        key.verifyObjectKey()
+        key.verifyDocumentKey()
         SliceBuilder.native(DEFAULT_CAPACITY).use { sb ->
             val checks = options.all<Anticipate>()
             val reacts = options.all<React>()
@@ -100,14 +101,14 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     }
 
     private fun deleteInBatch(sb: SliceBuilder, batch: LevelDB.WriteBatch, key: ReadMemory) {
-        val refKey = sb.newSlice { putRefKeyFromObjectKey(key) }
+        val refKey = sb.newSlice { putRefKeyFromDocumentKey(key) }
 
         deleteIndexesInBatch(batch, refKey)
         batch.delete(key)
     }
 
     override fun delete(key: ReadMemory, vararg options: Options.Write) {
-        key.verifyObjectKey()
+        key.verifyDocumentKey()
         val checks = options.all<Anticipate>()
         val reacts = options.all<React>()
 

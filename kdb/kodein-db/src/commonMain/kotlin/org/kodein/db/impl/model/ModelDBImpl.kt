@@ -4,17 +4,14 @@ import org.kodein.db.DBListener
 import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.data.DataDB
-import org.kodein.db.impl.utils.newRWLock
-import org.kodein.db.impl.utils.read
-import org.kodein.db.impl.utils.write
+import org.kodein.db.impl.utils.*
 import org.kodein.db.model.*
 import org.kodein.db.model.orm.HasMetadata
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.Serializer
 import org.kodein.memory.Closeable
-import org.kodein.memory.io.ReadBuffer
-import org.kodein.memory.io.ReadMemory
-import org.kodein.memory.io.Writeable
+import org.kodein.memory.io.*
+import org.kodein.memory.use
 import org.kodein.memory.util.forEachResilient
 import kotlin.reflect.KClass
 
@@ -22,6 +19,10 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
 
     private val listenersLock = newRWLock()
     private val listeners = LinkedHashSet<DBListener<Any>>()
+
+    internal val typeLock = newLock()
+    private var nextType: Int? = null
+    private val typeMap = HashMap<ReadMemory, Int>()
 
     private val classSerializers = userClassSerializers + mapOf(
             IntPrimitive::class to IntPrimitive.S,
@@ -42,6 +43,7 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
                     ?: throw IllegalArgumentException("No serializer found for type $type")
 
     internal fun getListeners() = listenersLock.read { listeners.toList() }
+
     private fun <T> writeOnListeners(action: MutableSet<DBListener<Any>>.() -> T) = listenersLock.write { listeners.action() }
 
     override fun willAction(action: DBListener<Any>.() -> Unit) = getListeners().forEach(action)
@@ -62,5 +64,20 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
         if (writeOnListeners { add(listener) }) listener.setSubscription(subscription)
         return subscription
     }
+
+    internal fun getTypeId(typeName: ReadMemory): Int =
+            typeMap[typeName] ?: typeLock.withLock {
+                typeMap[typeName] ?: Allocation.native(getTypeKeySize(typeName)) { putTypeKey(typeName) }.use { typeKey ->
+                    data.ldb.get(typeKey)?.use { it.readInt().also { typeMap[typeName] = it } } ?: run {
+                        val n = nextType ?: data.ldb.get(nextTypeKey)?.use { it.readInt() } ?.also { nextType = it } ?: 1
+                        check(n != 0) { "No more type int available. Have you inserted UINT_MAX different types in this database ?!?!?!" }
+                        data.ldb.put(typeKey, KBuffer.array(4) { putInt(n) })
+                        typeMap[typeName] = n
+                        data.ldb.put(nextTypeKey, KBuffer.array(4) { putInt(n + 1) })
+                        nextType = n + 1
+                        n
+                    }
+                }
+            }
 
 }

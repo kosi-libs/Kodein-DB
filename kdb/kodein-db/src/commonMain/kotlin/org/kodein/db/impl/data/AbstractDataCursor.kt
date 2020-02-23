@@ -1,11 +1,10 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.data.DataCursor
-import org.kodein.db.impl.utils.startsWith
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 
-internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, private val prefix: ByteArray) : DataCursor {
+internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, protected val prefix: ByteArray) : DataCursor {
 
     private var cachedValid: Boolean? = null
     private var cachedItKey: ReadMemory? = null
@@ -37,7 +36,7 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
     }
 
     final override fun isValid(): Boolean {
-        return cachedValid ?: (it.isValid() && itKey().startsWith(prefix)).also { cachedValid = it }
+        return cachedValid ?: (it.isValid() && isValidSeekKey(itKey())).also { cachedValid = it }
     }
 
     final override fun next() {
@@ -50,18 +49,12 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
         it.prev()
     }
 
+    protected abstract fun isValidSeekKey(key: ReadMemory): Boolean
+
     final override fun seekTo(target: ReadMemory) {
         cacheReset()
-        if (!target.startsWith(prefix)) {
-            if (target > prefix) {
-                seekToLast()
-                if (isValid())
-                    next()
-            } else
-                seekToFirst()
-        } else {
-            it.seekTo(target)
-        }
+        require(isValidSeekKey(target)) { "Not a valid seek key" }
+        it.seekTo(target)
     }
 
     final override fun seekToFirst() {
@@ -72,13 +65,14 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pri
     final override fun seekToLast() {
         cacheReset()
         if (lastKey == null) {
+            val prefix = prefix
             lastKey = Allocation.native(prefix.size + CORK.size) {
                 putBytes(prefix)
                 putBytes(CORK)
             }
         }
         it.seekTo(lastKey!!)
-        while (it.isValid() && it.transientKey().startsWith(prefix))
+        while (it.isValid() && isValidSeekKey(it.transientKey()))
             it.next()
         if (it.isValid())
             it.prev()

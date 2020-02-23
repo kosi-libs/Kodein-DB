@@ -6,7 +6,7 @@ import org.kodein.db.Sized
 import org.kodein.db.Value
 import org.kodein.db.ascii.getAscii
 import org.kodein.db.data.DataRead
-import org.kodein.db.impl.data.getObjectKeyID
+import org.kodein.db.impl.data.getDocumentKeyID
 import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.ModelRead
 import org.kodein.memory.io.ReadMemory
@@ -50,23 +50,23 @@ internal interface ModelReadModule : ModelKeyMakerModule, ModelRead {
     }
 
     override fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>? {
-        return data.get(key.bytes, *options)?.use { getFrom(it, getObjectKeyID(key.bytes), type, mdb, options) }
+        return data.get(key.bytes, *options)?.use { getFrom(it, getDocumentKeyID(key.bytes), type, mdb, options) }
     }
 
     override fun findAll(vararg options: Options.Read): ModelCursor<*> =
             ModelCursorImpl(data.findAll(*options), mdb, Any::class)
 
     override fun <M : Any> findAllByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findAllByType(mdb.typeTable.getTypeName(type), *options), mdb, type)
+            ModelCursorImpl(data.findAllByType(mdb.getTypeId(mdb.typeTable.getTypeName(type)), *options), mdb, type)
 
     override fun <M : Any> findById(type: KClass<M>, id: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findById(mdb.typeTable.getTypeName(type), id, isOpen, *options), mdb, type)
+            ModelCursorImpl(data.findById(mdb.getTypeId(mdb.typeTable.getTypeName(type)), id, isOpen, *options), mdb, type)
 
     override fun <M : Any> findAllByIndex(type: KClass<M>, index: String, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findAllByIndex(mdb.typeTable.getTypeName(type), index, *options), mdb, type)
+            ModelCursorImpl(data.findAllByIndex(mdb.getTypeId(mdb.typeTable.getTypeName(type)), index, *options), mdb, type)
 
     override fun <M : Any> findByIndex(type: KClass<M>, index: String, value: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findByIndex(mdb.typeTable.getTypeName(type), index, value, isOpen, *options), mdb, type)
+            ModelCursorImpl(data.findByIndex(mdb.getTypeId(mdb.typeTable.getTypeName(type)), index, value, isOpen, *options), mdb, type)
 
     override fun getIndexesOf(key: Key<*>, vararg options: Options.Read): List<String> =
             data.getIndexesOf(key.bytes, *options)

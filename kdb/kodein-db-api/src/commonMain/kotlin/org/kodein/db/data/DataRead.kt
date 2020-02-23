@@ -11,13 +11,13 @@ interface DataRead : DataKeyMaker {
 
     fun findAll(vararg options: Options.Read): DataCursor
 
-    fun findAllByType(type: ReadMemory, vararg options: Options.Read): DataCursor
+    fun findAllByType(type: Int, vararg options: Options.Read): DataCursor
 
-    fun findById(type: ReadMemory, id: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
+    fun findById(type: Int, id: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
 
-    fun findAllByIndex(type: ReadMemory, index: String, vararg options: Options.Read): DataCursor
+    fun findAllByIndex(type: Int, index: String, vararg options: Options.Read): DataCursor
 
-    fun findByIndex(type: ReadMemory, index: String, value: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
+    fun findByIndex(type: Int, index: String, value: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
 
     fun getIndexesOf(key: ReadMemory, vararg options: Options.Read): List<String>
 

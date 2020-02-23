@@ -33,6 +33,7 @@ abstract class DataDBTests {
 
     @BeforeTest
     fun setUp() {
+        _ddb?.close()
         factory.destroy("datadb")
         open()
     }
@@ -57,8 +58,8 @@ abstract class DataDBTests {
                 if (i >= keyValues.size) {
                     fail("DB contains additional entrie(s): " + cursor.transientKey().readBytes().description())
                 }
-                assertBytesEquals(keyValues[i].first, cursor.transientKey())
-                assertBytesEquals(keyValues[i].second, cursor.transientValue())
+                assertBytesEquals(keyValues[i].first, cursor.transientKey(), prefix = "Key ${i + 1}: ")
+                assertBytesEquals(keyValues[i].second, cursor.transientValue(), prefix = "Value ${i + 1}: ")
                 cursor.next()
                 i++
             }
