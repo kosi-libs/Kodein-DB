@@ -7,7 +7,6 @@ import org.kodein.db.model.ModelWrite
 import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.markBuffer
-import org.kodein.memory.io.size
 import org.kodein.memory.io.verify
 import kotlin.reflect.KClass
 
@@ -25,8 +24,8 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
         val rootTypeName = mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class)
         willAction { willPut(model, rootTypeName, metadata, options) }
         val body = Body { body ->
-            body.putShort(typeName.size.toShort())
-            typeName.markBuffer { body.putBytes(it) }
+            val typeId = mdb.getTypeId(typeName)
+            body.putInt(typeId)
             mdb.serialize(model, body, *options)
         }
         val key = block(rootTypeName, metadata)

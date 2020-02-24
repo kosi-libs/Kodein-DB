@@ -2,7 +2,9 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.DBListener
 import org.kodein.db.Options
+import org.kodein.db.Sized
 import org.kodein.db.TypeTable
+import org.kodein.db.ascii.getAscii
 import org.kodein.db.data.DataDB
 import org.kodein.db.impl.utils.*
 import org.kodein.db.model.*
@@ -21,10 +23,13 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
     private val listeners = LinkedHashSet<DBListener<Any>>()
 
     internal val typeLock = newLock()
-    private var nextType: Int? = null
-    private val typeMap = HashMap<ReadMemory, Int>()
+    private var nextTypeId: Int? = null
+    private val typeNameMap = HashMap<ReadMemory, Int>()
+    private val typeIdMap = HashMap<Int, ReadMemory>()
 
-    private val classSerializers = userClassSerializers + mapOf(
+    private val typeCache = HashMap<Int, KClass<*>>()
+
+    private val classSerializers = userClassSerializers + hashMapOf(
             IntPrimitive::class to IntPrimitive.S,
             LongPrimitive::class to LongPrimitive.S,
             DoublePrimitive::class to DoublePrimitive.S
@@ -66,18 +71,67 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
     }
 
     internal fun getTypeId(typeName: ReadMemory): Int =
-            typeMap[typeName] ?: typeLock.withLock {
-                typeMap[typeName] ?: Allocation.native(getTypeKeySize(typeName)) { putTypeKey(typeName) }.use { typeKey ->
-                    data.ldb.get(typeKey)?.use { it.readInt().also { typeMap[typeName] = it } } ?: run {
-                        val n = nextType ?: data.ldb.get(nextTypeKey)?.use { it.readInt() } ?.also { nextType = it } ?: 1
-                        check(n != 0) { "No more type int available. Have you inserted UINT_MAX different types in this database ?!?!?!" }
-                        data.ldb.put(typeKey, KBuffer.array(4) { putInt(n) })
-                        typeMap[typeName] = n
-                        data.ldb.put(nextTypeKey, KBuffer.array(4) { putInt(n + 1) })
-                        nextType = n + 1
-                        n
+            typeNameMap[typeName] ?: typeLock.withLock {
+                typeNameMap[typeName] ?: Allocation.native(getTypeNameKeySize(typeName)) { putTypeNameKey(typeName) }.use { typeNameKey ->
+                    data.ldb.get(typeNameKey)?.use {
+                        it.readInt().also { typeId ->
+                            typeNameMap[typeName] = typeId
+                            typeIdMap[typeId] = typeName
+                        }
+                    } ?: run {
+                        val typeId = nextTypeId ?: data.ldb.get(nextTypeKey)?.use { it.readInt() } ?.also { nextTypeId = it } ?: 1
+                        check(typeId != 0) { "No more type int available. Have you inserted UINT_MAX different types in this database ?!?!?!" }
+                        Allocation.native(typeIdKeySize) { putTypeIdKey(typeId) }.use { typeIdKey ->
+                            data.ldb.newWriteBatch().use {
+                                it.put(typeNameKey, KBuffer.array(4) { putInt(typeId) })
+                                it.put(typeIdKey, typeName)
+                                it.put(nextTypeKey, KBuffer.array(4) { putInt(typeId + 1) })
+                                data.ldb.write(it)
+                            }
+                            typeNameMap[typeName] = typeId
+                            typeIdMap[typeId] = typeName
+                            nextTypeId = typeId + 1
+                            typeId
+                        }
                     }
                 }
             }
+
+    internal fun getTypeName(typeId: Int): ReadMemory? =
+            typeIdMap[typeId] ?: typeLock.withLock {
+                typeIdMap[typeId] ?: Allocation.native(typeIdKeySize) { putTypeIdKey(typeId) }.use { typeIdKey ->
+                    data.ldb.get(typeIdKey)?.use { alloc ->
+                        KBuffer.arrayCopy(alloc).also { typeName ->
+                            typeNameMap[typeName] = typeId
+                            typeIdMap[typeId] = typeName
+                        }
+                    }
+                }
+            }
+
+    internal fun <M : Any> rawDeserialize(type: KClass<out M>, transientId: ReadMemory, body: ReadMemory, options: Array<out Options.Read>): Sized<M> {
+        body.markBuffer { buffer ->
+            val typeId = buffer.readInt()
+            val realType = typeCache[typeId] ?: run {
+                val typeName = getTypeName(typeId) ?: throw IllegalStateException("Unknown type ID. Has this LevelDB entry been inserted outside of Kodein DB?")
+                mdb.typeTable.getTypeClass(typeName) ?: run {
+                    check(type != Any::class) { "Type ${typeName.getAscii()} is not declared in type table." }
+                    val expectedTypeName = mdb.typeTable.getTypeName(type)
+                    check(typeName.compareTo(expectedTypeName) == 0) { "Type ${typeName.getAscii()} is not declared in type table and do not match expected type ${expectedTypeName.getAscii()}." }
+                    type
+                }
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            realType as KClass<M>
+
+            val r = buffer.remaining
+
+            @Suppress("UNCHECKED_CAST")
+            val model = mdb.deserialize(realType, transientId, buffer, *options) as M
+
+            return Sized(model, r - buffer.remaining)
+        }
+    }
 
 }
