@@ -4,7 +4,7 @@ import org.kodein.db.data.DataCursor
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 
-internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, protected val prefix: ByteArray) : DataCursor {
+internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor, protected val prefix: ByteArray) : DataCursor {
 
     private var cachedValid: Boolean? = null
     private var cachedItKey: ReadMemory? = null
@@ -24,29 +24,29 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pro
     }
 
     protected fun itKey(): ReadMemory {
-        return cachedItKey ?: it.transientKey().also { cachedItKey = it }
+        return cachedItKey ?: cursor.transientKey().also { cachedItKey = it }
     }
 
     override fun close() {
         cachedValid = false
         lastKey?.close()
 
-        it.close()
+        cursor.close()
         cacheReset()
     }
 
     final override fun isValid(): Boolean {
-        return cachedValid ?: (it.isValid() && isValidSeekKey(itKey())).also { cachedValid = it }
+        return cachedValid ?: (cursor.isValid() && isValidSeekKey(itKey())).also { cachedValid = it }
     }
 
     final override fun next() {
         cacheReset()
-        it.next()
+        cursor.next()
     }
 
     final override fun prev() {
         cacheReset()
-        it.prev()
+        cursor.prev()
     }
 
     protected abstract fun isValidSeekKey(key: ReadMemory): Boolean
@@ -54,12 +54,12 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pro
     final override fun seekTo(target: ReadMemory) {
         cacheReset()
         require(isValidSeekKey(target)) { "Not a valid seek key" }
-        it.seekTo(target)
+        cursor.seekTo(target)
     }
 
     final override fun seekToFirst() {
         cacheReset()
-        it.seekTo(KBuffer.wrap(prefix))
+        cursor.seekTo(KBuffer.wrap(prefix))
     }
 
     final override fun seekToLast() {
@@ -71,13 +71,13 @@ internal abstract class AbstractDataCursor(protected val it: LevelDB.Cursor, pro
                 putBytes(CORK)
             }
         }
-        it.seekTo(lastKey!!)
-        while (it.isValid() && isValidSeekKey(it.transientKey()))
-            it.next()
-        if (it.isValid())
-            it.prev()
+        cursor.seekTo(lastKey!!)
+        while (cursor.isValid() && isValidSeekKey(cursor.transientKey()))
+            cursor.next()
+        if (cursor.isValid())
+            cursor.prev()
         else
-            it.seekToLast()
+            cursor.seekToLast()
     }
 
     protected abstract fun thisKey(): ReadMemory

@@ -28,19 +28,19 @@ internal interface DataReadModule : DataKeyMakerModule, DataRead {
 
     override fun get(key: ReadMemory, vararg options: Options.Read): Allocation? = ldb.get(key, toLdb(options))
 
-    override fun findAll(vararg options: Options.Read): DataCursor = DataSimpleCursor(ldb.newCursor(toLdb(options)), emptyDocumentPrefix)
+    override fun findAll(vararg options: Options.Read): DataCursor = DataSimpleCursor(ldb, ldb.newCursor(toLdb(options)), emptyDocumentPrefix)
 
     override fun findAllByType(type: Int, vararg options: Options.Read): DataCursor {
         val prefix = KBuffer.array(getDocumentKeySize(null)) { putDocumentKey(type, null) } .array
         ldb.newCursor(toLdb(options)).transfer { cursor ->
-            return DataSimpleCursor(cursor, prefix)
+            return DataSimpleCursor(ldb, cursor, prefix)
         }
     }
 
     override fun findById(type: Int, id: Value, isOpen: Boolean, vararg options: Options.Read): DataCursor {
         val prefix = KBuffer.array(getDocumentKeySize(id, isOpen)) { putDocumentKey(type, id, isOpen) } .array
         ldb.newCursor(toLdb(options)).transfer { cursor ->
-            return DataSimpleCursor(cursor, prefix)
+            return DataSimpleCursor(ldb, cursor, prefix)
         }
     }
 

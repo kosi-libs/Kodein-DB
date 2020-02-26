@@ -10,4 +10,6 @@ interface ModelCursor<M : Any> : BaseCursor {
     fun key(): Key<M>
     fun model(vararg options: Options.Read): Sized<M>
 
+    fun duplicate(): ModelCursor<M>
+
 }

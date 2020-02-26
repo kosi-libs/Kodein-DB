@@ -25,4 +25,5 @@ internal class CachedModelCursor<M : Any>(override val cursor: ModelCursor<M>, v
         return cachedEntry!!
     }
 
+    override fun duplicate(): ModelCursor<M> = CachedModelCursor(cursor.duplicate(), cache)
 }

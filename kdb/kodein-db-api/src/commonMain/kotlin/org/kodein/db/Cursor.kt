@@ -7,6 +7,8 @@ interface Cursor<M: Any> : BaseCursor {
     fun key(): Key<M>
     fun model(vararg options: Options.Read): M
 
+    fun duplicate(): Cursor<M>
+
 }
 
 fun <M : Any> Cursor<M>.models(): Sequence<M> = sequence {

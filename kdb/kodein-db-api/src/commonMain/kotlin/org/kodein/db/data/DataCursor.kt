@@ -8,4 +8,6 @@ interface DataCursor : BaseCursor {
     fun transientKey(): ReadMemory
     fun transientValue(): ReadMemory
 
+    fun duplicate(): DataCursor
+
 }
