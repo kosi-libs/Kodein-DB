@@ -221,7 +221,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
             private fun getBuffer(len: Int, buffer: JvmNioKBuffer?): JvmNioKBuffer {
                 if (len < 0) throw LevelDBException("Cursor is not valid")
                 val realBuffer =
-                    if (buffer == null || buffer.capacity < len) JvmNioKBuffer(ByteBuffer.allocateDirect(((len / 1024) + 1) * 1024))
+                    if (buffer == null || buffer.capacity < len) JvmNioKBuffer(ByteBuffer.allocateDirect(((len / 1024) + 2) * 1024))
                     else buffer
                 realBuffer.limit = len
                 return realBuffer

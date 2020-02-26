@@ -29,23 +29,18 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
 
     private val typeCache = HashMap<Int, KClass<*>>()
 
-    private val classSerializers = userClassSerializers + hashMapOf(
-            IntPrimitive::class to IntPrimitive.S,
-            LongPrimitive::class to LongPrimitive.S,
-            DoublePrimitive::class to DoublePrimitive.S
-    )
+    private val classSerializers = HashMap<KClass<*>, Serializer<*>>().apply {
+        putAll(userClassSerializers)
+        put(IntPrimitive::class, IntPrimitive.S)
+        put(LongPrimitive::class, LongPrimitive.S)
+        put(DoublePrimitive::class, DoublePrimitive.S)
+    }
 
     @Suppress("UNCHECKED_CAST")
     internal fun serialize(model: Any, output: Writeable, vararg options: Options.Write) =
             (classSerializers[model::class] as? Serializer<Any>)?.serialize(model, output, *options)
                     ?: defaultSerializer?.serialize(model, output, *options)
                     ?: throw IllegalArgumentException("No serializer found for type ${model::class}")
-
-    @Suppress("UNCHECKED_CAST")
-    internal fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any =
-            (classSerializers[type] as? Serializer<Any>)?.deserialize(type, transientId, input, *options)
-                    ?: defaultSerializer?.deserialize(type, transientId, input, *options)
-                    ?: throw IllegalArgumentException("No serializer found for type $type")
 
     internal fun getListeners() = listenersLock.read { listeners.toList() }
 
@@ -97,7 +92,7 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
                 }
             }
 
-    internal fun getTypeName(typeId: Int): ReadMemory? =
+    private fun getTypeName(typeId: Int): ReadMemory? =
             typeIdMap[typeId] ?: typeLock.withLock {
                 typeIdMap[typeId] ?: Allocation.native(typeIdKeySize) { putTypeIdKey(typeId) }.use { typeIdKey ->
                     data.ldb.get(typeIdKey)?.use { alloc ->
@@ -109,17 +104,17 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
                 }
             }
 
-    internal fun <M : Any> rawDeserialize(type: KClass<out M>, transientId: ReadMemory, body: ReadMemory, options: Array<out Options.Read>): Sized<M> {
+    internal fun <M : Any> deserialize(type: KClass<out M>, transientId: ReadMemory, body: ReadMemory, options: Array<out Options.Read>): Sized<M> {
         body.markBuffer { buffer ->
             val typeId = buffer.readInt()
             val realType = typeCache[typeId] ?: run {
                 val typeName = getTypeName(typeId) ?: throw IllegalStateException("Unknown type ID. Has this LevelDB entry been inserted outside of Kodein DB?")
-                mdb.typeTable.getTypeClass(typeName) ?: run {
+                typeTable.getTypeClass(typeName) ?: run {
                     check(type != Any::class) { "Type ${typeName.getAscii()} is not declared in type table." }
-                    val expectedTypeName = mdb.typeTable.getTypeName(type)
+                    val expectedTypeName = typeTable.getTypeName(type)
                     check(typeName.compareTo(expectedTypeName) == 0) { "Type ${typeName.getAscii()} is not declared in type table and do not match expected type ${expectedTypeName.getAscii()}." }
                     type
-                }
+                }.also { typeCache[typeId] = it }
             }
 
             @Suppress("UNCHECKED_CAST")
@@ -128,7 +123,9 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
             val r = buffer.remaining
 
             @Suppress("UNCHECKED_CAST")
-            val model = mdb.deserialize(realType, transientId, buffer, *options) as M
+            val model = ((classSerializers[realType] as? Serializer<Any>)?.deserialize(realType, transientId, buffer, *options)
+                    ?: defaultSerializer?.deserialize(realType, transientId, buffer, *options)
+                    ?: throw IllegalArgumentException("No serializer found for type $realType")) as M
 
             return Sized(model, r - buffer.remaining)
         }

@@ -1,6 +1,7 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.data.DataCursor
+import org.kodein.db.impl.utils.startsWith
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 
@@ -49,7 +50,7 @@ internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor,
         cursor.prev()
     }
 
-    protected abstract fun isValidSeekKey(key: ReadMemory): Boolean
+    private fun isValidSeekKey(key: ReadMemory) = key.startsWith(prefix)
 
     final override fun seekTo(target: ReadMemory) {
         cacheReset()

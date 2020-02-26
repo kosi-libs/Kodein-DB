@@ -1,10 +1,8 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.data.DataCursor
-import org.kodein.db.impl.utils.startsWith
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.ReadBuffer
-import org.kodein.memory.io.ReadMemory
 
 internal class DataIndexCursor internal constructor(private val ldb: LevelDB, cursor: LevelDB.Cursor, prefix: ByteArray, options: LevelDB.ReadOptions) : AbstractDataCursor(cursor, prefix) {
 
@@ -29,8 +27,6 @@ internal class DataIndexCursor internal constructor(private val ldb: LevelDB, cu
     override fun thisKey() = itValue()
 
     override fun thisValue() = ldb.get(itValue(), options) ?: throw IllegalStateException("Index entry points to invalid object entry")
-
-    override fun isValidSeekKey(key: ReadMemory): Boolean = key.startsWith(prefix)
 
     override fun duplicate(): DataCursor = DataIndexCursor(ldb, ldb.newCursor(options), prefix, options).also {
         it.cursor.seekTo(it.cursor.transientKey())

@@ -16,7 +16,7 @@ internal interface ModelReadModule : ModelKeyMakerModule, ModelRead {
     override val data: DataRead
 
     override fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>? {
-        return data.get(key.bytes, *options)?.use { mdb.rawDeserialize(type, getDocumentKeyID(key.bytes), it, options) }
+        return data.get(key.bytes, *options)?.use { mdb.deserialize(type, getDocumentKeyID(key.bytes), it, options) }
     }
 
     override fun findAll(vararg options: Options.Read): ModelCursor<*> =
