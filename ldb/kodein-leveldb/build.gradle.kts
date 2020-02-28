@@ -43,15 +43,8 @@ kodein {
         add(kodeinTargets.jvm.android)
 
         add(kodeinTargets.jvm.jvm) {
-            (tasks[mainCompilation.processResourcesTaskName] as ProcessResources).apply {
-                dependsOn(
-                        project(":ldb:jni").tasks["linkRelease"],
-                        project(":ldb:jni").tasks["genInfoRelease"]
-                )
-                from(
-                        project(":ldb:jni").tasks["linkRelease"].outputs,
-                        project(":ldb:jni").tasks["genInfoRelease"].outputs
-                )
+            test.dependencies {
+                implementation(project(":ldb:kodein-leveldb-jni"))
             }
         }
 

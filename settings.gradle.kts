@@ -21,6 +21,7 @@ include(
 
         ":ldb:kodein-leveldb",
         ":ldb:jni",
+        ":ldb:kodein-leveldb-jni",
 
         ":kdb:kodein-db-api",
         ":kdb:kodein-db",

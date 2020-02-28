@@ -1,7 +1,3 @@
-import org.jetbrains.kotlin.daemon.common.toHexString
-import java.security.MessageDigest
-import java.util.*
-
 plugins {
     `cpp-library`
     kotlin("multiplatform")
@@ -53,11 +49,18 @@ val generation = task<Exec>("generateJniHeaders") {
 }
 
 val javaHome: String = System.getProperty("java.home").let { if (it.endsWith("/jre")) file("$it/..").absolutePath else it }
-val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
-val currentOsName = currentOs.name.toLowerCase().replace(" ", "")
+
+val os = System.getProperty("os.name").toLowerCase().let {
+    when  {
+        "windows" in it -> "windows"
+        "mac os x" in it || "darwin" in it || "osx" in it -> "macos"
+        "linux" in it -> "linux"
+        else -> error("Unknown operating system $it")
+    }
+}
 
 library {
-    this.baseName.set("kodein-leveldb-jni-$currentOsName-$version")
+    this.baseName.set("kodein-leveldb-jni-$os-$version")
 
     privateHeaders {
         from("$javaHome/include")
@@ -68,12 +71,12 @@ library {
         from("$buildDir/nativeHeaders")
     }
 
-    if (currentOs.isLinux) {
+    if (os == "linux") {
         privateHeaders {
             from("$javaHome/include/linux")
         }
     }
-    else if (currentOs.isMacOsX) {
+    else if (os == "macos") {
         privateHeaders {
             from("$javaHome/include/darwin")
         }
@@ -92,7 +95,7 @@ library {
                     "-L${project(":ldb:lib").buildDir}/out/host/lib",
                     "-lleveldb", "-lsnappy", "-lcrc32c"
             )
-            if (currentOs.isLinux) {
+            if (os == "linux") {
                 linkTask.get().linkerArgs.addAll(
                         "-static-libgcc", "-static-libstdc++"
                 )
@@ -100,44 +103,6 @@ library {
             compileTask.get().compilerArgs.add("-std=c++11")
         }
     }
-}
-
-listOf("debug", "release").forEach { type ->
-    val cType = type.capitalize()
-    task("genInfo$cType") {
-        dependsOn("link$cType")
-
-        val outputFile = file("$buildDir/generated/infos/$type/info.properties")
-        outputs.file(outputFile)
-        afterEvaluate {
-            inputs.files(tasks["link$cType"].outputs.files)
-        }
-
-        doLast {
-            val digest = MessageDigest.getInstance("SHA-1")
-            val buf = ByteArray(8192)
-            tasks["link$cType"].outputs.files
-                    .filter { it.name.endsWith(".so") || it.name.endsWith(".dylib") }
-                    .first()
-                    .inputStream()
-                    .use {
-                        while (true) {
-                            val n = it.read(buf)
-                            if (n == -1) break
-                            if (n > 0) digest.update(buf, 0, n)
-                        }
-                    }
-
-            val props = Properties()
-            props["version"] = version
-            props["os"] = currentOsName
-            props["sha1"] = digest.digest().toHexString()
-            outputFile.outputStream().use {
-                props.store(it, null)
-            }
-        }
-    }
-
 }
 
 apply(from = rootProject.file("gradle/toolchains.gradle"))
