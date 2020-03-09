@@ -11,18 +11,18 @@ Multiplatform Kotlin embedded NoSQL database.
 Kodein DB is an embedded NoSQL database that works on JVM, Android, Kotlin/Native and iOS.
 It is suited for client or mobile applications.
 
-CAUTION: Under no circumstances should it be used for in a server!
+CAUTION: Under no circumstances should it be used in a server!
 
 .Kodein-DB allows you to:
-- Easily store, retrieve and query data.
+- Easily store, retrieve and query kotlin objects.
 - Stop carrying about schema definitions.
-- Easily set up a new project
+- Easily set up a new project.
 
-.Kodein is a good choice because:
-- It proposes a very simple and readable declarative DSL.
-- It integrates nicely with Android and iOS.
-- It proposes a very kotlin-esque idiomatic API.
-- It can be used in plain Java.
+.Kodein-DB is a good choice because it:
+- proposes a very simple and readable DSL.
+- integrates nicely with Android and iOS.
+- offers very good performances.
+- is just Kotlin!
 
 
 === Example
@@ -43,43 +43,15 @@ println(does.joinToString()) // Jane, John
 
 == Install
 
+[IMPORTANT]
+====
+**Kodein-DB is in beta.**
+
+Although, we do use Kodein-DB in production, this means we cannot ensure the library's correctness and stability.
+Therefore, we ask that you first try Kodein-DB in non-critical applications, and report any mis-behaviour you may encounter.
+====
+
 === JVM
-
-==== With Maven
-
-Add the repository:
-
-[source,xml]
-.pom.xml
-----
-<repositories>
-    <repository>
-      <id>jcenter</id>
-      <url>https://dl.bintray.com/kodein-framework/Kodein-DB</url>
-    </repository>
-</repositories>
-----
-
-NOTE: Kodein-DB will eventually be sync'd with JCenter, when it exits beta.
-
-Then add the dependency:
-
-[source,xml,subs=attributes+]
-.pom.xml
-----
-<dependencies>
-    <dependency>
-        <groupId>org.kodein.db</groupId>
-        <artifactId>kodein-db-jvm</artifactId>
-        <version>{version}</version>
-    </dependency>
-</dependencies>
-----
-
-NOTE: If you are developing a library and not an application, use the artifact `kodein-db-api-jvm` instead, which only provides the Kodein-DB API, and not its implementation.
-
-
-==== With Gradle
 
 Add the repository:
 
@@ -106,6 +78,29 @@ dependencies {
 ----
 
 NOTE: If you are developing a library and not an application, use the artifact `org.kodein.db:kodein-db-api-jvm:{version}` instead, which only provides the Kodein-DB API, and not its implementation.
+
+Furthermore, you need to add the serializer you are going to use.
+When targetting JVM only, you can use https://github.com/EsotericSoftware/kryo[Kryo]:
+
+[source,groovy,subs=attributes+]
+.build.gradle
+----
+dependencies {
+    implementation 'org.kodein.db:kodein-db-serializer-kryo-jvm:{version}'
+}
+----
+
+Finally, if you are targeting a desktop OS, you must add the OS specific leveldb native build dependency:
+
+[source,groovy,subs=attributes+]
+.build.gradle
+----
+dependencies {
+    implementation 'org.kodein.db:kodein-leveldb-jni-linux:{version}' // 'linux' or 'macos'
+}
+----
+
+NOTE: If you are targeting multiple desktop OS, it is OK to add multiple `kodein-leveldb-jni-*` dependencies.
 
 
 === Multiplatform and/or Native (Gradle)
@@ -156,6 +151,23 @@ Thanks to Gradle Metadata, you don't need to add any additional dependency to yo
 
 NOTE: If you are developing a library and not an application, use the artifact `org.kodein.db:kodein-db-api:{version}` instead, which only provides the Kodein-DB API, and not its implementation.
 
+Furthermore, you need to add the serializer you are going to use.
+When targetting Multiplatform, you need to use https://github.com/Kotlin/kotlinx.serialization[KotlinX Serialization]:
+
+[source,groovy,subs=attributes+]
+.build.gradle
+----
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation 'org.kodein.db:kodein-db-serializer-kotlinx:{version}'
+            }
+        }
+    }
+}
+----
+
 
 == Immutability requirement
 
@@ -185,6 +197,8 @@ IMPORTANT: There is no way (yet?) in Kotlin to ensure immutability.
 
 == Opening a database
 
+=== Open statement
+
 To open a new database, use `DB.factory`:
 
 [source,kotlin]
@@ -192,6 +206,30 @@ To open a new database, use `DB.factory`:
 ----
 val db = DB.open("path/to/db")
 ----
+
+By default, Kodein-DB will create the database if it does not exist.
+If you want to modify this behaviour, you can use:
+
+- `LevelDB.OpenPolicy.OPEN`: fails if the database does not already exist
+- `LevelDB.OpenPolicy.CREATE`: fails if the database already exists
+
+[source,kotlin]
+.Opening an existing database:
+----
+val db = DB.open("path/to/db", LevelDB.OpenPolicy.OPEN)
+----
+
+=== Defining the serializer
+
+If you are targeting JVM only, then Kodein-DB will find the serializer by itself, so you don't need to define it. +
+However, when targeting Multiplatform, you need to define the KotlinX serializer and the serialized classes manually:
+
+[source,kotlin]
+.Opening an existing database:
+----
+val db = DB.open("path/to/db", LevelDB.OpenPolicy.OPEN)
+----
+
 
 
 == Advanced usage
@@ -237,8 +275,35 @@ val db = DB.open(
 ----
 <1> Default on JVM & Android.
 
-
 However, there are times when you may want to bypass the cache:
 
-- When you *put* a model you won't need in the future.
-- When you *get* a model you won't query again in the future.
+- When you *put* a model you won't need in the future:
++
+[source,kotlin]
+.Bypassing the cache:
+----
+db.put(model, ModelCache.Skip)
+----
++
+- When you *get* a model you won't query again in the future:
++
+[source,kotlin]
+.Bypassing the cache:
+----
+val m1 = db.get(model, ModelCache.Skip) //<1>
+val m2 = db.get(model, ModelCache.Refresh) //<2>
+----
+<1> Skips the cache (and removes any cached value).
+<2> Forces the cache to refresh from the serialized model in DB.
+
+Of course, if you don't want any caching, you can simply disable the cache:
+
+[source,kotlin]
+.Disabling the cache:
+----
+val cacheSize = Runtime.getRuntime().totalMemory() / 8
+val db = DB.open(
+    "path/to/db",
+    ModelCache.Disable
+)
+----

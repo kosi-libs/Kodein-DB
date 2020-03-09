@@ -2,7 +2,7 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.TypeTable
 import org.kodein.db.model.findAllByType
-import org.kodein.db.model.orm.Serializer
+import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.model.putAll
 import org.kodein.db.orm.kryo.KryoSerializer
 import org.kodein.memory.use
@@ -11,7 +11,7 @@ import kotlin.test.*
 @Suppress("ClassName")
 class ModelDBJvmTests_01_PolymorphicAnnotation : ModelDBTests() {
 
-    override fun testSerializer(): Serializer<Any> = KryoSerializer()
+    override fun testSerializer(): DefaultSerializer = KryoSerializer()
 
     override fun testTypeTable(): TypeTable? = null
 

@@ -2,24 +2,42 @@ package org.kodein.db.orm.kotlinx
 
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.modules.serializersModule
 import org.kodein.db.Options
 import org.kodein.db.invoke
-import org.kodein.db.model.orm.Serializer
+import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.simpleTypeNameOf
 import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.Writeable
 import org.kodein.memory.io.readBytes
+import org.kodein.memory.util.UUID
 import kotlin.collections.set
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
 class KXSerializer(val serializer: KSerializer<*>) : Options.Read, Options.Write
 
-class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : Serializer<Any> {
+object UUIDSerializer : KSerializer<UUID> {
+    override val descriptor: SerialDescriptor = PrimitiveDescriptor("UUID", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: UUID) {
+        encoder.encodeLong(value.mostSignificantBits)
+        encoder.encodeLong(value.leastSignificantBits)
+    }
+
+    override fun deserialize(decoder: Decoder): UUID {
+        val mostSignificantBits = decoder.decodeLong()
+        val leastSignificantBits = decoder.decodeLong()
+        return UUID(mostSignificantBits, leastSignificantBits)
+    }
+
+}
+
+class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : DefaultSerializer {
     private val serializers = HashMap<KClass<*>, KSerializer<*>>()
 
-    private val cbor = Cbor()
+    private val cbor = Cbor(updateMode = UpdateMode.UPDATE, context = serializersModule(UUIDSerializer))
 
     inner class Builder {
         fun <T : Any> register(type: KClass<T>, serializer: KSerializer<T>) { serializers[type] = serializer }

@@ -3,7 +3,7 @@ package org.kodein.db.impl.model
 import org.kodein.db.impl.model.jvm.AnnotationMetadataExtractor
 import org.kodein.db.model.Id
 import org.kodein.db.model.Indexed
-import org.kodein.db.model.orm.Serializer
+import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.orm.kryo.KryoSerializer
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.memory.io.KBuffer
@@ -15,7 +15,7 @@ import kotlin.test.assertFailsWith
 @Suppress("ClassName")
 class ModelDBJvmTests_00_MetadataAnnotations : ModelDBTests() {
 
-    override fun testSerializer(): Serializer<Any> = KryoSerializer()
+    override fun testSerializer(): DefaultSerializer = KryoSerializer()
 
     @Test
     fun test00_MetadataAnnotations() {

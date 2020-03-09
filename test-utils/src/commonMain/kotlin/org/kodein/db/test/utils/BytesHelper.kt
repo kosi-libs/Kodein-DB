@@ -57,7 +57,7 @@ fun ByteArray.description(): String {
     return sb.toString()
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 fun ByteArray.hex(): String = joinToString { it.toUByte().toUInt().toString(16).toUpperCase().padStart(2, '0') }
 
 fun assertBytesEquals(expected: ByteArray, actual: ByteArray, description: Boolean = true, prefix: String = "") {

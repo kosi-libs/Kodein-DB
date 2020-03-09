@@ -78,14 +78,28 @@ kodein {
             configureCInterop("konan")
         }
 
-        if (currentOs.isMacOsX) {
-            add(listOf(kodeinTargets.native.iosArm32, kodeinTargets.native.iosArm64)) {
-                configureCInterop("iosOs")
-            }
+        add(listOf(kodeinTargets.native.iosArm32, kodeinTargets.native.iosArm64)) {
+            configureCInterop("ios-os")
+        }
 
-            add(kodeinTargets.native.iosX64) {
-                configureCInterop("iosSimulator64")
-            }
+        add(kodeinTargets.native.iosX64) {
+            configureCInterop("ios-simulator64")
+        }
+
+        add(listOf(kodeinTargets.native.watchosArm32, kodeinTargets.native.watchosArm64)) {
+            configureCInterop("ios-watchos")
+        }
+
+        add(kodeinTargets.native.watchosX86) {
+            configureCInterop("ios-simulator_watchos")
+        }
+
+        add(kodeinTargets.native.tvosArm64) {
+            configureCInterop("ios-tvos")
+        }
+
+        add(kodeinTargets.native.tvosX64) {
+            configureCInterop("ios-simulator_tvos")
         }
 
     }

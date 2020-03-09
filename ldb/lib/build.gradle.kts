@@ -153,7 +153,7 @@ if (withAndroid) {
             ?: throw IllegalStateException("Please install NDK")
 
     fun addAndroidTarget(target: String) {
-        val build = addTarget("android${target.capitalize()}") {
+        val build = addTarget("android-$target") {
             "CMAKE_TOOLCHAIN_FILE:PATH" += "${ndkDir.absolutePath}/build/cmake/android.toolchain.cmake"
             "ANDROID_NDK:PATH" += "${ndkDir.absolutePath}/"
             "ANDROID_PLATFORM:STRING" += "android-16"
@@ -172,25 +172,30 @@ if (withAndroid) {
     addAndroidTarget("x86_64")
 }
 
-if (currentOs.isMacOsX) {
-    fun addIosTarget(target: String) {
-        val build = addTarget("ios${target.capitalize()}") {
-            "G" -= "Xcode"
-            "CMAKE_TOOLCHAIN_FILE:PATH" += "${projectDir.absolutePath}/src/ios-cmake/ios.toolchain.cmake"
-            "PLATFORM:STRING" += target.toUpperCase()
-            "CMAKE_C_FLAGS:STRING" += "-Wno-shorten-64-to-32"
-            "CMAKE_CXX_FLAGS:STRING" += "-Wno-shorten-64-to-32"
-        }
-
-        tasks.maybeCreate("buildIosLeveldb").apply {
-            group = "build"
-            dependsOn(build)
-        }
+fun addIosTarget(target: String) {
+    val build = if (currentOs.isMacOsX) addTarget("ios-$target") {
+        "G" -= "Xcode"
+        "CMAKE_TOOLCHAIN_FILE:PATH" += "${projectDir.absolutePath}/src/ios-cmake/ios.toolchain.cmake"
+        "PLATFORM:STRING" += target.toUpperCase()
+        "CMAKE_C_FLAGS:STRING" += "-Wno-shorten-64-to-32"
+        "CMAKE_CXX_FLAGS:STRING" += "-Wno-shorten-64-to-32"
+    }
+    else task("buildIos-${target}Leveldb") {
+        enabled = false
     }
 
-    addIosTarget("os")
-    addIosTarget("simulator64")
+    tasks.maybeCreate("buildIosLeveldb").apply {
+        group = "build"
+        dependsOn(build)
+    }
 }
+
+addIosTarget("os")
+addIosTarget("simulator64")
+addIosTarget("watchos")
+addIosTarget("simulator_watchos")
+addIosTarget("tvos")
+addIosTarget("simulator_tvos")
 
 tasks.create<Delete>("clean") {
     delete(buildDir)

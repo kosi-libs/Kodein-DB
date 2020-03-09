@@ -1,30 +1,21 @@
-@file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
-
 package org.kodein.db
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.StringDescriptor
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.wrap
 import org.kodein.memory.text.Base64
 
 @Suppress("unused")
-@Serializable(with = Key.KxSerializer::class)
-class Key<out T : Any>(val bytes: ReadMemory) {
-    override fun hashCode(): Int = bytes.hashCode()
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Key<*>) return false
-        return bytes == other.bytes
-    }
+@Serializable(with = Key.KeySerializer::class)
+data class Key<out T : Any>(val bytes: ReadMemory) {
 
     @Serializer(forClass = Key::class)
-    object KxSerializer : KSerializer<Key<*>> {
+    object KeySerializer : KSerializer<Key<*>> {
         private val b64Encoder = Base64.encoder.withoutPadding()
         private val b64Decoder = Base64.decoder
 
-        override val descriptor: SerialDescriptor = StringDescriptor.withName("org.kodein.db.Key")
+        override val descriptor: SerialDescriptor = PrimitiveDescriptor("org.kodein.db.Key", PrimitiveKind.STRING)
 
         override fun deserialize(decoder: Decoder): Key<*> {
             val b64 = decoder.decodeString()
@@ -32,9 +23,11 @@ class Key<out T : Any>(val bytes: ReadMemory) {
             return Key<Any>(bytes)
         }
 
-        override fun serialize(encoder: Encoder, obj: Key<*>) {
-            val b64 = b64Encoder.encode(obj.bytes.duplicate())
+        override fun serialize(encoder: Encoder, value: Key<*>) {
+            val b64 = b64Encoder.encode(value.bytes.duplicate())
             encoder.encodeString(b64)
         }
     }
+
+
 }

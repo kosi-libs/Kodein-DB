@@ -5,22 +5,22 @@ import org.kodein.db.data.DataDB
 import org.kodein.db.model.*
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.NoMetadataExtractor
-import org.kodein.db.model.orm.Serializer
+import org.kodein.db.model.orm.DefaultSerializer
 
 abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
 
     protected abstract val ddbFactory: DBFactory<DataDB>
 
-    protected abstract fun defaultSerializer(): Serializer<Any>?
+    protected abstract fun defaultSerializer(): DefaultSerializer?
 
     protected abstract fun defaultMetadataExtractor(): MetadataExtractor?
 
     protected abstract fun defaultTypeTable(): TypeTable?
 
     final override fun open(path: String, vararg options: Options.Open): ModelDB {
-        val serializer = options<DBSerializer>()?.serializer ?: defaultSerializer()
-        val metadataExtractor = options<DBMetadataExtractor>()?.extractor ?: defaultMetadataExtractor() ?: NoMetadataExtractor()
-        val typeTable = options<DBTypeTable>()?.typeTable ?: defaultTypeTable() ?: TypeTable()
+        val serializer = options<DefaultSerializer>() ?: defaultSerializer()
+        val metadataExtractor = options<MetadataExtractor>() ?: defaultMetadataExtractor() ?: NoMetadataExtractor()
+        val typeTable = options<TypeTable>() ?: defaultTypeTable() ?: TypeTable()
         val serializers = options.all<DBClassSerializer<*>>()
 
         val modelMiddlewares = options.all<Middleware.Model>().map { it.middleware }

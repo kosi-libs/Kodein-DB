@@ -1,5 +1,6 @@
 package org.kodein.db.impl.model
 
+import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable
 import org.kodein.db.*
 import org.kodein.db.model.ModelDB
@@ -42,7 +43,7 @@ data class City(val name: String, val location: Location, val postalCode: Int) :
 }
 
 @Serializable
-data class Message(val uid: UUID, val from: Key<Person>, val message: String) : Metadata {
+data class Message(@ContextualSerialization val uid: UUID, val from: Key<Person>, val message: String) : Metadata {
     override val id get() = Value.of(uid)
 }
 

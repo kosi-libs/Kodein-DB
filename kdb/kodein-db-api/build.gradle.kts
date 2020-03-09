@@ -6,7 +6,6 @@ plugins {
 kodein {
     kotlin {
 
-        val kotlinxCoroutinesVer: String by rootProject.extra
         val kotlinxSerializationVer: String by rootProject.extra
 
         common.main.dependencies {
@@ -20,7 +19,7 @@ kodein {
             }
         }
 
-        add(listOf(kodeinTargets.native.host) + kodeinTargets.native.allIos) {
+        add(kodeinTargets.native.allApple + kodeinTargets.native.host) {
             main.dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$kotlinxSerializationVer")
             }

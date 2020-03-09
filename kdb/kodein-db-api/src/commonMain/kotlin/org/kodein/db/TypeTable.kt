@@ -5,7 +5,7 @@ import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.wrap
 import kotlin.reflect.KClass
 
-interface TypeTable {
+interface TypeTable : Options.Open {
 
     fun getTypeName(type: KClass<*>): ReadMemory
 

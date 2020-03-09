@@ -18,7 +18,7 @@ interface Metadata : HasMetadata {
     }
 }
 
-interface MetadataExtractor {
+interface MetadataExtractor : Options.Open {
     fun extractMetadata(model: Any, vararg options: Options.Write): Metadata
 
     companion object {

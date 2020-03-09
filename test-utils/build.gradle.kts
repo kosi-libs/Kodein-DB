@@ -5,6 +5,13 @@ plugins {
 val kodeinLogVer: String by rootProject.extra
 val kodeinMemoryVer: String by rootProject.extra
 
+repositories {
+    mavenLocal()
+    google()
+    maven(url = "https://kotlin.bintray.com/kotlinx")
+    jcenter()
+}
+
 kodein {
     kotlin {
         common.main.dependencies {
@@ -27,15 +34,16 @@ kodein {
         }
 
         add(kodeinTargets.jvm.android) {
+            target {
+                publishLibraryVariants = emptyList()
+            }
             main.dependencies {
                 implementation("androidx.test.ext:junit:1.1.1")
                 implementation("androidx.test.espresso:espresso-core:3.2.0")
             }
         }
 
-        add(kodeinTargets.native.host)
-
-        add(kodeinTargets.native.allIos)
+        add(kodeinTargets.native.allApple + kodeinTargets.native.host)
 
         allTargets {
             mainCommonCompilation.kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
