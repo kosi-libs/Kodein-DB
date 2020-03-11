@@ -182,6 +182,22 @@ interface Value : Body {
             }
         }
 
+        private fun Any.toValue(): Value = when (this) {
+            is Value ->  this
+            is ByteArray -> of(this)
+            is ReadBuffer -> of(this)
+            is Allocation -> of(this)
+            is Boolean ->  of((if (this) 1 else 0).toByte())
+            is Byte ->  of(this)
+            is Char ->  ofAscii(this)
+            is Short ->  of(this)
+            is Int ->  of(this)
+            is Long ->  of(this)
+            is UUID -> of(this)
+            is String ->  ofAscii(this)
+            else -> throw IllegalArgumentException("invalid value: $this")
+        }
+
         fun ofAll(vararg values: Any): Value {
             if (values.isEmpty())
                 return emptyValue
@@ -190,24 +206,21 @@ interface Value : Body {
                 return values[0] as Value
 
             val sized = Array(values.size) {
-                when (val value = values[it]) {
-                    is Value ->  value
-                    is ByteArray -> of(value)
-                    is ReadBuffer -> of(value)
-                    is Allocation -> of(value)
-                    is Boolean ->  of((if (value) 1 else 0).toByte())
-                    is Byte ->  of(value)
-                    is Char ->  ofAscii(value)
-                    is Short ->  of(value)
-                    is Int ->  of(value)
-                    is Long ->  of(value)
-                    is UUID -> of(value)
-                    is String ->  ofAscii(value)
-                    else -> throw IllegalArgumentException("invalid value: $value")
-                }
+                values[it].toValue()
             }
 
             return of(*sized)
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        fun ofAny(value: Any): Value = when (value) {
+            is Collection<*> ->
+                if (value.size == 1) value.requireNoNulls().first().toValue()
+                else ofAll(*value.toTypedArray().requireNoNulls())
+            is Array<*> ->
+                if (value.size == 1) (value as Array<Any?>).requireNoNulls().first().toValue()
+                else ofAll(*(value as Array<Any?>).requireNoNulls())
+            else -> value.toValue()
         }
     }
 

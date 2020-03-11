@@ -10,10 +10,6 @@ annotation class Id
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Indexed(val name: String)
 
-//@Target(AnnotationTarget.FUNCTION)
-//@Retention(AnnotationRetention.RUNTIME)
-//annotation class Indexes
-
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class PolymorphicCollection(val root: KClass<*>)

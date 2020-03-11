@@ -1,4 +1,7 @@
 = Kodein-DB
+:toc: left
+:toc-position: left
+:toclevels: 5
 :version: 0.1.0
 
 Multiplatform Kotlin embedded NoSQL database.
@@ -28,7 +31,7 @@ CAUTION: Under no circumstances should it be used in a server!
 === Example
 
 [source,kotlin]
-.A simple example:
+.A simple example
 ----
 val db = DB.open("path/to/db")
 
@@ -45,7 +48,7 @@ println(does.joinToString()) // Jane, John
 
 [IMPORTANT]
 ====
-**Kodein-DB is in beta.**
+*Kodein-DB is in beta.*
 
 Although, we do use Kodein-DB in production, this means we cannot ensure the library's correctness and stability.
 Therefore, we ask that you first try Kodein-DB in non-critical applications, and report any mis-behaviour you may encounter.
@@ -169,6 +172,7 @@ kotlin {
 ----
 
 
+[[immutability]]
 == Immutability requirement
 
 Kodein-DB works under the assumption that your models (ie. the objects that are going to be managed by the database) are immutable.
@@ -184,7 +188,7 @@ With this analogy, you can see that the document themselves are immutable: you d
 Kodein-DB works the same way: each of your object model must be immutable, and you should create a new model to update one:
 
 [source,kotlin]
-.A simple example:
+.A simple example
 ----
 val john = db[johnKey] ?: error("No John!")
 db.put(john.copy(phone = "0605040302"))
@@ -202,7 +206,7 @@ IMPORTANT: There is no way (yet?) in Kotlin to ensure immutability.
 To open a new database, use `DB.factory`:
 
 [source,kotlin]
-.Opening a database:
+.Opening a database
 ----
 val db = DB.open("path/to/db")
 ----
@@ -214,27 +218,532 @@ If you want to modify this behaviour, you can use:
 - `LevelDB.OpenPolicy.CREATE`: fails if the database already exists
 
 [source,kotlin]
-.Opening an existing database:
+.Opening an existing database
 ----
 val db = DB.open("path/to/db", LevelDB.OpenPolicy.OPEN)
 ----
+
 
 === Defining the serializer
 
 If you are targeting JVM only, then Kodein-DB will find the serializer by itself, so you don't need to define it. +
-However, when targeting Multiplatform, you need to define the KotlinX serializer and the serialized classes manually:
+*However, when targeting Multiplatform, you need to define the KotlinX serializer and the serialized classes manually:*
 
 [source,kotlin]
-.Opening an existing database:
+.Opening an existing database
 ----
-val db = DB.open("path/to/db", LevelDB.OpenPolicy.OPEN)
+val db = DB.open("path/to/db",
+    KotlinXSerializer { //<1>
+        +User.serializer() //<2>
+        +Address.serializer() //<2>
+    }
+)
+----
+<1> Registers the KotlinX Serializer.
+<2> Registers the class and associate serializer.
+
+
+== Models
+
+=== Metadata
+
+IMPORTANT: *<<immutability>>*
+
+==== ID and Indexes
+
+A model *may* have *one or more* named indexes, to allow you to _search and/or order_ by a specific value.
+
+A model *must* have *one* _unique_ ID, which can be of any type.
+This ID defines the default ordering of the models inside the collections.
+In essence, the ID works exactly like an index, except that it is unnamed.
+You can use `UUID.randomUUID()` if your model does not have a unique value.
+
+Indexes and IDs can be composite, which means that they can contain multiple values.
+A composite index allows you to:
+
+- Get models ordered by first value, then second, then third, then...
+- Look for all models with the first value, then second, then third, then...
+
+
+==== With annotations
+
+When targeting *only the JVM*, you can simply use annotations:
+
+[source,kotlin]
+.A simple model
+----
+data class User(
+    @Id val uid: String,
+    val firstName: String,
+    @Index("lastName") val lastName: String
+)
 ----
 
+CAUTION: When using `@Id` or `@Index`, Kodein-DB converts `String` values to byte array using the ASCII charset.
+         Therefore, only ASCII characters are allowed.
+
+Using this configuration, when getting all users by index `"lastName"`, they will be ordered first by `lastName`, then by `uid`.
+If you want the results to be ordered by `lastName` then `firstName` (then `uid`), you can use a composite index:
+
+[source,kotlin]
+.Same model with composite index
+----
+data class User(
+    @Id val uid: String,
+    val firstName: String,
+    val lastName: String
+) {
+    @Index("name") fun nameIndex() = listOf(lastName, firstName)
+}
+----
+
+
+==== With the model
+
+The model itself can define its metadata by implementing either the `Metadata` or `HasMetadata` interface:
+
+[source,kotlin]
+.Model *is* metadata
+----
+data class User(
+    override val id: String, //<1>
+    val firstName: String,
+    val lastName: String
+) : Metadata {
+    override fun indexes() = indexSet("lastName" to listOf(lastName, firstName)) //<2>
+}
+----
+<1> The `id` property override is mandatory
+<2> The `indexes` function override is optional (no index by default)
+
+[source,kotlin]
+.Model *has* metadata
+----
+data class User(
+    val id: String,
+    val firstName: String,
+    val lastName: String
+) : HasMetadata {
+    override fun getMetadata(db: ModelDB, vararg options: Options.Write) =
+            Metadata(id, "lastName" to listOf(lastName, firstName))
+}
+----
+
+
+==== With an extractor
+
+If you don't own the models, or if you don't want to mark them for Kodein-DB, you can use register a `MetadataExtractor` when you open the database:
+
+[source,kotlin]
+.Registering a metadata extractor
+----
+val db = DB.open("path/to/db",
+    MetadataExtractor {
+        when (it) {
+            is User -> Metadata(it.id, "lastName" to listOf(it.lastName, it.firstName))
+            else -> error("Unknown model $it")
+        }
+    }
+)
+----
+
+
+[[id-index]]
+==== Using ID as an index
+
+If we consider the `User` model we have just defined, we have defined the ID to be a UUID, meaning that the order in which they will be stored and retrieved is completely random. +
+Because the ID must be unique, we cannot use the name to be the ID.
+However, we can create a composite ID.
+Consider this updated model:
+
+[source,kotlin]
+.Model with a composite ID
+----
+data class User(
+    val uid: String,
+    val firstName: String,
+    val lastName: String
+) : Metadata {
+    override val id get() = listOf(lastName, firstName, uid)
+}
+----
+
+Because `uid` is unique, the tuple `(lastName, firstName, uid)` is unique (if only because it contains `uid`).
+Therefore, the `id` property is always unique, but the order in which the models will be stored are defined first by `lastName`, then by `firstName`, then only by `id`.
+
+CAUTION: While using a composite ID can be very useful, it makes the <<key-from-id,creation of key from ID values>> more complex.
+
+
+=== Key & References
+
+If a model contains another model, it will be serialized into the same _document_.
+If you need to reference another document, then you need to store a `Key`:
+
+[source,kotlin]
+.A model with a reference to another model
+----
+data class User(
+    override val id: String,
+    val name: Name, //<1>
+    val address: Key<Address> //<2>
+) : Metadata {
+    override fun indexes() = indexSet("lastName" to listOf(name.last, name.first))
+}
+----
+<1> Will be included as part of this model's document.
+<2> References another model with its own document.
+
+
+== Operations
+
+=== Put, Delete, Get
+
+Kodein-DB does not know the difference between Put and Update.
+If you put a document that already exists in the database, it will be overwritten (you can, however, manually <<locking-check,check>> the existence and state of an overwritten model).
+
+To put a document inside the database, simply use the `put` method:
+
+[source,kotlin]
+.Putting a model
+----
+val key = db.put(user) //<1>
+----
+<1> The `put` method returns the `Key` that refers to the model.
+
+You can as easily delete a document:
+
+[source,kotlin]
+.Deleting a document
+----
+db.delete(key)
+----
+
+To get a model, simply use the `get` method:
+
+[source,kotlin]
+.Getting a model
+----
+val user = db[key]
+----
+
+
+=== Handling Keys
+
+==== Definition
+
+A `Key` is the unique identifier that identifies a document (and the associated model) inside the database.
+It contains the following information:
+
+- The type of the document (which is also the type of the model, unless you're using <<polymorphism,polymorphism>>).
+- The Id of the document.
+
+[TIP]
+====
+You can think of Kodein-DB as a file cabinet:
+
+- The document type defines the drawer inside the cabinet.
+- The document ID is the label that defines the document inside the drawer.
+====
+
+IMPORTANT: A key is specific to a Kodein-DB instance: a key refers to a model relative to a specific Kodein-DB.
+           Do *not* share a Key: the same model with the same ID may give 2 different keys on two different databases.
+
+
+==== Creating a Key
+
+===== From a model
+
+You can always ask Kodein-DB to provide you with the key of a specific model:
+
+[source,kotlin]
+.Creating a key
+----
+val key = db.newKey(user)
+----
+
+CAUTION: You can create a key from any model, whether it exists in database or not.
+         Using `newKeyFrom` does *not* ensure you that the model exists in database, nor does it put it.
+
+
+[[key-from-id]]
+===== From ID values
+
+You can easily create a key from its ID value(s):
+
+[source,kotlin]
+.Creating a key
+----
+val key = db.newKey<User>("01234567-89ab-cdef-0123-456789abcdef")
+----
+
+[IMPORTANT]
+====
+If you are using <<id-index,composite IDs>>, you need to provide all values of the ID. +
+In the case of the earlier example, you would need to create the key as such:
+
+[source,kotlin]
+.Creating a key with a composite ID
+----
+val key = db.newKey<User>("Doe", "John", "01234567-89ab-cdef-0123-456789abcdef")
+----
+====
+
+
+===== From a Base64 representation
+
+Once you have a `Key` (either from `put` or `newKey`), you can serialize it to Base64:
+
+[source,kotlin]
+.serializing a key to Base64
+----
+val b64 = key.toBase64()
+----
+
+Then, you can re-create a key from a Base64 string:
+
+[source,kotlin]
+.deserializing a key from Base64
+----
+val key = db.newKeyFromB64(b64)
+----
+
+IMPORTANT: Even when serialized in Base64, a Key is only valid on the Kodein-DB that created it.
+
+
+=== Iteration
+
+==== Getting a cursor
+
+To iterate over a collection or a subset of a collection, you need to create cursor.
+
+You can iterate:
+
+- Over all models of a collection, ordered by ID:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().all()
+----
++
+- Over all models of a collection whose composite ID begins with a specific value, ordered by id:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byId("Doe")
+----
++
+- Over all models of a collection, ordered by an index:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byIndex("lastName")
+----
+- Over all models of a collection with the specific index (composite or not) value, ordered by that index:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byIndex("lastName", "Doe")
+----
++
+- Over all models of the database:
++
+[source,kotlin]
+----
+val cursor = db.findAll()
+----
++
+CAUTION: When using `findAll()` on multiplatform projects, you *must* define a <<type-table,type table>> that defines all model classes!
+
+
+==== Using a cursor
+
+===== As is
+
+By default, a cursor points to the first value of the matching query.
+
+- You can get the key and model with `key()` and `model()`.
+- You can move the cursor one item with `next()` and `previous()`, or directly to the start or end of the matching items with `seekToFirst` or `seekToLast`. +
+- Each time the cursor moves, you need to check whether it is still valid with `isValid()`.
+
+IMPORTANT: Cursors are `Closeable`! You need to either close them after use, or to call `use` on them.
+
+[source,kotlin]
+.Iterating with a cursor
+----
+db.find<User>().byIndex("lastName", "Doe").use { cursor -> //<1>
+    while (cursor.isValid()) {
+        val model = cursor.model()
+        println(model)
+        cursor.next()
+    }
+}
+----
+<1> `use` ensures to close the cursor when iteration ends.
+
+
+===== As a sequence
+
+You can easily transform a `Cursor` to a `Sequence`.
+Note that when you do, the cursor will be automatically closed when the sequence ends.
+
+You can use either `models()` that creates a squence of models, or `entries`, that create a sequence of model and key pairs.
+
+[source,kotlin]
+.Iterating with a sequence
+----
+db.find<User>().byIndex("lastName", "Doe").models().forEach {
+    println(it)
+}
+----
+
+[CAUTION]
+====
+The sequence will only close when the last item has been collected!
+
+The following code will *not* close the associated cursor and create a *resource leak*!
+
+[source,kotlin]
+.Creating a cursor leak
+----
+val first3 = db.find<User>().all()
+    .models()
+    .take(3) //<1>
+    .toList()
+----
+<1> Because we take only the first 3 items, the last item of the cursor is never collected.
+
+The correct way to do this is as such:
+
+[source,kotlin]
+.Getting the first 3 items without resource leak:
+----
+val first3 = db.find<User>().all().use { //<1>
+    it.models()
+        .take(3)
+        .toList()
+}
+----
+<1> `use` ensures to close the cursor when iteration ends.
+====
+
+
+[[polymorphism]]
+== Polymorphism
+
+=== The problem
+
+By default, Kodein-DB inserts each model in the document collection that corresponds to its real type.
+
+Considering the following insertions:
+
+[source,kotlin]
+.Multiple insertions
+----
+open class Person(@Id val name: String)
+class Child(name: String, val parents: List<Key<Person>>): Person(name)
+
+val janeKey = db.put(Person("Jane"))
+val johnKey = db.put(Person("John"))
+
+val parents = listOf(janeKey, johnKey)
+db.put(Child("Jill", parents))
+db.put(Person("Jack", parents))
+----
+
+Using the preceding code, there will be two different collections, one `Person`, one `Adult`, meaning if you were to look for all `Person` models, you would only get Jane & John.
+
+Children are person too (even when they keep asking you when's the end of this documentation...) so, you probably want to put every `Child` model into the `Person` collection.
+To do that, you need to enable polymorphism: the fact that a collection can hold multiple types of models.
+
+
+=== JVM only annotation
+
+The simpler way to define a polymorphic document is to use the `@Polymorphic` annotation.
+However, as usual for annotations, *it only works for the JVM*.
+
+[source,kotlin]
+.Children are Persons
+----
+@Polymorphic(Person::class) //<1>
+class Child(name: String, val parents: List<Key<Person>>): Person(name)
+----
+<1> This `@Polymorphic` annotation instructs Kodein-DB to put `Child` models into the `Person` collection.
+
+
+[[type-table]]
+=== Type Table
+
+In Kodein-DB, the Type Table is responsible for defining which model type belongs to which collection.
+
+NOTE: Using a Type Table is compatible with multiplatform!
+
+You can define a `TypeTable` when opening the database:
+
+[source,kotlin]
+.Defining a Type Table
+----
+val db = DB.open("path/to/db",
+    TypeTable {
+        root<Person>() //<1>
+            .sub<Child>() //<2>
+    }
+)
+----
+<1> Defines the root collection `Person`.
+<2> Defines that all `Child` models will be put in the `Person` collection.
+
+
+== Consistency
+
+=== Batch
+
+TODO
+
+
+=== Snapshot
+
+TODO
+
+
+== Being reactive
+
+=== Listeners and subscriptions
+
+TODO
+
+
+=== After an event
+
+TODO
+
+
+=== Before an event
+
+TODO
+
+
+=== Informing listeners
+
+TODO
+
+
+=== Local reactions
+
+==== Regular
+
+TODO
+
+[[locking-check]]
+==== Locking
+
+TODO
 
 
 == Advanced usage
 
 === Handling the cache
+
+==== Definition
 
 Kodein-DB provides an object-cache that reflects the data that is serialized inside the database. +
 When querying for a data (either by `DB.get` or `DB.find`) if the needed data is already in the cache, then instead of de-serializing it, Kodein-DB immediately returns the cached value.
@@ -244,6 +753,11 @@ Kodein-DB updates the cache:
 - at every `get` or `find` (if the model is not in the cache, then the cache saves the model to prevent any future deserialization).
 
 This enhances performances as deserialization is one of the most expensive operations.
+
+
+==== Configuring at open
+
+Kodein-DB allows you to pass multiple configuration values that modify cache behaviour when opening a database.
 
 You may want to define the maximum size of the cache:
 
@@ -275,7 +789,21 @@ val db = DB.open(
 ----
 <1> Default on JVM & Android.
 
-However, there are times when you may want to bypass the cache:
+Of course, if you don't want any caching, you can simply disable the cache:
+
+[source,kotlin]
+.Disabling the cache:
+----
+val db = DB.open(
+    "path/to/db",
+    ModelCache.Disable
+)
+----
+
+
+==== Model skip & refresh
+
+There are times when you may want to bypass the cache for a specific operation:
 
 - When you *put* a model you won't need in the future:
 +
@@ -296,14 +824,60 @@ val m2 = db.get(model, ModelCache.Refresh) //<2>
 <1> Skips the cache (and removes any cached value).
 <2> Forces the cache to refresh from the serialized model in DB.
 
-Of course, if you don't want any caching, you can simply disable the cache:
 
-[source,kotlin]
-.Disabling the cache:
-----
-val cacheSize = Runtime.getRuntime().totalMemory() / 8
-val db = DB.open(
-    "path/to/db",
-    ModelCache.Disable
-)
-----
+=== Using primitives
+
+TODO
+
+=== Handling Values and Buffers
+
+TODO
+
+
+=== Fine-graining (de)serialization
+
+==== Defining specific (de)serializers
+
+TODO
+
+
+==== Writing your own optimied (de)serializers
+
+TODO
+
+
+=== LevelDB Options
+
+TODO
+
+
+=== Understanding type matching
+
+TODO
+
+
+=== Embedding your logic
+
+==== Layered architecture
+
+TODO
+
+
+==== Model middleware
+
+TODO
+
+
+==== Data middleware
+
+TODO
+
+
+==== LevelDB middleware
+
+TODO
+
+
+==== Passing options to middleware
+
+TODO

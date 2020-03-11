@@ -61,13 +61,13 @@ internal interface DataReadModule : DataKeyMakerModule, DataRead {
         }
     }
 
-    override fun getIndexesOf(key: ReadMemory, vararg options: Options.Read): List<String> {
+    override fun getIndexesOf(key: ReadMemory, vararg options: Options.Read): Set<String> {
         val indexes = SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
             val refKey = it.newSlice { putRefKeyFromDocumentKey(key) }
-            ldb.get(refKey, toLdb(options)) ?: return emptyList()
+            ldb.get(refKey, toLdb(options)) ?: return emptySet()
         }
 
-        val list = ArrayList<String>()
+        val set = HashSet<String>()
 
         indexes.use {
             while (indexes.hasRemaining()) {
@@ -76,11 +76,11 @@ internal interface DataReadModule : DataKeyMakerModule, DataRead {
                 indexes.skip(length)
 
                 val name = getIndexKeyName(indexKey)
-                list.add(name.getAscii())
+                set.add(name.getAscii())
             }
         }
 
-        return list
+        return set
     }
 
 }

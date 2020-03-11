@@ -2,13 +2,12 @@ package org.kodein.db.impl.model.cache
 
 import org.kodein.db.*
 import org.kodein.db.model.ModelBatch
-import org.kodein.db.model.ModelKeyMaker
 import org.kodein.memory.Closeable
 import org.kodein.memory.util.MaybeThrowable
 import org.kodein.memory.util.forEachCatchTo
 import kotlin.reflect.KClass
 
-internal class CachedModelBatch(private val cmdb: CachedModelDB, private val batch: ModelBatch) : ModelBatch, ModelKeyMaker by batch, Closeable by batch {
+internal class CachedModelBatch(private val cmdb: CachedModelDB, private val batch: ModelBatch) : ModelBatch, KeyMaker by batch, Closeable by batch {
 
     private val reacts = ArrayList<CachedModelDB.() -> Unit>()
 

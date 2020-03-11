@@ -34,6 +34,7 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
         put(IntPrimitive::class, IntPrimitive.S)
         put(LongPrimitive::class, LongPrimitive.S)
         put(DoublePrimitive::class, DoublePrimitive.S)
+        put(StringPrimitive::class, StringPrimitive.S)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -65,7 +66,7 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
         return subscription
     }
 
-    internal fun getTypeId(typeName: ReadMemory): Int =
+    internal fun getTypeId(typeName: ReadMemory, createIfNone: Boolean = true): Int =
             typeNameMap[typeName] ?: typeLock.withLock {
                 typeNameMap[typeName] ?: Allocation.native(getTypeNameKeySize(typeName)) { putTypeNameKey(typeName) }.use { typeNameKey ->
                     data.ldb.get(typeNameKey)?.use {
@@ -92,7 +93,7 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
                 }
             }
 
-    private fun getTypeName(typeId: Int): ReadMemory? =
+    internal fun getTypeName(typeId: Int): ReadMemory? =
             typeIdMap[typeId] ?: typeLock.withLock {
                 typeIdMap[typeId] ?: Allocation.native(typeIdKeySize) { putTypeIdKey(typeId) }.use { typeIdKey ->
                     data.ldb.get(typeIdKey)?.use { alloc ->

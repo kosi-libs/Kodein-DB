@@ -3,7 +3,7 @@ package org.kodein.db.impl.model
 import org.kodein.db.Value
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
-import org.kodein.db.model.newKey
+import org.kodein.db.newKey
 import org.kodein.db.test.utils.description
 import org.kodein.memory.io.getBytes
 import kotlin.test.Test
@@ -27,9 +27,8 @@ open class ModelDBTests_00_PutGetDelete : ModelDBTests() {
     @Test
     fun test01_putGetCreateKey() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        println(mdb.put(me).key.bytes.getBytes(0).description())
+        mdb.put(me)
         val key = mdb.newKey<Adult>(Value.ofAscii("BRYS", "Salomon"))
-        println(key.bytes.getBytes(0).description())
         val otherMe = mdb[key]?.model
         assertEquals(me, otherMe)
         assertNotSame(me, otherMe)
@@ -38,7 +37,7 @@ open class ModelDBTests_00_PutGetDelete : ModelDBTests() {
     @Test
     fun test02_getNothing() {
         mdb.put(Adult("Salomon", "BRYS", Date(15, 12, 1986)))
-        assertNull(mdb[mdb.newKey<Adult>(Value.ofAscii("somebody", "else"))])
+        assertNull(mdb[mdb.newKey<Adult>("somebody", "else")])
     }
 
     @Test
@@ -53,7 +52,7 @@ open class ModelDBTests_00_PutGetDelete : ModelDBTests() {
     @Test
     fun test04_deleteCreateKey() {
         mdb.put(Adult("Salomon", "BRYS", Date(15, 12, 1986)))
-        val key = mdb.newKey<Adult>(Value.ofAscii("BRYS", "Salomon"))
+        val key = mdb.newKey<Adult>("BRYS", "Salomon")
         mdb.delete(key)
         assertNull(mdb[key])
     }

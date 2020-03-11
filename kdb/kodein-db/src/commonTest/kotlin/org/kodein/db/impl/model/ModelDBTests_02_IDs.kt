@@ -16,7 +16,7 @@ open class ModelDBTests_02_IDs : ModelDBTests() {
         mdb.put(laila)
         mdb.put(Adult("Someone", "Somewhere", Date(1, 1, 1990)))
 
-        mdb.findById<Adult>(Value.ofAscii("BRYS")).use { cursor ->
+        mdb.findById<Adult>("BRYS").use { cursor ->
             assertTrue(cursor.isValid())
             cursor.model().also {
                 assertEquals(laila, it.model)
@@ -38,7 +38,7 @@ open class ModelDBTests_02_IDs : ModelDBTests() {
         mdb.put(Adult("Salomon", "BRYS", Date(15, 12, 1986)))
         mdb.put(Adult("Laila", "BRYS", Date(25, 8, 1989)))
 
-        mdb.findById<Adult>(Value.ofAscii("BRY")).use {
+        mdb.findById<Adult>("BRY").use {
             assertFalse(it.isValid())
         }
     }
@@ -51,7 +51,7 @@ open class ModelDBTests_02_IDs : ModelDBTests() {
         mdb.put(laila)
         mdb.put(Adult("Someone", "Somewhere", Date(1, 1, 1990)))
 
-        mdb.findById<Adult>(Value.ofAscii("BRY"), isOpen = true).use { cursor ->
+        mdb.findById<Adult>("BRY", isOpen = true).use { cursor ->
             assertTrue(cursor.isValid())
             cursor.model().also {
                 assertEquals(laila, it.model)

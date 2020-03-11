@@ -19,7 +19,7 @@ interface DataRead : DataKeyMaker {
 
     fun findByIndex(type: Int, index: String, value: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
 
-    fun getIndexesOf(key: ReadMemory, vararg options: Options.Read): List<String>
+    fun getIndexesOf(key: ReadMemory, vararg options: Options.Read): Set<String>
 
     /**
      * If true, all data read from underlying storage will be verified against corresponding checksums.

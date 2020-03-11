@@ -13,6 +13,8 @@ atomicfu {
 kodein {
     kotlin {
 
+        val kotlinxSerializationVer: String by rootProject.extra
+
         common {
             main.dependencies {
                 api(project(":kdb:kodein-db-api"))
@@ -23,6 +25,7 @@ kodein {
             test.dependencies {
                 implementation(project(":test-utils"))
                 implementation(project(":kdb:serializer:kodein-db-serializer-kotlinx"))
+                compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$kotlinxSerializationVer")
             }
         }
 
@@ -35,6 +38,7 @@ kodein {
                 implementation(project(":kdb:serializer:kodein-db-serializer-kryo-jvm"))
                 implementation(project(":ldb:kodein-leveldb-jni"))
                 implementation("org.xerial:sqlite-jdbc:3.30.1")
+                compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVer")
             }
         }
 
@@ -45,18 +49,16 @@ kodein {
 
             test.dependencies {
                 implementation(project(":kdb:serializer:kodein-db-serializer-kryo-jvm"))
+                compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVer")
             }
         }
 
-        add(kodeinTargets.native.host) {
+        add(kodeinTargets.native.allApple + kodeinTargets.native.allDesktop) {
             main.dependencies {
                 implementation("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
             }
-        }
-
-        add(kodeinTargets.native.allIos) {
-            main.dependencies {
-                implementation("org.jetbrains.kotlinx:atomicfu-native:$kotlinxAtomicFuVer")
+            test.dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$kotlinxSerializationVer")
             }
         }
     }

@@ -38,7 +38,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
                 assertSame(me, model)
                 assertEquals("Adult", typeName.getString(0, Charset.ASCII).split(".").last())
                 assertEquals(me.id, metadata.id)
-                assertEquals(me.indexes, metadata.indexes)
+                assertEquals(me.indexes(), metadata.indexes())
                 ++willPutCalls
             }
 
@@ -46,7 +46,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
                 assertSame(me, model)
                 assertEquals("Adult", typeName.getString(0, Charset.ASCII).split(".").last())
                 assertEquals(me.id, metadata.id)
-                assertEquals(me.indexes, metadata.indexes)
+                assertEquals(me.indexes(), metadata.indexes())
                 ++didPutCalls
             }
 

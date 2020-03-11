@@ -29,6 +29,4 @@ inline fun DB.execBatch(vararg options: Options.Write, block: Batch.() -> Unit) 
             it.write(*options)
         }
 
-inline fun <R> DB.useSnaphost(vararg options: Options.Read, block: (Snapshot) -> R) = newSnapshot(*options).use(block)
-
 inline fun <reified M : Any> DB.on() = on(M::class)

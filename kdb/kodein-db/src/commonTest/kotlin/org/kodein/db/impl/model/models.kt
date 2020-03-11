@@ -20,10 +20,10 @@ interface Person : Metadata {
 
     val fullName get() = "$firstName $lastName"
 
-    override val id: Value get() = Value.ofAscii(lastName, firstName)
-    override val indexes: Set<Index> get() = indexSet(
-            "firstName" to Value.ofAscii(firstName),
-            "birth" to Value.of(birth.year, birth.month, birth.day)
+    override val id get() = listOf(lastName, firstName)
+    override fun indexes(): Set<Index> = indexSet(
+            "firstName" to firstName,
+            "birth" to listOf(birth.year, birth.month, birth.day)
     )
 }
 
@@ -38,25 +38,20 @@ data class Location(val lat: Double, val lng: Double)
 
 @Serializable
 data class City(val name: String, val location: Location, val postalCode: Int) : Metadata {
-    override val id get() = Value.of(postalCode)
-    override val indexes: Set<Index> get() = indexSet("name" to Value.ofAscii(name))
+    override val id get() = postalCode
+    override fun indexes(): Set<Index> = indexSet("name" to name)
 }
 
 @Serializable
-data class Message(@ContextualSerialization val uid: UUID, val from: Key<Person>, val message: String) : Metadata {
-    override val id get() = Value.of(uid)
-}
+data class Message(@ContextualSerialization override val id: UUID, val from: Key<Person>, val message: String) : Metadata
 
 @Serializable
 data class Birth(val adult: Key<Adult>, val city: Key<City>) : HasMetadata {
     override fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata {
         val person = db[adult]!!
-        return Metadata(
-                id = person.model.id,
-                indexes = indexSet(
-                        "city" to Value.ofAscii(db[city]!!.model.name),
-                        "date" to Value.of(person.model.birth.year, person.model.birth.month, person.model.birth.day)
-                )
+        return Metadata(person.model.id,
+                "city" to db[city]!!.model.name,
+                "date" to listOf(person.model.birth.year, person.model.birth.month, person.model.birth.day)
         )
     }
 }

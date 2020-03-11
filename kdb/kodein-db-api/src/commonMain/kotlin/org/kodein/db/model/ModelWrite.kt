@@ -6,7 +6,7 @@ import org.kodein.db.KeyMaker
 import org.kodein.db.Options
 import kotlin.reflect.KClass
 
-interface ModelWrite : ModelKeyMaker {
+interface ModelWrite : KeyMaker {
     fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M>
     fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int
 

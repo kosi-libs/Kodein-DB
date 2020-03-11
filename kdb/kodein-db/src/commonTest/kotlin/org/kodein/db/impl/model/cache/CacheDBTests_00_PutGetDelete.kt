@@ -5,7 +5,7 @@ import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Date
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
-import org.kodein.db.model.newKey
+import org.kodein.db.newKey
 import kotlin.test.Test
 import kotlin.test.assertNull
 import kotlin.test.assertSame
@@ -26,7 +26,7 @@ class CacheDBTests_00_PutGetDelete : CacheDBTests() {
     fun test01_putGetCreateKey() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         mdb.put(me)
-        val key = mdb.newKey<Adult>(Value.ofAscii("BRYS", "Salomon"))
+        val key = mdb.newKey<Adult>("BRYS", "Salomon")
         val otherMe = mdb[key]?.model
         assertSame(me, otherMe)
     }
@@ -34,7 +34,7 @@ class CacheDBTests_00_PutGetDelete : CacheDBTests() {
     @Test
     fun test02_getNothing() {
         mdb.put(Adult("Salomon", "BRYS", Date(15, 12, 1986)))
-        assertNull(mdb[mdb.newKey<Adult>(Value.ofAscii("somebody", "else"))])
+        assertNull(mdb[mdb.newKey<Adult>("somebody", "else")])
     }
 
     @Test

@@ -15,15 +15,15 @@ internal interface DBReadModule : DBRead {
 
     override fun <M : Any> find(type: KClass<M>, vararg options: Options.Read): DBRead.FindDsl<M> = FindDslImpl(mdb, type, options)
 
-    override fun getIndexesOf(key: Key<*>, vararg options: Options.Read): List<String> = mdb.getIndexesOf(key, *options)
+    override fun getIndexesOf(key: Key<*>, vararg options: Options.Read): Set<String> = mdb.getIndexesOf(key, *options)
 
     class FindDslImpl<M : Any>(private val mdb: ModelRead, private val type: KClass<M>, private val options: Array<out Options.Read>) : DBRead.FindDsl<M> {
 
         override fun byId(vararg id: Any, isOpen: Boolean): Cursor<M> =
-            CursorImpl(if (id.isEmpty()) mdb.findAllByType(type, *options) else mdb.findById(type, Value.ofAll(*id), isOpen, *options))
+            CursorImpl(if (id.isEmpty()) mdb.findAllByType(type, *options) else mdb.findById(type, id, isOpen, *options))
 
         override fun byIndex(index: String, vararg value: Any, isOpen: Boolean): Cursor<M> =
-                CursorImpl(if (value.isEmpty()) mdb.findAllByIndex(type, index, *options) else mdb.findByIndex(type, index, Value.ofAll(*value), isOpen, *options))
+                CursorImpl(if (value.isEmpty()) mdb.findAllByIndex(type, index, *options) else mdb.findByIndex(type, index, value, isOpen, *options))
 
     }
 

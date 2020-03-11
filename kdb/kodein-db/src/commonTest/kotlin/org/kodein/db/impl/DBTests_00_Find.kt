@@ -4,6 +4,7 @@ import org.kodein.db.*
 import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Birth
 import org.kodein.db.impl.model.City
+import org.kodein.db.impl.model.Date
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -69,7 +70,7 @@ open class DBTests_00_Find : DBTests() {
     fun test07_getIndexes() {
         db.inflateDB()
 
-        assertEquals(listOf("firstName", "birth"), db.getIndexesOf(db.newKeyFrom(Models.salomon)))
+        assertEquals(setOf("firstName", "birth"), db.getIndexesOf(db.newKeyFrom(Models.salomon)))
     }
 
     @Test
@@ -81,6 +82,16 @@ open class DBTests_00_Find : DBTests() {
         assertEquals<Map<Key<Any>, Any>>(hashMapOf(db.newKeyFrom(Models.sjeg) to Models.sjeg, db.newKeyFrom(Models.paris) to Models.paris, db.newKeyFrom(Models.pap) to Models.pap), all.subList(0, 3).associate { it.key to it.model })
         assertEquals<Map<Key<Any>, Any>>(hashMapOf(db.newKeyFrom(Models.laila) to Models.laila, db.newKeyFrom(Models.salomon) to Models.salomon), all.subList(3, 5).associate { it.key to it.model })
         assertEquals(setOf(Birth(db.newKeyFrom(Models.salomon), db.newKeyFrom(Models.sjeg)), Birth(db.newKeyFrom(Models.laila), db.newKeyFrom(Models.pap))), all.subList(5, 7).map { it.model } .toSet())
+    }
+
+    @Test
+    fun test09_findByCompositeIndex() {
+        db.inflateDB()
+        val kit = Adult("Kit", "Harington", Date(26, 12, 1986))
+        db.put(kit)
+        db.put(Adult("Robert", "Pattinson", Date(13, 5, 1986)))
+
+        assertEquals(listOf(Models.salomon, kit), db.find<Adult>().byIndex("birth", 1986, 12).models().toList())
     }
 
 }

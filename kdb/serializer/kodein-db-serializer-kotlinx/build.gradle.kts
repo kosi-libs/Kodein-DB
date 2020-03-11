@@ -21,7 +21,7 @@ kodein {
             }
         }
 
-        add(kodeinTargets.native.allApple + kodeinTargets.native.host) {
+        add(kodeinTargets.native.allApple + kodeinTargets.native.allDesktop) {
             main.dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$kotlinxSerializationVer")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor-native:$kotlinxSerializationVer")

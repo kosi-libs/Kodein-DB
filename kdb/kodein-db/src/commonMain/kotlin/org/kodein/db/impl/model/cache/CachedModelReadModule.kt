@@ -1,6 +1,9 @@
 package org.kodein.db.impl.model.cache
 
-import org.kodein.db.*
+import org.kodein.db.Key
+import org.kodein.db.Options
+import org.kodein.db.Sized
+import org.kodein.db.invoke
 import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.ModelRead
 import org.kodein.db.model.cache.ModelCache
@@ -61,12 +64,12 @@ internal interface CachedModelReadModule : ModelRead {
 
     override fun <M : Any> findAllByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findAllByType(type, *options), options)
 
-    override fun <M : Any> findById(type: KClass<M>, id: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findById(type, id, isOpen, *options), options)
+    override fun <M : Any> findById(type: KClass<M>, id: Any, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findById(type, id, isOpen, *options), options)
 
     override fun <M : Any> findAllByIndex(type: KClass<M>, index: String, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findAllByIndex(type, index, *options), options)
 
-    override fun <M : Any> findByIndex(type: KClass<M>, index: String, value: Value, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findByIndex(type, index, value, isOpen, *options), options)
+    override fun <M : Any> findByIndex(type: KClass<M>, index: String, value: Any, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findByIndex(type, index, value, isOpen, *options), options)
 
-    override fun getIndexesOf(key: Key<*>, vararg options: Options.Read): List<String> = mdb.getIndexesOf(key, *options)
+    override fun getIndexesOf(key: Key<*>, vararg options: Options.Read): Set<String> = mdb.getIndexesOf(key, *options)
 
 }

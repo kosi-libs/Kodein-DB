@@ -21,7 +21,7 @@ class ModelDBJvmTests_00_MetadataAnnotations : ModelDBTests() {
     fun test00_MetadataAnnotations() {
         val adult = AAdult(42, "Salomon", "BRYS", Date(15, 12, 1986))
         val metadata = AnnotationMetadataExtractor().extractMetadata(adult)
-        assertBytesEquals(byteArrayOf(0, 0, 0, 42), KBuffer.array(metadata.id.size) { metadata.id.writeInto(this) })
+        assertEquals(42, metadata.id)
     }
 
     class Test01()

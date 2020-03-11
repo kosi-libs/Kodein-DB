@@ -17,6 +17,6 @@ kodein {
             target.setCompileClasspath()
         }
 
-        add(kodeinTargets.native.allApple + kodeinTargets.native.host)
+        add(kodeinTargets.native.allApple + kodeinTargets.native.allDesktop)
     }
 }

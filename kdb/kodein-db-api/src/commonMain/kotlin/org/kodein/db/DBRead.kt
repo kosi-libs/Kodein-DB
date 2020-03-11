@@ -21,7 +21,7 @@ interface DBRead : KeyMaker {
 
     fun <M : Any> find(type: KClass<M>, vararg options: Options.Read): FindDsl<M>
 
-    fun getIndexesOf(key: Key<*>, vararg options: Options.Read): List<String>
+    fun getIndexesOf(key: Key<*>, vararg options: Options.Read): Set<String>
 
 }
 

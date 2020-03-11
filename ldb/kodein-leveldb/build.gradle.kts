@@ -74,7 +74,7 @@ kodein {
             tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
         }
 
-        add(kodeinTargets.native.host) {
+        add(kodeinTargets.native.allDesktop) {
             configureCInterop("konan")
         }
 

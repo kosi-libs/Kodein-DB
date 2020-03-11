@@ -15,7 +15,7 @@ open class ModelDBTests_08_Primitives : ModelDBTests() {
 
     @Test
     fun test00_Int() {
-        val int = Primitive(Value.ofAscii("test"), 123456789)
+        val int = Primitive("test", 123456789)
         val key = mdb.put(int).key
         val other = mdb[key]!!.model
         assertNotSame(int, other)
@@ -25,7 +25,7 @@ open class ModelDBTests_08_Primitives : ModelDBTests() {
 
     @Test
     fun test01_Long() {
-        val long = Primitive(Value.ofAscii("test"), 1234567890123456789L)
+        val long = Primitive("test", 1234567890123456789L)
         val key = mdb.put(long).key
         val other = mdb[key]!!.model
         assertNotSame(long, other)
@@ -34,11 +34,29 @@ open class ModelDBTests_08_Primitives : ModelDBTests() {
 
     @Test
     fun test02_Double() {
-        val double = Primitive(Value.ofAscii("test"), 123456789.0123456789)
+        val double = Primitive("test", 123456789.0123456789)
         val key = mdb.put(double).key
         val other = mdb[key]!!.model
         assertNotSame(double, other)
         assertEquals(double, other)
+    }
+
+    @Test
+    fun test03_String() {
+        val string = Primitive("test", "Salomon")
+        val key = mdb.put(string).key
+        val other = mdb[key]!!.model
+        assertNotSame(string, other)
+        assertEquals(string, other)
+    }
+
+    @Test
+    fun test04_Bytes() {
+        val bytes = Primitive("test", byteArrayOf(0, 1, 2, 3, 4, 5))
+        val key = mdb.put(bytes).key
+        val other = mdb[key]!!.model
+        assertNotSame(bytes, other)
+        assertEquals(bytes, other)
     }
 
 }

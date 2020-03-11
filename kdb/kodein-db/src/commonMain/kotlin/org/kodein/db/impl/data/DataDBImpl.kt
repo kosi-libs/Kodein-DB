@@ -54,9 +54,10 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
         val ref = sb.newSlice {
             for (index in indexes) {
-                val indexKeySize = getIndexKeySize(key, index.index, index.value)
+                val indexValue = Value.ofAny(index.value)
+                val indexKeySize = getIndexKeySize(key, index.name, indexValue)
                 putInt(indexKeySize)
-                val indexKey = subSlice { putIndexKey(key, index.index, index.value) }
+                val indexKey = subSlice { putIndexKey(key, index.name, indexValue) }
                 batch.put(indexKey, key)
             }
         }

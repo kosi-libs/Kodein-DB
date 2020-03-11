@@ -3,7 +3,6 @@ package org.kodein.db.impl.model
 import org.kodein.db.Value
 import org.kodein.db.model.findAllByIndex
 import org.kodein.db.model.findByIndex
-import org.kodein.db.model.newKey
 import org.kodein.db.newKey
 import org.kodein.memory.use
 import kotlin.test.*
@@ -52,7 +51,7 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.put(notMe)
         mdb.put(laila)
 
-        mdb.findByIndex<Adult>("firstName", Value.ofAscii("Salomon")).use { cursor ->
+        mdb.findByIndex<Adult>("firstName", "Salomon").use { cursor ->
             assertTrue(cursor.isValid())
             cursor.model().also {
                 assertEquals(me, it.model)
@@ -81,7 +80,7 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.put(sarah)
         mdb.put(laila)
 
-        mdb.findByIndex<Adult>("firstName", Value.ofAscii("Sa"), isOpen = true).use { cursor ->
+        mdb.findByIndex<Adult>("firstName", "Sa", isOpen = true).use { cursor ->
             assertTrue(cursor.isValid())
             cursor.model().also {
                 assertEquals(me, it.model)
@@ -112,11 +111,11 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.put(me)
         mdb.put(laila)
 
-        mdb.findByIndex<Adult>("firstName", Value.ofAscii("Roger")).use {
+        mdb.findByIndex<Adult>("firstName", "Roger").use {
             assertFalse(it.isValid())
         }
 
-        mdb.findByIndex<Adult>("firstName", Value.ofAscii("R"), isOpen = true).use {
+        mdb.findByIndex<Adult>("firstName", "R", isOpen = true).use {
             assertFalse(it.isValid())
         }
 
