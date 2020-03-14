@@ -16,8 +16,6 @@ import kotlin.collections.set
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
-class KXSerializer(val serializer: KSerializer<*>) : Options.Read, Options.Write
-
 object UUIDSerializer : KSerializer<UUID> {
     override val descriptor: SerialDescriptor = PrimitiveDescriptor("UUID", PrimitiveKind.STRING)
 
@@ -54,7 +52,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
     @ImplicitReflectionSerializer
     private fun getSerializer(options: Array<out Options>, type: KClass<*>): KSerializer<*> {
         return try {
-            options<KXSerializer>()?.serializer ?: serializers[type] ?: type.serializer()
+            serializers[type] ?: type.serializer()
         } catch (ex: NotImplementedError) {
             throw IllegalStateException("Could not find serializer for class ${simpleTypeNameOf(type)}. Hove you registered the serializer?", ex)
         }
@@ -69,7 +67,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
 
     @ImplicitReflectionSerializer
     override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
-        val serializer = options<KXSerializer>()?.serializer ?: serializers[type] ?: type.serializer().also { serializers[type] = it }
+        val serializer = serializers[type] ?: type.serializer().also { serializers[type] = it }
         val bytes = input.readBytes()
         @Suppress("UNCHECKED_CAST")
         return cbor.load(serializer as DeserializationStrategy<Any>, bytes)
