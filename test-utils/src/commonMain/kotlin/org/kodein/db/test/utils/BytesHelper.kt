@@ -6,11 +6,11 @@ import kotlin.test.fail
 private fun KBuffer.putValues(vararg values: Any) {
     for (value in values) {
         when (value) {
-            is Number -> put(value.toByte())
-            is Char -> put(value.toByte())
+            is Number -> putByte(value.toByte())
+            is Char -> putByte(value.toByte())
             is String -> {
                 for (i in 0 until value.length)
-                    put(value[i].toByte())
+                    putByte(value[i].toByte())
             }
             else -> throw IllegalArgumentException(value.toString())
         }

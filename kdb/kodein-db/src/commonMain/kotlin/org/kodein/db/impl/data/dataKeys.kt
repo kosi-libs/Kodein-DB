@@ -23,15 +23,15 @@ internal fun ReadMemory.verifyDocumentKey() {
 internal val emptyDocumentPrefix = byteArrayOf(Prefix.DOCUMENT, NULL)
 
 internal fun Writeable.putDocumentKey(type: Int, id: Value?, isOpen: Boolean = false) {
-    put(Prefix.DOCUMENT)
-    put(NULL)
+    putByte(Prefix.DOCUMENT)
+    putByte(NULL)
 
     putInt(type)
 
     if (id != null) {
         putBody(id)
         if (!isOpen)
-            put(NULL)
+            putByte(NULL)
     }
 }
 
@@ -50,7 +50,7 @@ internal fun getDocumentKeySize(id: Value?, isOpen: Boolean = false): Int {
 }
 
 internal fun Writeable.putRefKeyFromDocumentKey(documentKey: ReadMemory) {
-    put(Prefix.REFERENCE)
+    putByte(Prefix.REFERENCE)
     documentKey.markBuffer {
         it.skip(1)
         putBytes(it)
@@ -74,19 +74,19 @@ internal fun getIndexKeyName(key: ReadMemory): ReadBuffer {
 }
 
 private fun Writeable.putIndexKey(type: Int, id: ReadMemory, name: String, value: Value) {
-    put(Prefix.INDEX)
-    put(NULL)
+    putByte(Prefix.INDEX)
+    putByte(NULL)
 
     putInt(type)
 
     putAscii(name)
-    put(NULL)
+    putByte(NULL)
 
     putBody(value)
-    put(NULL)
+    putByte(NULL)
 
     id.markBuffer { putBytes(it) }
-    put(NULL)
+    putByte(NULL)
 }
 
 internal fun Writeable.putIndexKey(documentKey: ReadMemory, name: String, value: Value) {
@@ -110,18 +110,18 @@ internal fun getIndexKeySize(documentKey: ReadMemory, name: String, value: Value
 
 @Suppress("DuplicatedCode")
 internal fun Writeable.putIndexKeyStart(type: Int, name: String, value: Value?, isOpen: Boolean = false) {
-    put(Prefix.INDEX)
-    put(NULL)
+    putByte(Prefix.INDEX)
+    putByte(NULL)
 
     putInt(type)
 
     putAscii(name)
-    put(NULL)
+    putByte(NULL)
 
     if (value != null) {
         putBody(value)
         if (!isOpen)
-            put(NULL)
+            putByte(NULL)
     }
 }
 

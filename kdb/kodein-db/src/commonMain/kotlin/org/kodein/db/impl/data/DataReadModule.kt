@@ -70,7 +70,7 @@ internal interface DataReadModule : DataKeyMakerModule, DataRead {
         val set = HashSet<String>()
 
         indexes.use {
-            while (indexes.hasRemaining()) {
+            while (indexes.valid()) {
                 val length = indexes.readInt()
                 val indexKey = indexes.slice(indexes.position, length)
                 indexes.skip(length)

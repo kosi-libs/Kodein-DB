@@ -121,14 +121,14 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
             @Suppress("UNCHECKED_CAST")
             realType as KClass<M>
 
-            val r = buffer.remaining
+            val r = buffer.available
 
             @Suppress("UNCHECKED_CAST")
             val model = ((classSerializers[realType] as? Serializer<Any>)?.deserialize(realType, transientId, buffer, *options)
                     ?: defaultSerializer?.deserialize(realType, transientId, buffer, *options)
                     ?: throw IllegalArgumentException("No serializer found for type $realType")) as M
 
-            return Sized(model, r - buffer.remaining)
+            return Sized(model, r - buffer.available)
         }
     }
 

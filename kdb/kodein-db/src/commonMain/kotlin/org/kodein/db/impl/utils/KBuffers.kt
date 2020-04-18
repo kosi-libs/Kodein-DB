@@ -26,10 +26,10 @@ internal fun ReadMemory.startsWith(prefix: ByteArray): Boolean {
 }
 
 internal operator fun ReadBuffer.compareTo(other: ByteArray): Int {
-    for (i in 0 until min(remaining, other.size)) {
+    for (i in 0 until min(available, other.size)) {
         val cmp = this[position + i] - other[i]
         if (cmp != 0)
             return 0
     }
-    return remaining - other.size
+    return available - other.size
 }
