@@ -1,3 +1,4 @@
+import com.android.build.gradle.tasks.factory.AndroidUnitTest
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.kodein.internal.gradle.KodeinMPPExtension
 
@@ -26,6 +27,12 @@ kodeinAndroid {
                 setPath("src/androidMain/cpp/CMakeLists.txt")
             }
         }
+    }
+}
+
+afterEvaluate {
+    tasks.withType<AndroidUnitTest>().all {
+        enabled = false
     }
 }
 
@@ -63,15 +70,13 @@ kodein {
                 }
             }
 
-            // https://github.com/JetBrains/kotlin-native/issues/2314
+//            // https://github.com/JetBrains/kotlin-native/issues/2314
             mainCompilation.kotlinOptions.freeCompilerArgs = listOf(
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libleveldb.a",
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libcrc32c.a",
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libsnappy.a"
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libfatleveldb.a"
             )
 
-            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
-            tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
+            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}FatLeveldb"])
+            tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}FatLeveldb"])
         }
 
         add(kodeinTargets.native.allDesktop) {
@@ -109,9 +114,13 @@ if (kodeinAndroid.isIncluded) {
     afterEvaluate {
         configure(listOf("Debug", "Release").map { tasks["externalNativeBuild$it"] }) {
             dependsOn(
-                    project(":ldb:lib").tasks["buildAndroidLeveldb"],
+                    project(":ldb:lib").tasks["buildAllAndroidLibs"],
                     project(":ldb:jni").tasks["generateJniHeaders"]
             )
         }
     }
+}
+
+(tasks["linkDebugTestMingwX64"] as org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink).apply {
+    this.binary.linkerOpts.addAll(listOf("--verbose", "-femulated-tls"))
 }

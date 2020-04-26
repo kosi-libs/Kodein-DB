@@ -32,7 +32,7 @@ task("genInfo") {
         val digest = MessageDigest.getInstance("SHA-1")
         val buf = ByteArray(8192)
         linkRelease.outputs.files
-                .filter { it.name.endsWith(".so") || it.name.endsWith(".dylib") }
+                .filter { it.name.endsWith(".so") || it.name.endsWith(".dylib") || it.name.endsWith(".dll") }
                 .first()
                 .inputStream()
                 .use {

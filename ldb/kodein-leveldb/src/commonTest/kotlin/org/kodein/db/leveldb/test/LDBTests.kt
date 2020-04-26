@@ -5,7 +5,7 @@ import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.based
 import org.kodein.db.leveldb.default
 import org.kodein.db.test.utils.newBuffer
-import org.kodein.db.test.utils.platformTmpPath
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.Allocation
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -19,7 +19,7 @@ abstract class LevelDBTests {
 
     open fun options(): LevelDB.Options = baseOptions()
 
-    open val factory: LevelDBFactory = LevelDB.default.based("$platformTmpPath/")
+    open val factory: LevelDBFactory = LevelDB.default.based(FileSystem.tempDirectory.path)
 
     private val buffers = ArrayList<Allocation>()
 

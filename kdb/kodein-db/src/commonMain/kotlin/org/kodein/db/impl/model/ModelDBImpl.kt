@@ -35,6 +35,7 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
         put(LongPrimitive::class, LongPrimitive.S)
         put(DoublePrimitive::class, DoublePrimitive.S)
         put(StringPrimitive::class, StringPrimitive.S)
+        put(BytesPrimitive::class, BytesPrimitive.S)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -75,6 +76,7 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
                             typeIdMap[typeId] = typeName
                         }
                     } ?: run {
+                        if (!createIfNone) return 0
                         val typeId = nextTypeId ?: data.ldb.get(nextTypeKey)?.use { it.readInt() } ?.also { nextTypeId = it } ?: 1
                         check(typeId != 0) { "No more type int available. Have you inserted UINT_MAX different types in this database ?!?!?!" }
                         Allocation.native(typeIdKeySize) { putTypeIdKey(typeId) }.use { typeIdKey ->

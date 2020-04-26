@@ -278,7 +278,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_dbDestroy (JNIEnv *
 	CHECK_STATUS(s,) // NOLINT(performance-unnecessary-copy-initialization)
 }
 
-void J_LevelDBJNI_Put (JNIEnv *env, jlong ldbPtr, Bytes key, Bytes value, jboolean sync) {
+void J_LevelDBJNI_Put (JNIEnv *env, jlong ldbPtr, Bytes &&key, Bytes &&value, jboolean sync) {
     CAST(leveldb::DB, ldb);
 
     CHECK_STATUS(ldb->Put(_writeOptions(sync), key.slice, value.slice),)
@@ -289,11 +289,17 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_putBB (JNIEnv *env,
 }
 
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_putAB (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
-    J_LevelDBJNI_Put(env, ldbPtr, BYTES(key), BYTES(value), sync);
+    // Order matters!
+    auto value = BYTES(value);
+    auto key = BYTES(key);
+    J_LevelDBJNI_Put(env, ldbPtr, std::move(key), std::move(value), sync);
 }
 
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_putBA (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
-    J_LevelDBJNI_Put(env, ldbPtr, BYTES(key), BYTES(value), sync);
+    // Order matters!
+    auto key = BYTES(key);
+    auto value = BYTES(value);
+    J_LevelDBJNI_Put(env, ldbPtr, std::move(key), std::move(value), sync);
 }
 
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_putAA (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen, jboolean sync) {
@@ -548,7 +554,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchRelease (
 	delete batch;
 }
 
-void J_LevelDBJNI_WriteBatch_Put (jlong batchPtr, Bytes key, Bytes value) {
+void J_LevelDBJNI_WriteBatch_Put (jlong batchPtr, Bytes &&key, Bytes &&value) {
     CAST(leveldb::WriteBatch, batch);
 	batch->Put(key.slice, value.slice);
 }
@@ -558,11 +564,17 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchPutBB (JN
 }
 
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchPutAB (JNIEnv *env, jclass, jlong batchPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jobject valueBytes, jint valueOffset, jint valueLen) {
-    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
+    // Order matters!
+    auto value = BYTES_A(value);
+    auto key = BYTES_A(key);
+    J_LevelDBJNI_WriteBatch_Put(batchPtr, std::move(key), std::move(value));
 }
 
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchPutBA (JNIEnv *env, jclass, jlong batchPtr, jobject keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen) {
-    J_LevelDBJNI_WriteBatch_Put(batchPtr, BYTES_A(key), BYTES_A(value));
+    // Order matters!
+    auto key = BYTES_A(key);
+    auto value = BYTES_A(value);
+    J_LevelDBJNI_WriteBatch_Put(batchPtr, std::move(key), std::move(value));
 }
 
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_writeBatchPutAA (JNIEnv *env, jclass, jlong batchPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jbyteArray valueBytes, jint valueOffset, jint valueLen) {

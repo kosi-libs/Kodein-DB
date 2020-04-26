@@ -8,9 +8,9 @@ import org.kodein.db.ldb.FailOnBadClose
 import org.kodein.db.ldb.TrackClosableAllocation
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.description
-import org.kodein.db.test.utils.platformTmpPath
 import org.kodein.log.LoggerFactory
 import org.kodein.log.frontend.printFrontend
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.readBytes
 import org.kodein.memory.use
@@ -25,7 +25,7 @@ abstract class DataDBTests {
 
     protected val ddb: DataDB get() = _ddb!!
 
-    private val factory = DataDB.default.inDir(platformTmpPath)
+    private val factory = DataDB.default.inDir(FileSystem.tempDirectory.path)
 
     protected fun open() {
         _ddb = factory.open("datadb", TrackClosableAllocation(true), FailOnBadClose(true), DBLoggerFactory(LoggerFactory(listOf(printFrontend))))

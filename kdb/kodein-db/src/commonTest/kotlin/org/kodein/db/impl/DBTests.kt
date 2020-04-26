@@ -3,7 +3,7 @@ package org.kodein.db.impl
 import org.kodein.db.*
 import org.kodein.db.impl.model.*
 import org.kodein.db.orm.kotlinx.KotlinxSerializer
-import org.kodein.db.test.utils.platformTmpPath
+import org.kodein.memory.file.FileSystem
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
@@ -14,7 +14,7 @@ abstract class DBTests {
 
     protected val db: DB get() = _db!!
 
-    private val factory = DB.inDir(platformTmpPath)
+    private val factory = DB.inDir(FileSystem.tempDirectory.path)
 
     protected val kxSerializer = KotlinxSerializer {
         +Adult.serializer()

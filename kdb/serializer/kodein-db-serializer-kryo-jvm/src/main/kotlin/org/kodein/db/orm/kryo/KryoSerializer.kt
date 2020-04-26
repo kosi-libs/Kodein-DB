@@ -4,7 +4,6 @@ import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer
-import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy
 import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.model.orm.DefaultSerializer
@@ -47,7 +46,7 @@ class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : 
             }
 
             if (allowDeserializationWithoutConstructor) {
-                instantiatorStrategy = DefaultInstantiatorStrategy(StdInstantiatorStrategy())
+                instantiatorStrategy = Kryo.DefaultInstantiatorStrategy(StdInstantiatorStrategy())
             }
         }
     }
