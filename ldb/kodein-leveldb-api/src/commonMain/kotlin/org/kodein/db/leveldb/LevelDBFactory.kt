@@ -35,4 +35,5 @@ interface LevelDBFactory {
     }
 }
 
-fun LevelDBFactory.based(baseWithSeparator: String) = LevelDBFactory.Based(baseWithSeparator, this)
+fun LevelDBFactory.prefixed(prefix: String) = LevelDBFactory.Based(prefix, this)
+fun LevelDBFactory.inDir(dir: String) = LevelDBFactory.Based("$dir/", this)

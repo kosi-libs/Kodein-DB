@@ -121,6 +121,6 @@ if (kodeinAndroid.isIncluded) {
     }
 }
 
-(tasks["linkDebugTestMingwX64"] as org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink).apply {
+(tasks.findByName("linkDebugTestMingwX64") as org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink?)?.apply {
     this.binary.linkerOpts.addAll(listOf("--verbose", "-femulated-tls"))
 }
