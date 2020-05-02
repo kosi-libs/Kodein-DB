@@ -128,15 +128,18 @@ fun addTarget(target: String, fpic: Boolean = true, conf: CMakeOptions.() -> Uni
         group = "build"
         dependsOn(buildLevelDB)
         workingDir("$buildDir/out/$target/lib")
-        commandLine("ar", "-M")
-        standardInput = """
-            create libfatleveldb.a
-            addlib libcrc32c.a
-            addlib libsnappy.a
-            addlib libleveldb.a
-            save
-            end
-        """.trimIndent().byteInputStream()
+
+//        commandLine("ar", "-M")
+//        standardInput = """
+//            create libfatleveldb.a
+//            addlib libcrc32c.a
+//            addlib libsnappy.a
+//            addlib libleveldb.a
+//            save
+//            end
+//        """.trimIndent().byteInputStream()
+
+        commandLine("ar", "-rcT", "libfatleveldb.a", "libcrc32c.a", "libsnappy.a", "libleveldb.a")
     }
 
     buildAll.dependsOn(archiveFat)
