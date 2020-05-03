@@ -37,7 +37,7 @@ val configure = task("configureJniGeneration") {
 
         val output = "$buildDir/nativeHeaders/kodein"
 
-        generation.setCommandLine(javah ?: "javah", "-d", output, "-cp", classPath.joinToString(":"), "org.kodein.db.leveldb.jni.Native")
+        generation.setCommandLine(javah ?: "javah", "-d", output, "-cp", classPath.joinToString(File.pathSeparator), "org.kodein.db.leveldb.jni.Native")
         generation.outputs.dir(output)
     }
 }
@@ -60,7 +60,7 @@ val os = System.getProperty("os.name").toLowerCase().let {
 }
 
 library {
-    this.baseName.set("kodein-leveldb-jni-$os-$version")
+    this.baseName.set("kodein-leveldb-jni-$os-${version.toString().replace('.', '_')}")
 
     privateHeaders {
         from("$javaHome/include")
@@ -75,10 +75,13 @@ library {
         privateHeaders {
             from("$javaHome/include/linux")
         }
-    }
-    else if (os == "macos") {
+    } else if (os == "macos") {
         privateHeaders {
             from("$javaHome/include/darwin")
+        }
+    } else if (os == "windows") {
+        privateHeaders {
+            from("$javaHome/include/win32")
         }
     }
 
@@ -88,12 +91,12 @@ library {
             macros["_GLIBCXX_USE_CXX11_ABI"] = "0"
         }
         compileTask.get().dependsOn(generation)
-        compileTask.get().dependsOn(project(":ldb:lib").tasks["buildHostLeveldb"])
+        compileTask.get().dependsOn(project(":ldb:lib").tasks["buildHostFatLeveldb"])
 
         if (this is CppSharedLibrary) {
             linkTask.get().linkerArgs.addAll(
                     "-L${project(":ldb:lib").buildDir}/out/host/lib",
-                    "-lleveldb", "-lsnappy", "-lcrc32c"
+                    "-lfatleveldb"
             )
             if (os == "linux") {
                 linkTask.get().linkerArgs.addAll(
@@ -105,4 +108,6 @@ library {
     }
 }
 
-apply(from = rootProject.file("gradle/toolchains.gradle"))
+if (os != "windows") {
+    apply(from = rootProject.file("gradle/toolchains.gradle"))
+}

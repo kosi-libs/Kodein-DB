@@ -37,6 +37,7 @@ abstract class AbstractLevelDBLoader(val os: String) : LevelDBFactory by LevelDB
             Files.createDirectories(location)
 
             javaClass.getResourceAsStream("/$libFileName").use { input ->
+                check(input != null) { "Did not find /$libFileName" }
                 Files.newOutputStream(lib).use { output ->
                     input.copyTo(output)
                 }

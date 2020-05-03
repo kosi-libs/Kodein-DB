@@ -12,7 +12,6 @@ import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.SliceBuilder
-import org.kodein.memory.io.hasRemaining
 import org.kodein.memory.use
 import org.kodein.memory.util.forEachResilient
 
@@ -37,7 +36,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         val indexes = ldb.get(refKey) ?: return
 
         indexes.use {
-            while (indexes.hasRemaining()) {
+            while (indexes.valid()) {
                 val len = indexes.readInt()
                 val indexKey = indexes.slice(indexes.position, len)
                 batch.delete(indexKey)
@@ -76,7 +75,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         val value = sb.newSlice { putBody(body) }
         batch.put(key, value)
 
-        return value.remaining
+        return value.available
     }
 
     override fun put(key: ReadMemory, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {

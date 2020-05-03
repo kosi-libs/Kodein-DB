@@ -50,7 +50,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
     }
 
     @ImplicitReflectionSerializer
-    private fun getSerializer(options: Array<out Options>, type: KClass<*>): KSerializer<*> {
+    private fun getSerializer(type: KClass<*>): KSerializer<*> {
         return try {
             serializers[type] ?: type.serializer()
         } catch (ex: NotImplementedError) {
@@ -61,7 +61,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
     @ImplicitReflectionSerializer
     override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
         @Suppress("UNCHECKED_CAST")
-        val bytes = cbor.dump(getSerializer(options, model::class) as SerializationStrategy<Any>, model)
+        val bytes = cbor.dump(getSerializer(model::class) as SerializationStrategy<Any>, model)
         output.putBytes(bytes)
     }
 

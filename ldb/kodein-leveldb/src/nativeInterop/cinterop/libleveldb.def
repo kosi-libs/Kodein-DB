@@ -1,6 +1,7 @@
 headers = leveldb/c.h
 headerFilter = leveldb/*
 linkerOpts.linux = -lc -lstdc++
+#linkerOpts = -lleveldb -lcrc32c -lsnappy
 #staticLibraries = libleveldb.a libsnappy.a libcrc32c.a
 #libraryPaths = ldb/lib/build/out/konan/lib
 noStringConversion = leveldb_put leveldb_delete leveldb_get \

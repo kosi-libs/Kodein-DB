@@ -7,7 +7,7 @@ import org.kodein.db.model.*
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.orm.kotlinx.KotlinxSerializer
-import org.kodein.db.test.utils.platformTmpPath
+import org.kodein.memory.file.FileSystem
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
@@ -18,7 +18,7 @@ abstract class ModelDBTests {
 
     protected val mdb: ModelDB get() = _mdb!!
 
-    private val factory = ModelDB.default.inDir(platformTmpPath)
+    private val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path)
 
     open fun testSerializer(): DefaultSerializer? = KotlinxSerializer {
         +Adult.serializer()

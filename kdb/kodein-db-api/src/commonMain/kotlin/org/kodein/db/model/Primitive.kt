@@ -48,6 +48,14 @@ data class BytesPrimitive(override val id: Value, val value: ByteArray) : Metada
         override fun serialize(model: BytesPrimitive, output: Writeable, vararg options: Options.Write) { output.putBytes(model.value) }
         override fun deserialize(type: KClass<out BytesPrimitive>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read) = BytesPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readBytes())
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is BytesPrimitive) return false
+        return id == other.id && value.contentEquals(other.value)
+    }
+
+    override fun hashCode(): Int = 31 * id.hashCode() + value.contentHashCode()
 }
 
 @Suppress("FunctionName")

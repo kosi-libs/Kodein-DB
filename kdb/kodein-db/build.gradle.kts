@@ -1,3 +1,5 @@
+import com.android.build.gradle.tasks.factory.AndroidUnitTest
+
 plugins {
     id("org.kodein.library.mpp-with-android")
     id("kotlinx-serialization")
@@ -8,6 +10,12 @@ val kotlinxAtomicFuVer: String by rootProject.extra
 
 atomicfu {
     dependenciesVersion = null
+}
+
+afterEvaluate {
+    tasks.withType<AndroidUnitTest>().all {
+        enabled = false
+    }
 }
 
 kodein {
@@ -37,7 +45,6 @@ kodein {
             test.dependencies {
                 implementation(project(":kdb:serializer:kodein-db-serializer-kryo-jvm"))
                 implementation(project(":ldb:kodein-leveldb-jni"))
-                implementation("org.xerial:sqlite-jdbc:3.30.1")
                 compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVer")
             }
         }

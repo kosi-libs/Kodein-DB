@@ -47,7 +47,7 @@ interface Value : Body {
         final override fun writeInto(dst: Writeable) {
             for (i in 0 until _count) {
                 if (i != 0)
-                    dst.put(0.toByte())
+                    dst.putByte(0.toByte())
                 write(dst, i)
             }
         }
@@ -85,7 +85,7 @@ interface Value : Body {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putBytes(values[pos].duplicate())
                 }
-                override fun size(pos: Int) = values[pos].remaining
+                override fun size(pos: Int) = values[pos].available
                 override fun toString() = values.joinToString()
             }
         }
@@ -104,7 +104,7 @@ interface Value : Body {
         fun of(vararg values: Boolean): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
-                    dst.put((if (values[pos]) 1 else 0).toByte())
+                    dst.putByte((if (values[pos]) 1 else 0).toByte())
                 }
                 override fun size(pos: Int) = 1
                 override fun toString() = values.joinToString()
@@ -114,7 +114,7 @@ interface Value : Body {
         fun of(vararg values: Byte): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
-                    dst.put(values[pos])
+                    dst.putByte(values[pos])
                 }
                 override fun size(pos: Int) = 1
                 override fun toString() = values.joinToString()
@@ -164,7 +164,7 @@ interface Value : Body {
         fun ofAscii(vararg values: Char): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
-                    dst.put(values[pos].toByte())
+                    dst.putByte(values[pos].toByte())
                 }
                 override fun size(pos: Int) = 1
                 override fun toString() = values.joinToString()

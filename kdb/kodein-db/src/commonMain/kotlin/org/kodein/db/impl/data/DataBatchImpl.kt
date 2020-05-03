@@ -24,7 +24,7 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
 
         deleteRefKeys += refKey
 
-        return value.remaining
+        return value.available
     }
 
     override fun put(key: ReadMemory,  body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {

@@ -13,7 +13,5 @@ target_include_directories( kodein-leveldb-jni PRIVATE
 )
 
 target_link_libraries( kodein-leveldb-jni
-    ${PATH_BASE}/lib/build/out/android-${ANDROID_ABI}/lib/libleveldb.a
-    ${PATH_BASE}/lib/build/out/android-${ANDROID_ABI}/lib/libcrc32c.a
-    ${PATH_BASE}/lib/build/out/android-${ANDROID_ABI}/lib/libsnappy.a
+    ${PATH_BASE}/lib/build/out/android-${ANDROID_ABI}/lib/libfatleveldb.a
 )
