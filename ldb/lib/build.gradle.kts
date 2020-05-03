@@ -41,7 +41,7 @@ fun addCMakeTasks(lib: String, target: String, dir: String = lib, conf: CMakeOpt
         group = "build"
 
         workingDir("$buildDir/cmake/$lib-$target")
-        commandLine("cmake")
+        executable = "cmake"
 
         val options = CMakeOptions().apply {
             +"CMAKE_POSITION_INDEPENDENT_CODE:BOOL"
@@ -74,7 +74,7 @@ fun addCMakeTasks(lib: String, target: String, dir: String = lib, conf: CMakeOpt
         dependsOn(configure)
 
         workingDir(configure.workingDir)
-        commandLine("cmake")
+        executable = "cmake"
         args(
                 "--build", ".",
                 "--config", "Release",
@@ -128,18 +128,22 @@ fun addTarget(target: String, fpic: Boolean = true, conf: CMakeOptions.() -> Uni
         group = "build"
         dependsOn(buildLevelDB)
         workingDir("$buildDir/out/$target/lib")
+        outputs.file("$buildDir/out/$target/libfatleveldb.a")
+        inputs.files("$buildDir/out/$target/libcrc32c.a", "$buildDir/out/$target/libsnappy.a", "$buildDir/out/$target/libleveldb.a")
 
-//        commandLine("ar", "-M")
-//        standardInput = """
-//            create libfatleveldb.a
-//            addlib libcrc32c.a
-//            addlib libsnappy.a
-//            addlib libleveldb.a
-//            save
-//            end
-//        """.trimIndent().byteInputStream()
-
-        commandLine("ar", "-rcT", "libfatleveldb.a", "libcrc32c.a", "libsnappy.a", "libleveldb.a")
+        if (currentOs.isMacOsX) {
+            commandLine("libtool", "-static", "-o", "libfatleveldb.a", "libcrc32c.a", "libsnappy.a", "libleveldb.a")
+        } else {
+            commandLine("ar", "-M")
+            standardInput = """
+                create libfatleveldb.a
+                addlib libcrc32c.a
+                addlib libsnappy.a
+                addlib libleveldb.a
+                save
+                end
+            """.trimIndent().byteInputStream()
+        }
     }
 
     buildAll.dependsOn(archiveFat)
