@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 
 class FRTests {
 
-    val words = listOf(
+    private val words = listOf(
             "continu",
             "continua",
             "continuait",
@@ -92,7 +92,7 @@ class FRTests {
             "maladive"
     )
 
-    val stems = listOf(
+    private val stems = listOf(
             "continu",
             "continu",
             "continu",
@@ -175,7 +175,7 @@ class FRTests {
             "malad"
     )
 
-    val uaStems = listOf(
+    private val uaStems = listOf(
             "continu",
             "continu",
             "continu",
@@ -262,7 +262,7 @@ class FRTests {
     @Test
     fun frenchStems() {
         words.asSequence()
-                .map { frStemmer(it) }
+                .map { frStemmer.stemOf(it) }
                 .forEachIndexed { index, stem ->
                     assertEquals(stems[index], stem, "Word \"${words[index]}\" stem:")
                 }
@@ -272,7 +272,7 @@ class FRTests {
     fun frenchUnaccentedStems() {
         words.asSequence()
                 .unaccented(frAccents)
-                .map { frUnaccentedStemmer(it) }
+                .map { frUnaccentedStemmer.stemOf(it) }
                 .forEachIndexed { index, stem ->
                     assertEquals(uaStems[index], stem, "Word \"${words[index]}\" stem:")
                 }

@@ -1,10 +1,11 @@
 package net.kodein.db.plugin.fts.impl
 
+import net.kodein.db.plugin.fts.RegionsMap
 import net.kodein.db.plugin.fts.Stemmer
 
-class LudeImpl(private val stemmer: Stemmer) : Stemmer.Lude {
+internal class ChangesImpl : Stemmer.Changes, StepImpl {
 
-    class ConditionImpl : Stemmer.Lude.Condition {
+    class ConditionImpl : Stemmer.Changes.Condition {
         var word: String = ""
         var index: Int = 0
 
@@ -14,14 +15,14 @@ class LudeImpl(private val stemmer: Stemmer) : Stemmer.Lude {
         override fun isLast(): Boolean = index == word.lastIndex
     }
 
-    class Change(val chars: CharArray, val cond: Stemmer.Lude.Condition.() -> Boolean, val transf: (String, Int) -> Pair<String, Int>)
+    class Change(val chars: CharArray, val cond: Stemmer.Changes.Condition.() -> Boolean, val transf: (String, Int) -> Pair<String, Int>)
     private val changes = ArrayList<Change>()
 
-    override fun toUppercase(vararg chars: Char, cond: Stemmer.Lude.Condition.() -> Boolean) {
+    override fun toUppercase(vararg chars: Char, cond: Stemmer.Changes.Condition.() -> Boolean) {
         changes.add(Change(chars, cond, { token, index -> token[index].toUpperCase().toString() to 1 }))
     }
 
-    override fun toLowercase(vararg chars: Char, cond: Stemmer.Lude.Condition.() -> Boolean) {
+    override fun toLowercase(vararg chars: Char, cond: Stemmer.Changes.Condition.() -> Boolean) {
         changes.add(Change(chars, cond, { token, index -> token[index].toLowerCase().toString() to 1 }))
     }
 
@@ -32,7 +33,7 @@ class LudeImpl(private val stemmer: Stemmer) : Stemmer.Lude {
     private val condition = ConditionImpl()
     private val stringBuilder = StringBuilder()
 
-    private class CompactImpl(char: Char) : Stemmer.Lude.Compact {
+    private class CompactImpl(char: Char) : Stemmer.Changes.Compact {
         var default: String = char.toString()
         val map = HashMap<Char, String>()
         override fun and(char: Char, str: String) { map[char] = str }
@@ -40,7 +41,7 @@ class LudeImpl(private val stemmer: Stemmer) : Stemmer.Lude {
 
     }
 
-    override fun compact(char: Char, builder: Stemmer.Lude.Compact.() -> Unit) {
+    override fun compact(char: Char, builder: Stemmer.Changes.Compact.() -> Unit) {
         val compact = CompactImpl(char).apply(builder)
         changes.add(Change(
                 charArrayOf(char),
@@ -52,22 +53,26 @@ class LudeImpl(private val stemmer: Stemmer) : Stemmer.Lude {
         ))
     }
 
-    internal fun execute(token: String): String = stringBuilder.apply {
-        clear()
-        condition.word = token
-        var index = 0
-        while (index < token.length) {
-            condition.index = index
-            val change = changes.firstOrNull { token[index] in it.chars && it.cond(condition) }
-            if (change != null) {
-                val (update, move) = change.transf(token, index)
-                append(update)
-                index += move
+    override fun execute(token: String, regions: RegionsMap): StepImpl.Return {
+        val changed = stringBuilder.apply {
+            clear()
+            condition.word = token
+            var index = 0
+            while (index < token.length) {
+                condition.index = index
+                val change = changes.firstOrNull { token[index] in it.chars && it.cond(condition) }
+                if (change != null) {
+                    val (update, move) = change.transf(token, index)
+                    append(update)
+                    index += move
+                }
+                else {
+                    append(token[index])
+                    ++index
+                }
             }
-            else {
-                append(token[index])
-                ++index
-            }
-        }
-    }.toString()
+        }.toString()
+
+        return StepImpl.Return(changed, "")
+    }
 }

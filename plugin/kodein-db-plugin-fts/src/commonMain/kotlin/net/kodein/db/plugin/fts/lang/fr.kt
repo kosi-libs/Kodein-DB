@@ -7,202 +7,241 @@ import net.kodein.db.plugin.fts.util.indices
 import net.kodein.db.plugin.fts.util.prefixed
 
 
-private val Stemmer.Step.Exec.RV get() = R.getValue(V)
-private val Stemmer.Step.Exec.R1 get() = R.getValue(1)
-private val Stemmer.Step.Exec.R2 get() = R.getValue(2)
+private val Stemmer.Searches.Exec.RV get() = R.getValue("V")
+private val Stemmer.Searches.Exec.R1 get() = R.getValue("1")
+private val Stemmer.Searches.Exec.R2 get() = R.getValue("2")
 
+private val frStemmerBuilder: Stemmer.Algorithm.() -> Unit = {
 
-@OptIn(ExperimentalStdlibApi::class)
-private val frStemmerBuilder: Stemmer.() -> Unit = {
-    val vowels = "aeiouyâàëéêèïîôûù".toCharArray()
+    val vowels = charArrayOf('a', 'e', 'i', 'o', 'u', 'y', 'â', 'à', 'ë', 'é', 'ê', 'è', 'ï', 'î', 'ô', 'û', 'ù')
 
-    prelude {
+    firstStep = "prelude" changes {
         toUppercase('u', 'i') { precededBy(*vowels) && followedBy(*vowels) }
         toUppercase('y') { precededBy(*vowels) || followedBy(*vowels) }
         toUppercase('u') { precededBy('q') }
         replace('ë', "He")
         replace('ï', "Hi")
+
+        go("algorithm")
     }
 
-    regions {
-        V { word ->
-            when {
-                word[0] in vowels && word[1] in vowels -> 3
-                word.prefixed("pal", "col", "tap") -> 3
-                else -> word.indexOfAny(vowels, 1).takeIf { it != -1 } ?.let { it + 1 }
+    "algorithm" executes {
+        regions {
+            "V" { token ->
+                when {
+                    token[0] in vowels && token[1] in vowels -> 3
+                    token.prefixed("pal", "col", "tap") -> 3
+                    else -> token.indexOfAny(vowels, 1).takeIf { it != -1 } ?.let { it + 1 }
+                }
+            }
+            "1" { token ->
+                token.indices(1)
+                        .firstOrNull { token[it] !in vowels && token[it - 1] in vowels }
+                        ?.let { it + 1 }
+            }
+            "2" { token ->
+                R["1"]?.let { r1 ->
+                    token.indices(r1 + 1)
+                            .firstOrNull { token[it] !in vowels && token[it - 1] in vowels }
+                            ?.let { it + 1 }
+                }
             }
         }
-        1 { word ->
-            word.indices(1).firstOrNull {
-                word[it] !in vowels && word[it - 1] in vowels
-            } ?.let { it + 1 }
-        }
-        2 { word ->
-            R[1]?.let { r1 ->
-                word.indices(r1 + 1).firstOrNull { word[it] !in vowels && word[it - 1] in vowels } ?.let { it + 1 }
-            }
-        }
-    }
 
-    steps {
-        firstStep = 10 {
+        firstStep = "1" searches {
             suffix("ance", "iqUe", "isme", "able", "iste", "eux", "ances", "iqUes", "ismes", "ables", "istes") {
-                if (it >= R2) delete()
+                exec { if (it in R2) delete(it) }
             }
             suffix("atrice", "ateur", "ation", "atrices", "ateurs", "ations") {
-                if (it >= R2) delete()
+                exec { if (it in R2) delete(it) }
                 precededBy("ic") {
-                    if (it >= R2) delete()
-                    else replaceWith("iqU")
+                    exec {
+                        if (it in R2) delete(it)
+                        else replace(it, "iqU")
+                    }
                 }
             }
             suffix("logie", "logies") {
-                if (it >= R2) replaceWith("log")
+                exec { if (it in R2) replace(it, "log") }
             }
             suffix("usion", "ution", "usions", "utions") {
-                if (it >= R2) replaceWith("u")
+                exec { if (it in R2) replace(it, "u") }
             }
             suffix("ence", "ences") {
-                if (it >= R2) replaceWith("ent")
+                exec { if (it in R2) replace(it, "ent") }
             }
             suffix("ement", "ements") {
-                if (it >= RV) delete()
+                exec { if (it in RV) delete(it) }
                 precededBy("iv") {
-                    if (it >= R2) delete()
+                    exec { if (it in R2) delete(it) }
                     precededBy("at") {
-                        if (it >= R2) delete()
+                        exec { if (it in R2) delete(it) }
                     }
                 }
                 precededBy("eus") {
-                    if (it >= R2) delete()
-                    else if (it >= R1) replaceWith("eux")
+                    exec {
+                        if (it in R2) delete(it)
+                        else if (it in R1) replace(it, "eux")
+                    }
                 }
                 precededBy("abl", "iqU") {
-                    if (it >= R2) delete()
+                    exec { if (it in R2) delete(it) }
                 }
                 precededBy("ièr", "Ièr") {
-                    if (it >= RV) replaceWith("i")
+                    exec { if (it in RV) replace(it, "i") }
                 }
             }
             suffix("ité", "ités") {
-                if (it >= R2) delete()
+                exec { if (it in R2) delete(it) }
                 precededBy("abil") {
-                    if (it >= R2) delete()
-                    else replaceWith("abl")
+                    exec {
+                        if (it in R2) delete(it)
+                        else replace(it, "abl")
+                    }
                 }
                 precededBy("ic") {
-                    if (it >= R2) delete()
-                    else replaceWith("iqU")
+                    exec {
+                        if (it in R2) delete(it)
+                        else replace(it, "iqU")
+                    }
                 }
                 precededBy("iv") {
-                    if (it >= R2) delete()
+                    exec { if (it in R2) delete(it) }
                 }
             }
             suffix("if", "ive", "ifs", "ives") {
-                if (it >= R2) delete()
+                exec { if (it in R2) delete(it) }
                 precededBy("at") {
-                    if (it >= R2) delete()
+                    exec { if (it in R2) delete(it) }
                     precededBy("ic") {
-                        if (it >= R2) delete()
-                        else replaceWith("iqU")
+                        exec {
+                            if (it in R2) delete(it)
+                            else replace(it, "iqU")
+                        }
                     }
                 }
             }
             suffix("eaux") {
-                replaceWith("eau")
+                exec { replace(it, "eau") }
             }
             suffix("aux") {
-                if (it >= R1) replaceWith("al")
+                exec { if (it in R1) replace(it, "al") }
             }
             suffix("euse", "euses") {
-                if (it >= R2) delete()
-                else if (it >= R1) replaceWith("eux")
-            }
-            suffix("issement", "issements") {
-                if (it >= R1 && token[it - 1] !in vowels) delete()
-            }
-            suffix("amment") {
-                if (it >= RV) replaceWith("ant", nextStep = 20)
-            }
-            suffix("emment") {
-                if (it >= RV) replaceWith("ant", nextStep = 20)
-            }
-            suffix("ment", "ments") {
-                if (it >= RV + 1 && token[it - 1] in vowels) delete(nextStep = 20)
-            }
-            nextStep(noChange = 20, changed = 30)
-        }
-        20 {
-            suffix("îmes", "ît", "îtes", "i", "ie", "ies", "ir", "ira", "irai", "iraIent", "irais", "irait", "iras", "irent", "irez", "iriez", "irions", "irons", "iront", "is", "issaIent", "issais", "issait", "issant", "issante", "issantes", "issants", "isse", "issent", "isses", "issez", "issiez", "issions", "issons", "it") {
-                if (it >= RV + 1 && token[it - 1] !in vowels && token[it -1] != 'H') delete()
-            }
-            suffix("ions") {
-                if (it >= R2) delete()
-            }
-            suffix("é", "ée", "ées", "és", "èrent", "er", "era", "erai", "eraIent", "erais", "erait", "eras", "erez", "eriez", "erions", "erons", "eront", "ez", "iez") {
-                if (it >= RV) delete()
-            }
-            suffix("âmes", "ât", "âtes", "a", "ai", "aIent", "ais", "ait", "ant", "ante", "antes", "ants", "as", "asse", "assent", "asses", "assiez", "assions") {
-                if (it >= RV) delete()
-                precededBy("e") {
-                    if (it >= RV) delete()
+                exec {
+                    if (it in R2) delete(it)
+                    else if (it in R1) replace(it, "eux")
                 }
             }
-            nextStep(noChange = 40, changed = 30)
-        }
-        30 {
-            suffix("Y") { replaceWith("i") }
-            suffix("ç") { replaceWith("c") }
-            nextStep(50)
-        }
-        40 {
-            suffix("s") {
-                if (it >= 1 && token[it - 1] !in "aiouès") delete()
-                if (it >= 2 && token[it - 1] == 'i' && token[it - 2] == 'H') delete()
+            suffix("issement", "issements") {
+                exec { if (it in R1 && token[it - 1] !in vowels) delete(it) }
             }
-            nextStep(41)
+            suffix("amment") {
+                exec { if (it in RV) replace(it, "ant", nextStep = "2") }
+            }
+            suffix("emment") {
+                exec { if (it in RV) replace(it, "ant", nextStep = "2") }
+            }
+            suffix("ment", "ments") {
+                exec { if (it in RV + 1 && token[it - 1] in vowels) delete(it, nextStep = "2") }
+            }
+
+            go(noChange = "2a", changed = "3")
         }
-        41 {
+
+        "2a" searches {
+            suffix("îmes", "ît", "îtes", "i", "ie", "ies", "ir", "ira", "irai", "iraIent", "irais", "irait", "iras", "irent", "irez", "iriez", "irions", "irons", "iront", "is", "issaIent", "issais", "issait", "issant", "issante", "issantes", "issants", "isse", "issent", "isses", "issez", "issiez", "issions", "issons", "it") {
+                exec { if (it in RV + 1 && token[it - 1] !in vowels && token[it -1] != 'H') delete(it) }
+            }
+
+            go(noChange = "2b", changed = "3")
+        }
+
+        "2b" searches {
+            suffix("ions") {
+                exec { if (it in R2) delete(it) }
+            }
+            suffix("é", "ée", "ées", "és", "èrent", "er", "era", "erai", "eraIent", "erais", "erait", "eras", "erez", "eriez", "erions", "erons", "eront", "ez", "iez") {
+                exec { if (it in RV) delete(it) }
+            }
+            suffix("âmes", "ât", "âtes", "a", "ai", "aIent", "ais", "ait", "ant", "ante", "antes", "ants", "as", "asse", "assent", "asses", "assiez", "assions") {
+                exec { if (it in RV) delete(it) }
+                precededBy("e") {
+                    exec { if (it in RV) delete(it) }
+                }
+            }
+
+            go(noChange = "4a", changed = "3")
+        }
+
+        "3" searches {
+            suffix("Y") { exec { replace(it, "i") } }
+            suffix("ç") { exec { replace(it, "c") } }
+
+            go("5")
+        }
+
+        "4a" searches {
+            suffix("s") {
+                exec {
+                    if (it in 1 && token[it - 1] !in "aiouès") delete(it)
+                    if (it in 2 && token[it - 1] == 'i' && token[it - 2] == 'H') delete(it)
+                }
+            }
+
+            go("4b")
+        }
+
+        "4b" searches {
             suffix("ion") {
-                if (it >= R2 && token[it - 1] !in "st") delete()
+                exec { if (it in R2 && token[it - 1] !in "st") delete(it) }
             }
             suffix("ier", "ière", "Ier", "Ière") {
-                replaceWith("i")
+                exec { replace(it, "i") }
             }
             suffix("e") {
-                delete()
+                exec { delete(it) }
             }
-            nextStep(50)
+
+            go("5")
         }
-        50 {
+
+        "5" searches {
             suffix("enn", "onn", "ett", "ell", "eill") {
-                delete(chars = 1)
+                exec { delete(-1) }
             }
-            nextStep(60)
+
+            go("6")
         }
-        60 {
-            findSuffix({
+
+        "6" searches {
+            find({
                 var i = it.length - 1
                 while (i >= 0) {
                     if (it[i] !in vowels) --i
-                    else if (i != it.lastIndex && it[i] in "éè") return@findSuffix i
+                    else if (i != it.lastIndex && it[i] in "éè") return@find i
                     else break
                 }
                 -1
             }) {
-                replaceWith("e" + token.substring(it + 1))
+                exec { replace(it, "e" + token.substring(it + 1)) }
             }
-            nextStep(end)
+
+            done()
         }
+
+        go("postlude")
     }
 
-    postlude {
+    "postlude" changes {
         toLowercase('I', 'U', 'Y')
         compact('H') {
             and('e', "ë")
             and('i', "ï")
             default("")
         }
+
+        done()
     }
 }
 

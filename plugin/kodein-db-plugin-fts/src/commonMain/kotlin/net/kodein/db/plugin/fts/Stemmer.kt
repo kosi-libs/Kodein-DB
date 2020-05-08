@@ -7,15 +7,31 @@ import net.kodein.db.plugin.fts.impl.StemmerImpl
 annotation class StemmerDSL
 
 
+typealias AccentsMap = Pair<String, String>
+typealias RegionsMap = Map<String, Int>
+
 @StemmerDSL
 interface Stemmer {
-    fun prelude(builder: Lude.() -> Unit)
-    fun regions(builder: Regions.() -> Unit)
-    fun steps(builder: Steps.() -> Unit)
-    fun postlude(builder: Lude.() -> Unit)
+
+    interface HasRegions {
+        val R: Map<String, Int>
+    }
 
     @StemmerDSL
-    interface Lude {
+    interface Regions : HasRegions {
+        operator fun String.invoke(builder: (String) -> Int?)
+    }
+
+    @StemmerDSL
+    interface Step {
+        fun go(noChange: String?, changed: String?) = Algorithm.Go(noChange, changed)
+        fun go(to: String?) = Algorithm.Go(to, to)
+        fun done() = Algorithm.Go(null, null)
+    }
+
+    @StemmerDSL
+    interface Changes : Step {
+        @StemmerDSL
         interface Condition {
             fun precededBy(vararg p: Char): Boolean
             fun followedBy(vararg p: Char): Boolean
@@ -23,6 +39,7 @@ interface Stemmer {
             fun isLast(): Boolean
         }
 
+        @StemmerDSL
         interface Compact {
             fun and(char: Char, str: String)
             fun default(str: String)
@@ -35,54 +52,63 @@ interface Stemmer {
     }
 
     @StemmerDSL
-    interface Regions {
-        val V get() = 0
-        val R: Map<Int, Int>
-
-        operator fun Int.invoke(builder: (String) -> Int?)
-    }
-
-    @StemmerDSL
-    interface Steps {
-        var firstStep: Int
-        operator fun Int.invoke(builder: Step.() -> Step.NextStep): Int
-    }
-
-    @StemmerDSL
-    interface Step {
-        val end: Int get() = Int.MAX_VALUE
-
-        interface Exec {
-            val V: Int get() = 0
-            val R: Map<Int, Int>
+    interface Searches : Step {
+        @StemmerDSL
+        interface Exec : HasRegions {
             val token: String
+
+            fun delete(suffixStart: Int, nextStep: String? = "")
+            fun replace(suffixStart: Int, with: String, nextStep: String? = "")
+            fun add(suffix: String, nextStep: String? = "")
+            fun nop(nextStep: String? = "")
+
+            operator fun Int.contains(p: Int): Boolean = this <= p
         }
 
-        interface SuffixExec : Exec {
-            fun delete(chars: Int = Int.MAX_VALUE, nextStep: Int = -1)
-            fun replaceWith(str: String, nextStep: Int = -1)
-            fun precededBy(vararg suffixPrefixes: String, action: Exec.(Int) -> Unit)
+        @StemmerDSL
+        interface InSuffix {
+            fun precededBy(vararg prefixes: String, action: InSuffix.() -> Unit)
+            fun exec(action: Exec.(Int) -> Unit)
         }
 
-        fun suffix(vararg suffixes: String, action: SuffixExec.(Int) -> Unit)
-        fun findSuffix(find: (String) -> Int, action: SuffixExec.(Int) -> Unit)
+        fun suffix(vararg suffixes: String, builder: InSuffix.() -> Unit)
 
-        data class NextStep(val noChange: Int, val changed: Int)
-        fun nextStep(noChange: Int, changed: Int) = NextStep(noChange, changed)
-        fun nextStep(next: Int) = NextStep(next, next)
+        fun find(find: HasRegions.(String) -> Int, builder: InSuffix.() -> Unit)
     }
+
+    @StemmerDSL
+    interface Transforms : Step {
+        @StemmerDSL
+        interface Exec : HasRegions {
+            fun to(token: String, nextStep: String? = "")
+        }
+
+        fun exec(transform: Exec.(String) -> Unit)
+    }
+
+    @StemmerDSL
+    interface Algorithm : Step {
+        data class Go(val noChange: String?, val changed: String?)
+
+        var firstStep: String
+
+        fun regions(builder: Regions.() -> Unit)
+
+        infix fun String.changes(builder: Changes.() -> Go): String
+        infix fun String.executes(builder: Algorithm.() -> Go): String
+        infix fun String.searches(builder: Searches.() -> Go): String
+        infix fun String.transforms(builder: Transforms.() -> Go): String
+    }
+
+    fun stemOf(word: String): String
 }
 
-fun stemmer(builder: Stemmer.() -> Unit): (String) -> String {
-    val stemmer = StemmerImpl().apply(builder)
-    return { stemmer.stemOf(it) }
-}
+fun stemmer(builder: Stemmer.Algorithm.() -> Unit): Stemmer =
+        StemmerImpl(null, builder)
 
-fun unAccentedStemmer(accents: Pair<String, String>, builder: Stemmer.() -> Unit): (String) -> String {
-    val stemmer = StemmerImpl(accents).apply(builder)
-    return { stemmer.stemOf(it) }
-}
+fun unAccentedStemmer(accents: AccentsMap, builder: Stemmer.Algorithm.() -> Unit): Stemmer =
+        StemmerImpl(accents, builder)
 
 data class Stem(val token: Token, val stem: String)
 
-fun Sequence<Token>.toStems(stemmer: (String) -> String): Sequence<Stem> = map { Stem(it, stemmer(it.word)) }
+fun Sequence<Token>.toStems(stemmer: Stemmer): Sequence<Stem> = map { Stem(it, stemmer.stemOf(it.word)) }
