@@ -51,9 +51,7 @@ internal class SearchesImpl(val accents: AccentsMap?) : Stemmer.Searches, StepIm
             ).sortedByDescending { it.length }
         val find: Stemmer.HasRegions.(String) -> Int = { token ->
             search.firstOrNull { token.endsWith(it) }
-                    ?.let {
-                        token.length - it.length
-                    }
+                    ?.let { token.length - it.length }
                     ?: -1
         }
         entries.add(find to InSuffixImpl().apply(builder))

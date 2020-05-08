@@ -1,9 +1,7 @@
 package net.kodein.db.plugin.fts
 
-import net.kodein.db.plugin.fts.lang.frAccents
-import net.kodein.db.plugin.fts.lang.frStemmer
-import net.kodein.db.plugin.fts.lang.frStopWords
-import net.kodein.db.plugin.fts.lang.frUnaccentedStemmer
+import net.kodein.db.plugin.fts.lang.FR
+import net.kodein.db.plugin.fts.lang.FRUnaccented
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -262,7 +260,7 @@ class FRTests {
     @Test
     fun frenchStems() {
         words.asSequence()
-                .map { frStemmer.stemOf(it) }
+                .map { FR.stemmer.stemOf(it) }
                 .forEachIndexed { index, stem ->
                     assertEquals(stems[index], stem, "Word \"${words[index]}\" stem:")
                 }
@@ -271,8 +269,8 @@ class FRTests {
     @Test
     fun frenchUnaccentedStems() {
         words.asSequence()
-                .unaccented(frAccents)
-                .map { frUnaccentedStemmer.stemOf(it) }
+                .unaccented(FR.accentsMap)
+                .map { FRUnaccented.stemmer.stemOf(it) }
                 .forEachIndexed { index, stem ->
                     assertEquals(uaStems[index], stem, "Word \"${words[index]}\" stem:")
                 }

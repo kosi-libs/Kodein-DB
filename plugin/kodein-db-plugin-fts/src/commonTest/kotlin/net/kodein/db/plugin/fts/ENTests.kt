@@ -1,7 +1,6 @@
 package net.kodein.db.plugin.fts
 
-import net.kodein.db.plugin.fts.lang.enStemmer
-import net.kodein.db.plugin.fts.lang.frStemmer
+import net.kodein.db.plugin.fts.lang.EN
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -208,7 +207,7 @@ class ENTests {
     @Test
     fun englishStems() {
         words.asSequence()
-                .map { enStemmer.stemOf(it) }
+                .map { EN.stemmer.stemOf(it) }
                 .forEachIndexed { index, stem ->
                     assertEquals(stems[index], stem, "Word \"${words[index]}\" stem:")
                 }

@@ -1,6 +1,5 @@
 package net.kodein.db.plugin.fts
 
-import net.kodein.db.plugin.fts.lang.frStopWords
 import kotlin.jvm.JvmName
 
 enum class CharType { Delimiter, Joiner, Normal }
