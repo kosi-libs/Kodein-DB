@@ -7,8 +7,8 @@ val kotlinxSerializationVer by extra { "0.20.0" }
 //val kotlinxCoroutinesVer by extra { "1.3.3" }
 //val kodeinLogVer by extra { "0.2.0-dev-805458618" }
 //val kodeinMemoryVer by extra { "0.2.0-dev-806010368" }
-val kodeinLogVer by extra { "0.2.0" }
-val kodeinMemoryVer by extra { "0.2.0" }
+val kodeinLogVer by extra { "0.2.0-dev-17" }
+val kodeinMemoryVer by extra { "0.2.0-dev-21" }
 
 buildscript {
     repositories {
