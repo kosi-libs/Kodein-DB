@@ -42,6 +42,11 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: check -no-daemon
+      - name: Connected Check (Android)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          script: ./gradlew connectedCheck
   windows:
     runs-on: windows-latest
     steps:
