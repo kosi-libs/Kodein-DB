@@ -28,40 +28,62 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Setup Android SDK dir
+        run: echo sdk.dir=$ANDROID_HOME > local.properties
+      - name: Setup JDK 8 with javah
+        run: echo javah=/usr/lib/jvm/zulu-8-azure-amd64/bin/javah > gradle.properties
       - name: Check
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: check
+          arguments: check -no-daemon
   windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Setup Android SDK dir
+        run: echo sdk.dir=$ANDROID_HOME > local.properties
+        shell: bash
+      - name: Setup javah path & exclude android target
+        run: |
+          echo javah=C:\Program Files\Java\zulu-8-azure-jdk_8.40.0.25-8.0.222-win_x64\bin\javah > gradle.properties
+          echo excludeTargets=android > gradle.properties
+        shell: bash
       - name: Check
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: hostOnlyTest
+          arguments: hostOnlyTest -no-daemon
   macos:
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Setup Android SDK dir
+        run: echo sdk.dir=$ANDROID_HOME > local.properties
+      - name: Setup JDK 8 with javah
+        run: echo javah=/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/bin/javah > gradle.properties
       - name: Check
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: hostOnlyTest
-      - name: Android Instrumentation Test
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          script: ./gradlew connectedCheck
+          arguments: hostOnlyTest -no-daemon
+#      - name: Connected Check (Android)
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: 29
+#          script: ./gradlew connectedCheck
