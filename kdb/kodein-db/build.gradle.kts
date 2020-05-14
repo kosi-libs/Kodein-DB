@@ -70,3 +70,8 @@ kodein {
         }
     }
 }
+
+kodeinUpload {
+    name = "kodein-db"
+    description = "Kodein-DB implementation library"
+}

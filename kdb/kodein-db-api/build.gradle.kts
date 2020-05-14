@@ -26,3 +26,8 @@ kodein {
         }
     }
 }
+
+kodeinUpload {
+    name = "kodein-db-api"
+    description = "Kodein-DB API library"
+}

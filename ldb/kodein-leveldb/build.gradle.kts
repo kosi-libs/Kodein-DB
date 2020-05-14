@@ -124,3 +124,8 @@ if (kodeinAndroid.isIncluded) {
 (tasks.findByName("linkDebugTestMingwX64") as org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink?)?.apply {
     this.binary.linkerOpts.addAll(listOf("--verbose", "-femulated-tls"))
 }
+
+kodeinUpload {
+    name = "kodein-leveldb"
+    description = "LevelDB JNI and K/N implementation library"
+}

@@ -30,3 +30,8 @@ kodein {
 
     }
 }
+
+kodeinUpload {
+    name = "kodein-db-serializer-kotlinx"
+    description = "Kodein-DB with KotlinX serializer library"
+}

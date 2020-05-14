@@ -72,3 +72,8 @@ kodein {
         }
     }
 }
+
+kodeinUpload {
+    name = "kodein-leveldb-jni"
+    description = "LevelDB library for JVM desktop"
+}

@@ -20,3 +20,8 @@ kodein {
         add(kodeinTargets.native.allApple + kodeinTargets.native.allDesktop)
     }
 }
+
+kodeinUpload {
+    name = "kodein-leveldb-api"
+    description = "LevelDB API library"
+}
