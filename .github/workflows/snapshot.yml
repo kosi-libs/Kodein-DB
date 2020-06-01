@@ -30,7 +30,7 @@ jobs:
       - name: Check
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: check -no-daemon
+          arguments: check --no-daemon
       - name: Publish
         uses: eskatos/gradle-command-action@v1
         env:
@@ -38,7 +38,7 @@ jobs:
           BINTRAY_APIKEY: ${{ secrets.bintray_apikey }}
           BINTRAY_USER_ORG: ${{ secrets.bintray_user_org }}
         with:
-          arguments: publish -PsnapshotNumber=${{ github.run_number }}
+          arguments: publish -PsnapshotNumber=${{ github.run_number }} --no-daemon
   windows:
     runs-on: windows-latest
     steps:
@@ -57,7 +57,7 @@ jobs:
       - name: Check
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: hostOnlyTest -no-daemon
+          arguments: hostOnlyTest --no-daemon
       - name: Publish
         uses: eskatos/gradle-command-action@v1
         env:
@@ -65,7 +65,7 @@ jobs:
           BINTRAY_APIKEY: ${{ secrets.bintray_apikey }}
           BINTRAY_USER_ORG: ${{ secrets.bintray_user_org }}
         with:
-          arguments: hostOnlyPublish -PsnapshotNumber=${{ github.run_number }}
+          arguments: hostOnlyPublish -PsnapshotNumber=${{ github.run_number }} --no-daemon
   macos:
     runs-on: macOS-latest
     steps:
@@ -83,7 +83,7 @@ jobs:
       - name: Check
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: hostOnlyTest -no-daemon
+          arguments: hostOnlyTest --no-daemon
       - name: Publish
         uses: eskatos/gradle-command-action@v1
         env:
@@ -91,4 +91,4 @@ jobs:
           BINTRAY_APIKEY: ${{ secrets.bintray_apikey }}
           BINTRAY_USER_ORG: ${{ secrets.bintray_user_org }}
         with:
-          arguments: hostOnlyPublish -PsnapshotNumber=${{ github.run_number }}
+          arguments: hostOnlyPublish -PsnapshotNumber=${{ github.run_number }} --no-daemon
