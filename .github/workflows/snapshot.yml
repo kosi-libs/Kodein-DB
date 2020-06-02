@@ -25,12 +25,8 @@ jobs:
           java-version: 11
       - name: Setup Android SDK dir
         run: echo sdk.dir=$ANDROID_HOME > local.properties
-      - name: Setup JDK 8 with javah
-        run: |
-          echo javah=/usr/lib/jvm/zulu-8-azure-amd64/bin/javah > gradle.properties
-          echo org.gradle.daemon=true > gradle.properties
-          echo org.gradle.parallel=true > gradle.properties
-          echo org.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=2048m > gradle.properties
+      - name: Setup gradle.properties
+        run: mv .github/conf/gradle.linux gradle.properties
       - name: Check
         uses: eskatos/gradle-command-action@v1
         with:
@@ -53,10 +49,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Setup javah path & exclude android target
-        run: |
-          echo javah=C:\Program Files\Java\zulu-8-azure-jdk_8.40.0.25-8.0.222-win_x64\bin\javah > gradle.properties
-          echo excludeTargets=android > gradle.properties
+      - name: Setup gradle.properties
+        run: mv .github/conf/gradle.windows gradle.properties
         shell: bash
       - name: Check
         uses: eskatos/gradle-command-action@v1
@@ -82,8 +76,8 @@ jobs:
           java-version: 11
       - name: Setup Android SDK dir
         run: echo sdk.dir=$ANDROID_HOME > local.properties
-      - name: Setup JDK 8 with javah
-        run: echo javah=/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/bin/javah > gradle.properties
+      - name: Setup gradle.properties
+        run: mv .github/conf/gradle.macos gradle.properties
       - name: Check
         uses: eskatos/gradle-command-action@v1
         with:

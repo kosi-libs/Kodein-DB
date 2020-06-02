@@ -1,0 +1,6 @@
+org.gradle.daemon=true
+org.gradle.jvmargs=-Xmx4g -XX:MaxPermSize=2048m
+
+javah=/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/bin/javah
+
+excludeTargets=android
