@@ -13,7 +13,36 @@ on:
       - '!./github/workflow/snapshot.yml'
 
 jobs:
-  linux:
+  all-native:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Setup Android SDK dir
+        run: echo sdk.dir=$ANDROID_HOME > local.properties
+      - name: Setup gradle.properties
+        run: mv .github/conf/gradle.${{ matrix.os }} gradle.properties
+      - name: Check
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: hostOnlyTest
+      - name: Publish
+        uses: eskatos/gradle-command-action@v1
+        env:
+          BINTRAY_USER: ${{ secrets.bintray_user }}
+          BINTRAY_APIKEY: ${{ secrets.bintray_apikey }}
+          BINTRAY_USER_ORG: ${{ secrets.bintray_user_org }}
+        with:
+          arguments: hostOnlyPublish -PsnapshotNumber=${{ github.run_number }}
+  universal-targets:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -26,7 +55,7 @@ jobs:
       - name: Setup Android SDK dir
         run: echo sdk.dir=$ANDROID_HOME > local.properties
       - name: Setup gradle.properties
-        run: mv .github/conf/gradle.linux gradle.properties
+        run: mv .github/conf/gradle.universal gradle.properties
       - name: Check
         uses: eskatos/gradle-command-action@v1
         with:
@@ -39,8 +68,9 @@ jobs:
           BINTRAY_USER_ORG: ${{ secrets.bintray_user_org }}
         with:
           arguments: publish -PsnapshotNumber=${{ github.run_number }}
-  windows:
-    runs-on: windows-latest
+  kmp-metadata:
+    needs: [all-native, universal-targets]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -49,44 +79,19 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Setup gradle.properties
-        run: mv .github/conf/gradle.windows gradle.properties
-        shell: bash
-      - name: Check
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: hostOnlyTest
-      - name: Publish
-        uses: eskatos/gradle-command-action@v1
-        env:
-          BINTRAY_USER: ${{ secrets.bintray_user }}
-          BINTRAY_APIKEY: ${{ secrets.bintray_apikey }}
-          BINTRAY_USER_ORG: ${{ secrets.bintray_user_org }}
-        with:
-          arguments: hostOnlyPublish -PsnapshotNumber=${{ github.run_number }}
-  macos:
-    runs-on: macOS-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: 'true'
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Setup Android SDK dir
-        run: echo sdk.dir=$ANDROID_HOME > local.properties
-      - name: Setup gradle.properties
-        run: mv .github/conf/gradle.macos gradle.properties
-      - name: Check
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: hostOnlyTest
-      - name: Publish
+#      - name: Setup Android SDK dir
+#        run: echo sdk.dir=$ANDROID_HOME > local.properties
+#      - name: Setup gradle.properties
+#        run: mv .github/conf/gradle.${{ matrix.os }} gradle.properties
+#      - name: Check
+#        uses: eskatos/gradle-command-action@v1
+#        with:
+#          arguments: hostOnlyTest
+      - name: Publish KMP metadata
         uses: eskatos/gradle-command-action@v1
         env:
           BINTRAY_USER: ${{ secrets.bintray_user }}
           BINTRAY_APIKEY: ${{ secrets.bintray_apikey }}
           BINTRAY_USER_ORG: ${{ secrets.bintray_user_org }}
         with:
-          arguments: hostOnlyPublish -PsnapshotNumber=${{ github.run_number }}
+          arguments: publishKotlinMultiplatformPublicationToBintrayRepository publishMetadataPublicationToBintrayRepository -PsnapshotNumber=${{ github.run_number }}
