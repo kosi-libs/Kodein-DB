@@ -1,0 +1,6 @@
+name: kodein-db
+title: Kodein-DB
+version: dev
+start_page: ROOT:core.adoc
+nav:
+  - modules/ROOT/nav.adoc
