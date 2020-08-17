@@ -2,13 +2,11 @@ plugins {
     id("org.kodein.root")
 }
 
-val kotlinxAtomicFuVer by extra { "0.14.2" } // CAUTION: also change in buildscript!
-val kotlinxSerializationVer by extra { "0.20.0" }
+val kotlinxAtomicFuVer by extra { "0.14.3-1.4.0-rc" } // CAUTION: also change in buildscript!
+val kotlinxSerializationVer by extra { "1.0-M1-1.4.0-rc" }
 //val kotlinxCoroutinesVer by extra { "1.3.3" }
-//val kodeinLogVer by extra { "0.2.0-dev-805458618" }
-//val kodeinMemoryVer by extra { "0.2.0-dev-806010368" }
-val kodeinLogVer by extra { "0.2.0-dev-17" }
-val kodeinMemoryVer by extra { "0.2.0-dev-26" }
+val kodeinLogVer by extra { "0.4.0-kotlin-1.4-rc-43" }
+val kodeinMemoryVer by extra { "0.2.0-kotlin-1.4-rc-35" }
 
 buildscript {
     repositories {
@@ -16,7 +14,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.14.2")
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.14.3-1.4.0-rc")
     }
 }
 
