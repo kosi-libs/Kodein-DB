@@ -2,16 +2,16 @@ package org.kodein.db.leveldb
 
 import java.util.*
 
-actual class StackTrace(private val elements: Array<StackTraceElement>) {
+public actual class StackTrace(private val elements: Array<StackTraceElement>) {
 
-    actual fun write(on: Appendable) {
+    public actual fun write(on: Appendable) {
         on.append(elements.joinToString("\n"))
     }
 
-    actual companion object {
-        actual fun current() = StackTrace(Thread.currentThread().stackTrace)
+    public actual companion object {
+        public actual fun current(): StackTrace = StackTrace(Thread.currentThread().stackTrace)
     }
 
 }
 
-actual fun <T> newWeakHashSet(): MutableSet<T> = Collections.newSetFromMap(WeakHashMap<T, Boolean>())
+public actual fun <T> newWeakHashSet(): MutableSet<T> = Collections.newSetFromMap(WeakHashMap<T, Boolean>())

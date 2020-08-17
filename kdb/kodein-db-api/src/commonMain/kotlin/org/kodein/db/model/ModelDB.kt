@@ -4,14 +4,14 @@ import org.kodein.db.DBListener
 import org.kodein.db.Options
 import org.kodein.memory.Closeable
 
-interface ModelDB : ModelWrite, ModelRead, Closeable {
+public interface ModelDB : ModelWrite, ModelRead, Closeable {
 
-    fun newBatch(): ModelBatch
+    public fun newBatch(): ModelBatch
 
-    fun newSnapshot(vararg options: Options.Read): ModelSnapshot
+    public fun newSnapshot(vararg options: Options.Read): ModelSnapshot
 
-    fun register(listener: DBListener<Any>): Closeable
+    public fun register(listener: DBListener<Any>): Closeable
 
-    companion object
+    public companion object
 }
 

@@ -5,11 +5,11 @@ import org.kodein.db.Index
 import org.kodein.db.Options
 import org.kodein.memory.io.ReadMemory
 
-interface DataWrite : DataKeyMaker {
+public interface DataWrite : DataKeyMaker {
 
-    fun put(key: ReadMemory, body: Body, indexes: Set<Index> = emptySet(), vararg options: Options.Write): Int
+    public fun put(key: ReadMemory, body: Body, indexes: Set<Index> = emptySet(), vararg options: Options.Write): Int
 
-    fun delete(key: ReadMemory, vararg options: Options.Write)
+    public fun delete(key: ReadMemory, vararg options: Options.Write)
 
     /**
      * If true, the write will be flushed from the operating system buffer cache (by calling WritableFile::Sync()) before the write is considered complete.
@@ -24,6 +24,6 @@ interface DataWrite : DataKeyMaker {
      *
      * (Default: false)
      */
-    data class Sync(val sync: Boolean = false) : Options.Write
+    public data class Sync(val sync: Boolean = false) : Options.Write
 
 }

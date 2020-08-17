@@ -7,7 +7,7 @@ import org.kodein.db.impl.model.cache.middleware
 import org.kodein.db.model.ModelDB
 import org.kodein.db.model.cache.ModelCache
 
-abstract class AbstractDBFactory : DBFactory<DB> {
+public abstract class AbstractDBFactory : DBFactory<DB> {
 
    internal abstract fun mdbFactory(): DBFactory<ModelDB>
 

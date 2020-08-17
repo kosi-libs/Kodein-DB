@@ -6,7 +6,7 @@ import kotlinx.cinterop.plus
 import kotlinx.cinterop.refTo
 import org.kodein.memory.io.*
 
-fun ReadMemory.pointer(): CValuesRef<ByteVar> = when (val b = internalBuffer()) {
+public fun ReadMemory.pointer(): CValuesRef<ByteVar> = when (val b = internalBuffer()) {
     is CPointerKBuffer -> (b.pointer + b.absPosition)!!
     is ByteArrayKBuffer -> { b.array.refTo(b.absPosition) }
     else -> { b.getBytes(0).refTo(0) }

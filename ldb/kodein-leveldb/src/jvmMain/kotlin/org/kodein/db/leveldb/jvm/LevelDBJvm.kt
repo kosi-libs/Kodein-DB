@@ -10,7 +10,7 @@ import java.security.MessageDigest
 import java.util.*
 
 
-object LevelDBJvm : LevelDBFactory by LevelDBJNI.Factory {
+public object LevelDBJvm : LevelDBFactory by LevelDBJNI.Factory {
     init {
         val os = System.getProperty("os.name").toLowerCase().let {
             when  {

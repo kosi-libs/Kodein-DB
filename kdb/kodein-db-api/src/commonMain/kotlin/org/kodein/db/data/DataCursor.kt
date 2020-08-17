@@ -3,11 +3,11 @@ package org.kodein.db.data
 import org.kodein.db.BaseCursor
 import org.kodein.memory.io.ReadMemory
 
-interface DataCursor : BaseCursor {
+public interface DataCursor : BaseCursor {
 
-    fun transientKey(): ReadMemory
-    fun transientValue(): ReadMemory
+    public fun transientKey(): ReadMemory
+    public fun transientValue(): ReadMemory
 
-    fun duplicate(): DataCursor
+    public fun duplicate(): DataCursor
 
 }

@@ -16,7 +16,7 @@ import kotlin.collections.set
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
-object UUIDSerializer : KSerializer<UUID> {
+public object UUIDSerializer : KSerializer<UUID> {
     override val descriptor: SerialDescriptor = PrimitiveDescriptor("UUID", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: UUID) {
@@ -32,15 +32,15 @@ object UUIDSerializer : KSerializer<UUID> {
 
 }
 
-class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : DefaultSerializer {
+public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : DefaultSerializer {
     private val serializers = HashMap<KClass<*>, KSerializer<*>>()
 
     private val cbor = Cbor(updateMode = UpdateMode.UPDATE, context = serializersModule(UUIDSerializer))
 
-    inner class Builder {
-        fun <T : Any> register(type: KClass<T>, serializer: KSerializer<T>) { serializers[type] = serializer }
+    public inner class Builder {
+        public fun <T : Any> register(type: KClass<T>, serializer: KSerializer<T>) { serializers[type] = serializer }
 
-        inline operator fun <reified T : Any> KSerializer<T>.unaryPlus() {
+        public inline operator fun <reified T : Any> KSerializer<T>.unaryPlus() {
             register(T::class, this)
         }
     }

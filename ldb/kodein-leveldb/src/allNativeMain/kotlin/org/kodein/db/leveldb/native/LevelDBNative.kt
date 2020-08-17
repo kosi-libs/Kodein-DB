@@ -29,7 +29,7 @@ private inline fun <T> ldbCall(crossinline block: MemScope.(CPointerVar<ByteVar>
     ret
 }
 
-class OptionsPtrs(val options: CPointer<leveldb_options_t>, val cache: CPointer<leveldb_cache_t>?, val filterPolicy: CPointer<leveldb_filterpolicy_t>?)
+public class OptionsPtrs(public val options: CPointer<leveldb_options_t>, public val cache: CPointer<leveldb_cache_t>?, public val filterPolicy: CPointer<leveldb_filterpolicy_t>?)
 
 private fun LevelDB.Options.allocOptionsPtr(): OptionsPtrs {
 
@@ -99,11 +99,11 @@ private inline fun LevelDB.WriteOptions.usePointer(block: (CPointer<leveldb_writ
 }
 
 
-class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: LevelDB.Options, private val optionsPtrs: OptionsPtrs, override val path: String) : PointerBound<leveldb_t>(ptr, "DB", null, options), LevelDB {
+public class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options: LevelDB.Options, private val optionsPtrs: OptionsPtrs, override val path: String) : PointerBound<leveldb_t>(ptr, "DB", null, options), LevelDB {
 
     private val dbHandler = Handler()
 
-    companion object Factory : LevelDBFactory {
+    public companion object Factory : LevelDBFactory {
 
         override fun open(path: String, options: LevelDB.Options): LevelDB {
             val ptrs = options.allocOptionsPtr()

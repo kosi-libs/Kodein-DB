@@ -6,9 +6,9 @@ import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.Writeable
 import kotlin.reflect.KClass
 
-interface Serializer<M : Any> {
-    fun serialize(model: M, output: Writeable, vararg options: Options.Write)
-    fun deserialize(type: KClass<out M>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): M
+public interface Serializer<M : Any> {
+    public fun serialize(model: M, output: Writeable, vararg options: Options.Write)
+    public fun deserialize(type: KClass<out M>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): M
 }
 
-interface DefaultSerializer : Serializer<Any>, Options.Open
+public interface DefaultSerializer : Serializer<Any>, Options.Open

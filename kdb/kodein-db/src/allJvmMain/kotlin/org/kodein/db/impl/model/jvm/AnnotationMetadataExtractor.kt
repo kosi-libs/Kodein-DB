@@ -10,7 +10,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Member
 import java.lang.reflect.Method
 
-class AnnotationMetadataExtractor : MetadataExtractor {
+public class AnnotationMetadataExtractor : MetadataExtractor {
 
     private sealed class ValueGetter {
 

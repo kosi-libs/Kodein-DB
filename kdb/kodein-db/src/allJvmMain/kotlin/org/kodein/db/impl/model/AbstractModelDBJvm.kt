@@ -6,7 +6,7 @@ import org.kodein.db.impl.model.jvm.AnnotationTypeTable
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.DefaultSerializer
 
-abstract class AbstractModelDBJvm : AbstractModelDBFactory() {
+public abstract class AbstractModelDBJvm : AbstractModelDBFactory() {
 
     private fun getClass(name: String): Class<*>? =
             try { Class.forName(name) }

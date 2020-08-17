@@ -5,9 +5,9 @@ import org.kodein.db.DBFactory
 import org.kodein.db.impl.model.ModelDBAndroid
 import org.kodein.db.model.ModelDB
 
-object DBAndroid : AbstractDBFactory() {
+public object DBAndroid : AbstractDBFactory() {
     override fun mdbFactory(): DBFactory<ModelDB> = ModelDBAndroid
 }
 
 @Suppress("unused")
-actual val DB.Companion.factory: DBFactory<DB> get() = DBAndroid
+public actual val DB.Companion.factory: DBFactory<DB> get() = DBAndroid

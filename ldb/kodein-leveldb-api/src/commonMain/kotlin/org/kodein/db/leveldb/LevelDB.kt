@@ -12,12 +12,12 @@ import org.kodein.memory.io.ReadMemory
  *
  * This interface allows the use of different implementations of LevelDB.
  */
-interface LevelDB : Closeable {
+public interface LevelDB : Closeable {
 
     /**
      * path of the DB.
      */
-    val path: String
+    public val path: String
 
     /**
      * Put an entry into the database.
@@ -26,7 +26,7 @@ interface LevelDB : Closeable {
      * @param value The value ov the entry to put.
      * @param options Options that control this write operation.
      */
-    fun put(key: ReadMemory, value: ReadMemory, options: WriteOptions = WriteOptions.DEFAULT)
+    public fun put(key: ReadMemory, value: ReadMemory, options: WriteOptions = WriteOptions.DEFAULT)
 
     /**
      * Delete an entry from the database.
@@ -34,7 +34,7 @@ interface LevelDB : Closeable {
      * @param key The key of the entry to delete.
      * @param options Options that control this write operation.
      */
-    fun delete(key: ReadMemory, options: WriteOptions = WriteOptions.DEFAULT)
+    public fun delete(key: ReadMemory, options: WriteOptions = WriteOptions.DEFAULT)
 
     /**
      * Write a batch atomically to the database.
@@ -48,7 +48,7 @@ interface LevelDB : Closeable {
      * @param batch The batch to write.
      * @param options Options that control this write operation.
      */
-    fun write(batch: WriteBatch, options: WriteOptions = WriteOptions.DEFAULT)
+    public fun write(batch: WriteBatch, options: WriteOptions = WriteOptions.DEFAULT)
 
     /**
      * Get an entry value bytes from the database from its key.
@@ -59,7 +59,7 @@ interface LevelDB : Closeable {
      * @param options Options that control this read operation.
      * @return The entry value.
      */
-    fun get(key: ReadMemory, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
+    public fun get(key: ReadMemory, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Get an entry value bytes by following the value of the given key.
@@ -78,7 +78,7 @@ interface LevelDB : Closeable {
      * @param options Options that control this read operation.
      * @return The found entry value
      */
-    fun indirectGet(key: ReadMemory, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
+    public fun indirectGet(key: ReadMemory, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Get an entry value bytes by following the value of the cursor current key.
@@ -95,7 +95,7 @@ interface LevelDB : Closeable {
      * @param options Options that control this read operation.
      * @return The found entry value
      */
-    fun indirectGet(cursor: Cursor, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
+    public fun indirectGet(cursor: Cursor, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
      * Creates a new Cursor.
@@ -109,7 +109,7 @@ interface LevelDB : Closeable {
      * @param options Options that control this Cursors read operations.
      * @return A new Cursor.
      */
-    fun newCursor(options: ReadOptions = ReadOptions.DEFAULT): Cursor
+    public fun newCursor(options: ReadOptions = ReadOptions.DEFAULT): Cursor
 
     /**
      * Creates a new Snapshot.
@@ -121,7 +121,7 @@ interface LevelDB : Closeable {
      * @see .Write
      * @return A new Snapshot.
      */
-    fun newSnapshot(): Snapshot
+    public fun newSnapshot(): Snapshot
 
     /**
      * Creates a new WriteBatch.
@@ -133,9 +133,9 @@ interface LevelDB : Closeable {
      * @see .Write
      * @return A new WriteBatch.
      */
-    fun newWriteBatch(): WriteBatch
+    public fun newWriteBatch(): WriteBatch
 
-    companion object
+    public companion object {}
 
     // TODO: Add these methods
 //    /**
@@ -174,7 +174,7 @@ interface LevelDB : Closeable {
      * @see .NewWriteBatch
      * @see .Write
      */
-    interface WriteBatch : Closeable {
+    public interface WriteBatch : Closeable {
 
         /**
          * Registers an entry to be put into the database.
@@ -182,21 +182,21 @@ interface LevelDB : Closeable {
          * @param key The key of the entry to put.
          * @param value The value ov the entry to put.
          */
-        fun put(key: ReadMemory, value: ReadMemory)
+        public fun put(key: ReadMemory, value: ReadMemory)
 
         /**
          * Registers a key whose entry is to be deleted from the database.
          *
          * @param key The key of the entry to delete.
          */
-        fun delete(key: ReadMemory)
+        public fun delete(key: ReadMemory)
 
         /**
          * Clear all updates buffered in this batch.
          */
-        fun clear()
+        public fun clear()
 
-        fun append(source: WriteBatch)
+        public fun append(source: WriteBatch)
 
         // TODO: Add these methods
 //        interface Handler {
@@ -217,27 +217,27 @@ interface LevelDB : Closeable {
      * @see .NewSnapshot
      * @see .Write
      */
-    interface Snapshot : Closeable
+    public interface Snapshot : Closeable
 
     /**
      * An Cursor to iterate over the entries of a database or a Snapshot.
      */
-    interface Cursor : Closeable {
+    public interface Cursor : Closeable {
 
         /**
          * @return Whether or not the cursor is in a valid state.
          */
-        fun isValid(): Boolean
+        public fun isValid(): Boolean
 
         /**
          * Position the cursor on the first entry of the database.
          */
-        fun seekToFirst()
+        public fun seekToFirst()
 
         /**
          * Position the cursor on the last entry of the database.
          */
-        fun seekToLast()
+        public fun seekToLast()
 
         /**
          * Position the cursor to the entry corresponding to the provided key inside the database.
@@ -246,21 +246,21 @@ interface LevelDB : Closeable {
          *
          * @param target The key to seek to.
          */
-        fun seekTo(target: ReadMemory)
+        public fun seekTo(target: ReadMemory)
 
         /**
          * Position the cursor on the entry right next after the current one.
          *
          * Note that if this cursor was created without a Snapshot, it can be positionned on an entry that were inserted after the creation of the cursor.
          */
-        fun next()
+        public fun next()
 
         /**
          * Position the cursor on the entry right before the current one.
          *
          * Note that if this cursor was created without a Snapshot, it can be positionned on an entry that were inserted after the creation of the cursor.
          */
-        fun prev()
+        public fun prev()
 
         /**
          * Get a Buffer containing the current key.
@@ -269,7 +269,7 @@ interface LevelDB : Closeable {
          *
          * @return The key bytes.
          */
-        fun transientKey(): ReadBuffer
+        public fun transientKey(): ReadBuffer
 
         /**
          * Get a Buffer containing the current value.
@@ -278,7 +278,7 @@ interface LevelDB : Closeable {
          *
          * @return The value bytes.
          */
-        fun transientValue(): ReadBuffer
+        public fun transientValue(): ReadBuffer
 
         override fun close()
     }
@@ -286,7 +286,7 @@ interface LevelDB : Closeable {
     /**
      * Defines how to react if the database exists or not.
      */
-    enum class OpenPolicy(val createIfMissing: Boolean, val errorIfExists: Boolean) {
+    public enum class OpenPolicy(public val createIfMissing: Boolean, public val errorIfExists: Boolean) {
         /**
          * Open the database if it exists, fail otherwise.
          */
@@ -306,7 +306,7 @@ interface LevelDB : Closeable {
     /**
      * Options to control the behavior of a database.
      */
-    data class Options
+    public data class Options
     (
             /**
              * Defines how to react if the database exists or not.
@@ -449,15 +449,15 @@ interface LevelDB : Closeable {
 
 //            val comparator: ???
     ) {
-        companion object {
-            val DEFAULT = Options()
+        public companion object {
+            public val DEFAULT: Options = Options()
         }
     }
 
     /**
      * Options that control read operations.
      */
-    data class ReadOptions(
+    public data class ReadOptions(
             /**
              * If true, all data read from underlying storage will be verified against corresponding checksums.
              *
@@ -479,15 +479,15 @@ interface LevelDB : Closeable {
              */
             val snapshot: Snapshot? = null
     ) {
-        companion object {
-            val DEFAULT = ReadOptions()
+        public companion object {
+            public val DEFAULT: ReadOptions = ReadOptions()
         }
     }
 
     /**
      * Options that control write operations.
      */
-    data class WriteOptions(
+    public data class WriteOptions(
             /**
              * If true, the write will be flushed from the operating system buffer cache (by calling WritableFile::Sync()) before the write is considered complete.
              *
@@ -503,8 +503,8 @@ interface LevelDB : Closeable {
              */
             val sync: Boolean = false
     ) {
-        companion object {
-            val DEFAULT = WriteOptions()
+        public companion object {
+            public val DEFAULT: WriteOptions = WriteOptions()
         }
     }
 

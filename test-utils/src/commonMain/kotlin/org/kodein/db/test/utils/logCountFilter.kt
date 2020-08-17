@@ -5,7 +5,7 @@ import org.kodein.log.Logger
 import kotlin.reflect.KClass
 
 class AssertLogger {
-    val entries = ArrayList<Triple<KClass<*>, Logger.Entry, String?>>()
+    val entries = ArrayList<Triple<Logger.Tag, Logger.Entry, String?>>()
 
     val frontEnd: LogFrontend = { c ->
         { e, m ->

@@ -4,14 +4,14 @@ import org.kodein.db.data.DataDB
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.model.ModelDB
 
-typealias ModelMiddleware = ((ModelDB) -> ModelDB)
-typealias DataMiddleware = ((DataDB) -> DataDB)
-typealias LevelMiddleware = ((LevelDB) -> LevelDB)
+public typealias ModelMiddleware = ((ModelDB) -> ModelDB)
+public typealias DataMiddleware = ((DataDB) -> DataDB)
+public typealias LevelMiddleware = ((LevelDB) -> LevelDB)
 
-interface Middleware {
+public interface Middleware {
 
-    class Level(val middleware: LevelMiddleware) : Options.Open
-    class Data(val middleware: DataMiddleware) : Options.Open
-    class Model(val middleware: ModelMiddleware) : Options.Open
+    public class Level(public val middleware: LevelMiddleware) : Options.Open
+    public class Data(public val middleware: DataMiddleware) : Options.Open
+    public class Model(public val middleware: ModelMiddleware) : Options.Open
 
 }

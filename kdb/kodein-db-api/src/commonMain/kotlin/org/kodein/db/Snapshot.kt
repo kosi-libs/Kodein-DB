@@ -2,4 +2,4 @@ package org.kodein.db
 
 import org.kodein.memory.Closeable
 
-interface Snapshot : DBRead, Closeable
+public interface Snapshot : DBRead, Closeable

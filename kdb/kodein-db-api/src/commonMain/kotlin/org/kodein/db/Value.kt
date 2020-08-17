@@ -5,11 +5,11 @@ import org.kodein.memory.io.*
 import org.kodein.memory.util.UUID
 import org.kodein.memory.util.putUUID
 
-interface Value : Body {
+public interface Value : Body {
 
-    val size: Int
+    public val size: Int
 
-    abstract class AbstractValue : Value {
+    public abstract class AbstractValue : Value {
 
         private var _hashCode = 0
 
@@ -42,7 +42,7 @@ interface Value : Body {
         }
     }
 
-    abstract class ZeroSpacedValues(private val _count: Int) : AbstractValue(), Value {
+    public abstract class ZeroSpacedValues(private val _count: Int) : AbstractValue(), Value {
 
         final override fun writeInto(dst: Writeable) {
             for (i in 0 until _count) {
@@ -63,14 +63,14 @@ interface Value : Body {
         protected abstract fun size(pos: Int): Int
     }
 
-    companion object {
+    public companion object {
 
-        val emptyValue: Value = object : Value {
+        public val emptyValue: Value = object : Value {
             override val size = 0
             override fun writeInto(dst: Writeable) {}
         }
 
-        fun of(vararg values: ByteArray): Value {
+        public fun of(vararg values: ByteArray): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putBytes(values[pos], 0, values[pos].size)
@@ -80,7 +80,7 @@ interface Value : Body {
             }
         }
 
-        fun of(vararg values: ReadBuffer): Value {
+        public fun of(vararg values: ReadBuffer): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putBytes(values[pos].duplicate())
@@ -90,7 +90,7 @@ interface Value : Body {
             }
         }
 
-        fun of(vararg values: Value): Value {
+        public fun of(vararg values: Value): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     val value = values[pos]
@@ -101,7 +101,7 @@ interface Value : Body {
             }
         }
 
-        fun of(vararg values: Boolean): Value {
+        public fun of(vararg values: Boolean): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putByte((if (values[pos]) 1 else 0).toByte())
@@ -111,7 +111,7 @@ interface Value : Body {
             }
         }
 
-        fun of(vararg values: Byte): Value {
+        public fun of(vararg values: Byte): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putByte(values[pos])
@@ -121,7 +121,7 @@ interface Value : Body {
             }
         }
 
-        fun of(vararg values: Short): Value {
+        public fun of(vararg values: Short): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putShort(values[pos])
@@ -131,7 +131,7 @@ interface Value : Body {
             }
         }
 
-        fun of(vararg values: Int): Value {
+        public fun of(vararg values: Int): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putInt(values[pos])
@@ -141,7 +141,7 @@ interface Value : Body {
             }
         }
 
-        fun of(vararg values: Long): Value {
+        public fun of(vararg values: Long): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putLong(values[pos])
@@ -151,7 +151,7 @@ interface Value : Body {
             }
         }
 
-        fun of(vararg values: UUID): Value {
+        public fun of(vararg values: UUID): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putUUID(values[pos])
@@ -161,7 +161,7 @@ interface Value : Body {
             }
         }
 
-        fun ofAscii(vararg values: Char): Value {
+        public fun ofAscii(vararg values: Char): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putByte(values[pos].toByte())
@@ -172,7 +172,7 @@ interface Value : Body {
         }
 
 
-        fun ofAscii(vararg values: CharSequence): Value {
+        public fun ofAscii(vararg values: CharSequence): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
                     dst.putAscii(values[pos])
@@ -198,7 +198,7 @@ interface Value : Body {
             else -> throw IllegalArgumentException("invalid value: $this")
         }
 
-        fun ofAll(vararg values: Any): Value {
+        public fun ofAll(vararg values: Any): Value {
             if (values.isEmpty())
                 return emptyValue
 
@@ -213,7 +213,7 @@ interface Value : Body {
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun ofAny(value: Any): Value = when (value) {
+        public fun ofAny(value: Any): Value = when (value) {
             is Collection<*> ->
                 if (value.size == 1) value.requireNoNulls().first().toValue()
                 else ofAll(*value.toTypedArray().requireNoNulls())

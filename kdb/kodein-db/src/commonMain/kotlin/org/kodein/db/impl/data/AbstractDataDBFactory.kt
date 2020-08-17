@@ -8,7 +8,7 @@ import org.kodein.db.data.DataDB
 import org.kodein.db.ldb.LevelDBOptions
 import org.kodein.db.leveldb.LevelDBFactory
 
-abstract class AbstractDataDBFactory : DBFactory<DataDB> {
+public abstract class AbstractDataDBFactory : DBFactory<DataDB> {
 
     protected abstract val ldbFactory: LevelDBFactory
 

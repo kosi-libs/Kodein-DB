@@ -4,26 +4,26 @@ import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.ReadMemory
 
-interface DBListener<in M : Any> {
+public interface DBListener<in M : Any> {
 
-    fun setSubscription(subscription: Closeable) {}
+    public fun setSubscription(subscription: Closeable) {}
 
-    fun willPut(model: M, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {}
+    public fun willPut(model: M, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {}
 
-    fun didPut(model: M, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {}
+    public fun didPut(model: M, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {}
 
-    fun willDelete(key: Key<*>, getModel: () -> M?, typeName: ReadMemory, options: Array<out Options.Write>) {}
+    public fun willDelete(key: Key<*>, getModel: () -> M?, typeName: ReadMemory, options: Array<out Options.Write>) {}
 
-    fun didDelete(key: Key<*>, model: M?, typeName: ReadMemory, options: Array<out Options.Write>) {}
+    public fun didDelete(key: Key<*>, model: M?, typeName: ReadMemory, options: Array<out Options.Write>) {}
 
-    class Builder<M : Any> {
-        class WillPut(val typeName: ReadMemory, val options: Array<out Options.Write>, val subscription: Closeable)
+    public class Builder<M : Any> {
+        public class WillPut(public val typeName: ReadMemory, public val options: Array<out Options.Write>, public val subscription: Closeable)
 
-        class DidPut(val key: Key<*>, val typeName: ReadMemory, val options: Array<out Options.Write>, val subscription: Closeable)
+        public class DidPut(public val key: Key<*>, public val typeName: ReadMemory, public val options: Array<out Options.Write>, public val subscription: Closeable)
 
-        class WillDelete(val key: Key<*>, val typeName: ReadMemory, val options: Array<out Options.Write>, val subscription: Closeable)
+        public class WillDelete(public val key: Key<*>, public val typeName: ReadMemory, public val options: Array<out Options.Write>, public val subscription: Closeable)
 
-        class DidDelete(val key: Key<*>, val typeName: ReadMemory, val options: Array<out Options.Write>, val subscription: Closeable)
+        public class DidDelete(public val key: Key<*>, public val typeName: ReadMemory, public val options: Array<out Options.Write>, public val subscription: Closeable)
 
         private var willPut: (WillPut.(M) -> Unit)? = null
         private var didPut: (DidPut.(M) -> Unit)? = null
@@ -33,32 +33,32 @@ interface DBListener<in M : Any> {
 
         private var didDeleteNeedsModel = false
 
-        fun willPut(block: WillPut.(M) -> Unit) {
+        public fun willPut(block: WillPut.(M) -> Unit) {
             willPut = block
         }
 
-        fun didPut(block: DidPut.(M) -> Unit) {
+        public fun didPut(block: DidPut.(M) -> Unit) {
             didPut = block
         }
 
-        fun willDelete(block: WillDelete.() -> Unit) {
+        public fun willDelete(block: WillDelete.() -> Unit) {
             willDelete = { block() }
         }
 
-        fun willDeleteIt(block: WillDelete.(M) -> Unit) {
+        public fun willDeleteIt(block: WillDelete.(M) -> Unit) {
             willDelete = { it()?.let { block(it) } }
         }
 
-        fun didDelete(block: DidDelete.() -> Unit) {
+        public fun didDelete(block: DidDelete.() -> Unit) {
             didDelete = { block() }
         }
 
-        fun didDeleteIt(block: DidDelete.(M) -> Unit) {
+        public fun didDeleteIt(block: DidDelete.(M) -> Unit) {
             didDeleteNeedsModel = true
             didDelete = { it?.let { block(it) } }
         }
 
-        fun build() = object : DBListener<M> {
+        public fun build(): DBListener<M> = object : DBListener<M> {
             private lateinit var subscription: Closeable
 
             override fun setSubscription(subscription: Closeable) {

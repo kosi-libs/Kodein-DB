@@ -10,7 +10,7 @@ internal val nextTypeKey = KBuffer.wrap(byteArrayOf(Prefix.TYPE, 'I'.toByte()))
 
 internal fun getTypeNameKeySize(typeName: ReadMemory) = 2 + typeName.size
 
-const val typeIdKeySize = 2 + 4
+public const val typeIdKeySize: Int = 2 + 4
 
 internal fun Writeable.putTypeNameKey(typeName: ReadMemory) {
     putByte(Prefix.TYPE)

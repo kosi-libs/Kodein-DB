@@ -5,7 +5,7 @@ import kotlin.concurrent.withLock as ktWithLock
 import kotlin.concurrent.write as ktWrite
 
 
-actual typealias Lock = java.util.concurrent.locks.ReentrantLock
+public actual typealias Lock = java.util.concurrent.locks.ReentrantLock
 
 internal actual fun newLock(): Lock = Lock()
 
@@ -13,7 +13,7 @@ internal actual inline fun <T> Lock.withLock(action: () -> T): T = ktWithLock(ac
 
 
 
-actual typealias RWLock = java.util.concurrent.locks.ReentrantReadWriteLock
+public actual typealias RWLock = java.util.concurrent.locks.ReentrantReadWriteLock
 
 internal actual fun newRWLock(): RWLock = RWLock()
 

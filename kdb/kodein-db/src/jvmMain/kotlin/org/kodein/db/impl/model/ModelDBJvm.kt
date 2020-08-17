@@ -5,10 +5,10 @@ import org.kodein.db.data.DataDB
 import org.kodein.db.impl.data.DataDBJvm
 import org.kodein.db.model.ModelDB
 
-object ModelDBJvm : AbstractModelDBJvm() {
+public object ModelDBJvm : AbstractModelDBJvm() {
 
     override val ddbFactory: DBFactory<DataDB> get() = DataDBJvm
 
 }
 
-actual val ModelDB.Companion.default: DBFactory<ModelDB> get() = ModelDBJvm
+public actual val ModelDB.Companion.default: DBFactory<ModelDB> get() = ModelDBJvm
