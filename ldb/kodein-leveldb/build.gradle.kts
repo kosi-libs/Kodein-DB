@@ -1,6 +1,6 @@
 import com.android.build.gradle.tasks.factory.AndroidUnitTest
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.kodein.internal.gradle.KodeinMPPExtension
+import org.kodein.internal.gradle.KodeinMppExtension
 
 plugins {
     id("org.kodein.library.mpp-with-android")
@@ -55,7 +55,7 @@ kodein {
             }
         }
 
-        fun KodeinMPPExtension.TargetBuilder<KotlinNativeTarget>.configureCInterop(compilation: String) {
+        fun KodeinMppExtension.TargetBuilder<KotlinNativeTarget>.configureCInterop(compilation: String) {
             mainCompilation.cinterops.create("libleveldb") {
                 packageName("org.kodein.db.libleveldb")
 
