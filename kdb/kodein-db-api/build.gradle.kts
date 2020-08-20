@@ -10,7 +10,7 @@ kodein {
 
         common.main.dependencies {
             api(project(":ldb:kodein-leveldb-api"))
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVer")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVer")
         }
 
         add(kodeinTargets.jvm.jvm)

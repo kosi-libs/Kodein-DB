@@ -10,7 +10,7 @@ kodein {
 
         common.main.dependencies {
             api(project(":kdb:kodein-db-api"))
-            api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVer")
+            api("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVer")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:$kotlinxSerializationVer")
         }
 

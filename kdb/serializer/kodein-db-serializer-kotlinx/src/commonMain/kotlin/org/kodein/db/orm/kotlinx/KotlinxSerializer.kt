@@ -19,6 +19,7 @@ import org.kodein.memory.util.UUID
 import kotlin.collections.set
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
 
 public object UUIDSerializer : KSerializer<UUID> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
@@ -38,6 +39,7 @@ public object UUIDSerializer : KSerializer<UUID> {
 public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : DefaultSerializer {
     private val serializers = HashMap<KClass<*>, KSerializer<*>>()
 
+    @OptIn(ExperimentalSerializationApi::class)
     private val cbor = Cbor {
         serializersModule = serializersModuleOf(UUIDSerializer)
     }
@@ -54,7 +56,7 @@ public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Un
         Builder().block()
     }
 
-    @OptIn(UnsafeSerializationApi::class)
+    @InternalSerializationApi
     private fun getSerializer(type: KClass<*>): KSerializer<*> {
         return try {
             serializers[type] ?: type.serializer()
@@ -63,13 +65,16 @@ public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Un
         }
     }
 
+    @InternalSerializationApi
+    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
         @Suppress("UNCHECKED_CAST")
         val bytes = cbor.encodeToByteArray(getSerializer(model::class) as SerializationStrategy<Any>, model)
         output.putBytes(bytes)
     }
 
-    @OptIn(UnsafeSerializationApi::class)
+    @InternalSerializationApi
+    @OptIn(ExperimentalSerializationApi::class)
     override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
         val serializer = serializers[type] ?: type.serializer().also { serializers[type] = it }
         val bytes = input.readBytes()

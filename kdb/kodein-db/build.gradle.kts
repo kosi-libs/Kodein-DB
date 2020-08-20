@@ -33,7 +33,7 @@ kodein {
             test.dependencies {
                 implementation(project(":test-utils"))
                 implementation(project(":kdb:serializer:kodein-db-serializer-kotlinx"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVer")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVer")
             }
         }
 
