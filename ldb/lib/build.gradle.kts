@@ -124,31 +124,7 @@ fun addTarget(target: String, fpic: Boolean = true, conf: CMakeOptions.() -> Uni
     configureLeveldb.dependsOn(buildCrc32c)
     configureLeveldb.dependsOn(buildSnappy)
 
-    val archiveFat = tasks.create<Exec>("build${target.capitalize()}FatLeveldb") {
-        group = "build"
-        dependsOn(buildLevelDB)
-        workingDir("$buildDir/out/$target/lib")
-        outputs.file("$buildDir/out/$target/libfatleveldb.a")
-        inputs.files("$buildDir/out/$target/libcrc32c.a", "$buildDir/out/$target/libsnappy.a", "$buildDir/out/$target/libleveldb.a")
-
-        if (currentOs.isMacOsX) {
-            commandLine("libtool", "-static", "-o", "libfatleveldb.a", "libcrc32c.a", "libsnappy.a", "libleveldb.a")
-        } else {
-            commandLine("ar", "-M")
-            standardInput = """
-                create libfatleveldb.a
-                addlib libcrc32c.a
-                addlib libsnappy.a
-                addlib libleveldb.a
-                save
-                end
-            """.trimIndent().byteInputStream()
-        }
-    }
-
-    buildAll.dependsOn(archiveFat)
-
-    return archiveFat
+    return buildLevelDB
 }
 
 addTarget("host", fpic = !currentOs.isWindows) {
@@ -233,7 +209,7 @@ fun addIosTarget(target: String) {
         "CMAKE_C_FLAGS:STRING" += "-Wno-shorten-64-to-32"
         "CMAKE_CXX_FLAGS:STRING" += "-Wno-shorten-64-to-32"
     }
-    else task("buildIos-${target}FatLeveldb") {
+    else task("buildIos-${target}Leveldb") {
         enabled = false
     }
 

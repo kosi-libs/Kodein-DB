@@ -72,11 +72,13 @@ kodein {
 
 //            // https://github.com/JetBrains/kotlin-native/issues/2314
             mainCompilation.kotlinOptions.freeCompilerArgs = listOf(
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libfatleveldb.a"
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libleveldb.a",
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libcrc32c.a",
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libsnappy.a"
             )
 
-            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}FatLeveldb"])
-            tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}FatLeveldb"])
+            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
+            tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
         }
 
         add(kodeinTargets.native.allDesktop) {

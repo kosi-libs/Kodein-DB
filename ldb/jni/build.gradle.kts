@@ -91,12 +91,12 @@ library {
             macros["_GLIBCXX_USE_CXX11_ABI"] = "0"
         }
         compileTask.get().dependsOn(generation)
-        compileTask.get().dependsOn(project(":ldb:lib").tasks["buildHostFatLeveldb"])
+        compileTask.get().dependsOn(project(":ldb:lib").tasks["buildHostLeveldb"])
 
         if (this is CppSharedLibrary) {
             linkTask.get().linkerArgs.addAll(
                     "-L${project(":ldb:lib").buildDir}/out/host/lib",
-                    "-lfatleveldb"
+                    "-lleveldb", "-lsnappy", "-lcrc32c"
             )
             if (os == "linux") {
                 linkTask.get().linkerArgs.addAll(
