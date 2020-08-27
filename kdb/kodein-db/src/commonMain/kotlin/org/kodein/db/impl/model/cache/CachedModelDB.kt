@@ -20,17 +20,17 @@ internal class CachedModelDB(override val mdb: ModelDB, override val cache: Mode
         else cache.delete(key)
     }
 
-    override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> {
-        val key = mdb.newKeyFrom(model, *options)
-        val size = mdb.put(key, model, *(options + React(true) { didPut(model, key, it, options) }))
+    override fun <M : Any> put(type: TKType<M>, model: M, vararg options: Options.Write): KeyAndSize<M> {
+        val key = mdb.newKeyFrom(type, model, *options)
+        val size = mdb.put(type, key, model, *(options + React(true) { didPut(model, key, it, options) }))
         return KeyAndSize(key, size)
     }
 
-    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int {
-        return mdb.put(key, model, *(options + React(true) { didPut(model, key, it, options) }))
+    override fun <M : Any> put(type: TKType<M>, key: Key<M>, model: M, vararg options: Options.Write): Int {
+        return mdb.put(type, key, model, *(options + React(true) { didPut(model, key, it, options) }))
     }
 
-    override fun <M : Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.Write) {
+    override fun <M : Any> delete(type: TKType<M>, key: Key<M>, vararg options: Options.Write) {
         return mdb.delete(type, key, *(options + React(true) { didDelete(key, options) }))
     }
 

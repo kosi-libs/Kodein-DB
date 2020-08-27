@@ -11,20 +11,21 @@ import org.kodein.memory.io.*
 import org.kodein.memory.use
 import org.objenesis.strategy.StdInstantiatorStrategy
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 public class KryoSerializer @JvmOverloads public constructor(public val kryo: Kryo = createKryo()) : DefaultSerializer {
 
-    override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
+    override fun serialize(type: KType, model: Any, output: Writeable, vararg options: Options.Write) {
         Output(output.asOuputStream()).use {
             kryo.writeObject(it, model)
         }
     }
 
-    override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
+    override fun deserialize(type: KType, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
         Input(input.asInputStream()).use {
-            return kryo.readObject(it, type.java)
+            return kryo.readObject(it, (type.classifier as KClass<*>).java)
         }
     }
 
@@ -34,9 +35,9 @@ public class KryoSerializer @JvmOverloads public constructor(public val kryo: Kr
                 allowStructureUpdate: Boolean = true,
                 allowDeserializationWithoutConstructor: Boolean = true
         ): Kryo = Kryo().apply {
-            val registered = typeTable?.getRegisteredClasses()
+            val registered = typeTable?.getRegisteredTypes()
             if (registered != null && registered.isNotEmpty()) {
-                registered.forEach { register(it.java) }
+                registered.forEach { register((it.classifier as KClass<*>).java) }
             } else {
                 isRegistrationRequired = false
             }

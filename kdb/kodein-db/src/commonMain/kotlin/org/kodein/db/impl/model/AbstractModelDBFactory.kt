@@ -21,11 +21,11 @@ public abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
         val serializer = options<DefaultSerializer>() ?: defaultSerializer()
         val metadataExtractor = options<MetadataExtractor>() ?: defaultMetadataExtractor() ?: NoMetadataExtractor()
         val typeTable = options<TypeTable>() ?: defaultTypeTable() ?: TypeTable()
-        val serializers = options.all<DBClassSerializer<*>>()
+        val serializers = options.all<DBTypeSerializer<*>>()
 
         val modelMiddlewares = options.all<Middleware.Model>().map { it.middleware }
 
-        return modelMiddlewares.fold(ModelDBImpl(serializer, serializers.associate { it.cls to it.serializer }, metadataExtractor, typeTable, ddbFactory.open(path, *options)) as ModelDB) { mdb, middleware -> middleware(mdb) }
+        return modelMiddlewares.fold(ModelDBImpl(serializer, serializers.associate { it.type to it.serializer }, metadataExtractor, typeTable, ddbFactory.open(path, *options)) as ModelDB) { mdb, middleware -> middleware(mdb) }
     }
 
     override fun destroy(path: String, vararg options: Options.Open) {

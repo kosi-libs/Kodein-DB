@@ -5,7 +5,9 @@ import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Date
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
+import org.kodein.db.model.put
 import org.kodein.db.newKey
+import org.kodein.db.newKeyFrom
 import kotlin.test.Test
 import kotlin.test.assertNull
 import kotlin.test.assertSame

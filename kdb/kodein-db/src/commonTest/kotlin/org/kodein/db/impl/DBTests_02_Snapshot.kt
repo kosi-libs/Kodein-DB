@@ -2,6 +2,7 @@ package org.kodein.db.impl
 
 import org.kodein.db.delete
 import org.kodein.db.get
+import org.kodein.db.newKeyFrom
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertNotNull

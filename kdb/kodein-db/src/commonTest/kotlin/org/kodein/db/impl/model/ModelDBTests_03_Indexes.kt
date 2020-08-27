@@ -3,6 +3,7 @@ package org.kodein.db.impl.model
 import org.kodein.db.Value
 import org.kodein.db.model.findAllByIndex
 import org.kodein.db.model.findByIndex
+import org.kodein.db.model.put
 import org.kodein.db.newKey
 import org.kodein.memory.use
 import kotlin.test.*

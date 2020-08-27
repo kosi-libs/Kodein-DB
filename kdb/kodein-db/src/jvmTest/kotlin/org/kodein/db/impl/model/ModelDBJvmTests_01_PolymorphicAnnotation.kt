@@ -4,6 +4,7 @@ import org.kodein.db.TypeTable
 import org.kodein.db.model.findAllByType
 import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.model.putAll
+import org.kodein.db.newKeyFrom
 import org.kodein.db.orm.kryo.KryoSerializer
 import org.kodein.memory.use
 import kotlin.test.*

@@ -5,6 +5,7 @@ import org.kodein.db.impl.model.Date
 import org.kodein.db.model.findAllByType
 import org.kodein.db.model.get
 import org.kodein.db.model.putAll
+import org.kodein.db.newKeyFrom
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertEquals

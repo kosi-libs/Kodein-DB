@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("org.kodein.library.mpp")
     id("kotlinx-serialization")
@@ -15,6 +17,11 @@ kodein {
 
         add(kodeinTargets.jvm.jvm)
         add(kodeinTargets.native.allDarwin + kodeinTargets.native.allDesktop)
+
+        sourceSets.all {
+            languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
+            languageSettings.enableLanguageFeature("InlineClasses")
+        }
     }
 }
 

@@ -28,7 +28,7 @@ abstract class ModelDBTests {
         +Birth.serializer()
     }
 
-    open fun testClassSerializers(): List<DBClassSerializer<*>> = emptyList()
+    open fun testClassSerializers(): List<DBTypeSerializer<*>> = emptyList()
 
     open fun testMetadataExtractor(): MetadataExtractor? = null
 

@@ -5,6 +5,8 @@ import org.kodein.db.Value
 import org.kodein.db.model.Primitive
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
+import org.kodein.db.model.put
+import org.kodein.db.newKeyFrom
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
 import kotlin.test.Test

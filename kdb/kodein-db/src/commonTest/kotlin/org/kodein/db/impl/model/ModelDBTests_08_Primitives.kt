@@ -3,6 +3,7 @@ package org.kodein.db.impl.model
 import org.kodein.db.Value
 import org.kodein.db.model.Primitive
 import org.kodein.db.model.get
+import org.kodein.db.model.put
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.array

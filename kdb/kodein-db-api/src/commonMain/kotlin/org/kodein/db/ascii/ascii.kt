@@ -13,5 +13,5 @@ public fun ReadMemory.getAscii(start: Int = 0, size: Int = limit - start): Strin
     val array = CharArray(size)
     for (i in 0 until size)
         array[i] = get(start + i).toChar()
-    return String(array)
+    return array.concatToString()
 }

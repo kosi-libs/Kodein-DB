@@ -1,6 +1,7 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.model.findAllByType
+import org.kodein.db.model.put
 import org.kodein.memory.use
 import kotlin.test.*
 

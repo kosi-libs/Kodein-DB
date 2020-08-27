@@ -3,35 +3,36 @@ package org.kodein.db
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.wrap
-import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 public interface TypeTable : Options.Open {
 
-    public fun getTypeName(type: KClass<*>): ReadMemory
+    public fun getTypeName(type: KType): ReadMemory
 
-    public fun getTypeClass(name: ReadMemory): KClass<*>?
+    public fun getType(name: ReadMemory): KType?
 
-    public fun getRegisteredClasses(): Set<KClass<*>>
+    public fun getRegisteredTypes(): Set<KType>
 
-    public fun getRootOf(type: KClass<*>): KClass<*>?
+    public fun getRootOf(type: KType): KType?
 
-    private class Impl(roots: Iterable<Type.Root<*>>, val defaultNameOf: (KClass<*>) -> ReadMemory, val defaultClassOf: (ReadMemory) -> KClass<*>?) : TypeTable {
+    private class Impl(roots: Iterable<Type.Root<*>>, val defaultNameOf: (KType) -> ReadMemory, val defaultTypeOf: (ReadMemory) -> KType?) : TypeTable {
 
-        private val byClass = HashMap<KClass<*>, Type<*>>()
+        private val byClass = HashMap<KType, Type<*>>()
 
         private val byName = HashMap<ReadMemory, Type<*>>()
 
-        private val roots = HashMap<KClass<*>, Type.Root<*>>()
+        private val roots = HashMap<KType, Type.Root<*>>()
 
         init {
 
             fun add(type: Type<*>, root: Type.Root<*>) {
-                require(type.name !in byName) { "Both type ${simpleTypeNameOf(byName[type.name]!!.type)} and type ${simpleTypeNameOf(type.type)} are mapped to name ${type.name}" }
-                require(type.type !in byClass) { "Type ${simpleTypeNameOf(type.type)} is mapped to both name ${byClass[type.type]!!} and name ${type.name}" }
+                require(type.name !in byName) { "Both type ${simpleTypeNameOf(byName[type.name]!!.ktype)} and type ${simpleTypeNameOf(type.ktype)} are mapped to name ${type.name}" }
+                require(type.ktype !in byClass) { "Type ${simpleTypeNameOf(type.ktype)} is mapped to both name ${byClass[type.ktype]!!} and name ${type.name}" }
 
-                this.byClass[type.type] = type
+                this.byClass[type.ktype] = type
                 this.byName[type.name] = type
-                this.roots[type.type] = root
+                this.roots[type.ktype] = root
             }
 
             roots.forEach { root ->
@@ -41,44 +42,47 @@ public interface TypeTable : Options.Open {
 
         }
 
-        override fun getTypeName(type: KClass<*>) = byClass[type]?.name ?: defaultNameOf(type)
+        override fun getTypeName(type: KType) = byClass[type]?.name ?: defaultNameOf(type)
 
-        override fun getTypeClass(name: ReadMemory): KClass<*>? = byName[name]?.type ?: defaultClassOf(name)
+        override fun getType(name: ReadMemory): KType? = byName[name]?.ktype ?: defaultTypeOf(name)
 
-        override fun getRegisteredClasses(): Set<KClass<*>> = byClass.keys
+        override fun getRegisteredTypes(): Set<KType> = byClass.keys
 
-        override fun getRootOf(type: KClass<*>): KClass<*>? = roots[type]?.type
+        override fun getRootOf(type: KType): KType? = roots[type]?.ktype
 
     }
 
-    public sealed class Type<T : Any>(public val type: KClass<T>, public val name: ReadMemory) {
-        public class Sub<T : Any>(type: KClass<T>, name: ReadMemory) : Type<T>(type, name)
-        public class Root<T : Any>(type: KClass<T>, name: ReadMemory, public val subs: List<Sub<out T>>) : Type<T>(type, name)
+    public sealed class Type<T : Any>(private val tktype: TKType<T>, public val name: ReadMemory) {
+        public class Sub<T : Any>(type: TKType<T>, name: ReadMemory) : Type<T>(type, name)
+        public class Root<T : Any>(type: TKType<T>, name: ReadMemory, public val subs: List<Sub<out T>>) : Type<T>(type, name)
+        public val ktype: KType get() = tktype.ktype
     }
 
-    public class Builder internal constructor(public val defaultNameOf: (KClass<*>) -> ReadMemory) {
+    public class Builder internal constructor(public val defaultNameOf: (KType) -> ReadMemory) {
 
         internal val roots = ArrayList<Type.Root<*>>()
 
-        public fun <T: Any> root(type: KClass<T>, name: ReadMemory = defaultNameOf(type)): Root<T> {
+        public fun <T: Any> root(type: TKType<T>, name: ReadMemory = defaultNameOf(type.ktype)): Root<T> {
             val root = Root<T>(defaultNameOf)
             roots += Type.Root(type, name, root.subs)
             return root
         }
 
-        public inline fun <reified T: Any> root(name: ReadMemory = defaultNameOf(T::class)): Root<T> = root(T::class, name)
+        @OptIn(ExperimentalStdlibApi::class)
+        public inline fun <reified T: Any> root(name: ReadMemory = defaultNameOf(typeOf<T>())): Root<T> = root(tTypeOf(), name)
 
-        public class Root<T : Any>(public val defaultNameOf: (KClass<*>) -> ReadMemory) {
+        public class Root<T : Any>(public val defaultNameOf: (KType) -> ReadMemory) {
 
             internal val subs = ArrayList<Type.Sub<out T>>()
 
-            public fun <S : T> sub(type: KClass<S>, name: ReadMemory = defaultNameOf(type)): Root<T> = apply { subs += Type.Sub(type, name) }
+            public fun <S : T> sub(type: TKType<S>, name: ReadMemory = defaultNameOf(type.ktype)): Root<T> = apply { subs += Type.Sub(type, name) }
 
-            public inline fun <reified S: T> sub(name: ReadMemory = defaultNameOf(S::class)): Root<T> = sub(S::class, name)
+            @OptIn(ExperimentalStdlibApi::class)
+            public inline fun <reified S: T> sub(name: ReadMemory = defaultNameOf(typeOf<S>())): Root<T> = sub(tTypeOf<S>(), name)
         }
     }
 
     public companion object {
-        public operator fun invoke(defaultNameOf: (KClass<*>) -> ReadMemory = { KBuffer.wrap(simpleTypeAsciiNameOf(it)) }, defaultClassOf: (ReadMemory) -> KClass<*>? = { null }, builder: Builder.() -> Unit = {}): TypeTable = Impl(Builder(defaultNameOf).apply(builder).roots, defaultNameOf, defaultClassOf)
+        public operator fun invoke(defaultNameOf: (KType) -> ReadMemory = { KBuffer.wrap(simpleTypeAsciiNameOf(it)) }, defaultClassOf: (ReadMemory) -> KType? = { null }, builder: Builder.() -> Unit = {}): TypeTable = Impl(Builder(defaultNameOf).apply(builder).roots, defaultNameOf, defaultClassOf)
     }
 }

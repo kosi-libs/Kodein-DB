@@ -7,31 +7,39 @@ import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.wrap
 import org.kodein.memory.text.toAsciiBytes
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 public class AnnotationTypeTable : TypeTable {
-    private val rootCache = HashMap<KClass<*>, KClass<*>>()
-    private val nameCache = HashMap<ReadMemory, KClass<*>>()
+    private val rootCache = HashMap<KType, KType>()
+    private val nameCache = HashMap<ReadMemory, KType>()
 
-    override fun getTypeName(type: KClass<*>): ReadMemory = KBuffer.wrap(type.java.name.toAsciiBytes())
+    override fun getTypeName(type: KType): ReadMemory = KBuffer.wrap((type.classifier as KClass<*>).java.name.toAsciiBytes())
 
-    override fun getTypeClass(name: ReadMemory): KClass<*>? {
+    private fun KClass<*>.toKType(): KType = object : KType {
+        override val arguments: List<KTypeProjection> = emptyList()
+        override val classifier: KClassifier? = this@toKType
+        override val isMarkedNullable: Boolean = false
+        override val annotations: List<Annotation> = emptyList()
+    }
+
+    override fun getType(name: ReadMemory): KType? {
         nameCache[name]?.let { return it }
         return try {
-            Class.forName(name.getAscii()).kotlin.also { nameCache[name] = it }
+            Class.forName(name.getAscii()).kotlin.toKType().also { nameCache[name] = it }
         } catch (_: Throwable) {
             null
         }
     }
 
-    override fun getRegisteredClasses(): Set<KClass<*>> = emptySet()
+    override fun getRegisteredTypes(): Set<KType> = emptySet()
 
-    override fun getRootOf(type: KClass<*>): KClass<*>? {
+    override fun getRootOf(type: KType): KType? {
         rootCache[type]?.let { return it }
 
-        type.java.getAnnotation(PolymorphicCollection::class.java)?.let {
-            rootCache[type] = it.root
-            return it.root
+        (type.classifier as KClass<*>).java.getAnnotation(PolymorphicCollection::class.java)?.let {
+            val rootType = it.root.toKType()
+            rootCache[type] = rootType
+            return rootType
         }
 
         return null

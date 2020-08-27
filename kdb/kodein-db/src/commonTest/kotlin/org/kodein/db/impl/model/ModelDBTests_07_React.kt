@@ -6,6 +6,8 @@ import org.kodein.db.Options
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
 import org.kodein.db.model.orm.Metadata
+import org.kodein.db.model.put
+import org.kodein.db.newKeyFrom
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.text.Charset

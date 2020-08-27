@@ -2,6 +2,7 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.TypeTable
 import org.kodein.db.model.putAll
+import org.kodein.db.newKeyFrom
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -1,10 +1,8 @@
 package org.kodein.db.impl
 
-import org.kodein.db.delete
-import org.kodein.db.execBatch
+import org.kodein.db.*
 import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Person
-import org.kodein.db.on
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.memory.text.toAsciiBytes
 import kotlin.test.*

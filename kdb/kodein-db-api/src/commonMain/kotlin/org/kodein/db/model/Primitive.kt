@@ -9,44 +9,45 @@ import org.kodein.memory.text.Charset
 import org.kodein.memory.text.putString
 import org.kodein.memory.text.readString
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 public data class IntPrimitive(override val id: Value, val value: Int) : Metadata {
     public constructor(id: Any, value: Int) : this(Value.ofAny(id), value)
     public object S : Serializer<IntPrimitive> {
-        override fun serialize(model: IntPrimitive, output: Writeable, vararg options: Options.Write) { output.putInt(model.value) }
-        override fun deserialize(type: KClass<out IntPrimitive>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): IntPrimitive = IntPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readInt())
+        override fun serialize(type: KType, model: IntPrimitive, output: Writeable, vararg options: Options.Write) { output.putInt(model.value) }
+        override fun deserialize(type: KType, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): IntPrimitive = IntPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readInt())
     }
 }
 
 public data class LongPrimitive(override val id: Value, val value: Long) : Metadata {
     public constructor(id: Any, value: Long) : this(Value.ofAny(id), value)
     public object S : Serializer<LongPrimitive> {
-        override fun serialize(model: LongPrimitive, output: Writeable, vararg options: Options.Write) { output.putLong(model.value) }
-        override fun deserialize(type: KClass<out LongPrimitive>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): LongPrimitive = LongPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readLong())
+        override fun serialize(type: KType, model: LongPrimitive, output: Writeable, vararg options: Options.Write) { output.putLong(model.value) }
+        override fun deserialize(type: KType, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): LongPrimitive = LongPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readLong())
     }
 }
 
 public data class DoublePrimitive(override val id: Value, val value: Double) : Metadata {
     public constructor(id: Any, value: Double) : this(Value.ofAny(id), value)
     public object S : Serializer<DoublePrimitive> {
-        override fun serialize(model: DoublePrimitive, output: Writeable, vararg options: Options.Write) { output.putDouble(model.value) }
-        override fun deserialize(type: KClass<out DoublePrimitive>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): DoublePrimitive = DoublePrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readDouble())
+        override fun serialize(type: KType, model: DoublePrimitive, output: Writeable, vararg options: Options.Write) { output.putDouble(model.value) }
+        override fun deserialize(type: KType, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): DoublePrimitive = DoublePrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readDouble())
     }
 }
 
 public data class StringPrimitive(override val id: Value, val value: String) : Metadata {
     public constructor(id: Any, value: String) : this(Value.ofAny(id), value)
     public object S : Serializer<StringPrimitive> {
-        override fun serialize(model: StringPrimitive, output: Writeable, vararg options: Options.Write) { output.putString(model.value, Charset.UTF8) }
-        override fun deserialize(type: KClass<out StringPrimitive>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): StringPrimitive = StringPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readString(Charset.UTF8))
+        override fun serialize(type: KType, model: StringPrimitive, output: Writeable, vararg options: Options.Write) { output.putString(model.value, Charset.UTF8) }
+        override fun deserialize(type: KType, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): StringPrimitive = StringPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readString(Charset.UTF8))
     }
 }
 
 public data class BytesPrimitive(override val id: Value, val value: ByteArray) : Metadata {
     public constructor(id: Any, value: ByteArray) : this(Value.ofAny(id), value)
     public object S : Serializer<BytesPrimitive> {
-        override fun serialize(model: BytesPrimitive, output: Writeable, vararg options: Options.Write) { output.putBytes(model.value) }
-        override fun deserialize(type: KClass<out BytesPrimitive>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): BytesPrimitive = BytesPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readBytes())
+        override fun serialize(type: KType, model: BytesPrimitive, output: Writeable, vararg options: Options.Write) { output.putBytes(model.value) }
+        override fun deserialize(type: KType, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): BytesPrimitive = BytesPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readBytes())
     }
 
     override fun equals(other: Any?): Boolean {

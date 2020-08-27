@@ -18,15 +18,15 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
 
     fun didAction(action: DBListener<Any>.() -> Unit)
 
-    private fun <M: Any> put(model: M, options: Array<out Options.Write>, block: (ReadMemory, Metadata) -> Key<M>): KeyAndSize<M> {
+    private fun <M: Any> put(type: TKType<M>, model: M, options: Array<out Options.Write>, block: (ReadMemory, Metadata) -> Key<M>): KeyAndSize<M> {
         val metadata = mdb.getMetadata(model, options)
-        val typeName = mdb.typeTable.getTypeName(model::class)
-        val rootTypeName = mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class)
+        val typeName = mdb.typeTable.getTypeName(type.ktype)
+        val rootTypeName = mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(type.ktype) ?: type.ktype)
         willAction { willPut(model, rootTypeName, metadata, options) }
         val body = Body { body ->
             val typeId = mdb.getTypeId(typeName)
             body.putInt(typeId)
-            mdb.serialize(model, body, *options)
+            mdb.serialize(type.ktype, model, body, *options)
         }
         val key = block(rootTypeName, metadata)
         val size = data.put(key.bytes, body, metadata.indexes(), *options)
@@ -34,21 +34,21 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
         return KeyAndSize(key, size)
     }
 
-    override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> =
-        put(model, options) { rootTypeName, metadata ->
+    override fun <M : Any> put(type: TKType<M>, model: M, vararg options: Options.Write): KeyAndSize<M> =
+        put(type, model, options) { rootTypeName, metadata ->
             val key = Key<M>(data.newKey(mdb.getTypeId(rootTypeName), Value.ofAny(metadata.id)))
             key
         }
 
-    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int =
-        put(model, options) { rootTypeName, metadata ->
+    override fun <M : Any> put(type: TKType<M>, key: Key<M>, model: M, vararg options: Options.Write): Int =
+        put(type, model, options) { rootTypeName, metadata ->
             key.bytes.markBuffer {
                 verify(it) { putDocumentKey(mdb.getTypeId(rootTypeName), Value.ofAny(metadata.id)) }
             }
             key
         }.size
 
-    override fun <M: Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.Write) {
+    override fun <M: Any> delete(type: TKType<M>, key: Key<M>, vararg options: Options.Write) {
         var fetched = false
         var model: Any? = null
         val getModel: () -> Any? = {
@@ -58,7 +58,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
             }
             model
         }
-        val rootTypeName = mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(type) ?: type)
+        val rootTypeName = mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(type.ktype) ?: type.ktype)
         willAction { willDelete(key, getModel, rootTypeName, options) }
         data.delete(key.bytes, *options)
         didAction { didDelete(key, model, rootTypeName, options) }

@@ -16,8 +16,10 @@ import org.kodein.memory.io.*
 import org.kodein.memory.use
 import org.kodein.memory.util.forEachResilient
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
-internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, userClassSerializers: Map<KClass<*>, Serializer<*>>, private val metadataExtractor: MetadataExtractor, val typeTable: TypeTable, override val data: DataDB) : ModelDB, ModelReadModule, ModelWriteModule, Closeable by data {
+internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, userClassSerializers: Map<KType, Serializer<*>>, private val metadataExtractor: MetadataExtractor, val typeTable: TypeTable, override val data: DataDB) : ModelDB, ModelReadModule, ModelWriteModule, Closeable by data {
 
     private val listenersLock = newRWLock()
     private val listeners = LinkedHashSet<DBListener<Any>>()
@@ -27,21 +29,22 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
     private val typeNameMap = HashMap<ReadMemory, Int>()
     private val typeIdMap = HashMap<Int, ReadMemory>()
 
-    private val typeCache = HashMap<Int, KClass<*>>()
+    private val typeCache = HashMap<Int, KType>()
 
-    private val classSerializers = HashMap<KClass<*>, Serializer<*>>().apply {
+    @OptIn(ExperimentalStdlibApi::class)
+    private val classSerializers = HashMap<KType, Serializer<*>>().apply {
         putAll(userClassSerializers)
-        put(IntPrimitive::class, IntPrimitive.S)
-        put(LongPrimitive::class, LongPrimitive.S)
-        put(DoublePrimitive::class, DoublePrimitive.S)
-        put(StringPrimitive::class, StringPrimitive.S)
-        put(BytesPrimitive::class, BytesPrimitive.S)
+        put(typeOf<IntPrimitive>(), IntPrimitive.S)
+        put(typeOf<LongPrimitive>(), LongPrimitive.S)
+        put(typeOf<DoublePrimitive>(), DoublePrimitive.S)
+        put(typeOf<StringPrimitive>(), StringPrimitive.S)
+        put(typeOf<BytesPrimitive>(), BytesPrimitive.S)
     }
 
     @Suppress("UNCHECKED_CAST")
-    internal fun serialize(model: Any, output: Writeable, vararg options: Options.Write) =
-            (classSerializers[model::class] as? Serializer<Any>)?.serialize(model, output, *options)
-                    ?: defaultSerializer?.serialize(model, output, *options)
+    internal fun serialize(type: KType, model: Any, output: Writeable, vararg options: Options.Write) =
+            (classSerializers[type] as? Serializer<Any>)?.serialize(type, model, output, *options)
+                    ?: defaultSerializer?.serialize(type, model, output, *options)
                     ?: throw IllegalArgumentException("No serializer found for type ${model::class}")
 
     internal fun getListeners() = listenersLock.read { listeners.toList() }
@@ -107,21 +110,18 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
                 }
             }
 
-    internal fun <M : Any> deserialize(type: KClass<out M>, transientId: ReadMemory, body: ReadMemory, options: Array<out Options.Read>): Sized<M> {
+    internal fun <M : Any> deserialize(type: KType, transientId: ReadMemory, body: ReadMemory, options: Array<out Options.Read>): Sized<M> {
         body.markBuffer { buffer ->
             val typeId = buffer.readInt()
             val realType = typeCache[typeId] ?: run {
                 val typeName = getTypeName(typeId) ?: throw IllegalStateException("Unknown type ID. Has this LevelDB entry been inserted outside of Kodein DB?")
-                typeTable.getTypeClass(typeName) ?: run {
+                typeTable.getType(typeName) ?: run {
                     check(type != Any::class) { "Type ${typeName.getAscii()} is not declared in type table." }
                     val expectedTypeName = typeTable.getTypeName(type)
                     check(typeName.compareTo(expectedTypeName) == 0) { "Type ${typeName.getAscii()} is not declared in type table and do not match expected type ${expectedTypeName.getAscii()}." }
                     type
                 }.also { typeCache[typeId] = it }
             }
-
-            @Suppress("UNCHECKED_CAST")
-            realType as KClass<M>
 
             val r = buffer.available
 

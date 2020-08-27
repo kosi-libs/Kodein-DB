@@ -2,6 +2,8 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.model.findAllByIndex
 import org.kodein.db.model.get
+import org.kodein.db.model.put
+import org.kodein.db.newKeyFrom
 import org.kodein.memory.use
 import kotlin.test.*
 

@@ -19,6 +19,7 @@ import org.kodein.memory.util.UUID
 import kotlin.collections.set
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
 public object UUIDSerializer : KSerializer<UUID> {
@@ -37,7 +38,7 @@ public object UUIDSerializer : KSerializer<UUID> {
 }
 
 public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : DefaultSerializer {
-    private val serializers = HashMap<KClass<*>, KSerializer<*>>()
+    private val serializers = HashMap<KType, KSerializer<*>>()
 
     @OptIn(ExperimentalSerializationApi::class)
     private val cbor = Cbor {
@@ -45,10 +46,11 @@ public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Un
     }
 
     public inner class Builder {
-        public fun <T : Any> register(type: KClass<T>, serializer: KSerializer<T>) { serializers[type] = serializer }
+        public fun <T : Any> register(type: KType, serializer: KSerializer<T>) { serializers[type] = serializer }
 
+        @OptIn(ExperimentalStdlibApi::class)
         public inline operator fun <reified T : Any> KSerializer<T>.unaryPlus() {
-            register(T::class, this)
+            register(typeOf<T>(), this)
         }
     }
 
@@ -56,27 +58,17 @@ public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Un
         Builder().block()
     }
 
-    @InternalSerializationApi
-    private fun getSerializer(type: KClass<*>): KSerializer<*> {
-        return try {
-            serializers[type] ?: type.serializer()
-        } catch (ex: NotImplementedError) {
-            throw IllegalStateException("Could not find serializer for class ${simpleTypeNameOf(type)}. Hove you registered the serializer?", ex)
-        }
-    }
-
-    @InternalSerializationApi
     @OptIn(ExperimentalSerializationApi::class)
-    override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
+    override fun serialize(type: KType, model: Any, output: Writeable, vararg options: Options.Write) {
+        val serializer = serializers[type] ?: serializer(type).also { serializers[type] = it }
         @Suppress("UNCHECKED_CAST")
-        val bytes = cbor.encodeToByteArray(getSerializer(model::class) as SerializationStrategy<Any>, model)
+        val bytes = cbor.encodeToByteArray(serializer as SerializationStrategy<Any>, model)
         output.putBytes(bytes)
     }
 
-    @InternalSerializationApi
     @OptIn(ExperimentalSerializationApi::class)
-    override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
-        val serializer = serializers[type] ?: type.serializer().also { serializers[type] = it }
+    override fun deserialize(type: KType, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
+        val serializer = serializers[type] ?: serializer(type).also { serializers[type] = it }
         val bytes = input.readBytes()
         @Suppress("UNCHECKED_CAST")
         return cbor.decodeFromByteArray(serializer as DeserializationStrategy<Any>, bytes)
