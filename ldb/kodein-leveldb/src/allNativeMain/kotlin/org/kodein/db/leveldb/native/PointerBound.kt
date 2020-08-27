@@ -5,9 +5,9 @@ import kotlinx.cinterop.CPointer
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.PlatformCloseable
 
-abstract class PointerBound<T : CPointed>(private var ptr: CPointer<T>?, name: String, handler: Handler?, options: LevelDB.Options) : PlatformCloseable(name, handler, options) {
+public abstract class PointerBound<T : CPointed>(private var ptr: CPointer<T>?, name: String, handler: Handler?, options: LevelDB.Options) : PlatformCloseable(name, handler, options) {
 
-    val nonNullPtr: CPointer<T> get() {
+    public val nonNullPtr: CPointer<T> get() {
         checkIsOpen()
         return ptr!!
     }

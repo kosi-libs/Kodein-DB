@@ -10,24 +10,12 @@ kodein {
 
         common.main.dependencies {
             api(project(":kdb:kodein-db-api"))
-            api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$kotlinxSerializationVer")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor-common:$kotlinxSerializationVer")
+            api("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVer")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:$kotlinxSerializationVer")
         }
 
-        add(kodeinTargets.jvm.jvm) {
-            main.dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVer")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:$kotlinxSerializationVer")
-            }
-        }
-
-        add(kodeinTargets.native.allApple + kodeinTargets.native.allDesktop) {
-            main.dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$kotlinxSerializationVer")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor-native:$kotlinxSerializationVer")
-            }
-        }
-
+        add(kodeinTargets.jvm.jvm)
+        add(kodeinTargets.native.allDarwin + kodeinTargets.native.allDesktop)
     }
 }
 

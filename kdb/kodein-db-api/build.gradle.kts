@@ -10,20 +10,11 @@ kodein {
 
         common.main.dependencies {
             api(project(":ldb:kodein-leveldb-api"))
-            compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$kotlinxSerializationVer")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVer")
         }
 
-        add(kodeinTargets.jvm.jvm) {
-            main.dependencies {
-                compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVer")
-            }
-        }
-
-        add(kodeinTargets.native.allApple + kodeinTargets.native.allDesktop) {
-            main.dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$kotlinxSerializationVer")
-            }
-        }
+        add(kodeinTargets.jvm.jvm)
+        add(kodeinTargets.native.allDarwin + kodeinTargets.native.allDesktop)
     }
 }
 

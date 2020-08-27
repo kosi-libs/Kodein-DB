@@ -14,14 +14,14 @@ import java.nio.ByteBuffer
  * However, it requires its native library to be loaded (loading depends on the platform).
  */
 @Suppress("FunctionName")
-class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, options: LevelDB.Options, override val path: String) : NativeBound(ptr, "DB", null, options), LevelDB {
+public class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, options: LevelDB.Options, override val path: String) : NativeBound(ptr, "DB", null, options), LevelDB {
 
     private val dbHandler = Handler()
 
     /**
      * LevelDB Factory that handles native LevelDB databases.
      */
-    object Factory : LevelDBFactory {
+    public object Factory : LevelDBFactory {
 
         override fun open(path: String, options: LevelDB.Options): LevelDB {
             val optionsPtr = newNativeOptions(options)
@@ -247,7 +247,7 @@ class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: Long, op
         }
     }
 
-    companion object {
+    public companion object {
 
         private fun newNativeOptions(options: LevelDB.Options): Long {
             return Native.optionsNew(

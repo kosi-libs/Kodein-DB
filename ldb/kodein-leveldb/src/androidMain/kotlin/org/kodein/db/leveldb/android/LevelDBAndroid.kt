@@ -4,7 +4,7 @@ import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.jni.LevelDBJNI
 
 
-object LevelDBAndroid : LevelDBFactory by LevelDBJNI.Factory {
+public object LevelDBAndroid : LevelDBFactory by LevelDBJNI.Factory {
     init {
         System.loadLibrary("kodein-leveldb-jni")
     }

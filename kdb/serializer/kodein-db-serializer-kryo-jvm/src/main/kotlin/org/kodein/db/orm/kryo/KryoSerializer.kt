@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
 
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
-class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : DefaultSerializer {
+public class KryoSerializer @JvmOverloads public constructor(public val kryo: Kryo = createKryo()) : DefaultSerializer {
 
     override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
         Output(output.asOuputStream()).use {
@@ -28,12 +28,12 @@ class KryoSerializer @JvmOverloads constructor(val kryo: Kryo = createKryo()) : 
         }
     }
 
-    companion object {
-        fun createKryo(
+    public companion object {
+        public fun createKryo(
                 typeTable: TypeTable? = null,
                 allowStructureUpdate: Boolean = true,
                 allowDeserializationWithoutConstructor: Boolean = true
-        ) = Kryo().apply {
+        ): Kryo = Kryo().apply {
             val registered = typeTable?.getRegisteredClasses()
             if (registered != null && registered.isNotEmpty()) {
                 registered.forEach { register(it.java) }

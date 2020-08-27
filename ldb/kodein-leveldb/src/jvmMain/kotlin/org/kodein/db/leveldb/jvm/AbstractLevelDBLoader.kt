@@ -9,11 +9,11 @@ import java.security.MessageDigest
 import java.util.*
 
 
-abstract class AbstractLevelDBLoader(val os: String) : LevelDBFactory by LevelDBJNI.Factory {
+public abstract class AbstractLevelDBLoader(public val os: String) : LevelDBFactory by LevelDBJNI.Factory {
 
-    abstract fun getLibFileName(version: String): String
+    public abstract fun getLibFileName(version: String): String
 
-    fun load() {
+    public fun load() {
         val resourcesProps = javaClass.getResourceAsStream("/kodein-leveldb-jni-$os.properties")
                 ?.use { Properties().apply { load(it) } }
                 ?: error("Could not load kodein-leveldb-jni-$os.properties")

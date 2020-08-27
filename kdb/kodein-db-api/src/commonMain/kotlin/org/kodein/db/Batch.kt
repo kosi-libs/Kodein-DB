@@ -3,8 +3,8 @@ package org.kodein.db
 import org.kodein.memory.Closeable
 
 
-interface Batch : DBWrite, Closeable {
-    fun addOptions(vararg options: Options.Write)
-    fun Options.Write.unaryPlus() = addOptions(this)
-    fun write(vararg options: Options.Write)
+public interface Batch : DBWrite, Closeable {
+    public fun addOptions(vararg options: Options.Write)
+    public fun Options.Write.unaryPlus(): Unit = addOptions(this)
+    public fun write(vararg options: Options.Write)
 }

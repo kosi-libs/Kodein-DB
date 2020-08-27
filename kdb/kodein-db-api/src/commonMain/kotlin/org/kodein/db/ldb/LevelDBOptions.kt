@@ -6,7 +6,7 @@ import org.kodein.log.LoggerFactory
 
 
 @Suppress("unused")
-sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelDB.Options) : Options.Open {
+public sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelDB.Options) : Options.Open {
 
     /**
      * Defines how to react if the database exists or not.
@@ -15,7 +15,7 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * @see OpenPolicy
      */
-    data class OpenPolicy(val openPolicy: LevelDB.OpenPolicy): LevelDBOptions({ copy(openPolicy = openPolicy) })
+    public data class OpenPolicy(val openPolicy: LevelDB.OpenPolicy): LevelDBOptions({ copy(openPolicy = openPolicy) })
 
     /**
      * If true, the implementation will do aggressive checking of the data it is processing and will stop early if it detects any errors.
@@ -24,7 +24,7 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * (Default: false)
      */
-    data class ParanoidChecks(val paranoidChecks: Boolean): LevelDBOptions({ copy(paranoidChecks = paranoidChecks) })
+    public data class ParanoidChecks(val paranoidChecks: Boolean): LevelDBOptions({ copy(paranoidChecks = paranoidChecks) })
 
     /**
      * If true, the LevelDB implementation will print internal logs.
@@ -33,7 +33,7 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * (Default: false)
      */
-    data class PrintLogs(val printLogs: Boolean = false): LevelDBOptions({ copy(printLogs = printLogs) })
+    public data class PrintLogs(val printLogs: Boolean = false): LevelDBOptions({ copy(printLogs = printLogs) })
 
     /**
      * Amount of data to build up in memory (backed by an unsorted log on disk) before converting to a sorted on-disk file.
@@ -44,7 +44,7 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * (Default: 4MB)
      */
-    data class WriteBufferSize(val writeBufferSize: Int): LevelDBOptions({ copy(writeBufferSize = writeBufferSize) })
+    public data class WriteBufferSize(val writeBufferSize: Int): LevelDBOptions({ copy(writeBufferSize = writeBufferSize) })
 
     /**
      * Number of open files that can be used by the DB.
@@ -53,14 +53,14 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * (Default: 1000)
      */
-    data class MaxOpenFiled(val maxOpenFiles: Int): LevelDBOptions({ copy(maxOpenFiles = maxOpenFiles) })
+    public data class MaxOpenFiled(val maxOpenFiles: Int): LevelDBOptions({ copy(maxOpenFiles = maxOpenFiles) })
 
     /**
      * Size of the LRU cache LevelDB will use to prevent unneeded disk access.
      *
      * (Default: 8MB)
      */
-    data class CacheSize(val cacheSize: Int): LevelDBOptions({ copy(cacheSize = cacheSize) })
+    public data class CacheSize(val cacheSize: Int): LevelDBOptions({ copy(cacheSize = cacheSize) })
 
     /**
      * Approximate size of user data packed per block.
@@ -72,7 +72,7 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * (Default: 4K)
      */
-    data class BlockSize(val blockSize: Int): LevelDBOptions({ copy(blockSize = blockSize) })
+    public data class BlockSize(val blockSize: Int): LevelDBOptions({ copy(blockSize = blockSize) })
 
     /**
      * Number of keys between restart points for delta encoding of keys.
@@ -83,7 +83,7 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * (Default: 16)
      */
-    data class BlockRestartInterval(val blockRestartInterval: Int): LevelDBOptions({ copy(blockRestartInterval = blockRestartInterval) })
+    public data class BlockRestartInterval(val blockRestartInterval: Int): LevelDBOptions({ copy(blockRestartInterval = blockRestartInterval) })
 
     /**
      * Leveldb will write up to this amount of bytes to a file before switching to a new one.
@@ -95,7 +95,7 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * (Default: 2MB)
      */
-    data class MaxFileSize(val maxFileSize: Int): LevelDBOptions({ copy(maxFileSize = maxFileSize) })
+    public data class MaxFileSize(val maxFileSize: Int): LevelDBOptions({ copy(maxFileSize = maxFileSize) })
 
     /**
      * Whether to compress blocks using the Snappy compression algorithm.
@@ -114,7 +114,7 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * (Default: true)
      */
-    data class SnappyCompression(val snappyCompression: Boolean): LevelDBOptions({ copy(snappyCompression = snappyCompression) })
+    public data class SnappyCompression(val snappyCompression: Boolean): LevelDBOptions({ copy(snappyCompression = snappyCompression) })
 
     /**
      * EXPERIMENTAL: If true, append to existing MANIFEST and log files
@@ -122,7 +122,7 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * Default: currently false, but may become true later.
      */
-    data class ReuseLogs(val reuseLogs: Boolean): LevelDBOptions({ copy(reuseLogs = reuseLogs) })
+    public data class ReuseLogs(val reuseLogs: Boolean): LevelDBOptions({ copy(reuseLogs = reuseLogs) })
 
     /**
      * If non-0, use a Bloom filter policy to reduce disk reads.
@@ -132,23 +132,23 @@ sealed class LevelDBOptions(internal val transform: LevelDB.Options.() -> LevelD
      *
      * (Default: 10)
      */
-    data class BloomFilterBitsPerKey(val bloomFilterBitsPerKey: Int): LevelDBOptions({ copy(bloomFilterBitsPerKey = bloomFilterBitsPerKey) })
+    public data class BloomFilterBitsPerKey(val bloomFilterBitsPerKey: Int): LevelDBOptions({ copy(bloomFilterBitsPerKey = bloomFilterBitsPerKey) })
 
     /**
      * If a DB cannot be opened, you may attempt to set this to true to resurrect as much of the contents of the database as possible.
      *
      * Some data may be lost, so be careful when setting this on a database that contains important information.
      */
-    data class RepairOnCorruption(val repairOnCorruption: Boolean): LevelDBOptions({ copy(repairOnCorruption = repairOnCorruption) })
+    public data class RepairOnCorruption(val repairOnCorruption: Boolean): LevelDBOptions({ copy(repairOnCorruption = repairOnCorruption) })
 
-    companion object {
-        fun new(options: Array<out Options.Open>) = options.filterIsInstance<LevelDBOptions>().fold(LevelDB.Options.DEFAULT) { l, o -> o.transform(l) }
+    public companion object {
+        public fun new(options: Array<out Options.Open>): LevelDB.Options = options.filterIsInstance<LevelDBOptions>().fold(LevelDB.Options.DEFAULT) { l, o -> o.transform(l) }
     }
 
 }
 
-data class DBLoggerFactory(val loggerFactory: LoggerFactory): LevelDBOptions({ copy(loggerFactory = loggerFactory) })
+public data class DBLoggerFactory(val loggerFactory: LoggerFactory): LevelDBOptions({ copy(loggerFactory = loggerFactory) })
 
-data class TrackClosableAllocation(val trackClosableAllocation: Boolean): LevelDBOptions({ copy(trackClosableAllocation = trackClosableAllocation) })
+public data class TrackClosableAllocation(val trackClosableAllocation: Boolean): LevelDBOptions({ copy(trackClosableAllocation = trackClosableAllocation) })
 
-data class FailOnBadClose(val failOnBadClose: Boolean): LevelDBOptions({ copy(failOnBadClose = failOnBadClose) })
+public data class FailOnBadClose(val failOnBadClose: Boolean): LevelDBOptions({ copy(failOnBadClose = failOnBadClose) })

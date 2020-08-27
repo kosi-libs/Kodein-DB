@@ -1,19 +1,19 @@
 package org.kodein.db.impl.utils
 
 
-class PhonyLock private constructor() {
-    companion object {
+public class PhonyLock private constructor() {
+    public companion object {
         internal val instance = PhonyLock()
     }
 }
 
-actual typealias Lock = PhonyLock
+public actual typealias Lock = PhonyLock
 
 internal actual fun newLock(): Lock = PhonyLock.instance
 
 internal actual inline fun <T> Lock.withLock(action: () -> T): T = action()
 
-actual typealias RWLock = PhonyLock
+public actual typealias RWLock = PhonyLock
 
 internal actual fun newRWLock(): Lock = PhonyLock.instance
 

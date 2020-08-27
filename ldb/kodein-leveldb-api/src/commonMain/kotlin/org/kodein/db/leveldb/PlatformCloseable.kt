@@ -1,10 +1,11 @@
 package org.kodein.db.leveldb
 
 import kotlinx.atomicfu.atomic
+import org.kodein.log.newLogger
 import org.kodein.memory.Closeable
 
 
-abstract class PlatformCloseable(private val name: String, private val handler: Handler?, val options: LevelDB.Options) : Closeable {
+public abstract class PlatformCloseable(private val name: String, private val handler: Handler?, public val options: LevelDB.Options) : Closeable {
 
     private val stackTrace = if (options.trackClosableAllocation) {
         StackTrace.current()
@@ -35,9 +36,9 @@ abstract class PlatformCloseable(private val name: String, private val handler: 
         doClose()
     }
 
-    fun checkIsOpen() = check(!closed.value) { "$name has been closed" }
+    public fun checkIsOpen(): Unit = check(!closed.value) { "$name has been closed" }
 
-    fun closeBad() {
+    public fun closeBad() {
         if (closed.getAndSet(true))
             return
 
@@ -64,19 +65,19 @@ abstract class PlatformCloseable(private val name: String, private val handler: 
             closeBad()
     }
 
-    class Handler : Closeable {
+    public class Handler : Closeable {
 
         private val closed = atomic(false)
 
         private val set = newWeakHashSet<PlatformCloseable>()
 
-        fun add(pc: PlatformCloseable) {
+        public fun add(pc: PlatformCloseable) {
             if (closed.value)
                 return
             set.add(pc)
         }
 
-        fun remove(pc: PlatformCloseable) {
+        public fun remove(pc: PlatformCloseable) {
             if (!closed.value)
                 set.remove(pc)
         }

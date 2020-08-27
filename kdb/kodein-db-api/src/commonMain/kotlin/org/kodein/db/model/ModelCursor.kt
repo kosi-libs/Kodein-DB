@@ -5,11 +5,11 @@ import org.kodein.db.Key
 import org.kodein.db.Options
 import org.kodein.db.Sized
 
-interface ModelCursor<M : Any> : BaseCursor {
+public interface ModelCursor<M : Any> : BaseCursor {
 
-    fun key(): Key<M>
-    fun model(vararg options: Options.Read): Sized<M>
+    public fun key(): Key<M>
+    public fun model(vararg options: Options.Read): Sized<M>
 
-    fun duplicate(): ModelCursor<M>
+    public fun duplicate(): ModelCursor<M>
 
 }

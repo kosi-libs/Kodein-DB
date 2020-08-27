@@ -1,6 +1,7 @@
 org.gradle.daemon=true
 org.gradle.jvmargs=-Xmx4g -XX:MaxPermSize=2048m
 
-javah=/usr/lib/jvm/zulu-8-azure-amd64/bin/javah
+javah=/usr/lib/jvm/adoptopenjdk-8-hotspot-amd64/bin/javah
 
 excludeTargets=native
+android.useAndroidX=true

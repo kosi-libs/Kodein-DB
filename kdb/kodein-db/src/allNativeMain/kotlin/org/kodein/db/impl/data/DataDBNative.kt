@@ -6,8 +6,8 @@ import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.native.LevelDBNative
 
 
-object DataDBNative : AbstractDataDBFactory() {
+public object DataDBNative : AbstractDataDBFactory() {
     override val ldbFactory: LevelDBFactory get() = LevelDBNative
 }
 
-actual val DataDB.Companion.default: DBFactory<DataDB> get() = DataDBNative
+public actual val DataDB.Companion.default: DBFactory<DataDB> get() = DataDBNative

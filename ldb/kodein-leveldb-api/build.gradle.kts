@@ -17,7 +17,7 @@ kodein {
             target.setCompileClasspath()
         }
 
-        add(kodeinTargets.native.allApple + kodeinTargets.native.allDesktop)
+        add(kodeinTargets.native.allDarwin + kodeinTargets.native.allDesktop)
     }
 }
 

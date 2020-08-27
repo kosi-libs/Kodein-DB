@@ -3,17 +3,17 @@ package org.kodein.db
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.ReadMemory
 
-interface BaseCursor : Closeable {
+public interface BaseCursor : Closeable {
 
-    fun isValid(): Boolean
+    public fun isValid(): Boolean
 
-    fun next()
-    fun prev()
+    public fun next()
+    public fun prev()
 
-    fun seekToFirst()
-    fun seekToLast()
-    fun seekTo(target: ReadMemory)
+    public fun seekToFirst()
+    public fun seekToLast()
+    public fun seekTo(target: ReadMemory)
 
-    fun transientSeekKey(): ReadMemory
+    public fun transientSeekKey(): ReadMemory
 
 }

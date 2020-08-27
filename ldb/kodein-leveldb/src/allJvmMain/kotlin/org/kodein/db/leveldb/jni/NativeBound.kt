@@ -3,9 +3,9 @@ package org.kodein.db.leveldb.jni
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.PlatformCloseable
 
-abstract class NativeBound(private var ptr: Long, name: String, handler: Handler?, options: LevelDB.Options) : PlatformCloseable(name, handler, options) {
+public abstract class NativeBound(private var ptr: Long, name: String, handler: Handler?, options: LevelDB.Options) : PlatformCloseable(name, handler, options) {
 
-    val nonZeroPtr: Long get() {
+    public val nonZeroPtr: Long get() {
         checkIsOpen()
         return ptr
     }

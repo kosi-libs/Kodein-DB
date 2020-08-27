@@ -1,11 +1,11 @@
 package org.kodein.db.leveldb
 
 
-expect class StackTrace {
-    fun write(on: Appendable)
-    companion object {
-        fun current(): StackTrace
+public expect class StackTrace {
+    public fun write(on: Appendable)
+    public companion object {
+        public fun current(): StackTrace
     }
 }
 
-expect fun <T> newWeakHashSet(): MutableSet<T>
+public expect fun <T> newWeakHashSet(): MutableSet<T>

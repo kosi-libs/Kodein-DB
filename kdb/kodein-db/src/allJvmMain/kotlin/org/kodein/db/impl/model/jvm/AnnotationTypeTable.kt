@@ -9,7 +9,7 @@ import org.kodein.memory.io.wrap
 import org.kodein.memory.text.toAsciiBytes
 import kotlin.reflect.KClass
 
-class AnnotationTypeTable : TypeTable {
+public class AnnotationTypeTable : TypeTable {
     private val rootCache = HashMap<KClass<*>, KClass<*>>()
     private val nameCache = HashMap<ReadMemory, KClass<*>>()
 

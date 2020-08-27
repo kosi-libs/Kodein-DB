@@ -8,7 +8,7 @@ import org.kodein.db.model.ModelDB
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.DefaultSerializer
 
-object ModelDBNative : AbstractModelDBFactory() {
+public object ModelDBNative : AbstractModelDBFactory() {
 
     override val ddbFactory: DBFactory<DataDB> get() = DataDBNative
 
@@ -19,4 +19,4 @@ object ModelDBNative : AbstractModelDBFactory() {
     override fun defaultTypeTable(): TypeTable? = null
 }
 
-actual val ModelDB.Companion.default: DBFactory<ModelDB> get() = ModelDBNative
+public actual val ModelDB.Companion.default: DBFactory<ModelDB> get() = ModelDBNative

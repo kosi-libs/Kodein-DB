@@ -1,18 +1,18 @@
 package org.kodein.db
 
-interface Sized<out M> {
-    val model: M
-    val size: Int
+public interface Sized<out M> {
+    public val model: M
+    public val size: Int
 
-    operator fun component1() = model
-    operator fun component2() = size
+    public operator fun component1(): M = model
+    public operator fun component2(): Int = size
 
     private data class Impl<M>(override val model: M, override val size: Int) : Sized<M>
 
-    companion object {
-        operator fun <M> invoke(value: M, size: Int): Sized<M> = Impl(value, size)
+    public companion object {
+        public operator fun <M> invoke(value: M, size: Int): Sized<M> = Impl(value, size)
     }
 
 }
 
-data class KeyAndSize<M : Any>(val key: Key<M>, val size: Int)
+public data class KeyAndSize<M : Any>(val key: Key<M>, val size: Int)

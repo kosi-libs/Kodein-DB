@@ -2,9 +2,13 @@ package org.kodein.db.orm.kotlinx
 
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.Cbor
-import kotlinx.serialization.modules.serializersModule
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.serializersModuleOf
 import org.kodein.db.Options
-import org.kodein.db.invoke
 import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.simpleTypeNameOf
 import org.kodein.memory.io.ReadBuffer
@@ -15,9 +19,10 @@ import org.kodein.memory.util.UUID
 import kotlin.collections.set
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
 
-object UUIDSerializer : KSerializer<UUID> {
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("UUID", PrimitiveKind.STRING)
+public object UUIDSerializer : KSerializer<UUID> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: UUID) {
         encoder.encodeLong(value.mostSignificantBits)
@@ -29,18 +34,20 @@ object UUIDSerializer : KSerializer<UUID> {
         val leastSignificantBits = decoder.decodeLong()
         return UUID(mostSignificantBits, leastSignificantBits)
     }
-
 }
 
-class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : DefaultSerializer {
+public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : DefaultSerializer {
     private val serializers = HashMap<KClass<*>, KSerializer<*>>()
 
-    private val cbor = Cbor(updateMode = UpdateMode.UPDATE, context = serializersModule(UUIDSerializer))
+    @OptIn(ExperimentalSerializationApi::class)
+    private val cbor = Cbor {
+        serializersModule = serializersModuleOf(UUIDSerializer)
+    }
 
-    inner class Builder {
-        fun <T : Any> register(type: KClass<T>, serializer: KSerializer<T>) { serializers[type] = serializer }
+    public inner class Builder {
+        public fun <T : Any> register(type: KClass<T>, serializer: KSerializer<T>) { serializers[type] = serializer }
 
-        inline operator fun <reified T : Any> KSerializer<T>.unaryPlus() {
+        public inline operator fun <reified T : Any> KSerializer<T>.unaryPlus() {
             register(T::class, this)
         }
     }
@@ -49,7 +56,7 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
         Builder().block()
     }
 
-    @ImplicitReflectionSerializer
+    @InternalSerializationApi
     private fun getSerializer(type: KClass<*>): KSerializer<*> {
         return try {
             serializers[type] ?: type.serializer()
@@ -58,19 +65,21 @@ class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}
         }
     }
 
-    @ImplicitReflectionSerializer
+    @InternalSerializationApi
+    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
         @Suppress("UNCHECKED_CAST")
-        val bytes = cbor.dump(getSerializer(model::class) as SerializationStrategy<Any>, model)
+        val bytes = cbor.encodeToByteArray(getSerializer(model::class) as SerializationStrategy<Any>, model)
         output.putBytes(bytes)
     }
 
-    @ImplicitReflectionSerializer
+    @InternalSerializationApi
+    @OptIn(ExperimentalSerializationApi::class)
     override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
         val serializer = serializers[type] ?: type.serializer().also { serializers[type] = it }
         val bytes = input.readBytes()
         @Suppress("UNCHECKED_CAST")
-        return cbor.load(serializer as DeserializationStrategy<Any>, bytes)
+        return cbor.decodeFromByteArray(serializer as DeserializationStrategy<Any>, bytes)
     }
 
     // TODO: Monitor these issues:

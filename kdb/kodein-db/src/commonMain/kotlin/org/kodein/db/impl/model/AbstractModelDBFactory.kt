@@ -7,7 +7,7 @@ import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.NoMetadataExtractor
 import org.kodein.db.model.orm.DefaultSerializer
 
-abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
+public abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
 
     protected abstract val ddbFactory: DBFactory<DataDB>
 

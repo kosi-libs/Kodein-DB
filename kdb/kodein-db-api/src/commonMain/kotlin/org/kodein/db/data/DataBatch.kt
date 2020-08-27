@@ -5,6 +5,6 @@ import org.kodein.memory.Closeable
 import org.kodein.memory.util.MaybeThrowable
 
 
-interface DataBatch : DataWrite, Closeable {
-    fun write(afterErrors: MaybeThrowable, vararg options: Options.Write)
+public interface DataBatch : DataWrite, Closeable {
+    public fun write(afterErrors: MaybeThrowable, vararg options: Options.Write)
 }

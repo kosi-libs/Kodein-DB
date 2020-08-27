@@ -3,12 +3,12 @@ package org.kodein.db.impl.model
 import org.kodein.db.BaseCursor
 import org.kodein.memory.io.ReadMemory
 
-interface ResettableCursorModule : BaseCursor {
-    val cursor: BaseCursor
+public interface ResettableCursorModule : BaseCursor {
+    public val cursor: BaseCursor
 
-    fun reset()
+    public fun reset()
 
-    override fun isValid() = cursor.isValid()
+    override fun isValid(): Boolean = cursor.isValid()
 
     override fun next() {
         reset()
@@ -35,5 +35,5 @@ interface ResettableCursorModule : BaseCursor {
         cursor.seekTo(target)
     }
 
-    override fun transientSeekKey() = cursor.transientSeekKey()
+    override fun transientSeekKey(): ReadMemory = cursor.transientSeekKey()
 }
