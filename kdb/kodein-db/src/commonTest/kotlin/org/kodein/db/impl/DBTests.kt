@@ -61,8 +61,8 @@ abstract class DBTests {
 
     protected fun DBWrite.inflateDB() {
         inflateModels()
-        put(Birth(newKeyFrom(Models.salomon), newKeyFrom(Models.sjeg)))
-        put(Birth(newKeyFrom(Models.laila), newKeyFrom(Models.pap)))
+        put(Birth(keyFrom(Models.salomon), keyFrom(Models.sjeg)))
+        put(Birth(keyFrom(Models.laila), keyFrom(Models.pap)))
     }
 
 }

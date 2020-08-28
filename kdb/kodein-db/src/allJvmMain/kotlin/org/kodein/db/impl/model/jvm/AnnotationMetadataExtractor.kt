@@ -103,11 +103,11 @@ public class AnnotationMetadataExtractor : MetadataExtractor {
         return getters
     }
 
-    override fun extractMetadata(model: Any, vararg options: Options.Write): Metadata {
+    override fun extractMetadata(model: Any, vararg options: Options.Write): Metadata? {
         val type = model.javaClass
         val getters = type.getters()
 
-        getters.id ?: error("$type has no @Id annotated field or method.")
+        getters.id ?: return null
         val id = getters.id.get(model) ?: error("Id cannot be null in $model")
         val indexes = getters.indexes.mapNotNullTo(HashSet()) { entry -> entry.value.get(model)?.let { Index(entry.key, it) } }
 

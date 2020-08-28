@@ -16,13 +16,13 @@ import kotlin.test.assertTrue
 @Suppress("ClassName")
 open class ModelDBTests_10_MetadataExtractor : ModelDBTests() {
 
-    override fun testMetadataExtractor() = MetadataExtractor {
-        when (it) {
+    override fun testMetadataExtractor() = MetadataExtractor { model, _ ->
+        when (model) {
             is Date -> Metadata(
-                    id = Value.of(it.year, it.month, it.day),
+                    id = Value.of(model.year, model.month, model.day),
                     indexes = indexSet(
-                            "month" to Value.of(it.month, it.year, it.day),
-                            "day" to Value.of(it.day)
+                            "month" to Value.of(model.month, model.year, model.day),
+                            "day" to Value.of(model.day)
                     )
             )
             else -> throw UnsupportedOperationException()

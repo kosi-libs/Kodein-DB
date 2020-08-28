@@ -21,7 +21,7 @@ internal class CachedModelDB(override val mdb: ModelDB, override val cache: Mode
     }
 
     override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> {
-        val key = mdb.newKeyFrom(model, *options)
+        val key = mdb.keyFrom(model, *options)
         val size = mdb.put(key, model, *(options + React(true) { didPut(model, key, it, options) }))
         return KeyAndSize(key, size)
     }

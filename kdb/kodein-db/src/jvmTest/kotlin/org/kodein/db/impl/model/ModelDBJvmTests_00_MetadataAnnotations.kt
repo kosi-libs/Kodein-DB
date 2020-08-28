@@ -11,6 +11,7 @@ import org.kodein.memory.io.array
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 @Suppress("ClassName")
 class ModelDBJvmTests_00_MetadataAnnotations : ModelDBTests() {
@@ -21,15 +22,14 @@ class ModelDBJvmTests_00_MetadataAnnotations : ModelDBTests() {
     fun test00_MetadataAnnotations() {
         val adult = AAdult(42, "Salomon", "BRYS", Date(15, 12, 1986))
         val metadata = AnnotationMetadataExtractor().extractMetadata(adult)
-        assertEquals(42, metadata.id)
+        assertEquals(42, metadata?.id)
     }
 
     class Test01()
 
     @Test
     fun test01_NoId() {
-        val ex = assertFailsWith<IllegalStateException> { AnnotationMetadataExtractor().extractMetadata(Test01()) }
-        assertEquals("class org.kodein.db.impl.model.ModelDBJvmTests_00_MetadataAnnotations\$Test01 has no @Id annotated field or method.", ex.message)
+        assertNull(AnnotationMetadataExtractor().extractMetadata(Test01()))
     }
 
     abstract class Test02_A {

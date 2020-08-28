@@ -9,6 +9,7 @@ import org.kodein.db.data.DataDB
 import org.kodein.db.impl.utils.*
 import org.kodein.db.model.*
 import org.kodein.db.model.orm.HasMetadata
+import org.kodein.db.model.orm.Metadata
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.Serializer
 import org.kodein.memory.Closeable
@@ -17,7 +18,7 @@ import org.kodein.memory.use
 import org.kodein.memory.util.forEachResilient
 import kotlin.reflect.KClass
 
-internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, userClassSerializers: Map<KClass<*>, Serializer<*>>, private val metadataExtractor: MetadataExtractor, val typeTable: TypeTable, override val data: DataDB) : ModelDB, ModelReadModule, ModelWriteModule, Closeable by data {
+internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, userClassSerializers: Map<KClass<*>, Serializer<*>>, private val metadataExtractors: List<MetadataExtractor>, val typeTable: TypeTable, override val data: DataDB) : ModelDB, ModelReadModule, ModelWriteModule, Closeable by data {
 
     private val listenersLock = newRWLock()
     private val listeners = LinkedHashSet<DBListener<Any>>()
@@ -52,8 +53,15 @@ internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, user
 
     override fun didAction(action: DBListener<Any>.() -> Unit) = getListeners().forEachResilient(action)
 
-    internal fun getMetadata(model: Any, options: Array<out Options.Write>) =
-            (model as? HasMetadata)?.getMetadata(this, *options) ?: metadataExtractor.extractMetadata(model, *options)
+    internal fun getMetadata(model: Any, options: Array<out Options.Write>): Metadata {
+        (model as? HasMetadata)?.getMetadata(this, *options)?.let { return it }
+
+        metadataExtractors.forEach {
+            it.extractMetadata(model, *options)?.let { return it }
+        }
+
+        error("Models does not implement neither HasMetadata nor Metadata, and no MetadataExtractor could extract metadata for $model")
+    }
 
     override val mdb: ModelDBImpl get() = this
 

@@ -11,7 +11,7 @@ public interface Cursor<M: Any> : BaseCursor {
 
 }
 
-public fun <M : Any> Cursor<M>.models(): Sequence<M> = sequence {
+public fun <M : Any> Cursor<M>.useModels(): Sequence<M> = sequence {
     use {
         while (isValid()) {
             yield(model())
@@ -20,9 +20,18 @@ public fun <M : Any> Cursor<M>.models(): Sequence<M> = sequence {
     }
 }
 
+public fun <M : Any> Cursor<M>.useKeys(): Sequence<Key<M>> = sequence {
+    use {
+        while (isValid()) {
+            yield(key())
+            next()
+        }
+    }
+}
+
 public data class Entry<M : Any>(val key: Key<M>, val model: M)
 
-public fun <M : Any> Cursor<M>.entries(): Sequence<Entry<M>> = sequence {
+public fun <M : Any> Cursor<M>.useEntries(): Sequence<Entry<M>> = sequence {
     use {
         while (isValid()) {
             yield(Entry(key(), model()))

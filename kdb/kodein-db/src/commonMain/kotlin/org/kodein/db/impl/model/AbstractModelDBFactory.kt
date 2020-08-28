@@ -4,7 +4,6 @@ import org.kodein.db.*
 import org.kodein.db.data.DataDB
 import org.kodein.db.model.*
 import org.kodein.db.model.orm.MetadataExtractor
-import org.kodein.db.model.orm.NoMetadataExtractor
 import org.kodein.db.model.orm.DefaultSerializer
 
 public abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
@@ -19,7 +18,7 @@ public abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
 
     final override fun open(path: String, vararg options: Options.Open): ModelDB {
         val serializer = options<DefaultSerializer>() ?: defaultSerializer()
-        val metadataExtractor = options<MetadataExtractor>() ?: defaultMetadataExtractor() ?: NoMetadataExtractor()
+        val metadataExtractor = options.all<MetadataExtractor>() + listOfNotNull(defaultMetadataExtractor())
         val typeTable = options<TypeTable>() ?: defaultTypeTable() ?: TypeTable()
         val serializers = options.all<DBClassSerializer<*>>()
 

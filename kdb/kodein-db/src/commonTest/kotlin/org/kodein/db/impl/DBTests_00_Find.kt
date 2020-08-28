@@ -15,7 +15,7 @@ open class DBTests_00_Find : DBTests() {
     fun test00_findAll() {
         db.inflateDB()
 
-        val all = db.findAll().models().toList()
+        val all = db.findAll().useModels().toList()
         assertEquals(7, all.size)
         assertEquals(listOf(Models.sjeg, Models.paris, Models.pap), all.subList(0, 3).toList())
         assertEquals(listOf(Models.salomon, Models.laila), all.subList(3, 5))
@@ -26,62 +26,62 @@ open class DBTests_00_Find : DBTests() {
     fun test01_findAllByType() {
         db.inflateDB()
 
-        assertEquals(listOf(Models.salomon, Models.laila), db.find<Adult>().all().models().toList())
-        assertEquals(listOf("Salomon BRYS: Saint Julien En Genevois", "Laila BRYS-ATIE: Pointe À Pitre"), db.find<Birth>().all().models() .map { db[it.adult]!!.fullName + ": " + db[it.city]!!.name } .toList())
-        assertEquals(listOf(Models.sjeg, Models.paris, Models.pap), db.find<City>().all().models().toList())
+        assertEquals(listOf(Models.salomon, Models.laila), db.find<Adult>().all().useModels().toList())
+        assertEquals(listOf("Salomon BRYS: Saint Julien En Genevois", "Laila BRYS-ATIE: Pointe À Pitre"), db.find<Birth>().all().useModels() .map { db[it.adult]!!.fullName + ": " + db[it.city]!!.name } .toList())
+        assertEquals(listOf(Models.sjeg, Models.paris, Models.pap), db.find<City>().all().useModels().toList())
     }
 
     @Test
     fun test02_findById() {
         db.inflateDB()
 
-        assertEquals(listOf(Models.salomon), db.find<Adult>().byId("BRYS").models().toList())
+        assertEquals(listOf(Models.salomon), db.find<Adult>().byId("BRYS").useModels().toList())
     }
 
     @Test
     fun test03_findByIdOpen() {
         db.inflateDB()
 
-        assertEquals(listOf(Models.salomon, Models.laila), db.find<Adult>().byId("BRYS", isOpen = true).models().toList())
+        assertEquals(listOf(Models.salomon, Models.laila), db.find<Adult>().byId("BRYS", isOpen = true).useModels().toList())
     }
 
     @Test
     fun test04_findAllByIndex() {
         db.inflateDB()
 
-        assertEquals(listOf(Models.paris, Models.pap, Models.sjeg), db.find<City>().byIndex("name").models().toList())
+        assertEquals(listOf(Models.paris, Models.pap, Models.sjeg), db.find<City>().byIndex("name").useModels().toList())
     }
 
     @Test
     fun test05_findByIndex() {
         db.inflateDB()
 
-        assertEquals(listOf(Models.paris), db.find<City>().byIndex("name", "Paris").models().toList())
+        assertEquals(listOf(Models.paris), db.find<City>().byIndex("name", "Paris").useModels().toList())
     }
 
     @Test
     fun test06_findByIndexOpen() {
         db.inflateDB()
 
-        assertEquals(listOf(Models.paris, Models.pap), db.find<City>().byIndex("name", "P", isOpen = true).models().toList())
+        assertEquals(listOf(Models.paris, Models.pap), db.find<City>().byIndex("name", "P", isOpen = true).useModels().toList())
     }
 
     @Test
     fun test07_getIndexes() {
         db.inflateDB()
 
-        assertEquals(setOf("firstName", "birth"), db.getIndexesOf(db.newKeyFrom(Models.salomon)))
+        assertEquals(setOf("firstName", "birth"), db.getIndexesOf(db.keyFrom(Models.salomon)))
     }
 
     @Test
     fun test08_entries() {
         db.inflateDB()
 
-        val all = db.findAll().entries().toList()
+        val all = db.findAll().useEntries().toList()
 
-        assertEquals<Map<Key<Any>, Any>>(hashMapOf(db.newKeyFrom(Models.sjeg) to Models.sjeg, db.newKeyFrom(Models.paris) to Models.paris, db.newKeyFrom(Models.pap) to Models.pap), all.subList(0, 3).associate { it.key to it.model })
-        assertEquals<Map<Key<Any>, Any>>(hashMapOf(db.newKeyFrom(Models.laila) to Models.laila, db.newKeyFrom(Models.salomon) to Models.salomon), all.subList(3, 5).associate { it.key to it.model })
-        assertEquals(setOf(Birth(db.newKeyFrom(Models.salomon), db.newKeyFrom(Models.sjeg)), Birth(db.newKeyFrom(Models.laila), db.newKeyFrom(Models.pap))), all.subList(5, 7).map { it.model } .toSet())
+        assertEquals<Map<Key<Any>, Any>>(hashMapOf(db.keyFrom(Models.sjeg) to Models.sjeg, db.keyFrom(Models.paris) to Models.paris, db.keyFrom(Models.pap) to Models.pap), all.subList(0, 3).associate { it.key to it.model })
+        assertEquals<Map<Key<Any>, Any>>(hashMapOf(db.keyFrom(Models.laila) to Models.laila, db.keyFrom(Models.salomon) to Models.salomon), all.subList(3, 5).associate { it.key to it.model })
+        assertEquals(setOf(Birth(db.keyFrom(Models.salomon), db.keyFrom(Models.sjeg)), Birth(db.keyFrom(Models.laila), db.keyFrom(Models.pap))), all.subList(5, 7).map { it.model } .toSet())
     }
 
     @Test
@@ -91,7 +91,7 @@ open class DBTests_00_Find : DBTests() {
         db.put(kit)
         db.put(Adult("Robert", "Pattinson", Date(13, 5, 1986)))
 
-        assertEquals(listOf(Models.salomon, kit), db.find<Adult>().byIndex("birth", 1986, 12).models().toList())
+        assertEquals(listOf(Models.salomon, kit), db.find<Adult>().byIndex("birth", 1986, 12).useModels().toList())
     }
 
 }

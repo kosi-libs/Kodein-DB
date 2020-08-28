@@ -51,7 +51,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
             }
 
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
-                assertEquals(mdb.newKeyFrom(me), key)
+                assertEquals(mdb.keyFrom(me), key)
                 assertEquals("Adult", typeName.getString(0, Charset.ASCII).split(".").last())
                 val model = getModel()
                 assertNotSame(me, model)
@@ -61,7 +61,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
             }
 
             override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
-                assertEquals(mdb.newKeyFrom(me), key)
+                assertEquals(mdb.keyFrom(me), key)
                 assertNotSame(me, model)
                 assertEquals(me, model)
                 assertEquals("Adult", typeName.getString(0, Charset.ASCII).split(".").last())
@@ -86,7 +86,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
         assertEquals(0, willDeleteCalls)
         assertEquals(0, didDeleteCalls)
 
-        mdb.delete(mdb.newKeyFrom(me))
+        mdb.delete(mdb.keyFrom(me))
 
         assertEquals(1, setSubscriptionCalls)
         assertEquals(1, willPutCalls)
@@ -138,10 +138,10 @@ open class ModelDBTests_07_React : ModelDBTests() {
 
             override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
                 if (didDeleteCalls == 0) {
-                    assertEquals(mdb.newKeyFrom(me), key)
+                    assertEquals(mdb.keyFrom(me), key)
                     assertEquals(me, model)
                 } else {
-                    assertEquals(mdb.newKeyFrom(her), key)
+                    assertEquals(mdb.keyFrom(her), key)
                     assertEquals(her, model)
                 }
                 ++didDeleteCalls
@@ -160,8 +160,8 @@ open class ModelDBTests_07_React : ModelDBTests() {
         lateinit var herKey: Key<Adult>
 
         mdb.newBatch().use { batch ->
-            meKey = batch.newKeyFrom(me)
-            herKey = batch.newKeyFrom(her)
+            meKey = batch.keyFrom(me)
+            herKey = batch.keyFrom(her)
             batch.put(meKey, me)
             batch.put(herKey, her)
 
@@ -235,7 +235,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
         assertFalse(willDeleteCalled)
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newKeyFrom(me)
+        val key = mdb.keyFrom(me)
         mdb.put(key, me)
 
         assertTrue(willPutCalled)
@@ -287,7 +287,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
         mdb.register(thirdListener)
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newKeyFrom(me)
+        val key = mdb.keyFrom(me)
 
         val putEx = assertFailsWith<IllegalStateException>("willPut") {
             mdb.put(me)
@@ -333,7 +333,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
         mdb.register(secondListener)
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newKeyFrom(me)
+        val key = mdb.keyFrom(me)
 
         val putEx = assertFailsWith<IllegalStateException>("first didPut") {
             mdb.put(me)
@@ -368,7 +368,7 @@ open class ModelDBTests_07_React : ModelDBTests() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
 
         mdb.put(me)
-        mdb.delete(mdb.newKeyFrom(me))
+        mdb.delete(mdb.keyFrom(me))
 
         assertTrue(passed)
     }

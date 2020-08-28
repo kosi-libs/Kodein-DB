@@ -19,13 +19,13 @@ open class DBTests_01_Batch : DBTests() {
 
         val counter = db[counterKey]!!
         db.execBatch {
-            put(Message(uid, db.newKeyFrom(Models.salomon), "Coucou !"))
+            put(Message(uid, db.keyFrom(Models.salomon), "Coucou !"))
             put(counter.copy(value = counter.value + 1))
             addOptions(Anticipate(true) { check(db[counterKey]!!.value == counter.value) })
         }
 
         assertEquals(1, db[counterKey]!!.value)
-        assertNotNull(db[db.newKey<Message>(Value.of(uid))])
+        assertNotNull(db[db.key<Message>(Value.of(uid))])
     }
 
     @Test
@@ -39,14 +39,14 @@ open class DBTests_01_Batch : DBTests() {
         val counter = db[counterKey]!!
         assertFailsWith<IllegalStateException> {
             db.execBatch {
-                put(Message(uid, db.newKeyFrom(Models.salomon), "Coucou !"))
+                put(Message(uid, db.keyFrom(Models.salomon), "Coucou !"))
                 put(counter.copy(value = counter.value + 1))
                 addOptions(Anticipate(true) { check(db[counterKey]!!.value == counter.value + 1) })
             }
         }
 
         assertEquals(0, db[counterKey]!!.value)
-        assertNull(db[db.newKey<Message>(Value.of(uid))])
+        assertNull(db[db.key<Message>(Value.of(uid))])
     }
 
 }

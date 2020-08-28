@@ -3,7 +3,7 @@ package org.kodein.db.impl.model
 import org.kodein.db.Value
 import org.kodein.db.model.findAllByIndex
 import org.kodein.db.model.findByIndex
-import org.kodein.db.newKey
+import org.kodein.db.key
 import org.kodein.memory.use
 import kotlin.test.*
 
@@ -126,7 +126,7 @@ open class ModelDBTests_03_Indexes : ModelDBTests() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         mdb.put(me)
 
-        val indexes = mdb.getIndexesOf(mdb.newKey<Adult>(Value.ofAscii("BRYS", "Salomon"))).toSet()
+        val indexes = mdb.getIndexesOf(mdb.key<Adult>(Value.ofAscii("BRYS", "Salomon"))).toSet()
         assertEquals(setOf("birth", "firstName"), indexes)
     }
 }

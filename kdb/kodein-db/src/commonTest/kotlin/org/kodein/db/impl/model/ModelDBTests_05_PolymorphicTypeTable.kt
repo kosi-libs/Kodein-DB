@@ -19,9 +19,9 @@ open class ModelDBTests_05_PolymorphicTypeTable : ModelDBTests() {
     fun test00_PolymorphicTypeTable() {
         val gilbert = Adult("Gilbert", "BRYS", Date(1, 9, 1954))
         val veronique = Adult("Véronique", "BRYS", Date(17, 10, 1957))
-        val salomon = Child("Salomon", "BRYS", Date(15, 12, 1986), mdb.newKeyFrom(gilbert) to mdb.newKeyFrom(veronique))
-        val maroussia = Child("Maroussia", "BRYS", Date(18, 8, 1988), mdb.newKeyFrom(gilbert) to mdb.newKeyFrom(veronique))
-        val benjamin = Child("Benjamin", "BRYS", Date(23, 6, 1992), mdb.newKeyFrom(gilbert) to mdb.newKeyFrom(veronique))
+        val salomon = Child("Salomon", "BRYS", Date(15, 12, 1986), mdb.keyFrom(gilbert) to mdb.keyFrom(veronique))
+        val maroussia = Child("Maroussia", "BRYS", Date(18, 8, 1988), mdb.keyFrom(gilbert) to mdb.keyFrom(veronique))
+        val benjamin = Child("Benjamin", "BRYS", Date(23, 6, 1992), mdb.keyFrom(gilbert) to mdb.keyFrom(veronique))
 
         mdb.putAll(listOf(gilbert, veronique, salomon, maroussia, benjamin))
 

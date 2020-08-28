@@ -17,7 +17,7 @@ class CacheDBTests_02_batch : CacheDBTests() {
     @Test
     fun test00_Put() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newKeyFrom(me)
+        val key = mdb.keyFrom(me)
 
         mdb.newBatch().use { batch ->
             batch.put(me)
@@ -33,7 +33,7 @@ class CacheDBTests_02_batch : CacheDBTests() {
     @Test
     fun test01_Delete() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
-        val key = mdb.newKeyFrom(me)
+        val key = mdb.keyFrom(me)
         mdb.put(key, me)
 
         mdb.newBatch().use { batch ->

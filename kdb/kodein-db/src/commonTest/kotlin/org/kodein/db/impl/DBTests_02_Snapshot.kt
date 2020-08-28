@@ -14,7 +14,7 @@ open class DBTests_02_Snapshot : DBTests() {
     fun test00_snapshot() {
         db.inflateDB()
 
-        val me = db.newKeyFrom(Models.salomon)
+        val me = db.keyFrom(Models.salomon)
 
         db.newSnapshot().use { snapshot ->
             db.delete(me)

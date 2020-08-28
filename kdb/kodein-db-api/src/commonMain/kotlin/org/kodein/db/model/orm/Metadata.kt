@@ -21,22 +21,18 @@ public interface Metadata : HasMetadata {
     }
 }
 
-public interface MetadataExtractor : Options.Open {
-    public fun extractMetadata(model: Any, vararg options: Options.Write): Metadata
+public fun interface MetadataExtractor : Options.Open {
+    public fun extractMetadata(model: Any, vararg options: Options.Write): Metadata?
 
     public companion object {
-        public operator fun invoke(extractor: (Any) -> Metadata): MetadataExtractor = object : MetadataExtractor {
-            override fun extractMetadata(model: Any, vararg options: Options.Write): Metadata = extractor.invoke(model)
-        }
+        public inline fun <reified M: Any> forClass(crossinline extractor: (model: M, options: Array<out Options.Write>) -> Metadata): MetadataExtractor =
+                MetadataExtractor { model, options ->
+                    if (model is M) extractor(model, options)
+                    else null
+                }
     }
 }
 
-public class NoMetadataExtractor : MetadataExtractor {
-    override fun extractMetadata(model: Any, vararg options: Options.Write): Metadata =
-            throw IllegalStateException("No Metadata extractor defined: models must implement HasMetadata")
-
-}
-
-public interface HasMetadata {
+public fun interface HasMetadata {
     public fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata
 }

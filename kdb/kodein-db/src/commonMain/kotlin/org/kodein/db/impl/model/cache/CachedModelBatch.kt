@@ -12,7 +12,7 @@ internal class CachedModelBatch(private val cmdb: CachedModelDB, private val bat
     private val reacts = ArrayList<CachedModelDB.() -> Unit>()
 
     override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> {
-        val key = newKeyFrom(model)
+        val key = keyFrom(model)
         val size = batch.put(key, model, *options)
         reacts.add { didPut(model, key, size, options) }
         return KeyAndSize(key, size)

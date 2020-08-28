@@ -21,7 +21,7 @@ open class ModelDBTests_06_All : ModelDBTests() {
 
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         val her = Adult("Laila", "ATIE", Date(25, 8, 1989))
-        val dog = Child("Lana", "Woof", Date(8, 7, 2017), mdb.newKeyFrom(me) to mdb.newKeyFrom(her))
+        val dog = Child("Lana", "Woof", Date(8, 7, 2017), mdb.keyFrom(me) to mdb.keyFrom(her))
 
         mdb.putAll(listOf(me, her, dog))
 
