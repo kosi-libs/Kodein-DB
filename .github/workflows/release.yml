@@ -1,23 +1,13 @@
-name: build and publish a snapshot
+name: build and publish a release
 
 on:
-  push:
-    branches:
-      - master
-      - 'snapshot/*'
-      - 'kotlin-*'
-    paths-ignore:
-      - '**.md'
-      - '**.adoc'
-      - '**/.gitignore'
-      - './github/**'
-      - '!./github/workflow/snapshot.yml'
+  release:
+    types: [published]
 
 env:
   BINTRAY_USER: ${{ secrets.bintray_user }}
   BINTRAY_APIKEY: ${{ secrets.bintray_apikey }}
   BINTRAY_USER_ORG: ${{ secrets.bintray_user_org }}
-
 
 jobs:
   build-upload:
@@ -56,11 +46,11 @@ jobs:
         run: ./gradlew check
         shell: bash
       - name: Upload
-        run: ./gradlew hostOnlyPublish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
+        run: ./gradlew hostOnlyPublish --stacktrace
         shell: bash
       - name: Discard
         if: ${{ failure() || cancelled() }}
-        run: ./gradlew postBintrayDiscard -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }}
+        run: ./gradlew postBintrayDiscard
         shell: bash
 
   build-upload-publish:
@@ -101,12 +91,12 @@ jobs:
         run: ./gradlew check
         shell: bash
       - name: Upload
-        run: ./gradlew publish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
+        run: ./gradlew publish --stacktrace
         shell: bash
       - name: Discard
         if: ${{ failure() || cancelled() }}
-        run: ./gradlew postBintrayDiscard -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }}
+        run: ./gradlew postBintrayDiscard
         shell: bash
       - name: Publish
-        run: ./gradlew postBintrayPublish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }}
+        run: ./gradlew postBintrayPublish
         shell: bash
