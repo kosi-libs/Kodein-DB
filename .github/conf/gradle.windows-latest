@@ -1,6 +1,6 @@
 org.gradle.daemon=true
 org.gradle.jvmargs=-Xmx4g -XX:MaxPermSize=2048m
 
-javah=C:\Program Files\Java\zulu-8-azure-jdk_8.40.0.25-8.0.222-win_x64\bin\javah
+javah=${JAVA_HOME_8.0.265_x64}\bin\javah
 
 excludeTargets=android

@@ -33,11 +33,12 @@ val configure = task("configureJniGeneration") {
         val jvmCompilation = kotlin.targets["jvm"].compilations["main"]
         val classPath = jvmCompilation.output.classesDirs + jvmCompilation.compileDependencyFiles
 
-        val javah: String? by project
+        var javah = project.findProperty("javah") as String? ?: "javah"
+        javah = javah.replace(Regex("\\\$\\{([^}]+)}")) { System.getenv(it.groupValues[1]) ?: "" }
 
         val output = "$buildDir/nativeHeaders/kodein"
 
-        generation.setCommandLine(javah ?: "javah", "-d", output, "-cp", classPath.joinToString(File.pathSeparator), "org.kodein.db.leveldb.jni.Native")
+        generation.setCommandLine(javah, "-d", output, "-cp", classPath.joinToString(File.pathSeparator), "org.kodein.db.leveldb.jni.Native")
         generation.outputs.dir(output)
     }
 }

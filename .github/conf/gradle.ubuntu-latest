@@ -1,6 +1,6 @@
 org.gradle.daemon=true
 org.gradle.jvmargs=-Xmx4g -XX:MaxPermSize=2048m
 
-javah=/usr/lib/jvm/adoptopenjdk-8-hotspot-amd64/bin/javah
+javah=${JAVA_HOME_8.0.265_x64}/bin/javah
 
-excludeTargets=android
+android.useAndroidX=true
