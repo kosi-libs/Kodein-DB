@@ -7,6 +7,8 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.SerializersModuleBuilder
 import kotlinx.serialization.modules.serializersModuleOf
 import org.kodein.db.Options
 import org.kodein.db.model.orm.DefaultSerializer
@@ -36,12 +38,15 @@ public object UUIDSerializer : KSerializer<UUID> {
     }
 }
 
-public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : DefaultSerializer {
+public class KotlinxSerializer @JvmOverloads constructor(module: SerializersModule? = null, block: Builder.() -> Unit = {}) : DefaultSerializer {
     private val serializers = HashMap<KClass<*>, KSerializer<*>>()
 
     @OptIn(ExperimentalSerializationApi::class)
     private val cbor = Cbor {
-        serializersModule = serializersModuleOf(UUIDSerializer)
+        serializersModule = SerializersModule {
+            include(serializersModuleOf(UUIDSerializer))
+            if (module != null) include(module)
+        }
     }
 
     public inner class Builder {
