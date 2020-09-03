@@ -12,4 +12,4 @@ public interface DBWrite : KeyMaker {
 public inline fun <reified M : Any> DBWrite.delete(key: Key<M>, vararg options: Options.Write): Unit = delete(M::class, key, *options)
 
 public inline fun <reified M : Any> DBWrite.deleteAll(cursor: Cursor<M>, vararg options: Options.Write): Unit =
-        cursor.useKeys().forEach { delete(it) }
+        cursor.useKeys { seq -> seq.forEach { delete(it, *options) } }
