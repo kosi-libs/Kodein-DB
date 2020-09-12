@@ -34,7 +34,8 @@ val configure = task("configureJniGeneration") {
         val classPath = jvmCompilation.output.classesDirs + jvmCompilation.compileDependencyFiles
 
         var javah = project.findProperty("javah") as String? ?: "javah"
-        javah = javah.replace(Regex("\\\$\\{([^}]+)}")) { System.getenv(it.groupValues[1]) ?: "" }
+        javah = javah.replace(Regex("\\\$\\{([^}]+)}")) { System.getenv(it.groupValues[1])
+                ?: error("No such environment variable: ${it.groupValues[1]}.\n  Environment:\n${System.getenv().map { (k, v) -> "    $k = \"$v\"" }.joinToString("\n")}") }
 
         val output = "$buildDir/nativeHeaders/kodein"
 

@@ -46,7 +46,7 @@ jobs:
         run: ./gradlew check
         shell: bash
       - name: Upload
-        run: ./gradlew hostOnlyPublish
+        run: ./gradlew hostOnlyPublish --stacktrace
         shell: bash
       - name: Discard
         if: ${{ failure() || cancelled() }}
@@ -91,7 +91,7 @@ jobs:
         run: ./gradlew check
         shell: bash
       - name: Upload
-        run: ./gradlew publish
+        run: ./gradlew publish --stacktrace
         shell: bash
       - name: Discard
         if: ${{ failure() || cancelled() }}

@@ -7,6 +7,8 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.SerializersModuleBuilder
 import kotlinx.serialization.modules.serializersModuleOf
 import org.kodein.db.Options
 import org.kodein.db.model.orm.DefaultSerializer
@@ -36,12 +38,15 @@ public object UUIDSerializer : KSerializer<UUID> {
     }
 }
 
-public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Unit = {}) : DefaultSerializer {
+public class KotlinxSerializer @JvmOverloads constructor(module: SerializersModule? = null, block: Builder.() -> Unit = {}) : DefaultSerializer {
     private val serializers = HashMap<KClass<*>, KSerializer<*>>()
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @ExperimentalSerializationApi
     private val cbor = Cbor {
-        serializersModule = serializersModuleOf(UUIDSerializer)
+        serializersModule = SerializersModule {
+            include(serializersModuleOf(UUIDSerializer))
+            if (module != null) include(module)
+        }
     }
 
     public inner class Builder {
@@ -65,16 +70,14 @@ public class KotlinxSerializer @JvmOverloads constructor(block: Builder.() -> Un
         }
     }
 
-    @InternalSerializationApi
-    @OptIn(ExperimentalSerializationApi::class)
+    @InternalSerializationApi @ExperimentalSerializationApi
     override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
         @Suppress("UNCHECKED_CAST")
         val bytes = cbor.encodeToByteArray(getSerializer(model::class) as SerializationStrategy<Any>, model)
         output.putBytes(bytes)
     }
 
-    @InternalSerializationApi
-    @OptIn(ExperimentalSerializationApi::class)
+    @InternalSerializationApi @ExperimentalSerializationApi
     override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
         val serializer = serializers[type] ?: type.serializer().also { serializers[type] = it }
         val bytes = input.readBytes()

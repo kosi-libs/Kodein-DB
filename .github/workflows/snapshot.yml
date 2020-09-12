@@ -56,7 +56,7 @@ jobs:
         run: ./gradlew check
         shell: bash
       - name: Upload
-        run: ./gradlew hostOnlyPublish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }}
+        run: ./gradlew hostOnlyPublish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
         shell: bash
       - name: Discard
         if: ${{ failure() || cancelled() }}
@@ -101,7 +101,7 @@ jobs:
         run: ./gradlew check
         shell: bash
       - name: Upload
-        run: ./gradlew publish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }}
+        run: ./gradlew publish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
         shell: bash
       - name: Discard
         if: ${{ failure() || cancelled() }}
