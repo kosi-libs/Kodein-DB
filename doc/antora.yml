@@ -1,6 +1,6 @@
 name: kodein-db
 title: Kodein-DB
-version: dev
+version: 0.2.0
 nav:
   - modules/ROOT/nav.adoc
   - modules/core/nav.adoc
