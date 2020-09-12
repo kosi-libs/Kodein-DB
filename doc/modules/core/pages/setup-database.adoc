@@ -1,0 +1,43 @@
+= Setting up the database
+
+== Opening a database
+
+=== Open statement
+
+To open a new database, use `DB.factory`:
+
+[source,kotlin]
+.Opening a database
+----
+val db = DB.open("path/to/db")
+----
+
+By default, Kodein-DB will create the database if it does not exist.
+If you want to modify this behaviour, you can use:
+
+- `LevelDB.OpenPolicy.OPEN`: fails if the database does not already exist
+- `LevelDB.OpenPolicy.CREATE`: fails if the database already exists
+
+[source,kotlin]
+.Opening an existing database
+----
+val db = DB.open("path/to/db", LevelDB.OpenPolicy.OPEN)
+----
+
+=== Defining the serializer
+
+If you are targeting JVM only, then Kodein-DB will find the serializer by itself, so you don't need to define it. +
+*However, when targeting Multiplatform, you need to define the KotlinX serializer and the serialized classes manually:*
+
+[source,kotlin]
+.Opening an existing database
+----
+val db = DB.open("path/to/db",
+    KotlinXSerializer { //<1>
+        +User.serializer() //<2>
+        +Address.serializer() //<2>
+    }
+)
+----
+<1> Registers the KotlinX Serializer.
+<2> Registers the class and associate serializer.

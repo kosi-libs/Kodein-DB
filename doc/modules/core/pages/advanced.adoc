@@ -1,0 +1,282 @@
+= Advanced usage
+
+[[handling-cache]]
+== Handling the cache
+
+=== Definition
+
+Kodein-DB provides an object-cache that reflects the data that is serialized inside the database. +
+When querying for a data (either by `DB.get` or `DB.find`) if the needed data is already in the cache, then instead of de-serializing it, Kodein-DB immediately returns the cached value.
+
+Kodein-DB updates the cache:
+- at every `put` (both the database and the cache save the model)
+- at every `get` or `find` (if the model is not in the cache, then the cache saves the model to prevent any future deserialization).
+
+This enhances performances as deserialization is one of the most expensive operations.
+
+=== Configuring at open
+
+Kodein-DB allows you to pass multiple configuration values that modify cache behaviour when opening a database.
+
+You may want to define the maximum size of the cache:
+
+[source,kotlin]
+.Opening a database:
+----
+val db = DB.open(
+    "path/to/db",
+    ModelCache.MaxSize(Runtime.getRuntime().totalMemory() / 8) //<1>
+)
+----
+<1> Default on JVM & Android.
+
+The cache also works on snapshots (remember: Kodein-DB automatically uses a snapshot when using a cursor or a sequence).
+When you create a snapshot (or a cursor), it uses the same cache. +
+However, if you mutate the database while holding a snapshot, than the cache must be copied in order for the snapshot to use a cache that only reflects the database when it was created.
+This is a rare case (if you correctly close your cursors / snapshots) and only object references are copied, so the process itself is as optimised as can be.
+However, you may need to handle the size of these snapshot-specific copies.
+
+[source,kotlin]
+.Opening a database:
+----
+val cacheSize = Runtime.getRuntime().totalMemory() / 8
+val db = DB.open(
+    "path/to/db",
+    ModelCache.MaxSize(cacheSize),
+    ModelCache.CopyMaxSize(cacheSize / 4) //<1>
+)
+----
+<1> Default on JVM & Android.
+
+Of course, if you don't want any caching, you can simply disable the cache:
+
+[source,kotlin]
+.Disabling the cache:
+----
+val db = DB.open(
+    "path/to/db",
+    ModelCache.Disable
+)
+----
+
+=== Model skip & refresh
+
+There are times when you may want to bypass the cache for a specific operation:
+
+- When you *put* a model you won't need in the future:
++
+[source,kotlin]
+.Bypassing the cache:
+----
+db.put(model, ModelCache.Skip)
+----
++
+- When you *get* a model you won't query again in the future:
++
+[source,kotlin]
+.Bypassing the cache:
+----
+val m1 = db.get(model, ModelCache.Skip) //<1>
+val m2 = db.get(model, ModelCache.Refresh) //<2>
+----
+<1> Skips the cache (and removes any cached value).
+<2> Forces the cache to refresh from the serialized model in DB.
+
+[[using-primitives]]
+== Using primitives
+
+If you want a simple key-value collection, Kodein-DB provides optimized primitives for `Int`, `Long`, `Double` and `String`.
+This can be useful for configuration-like values.
+
+[source,kotlin]
+.Using a primitive:
+----
+db.put(Primitive(id = "name", value = "John Doe"))
+/*...*/
+val name = db[db.newKey<StringPrimitive>("name")]?.value
+----
+
+
+[[locking-check]]
+== Locking checks and reactions
+
+Both `Anticipate` and `React` can allow you to run the provided callback in a locked database (through the `needsLock` optional parameter).
+Using this means that the database will be completely write-locked for the duration of the callback execution.
+
+CAUTION: This can be very useful for things like transactions but can lead to dead locks and/or performance degradations.
+Be extra-careful when using this feature !
+
+
+[[values-and-buffers]]
+== Handling Values and Buffers
+
+Kodein-DB uses https://github.com/Kodein-Framework/Kodein-Memory[Kodein-Memory] for its low-level bit-level memory manipulation.
+Every memory that LevelDB (the low-level data store) handles is actually a `KBuffer`.
+
+Kodein-DB uses the concept of `Value` to transform IDs and indexes to memory.
+Every Kodein-DB API that takes an `Any` parameter for the ID or an index value can be slightly optimized by giving it the `Value` representation.
+The optimization becomes more important for composite values.
+
+[source,kotlin]
+.Using Values:
+----
+db.find<Address>().byId(Value.ofAll(Value.ofAscii("France"), Value.ofInt(75000)))
+----
+
+[[custom-serialization]]
+== Fine-graining (de)serialization
+
+=== Writing your own optimised (de)serializers
+
+If you want to handle a specific class serialization by yourself you can write your own serializer with the `org.kodein.db.model.orm.Serializer` interface:
+
+[source,kotlin]
+.Using specific serializer:
+----
+data class User(@Id val id: String, val name: String) {
+    object S : Serializer<User> {
+        override fun serialize(model: User, output: Writeable, vararg options: Options.Write) { //<1>
+            output.putSizeAndString(model.id, Charset.ASCII)
+            output.putSizeAndString(model.name, Charset.UTF8)
+        }
+        override fun deserialize(type: KClass<out User>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): User { //<1>
+            val id = input.readSizeAndString(Charset.UTF8)
+            val name = input.readSizeAndString(Charset.UTF8)
+            return User(id, name)
+        }
+    }
+}
+val db = DB.open("path/to/db",
+        +User.S //<2>
+)
+----
+<1> You can use xref:reactive.adoc#context[context] or specific options with the array of `Options.Write` options.
+<2> Don't forget to *register the listener* when opening the database!
+
+[[leveldb-options]]
+== LevelDB Options
+
+As Kodein-DB uses LevelDB underneath, you can pass various LevelDB specific configuration values:
+
+[source,kotlin]
+.Using LevelDB options:
+----
+val db = DB.open(
+    "path/to/db",
+    LevelDBOptions.PrintLogs(true)
+)
+----
+
+Have a look at the `org.kodein.db.ldb.LevelDBOptions` sealed class for an overview of all available options.
+
+[[middleware]]
+== Embedding your logic
+
+=== Layered architecture
+
+Kodein-DB uses a layered architecture: each layer transforms an operation into a "simpler" operation that can be then handled by a lower layer.
+
+Here are the layers, from top to bottom:
+
+- *API*: creates a nice API that can be used in a MPP application. This is the API you are using.
+- *Cache*: Intercepts queries that would create a model already in cache and return that model instead.
+- *Model*: Transforms a model into a document (a.k.a. serialized bytes and associated metadata) and vice versa.
+- *Data*: Handles the document, its metadata and its indexes, transforming it to LevelDB entries.
+- *LevelDB*: Stores and retrieves entries.
+
+Kodein-DB allows you to add your own layers in this stack.
+
+TIP: Most layer methods receive an array of options, which means that a middleware can recieve context or configuration the same way xref:reactive.adoc#context[a listener receives it].
+
+
+=== Model middleware
+
+A model middleware sits between the *API* and the *Cache*.
+In fact, the cache is itself a model middleware (added by default, unless disabled).
+
+To implement a model middleware, use the `org.kodein.db.model.ModelDB` interface and the `org.kodein.db.Middleware.Model` container.
+
+[source,kotlin]
+----
+typealias ModelMiddleware = ((ModelDB) -> ModelDB)
+----
+
+Here's a very simple model middleware that counts how many models you've put inside the database:
+
+[source,kotlin]
+.A put counter model middleware
+----
+class PutCountModelDB(val base: ModelDB, val count: AtomicInt) : ModelDB by base { //<1>
+    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int {
+        val ret = base.put(key, model, *options)
+        count.incrementAndGet() //<2>
+        return ret
+    }
+
+    override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> {
+        val ret = base.put(model, *options)
+        count.incrementAndGet() //<2>
+        return ret
+    }
+
+    override fun newBatch(): ModelBatch = PutCountModelBatch(base.newBatch(), count)
+}
+
+class PutCountModelBatch(val base: ModelBatch, val count: AtomicInt) : ModelBatch by base { //<1>
+    private var willAdd = 0 //<3>
+
+    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int {
+        val ret = base.put(key, model, *options)
+        willAdd += 1 //<2>
+        return ret
+    }
+
+    override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> {
+        val ret = base.put(model, *options)
+        willAdd += 1 //<2>
+        return ret
+    }
+
+    override fun write(afterErrors: MaybeThrowable, vararg options: Options.Write) {
+        base.write(afterErrors, *options)
+        repeat(willAdd) { count.incrementAndGet() } //<3>
+    }
+}
+
+fun putCountModelMiddleware(count: AtomicInt) =
+        Middleware.Model { base -> PutCountModelDB(base, count) } //<4>
+----
+<1> Delegates every non-overloaded methods to the underneath layer
+<2> Increment *after* the put operation, because it may fail
+<3> Actually report the put operations only once the batch has been writen
+<4> The middleware itself, that encapsulates the ModelDB layer inside the decorator.
+
+NOTE: Counting count would be a lot easier with a simple xref:reactive.adoc#reaction[listener].
+This is only a silly example!
+
+Don't forget to actually add the middleware to the database when opening it!
+
+[source,kotlin]
+.Using LevelDB options:
+----
+val putCount = atomic(0)
+val db = DB.open(
+    "path/to/db",
+    putCountModelMiddleware(putCount)
+)
+----
+
+=== Data middleware
+
+A data middleware sits between the *Data* and the *Model* layers.
+It works exactly like a model middleware, except that you manipulate <<values-and-buffers,values and buffers>> instead of models and objects.
+
+To implement a data middleware, use the `org.kodein.db.data.DataDB` interface and the `org.kodein.db.Middleware.Data` container.
+
+
+=== LevelDB middleware
+
+A LevelDB middleware sits between the *LevelDB* and the *Data* layers.
+It works exactly like a data middleware, except that you manipulate raw data instead of documents, which means that a simple operation in Kodein-DB will probably lead to multiple operations at the LevelDB layer.
+
+To implement a LevelDB middleware, use the `org.kodein.db.leveldb.LevelDB` interface and the `org.kodein.db.Middleware.Level` container.

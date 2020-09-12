@@ -1,0 +1,56 @@
+= Managing consistency
+
+
+[[batch]]
+== Batch
+
+A batch enables you to apply multiple write operations at once.
+With a batch, you can ensure that neither a xref:operations.adoc#getting-cursor[cursor] nor a xref:snapshot[snapshot] can reflect part of the operations of a batch.
+
+IMPORTANT: Batches are `Closeable`! You need to either close them after use, or to call `use` on them.
+
+[source,kotlin]
+.Using a batch
+----
+db.newBatch().use {
+    it.delete(oldAddress)
+    val addressKey = it.put(newAddress)
+    it.put(user.copy(address = addressKey))
+    it.write() //<1>
+}
+----
+<1> No modification will be applied to the database until `write()` is called.
+
+[TIP]
+====
+If `write()` is not conditional before closing the batch, you can use `execBatch` that combines `use()` and `write()`:
+
+[source,kotlin]
+.Using and writing a batch
+----
+db.execBatch {
+    delete(oldAddress)
+    val addressKey = put(newAddress)
+    put(user.copy(address = addressKey))
+}
+----
+====
+
+[[snapshot]]
+== Snapshot
+
+A snapshot is a _read-only_ version of the database frozen at the time of creation.
+Write operations that happen after the creation of a snapshot are not reflected to it.
+Snapshot are most of the times used in conjunction with <<batch,batches>>.
+
+IMPORTANT: Snapshots are `Closeable`! You need to either close them after use, or to call `use` on them.
+
+[source,kotlin]
+.Using a snapshot
+----
+val (user, address) = db.newSnapshot().use {
+    val user = it[userKey]
+    val address = it[user.address]
+    user to address
+}
+----

@@ -1,1 +1,2 @@
-* xref:core.adoc[Home]
+* xref:index.adoc[Introduction]
+//* xref:index.adoc[Quick start guide]

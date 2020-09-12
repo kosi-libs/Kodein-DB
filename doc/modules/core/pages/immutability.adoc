@@ -1,0 +1,25 @@
+[[immutability]]
+== Immutability requirement
+
+Kodein-DB works under the assumption that your models (ie. the objects that are going to be managed by the database) are immutable.
+This can be seen as paradoxical for a database library: you need to be able to update your data!
+
+Kodein-DB is a document based NoSQL library, it works much like a folder drawer.
+
+- Inserting a document is like printing a new document and putting it inside the appropriate drawer at the correct position.
+- Updating a document is like printing the updated document, and putting it inside the drawer, removing the old outdated document.
+
+With this analogy, you can see that the document themselves are immutable: you do not scrible over a document, you print a new version to replace the old one.
+
+Kodein-DB works the same way: each of your object model must be immutable, and you should create a new model to update one:
+
+[source,kotlin]
+.A simple example
+----
+val john = db[johnKey] ?: error("No John!")
+db.put(john.copy(phone = "0605040302"))
+----
+
+IMPORTANT: There is no way (yet?) in Kotlin to ensure immutability.
+While we cannot force you to use immutable models, we highly recommend that you do.
+Using mutable models will eventually lead to data races, and very hard to find bugs.
