@@ -1,18 +1,18 @@
-image::kodein-db-logo.svg[KODIEN-DI, 700]
+image::kodein-db-logo.svg[KODIEN-DB, 700]
 :version: 0.2.0
 
 [.lead]
-Kodein DB is a Kotlin/Multiplatform embedded NoSQL database that works on JVM, Android, Kotlin/Native and iOS.
+_**Kodein-DB**_ is a Kotlin/Multiplatform embedded NoSQL database that works on JVM, Android, Kotlin/Native and iOS.
 It is suited for client or mobile applications.
 
 CAUTION: Under no circumstances should it be used in a server!
 
-.Kodein-DB allows you to:
+._**Kodein-DB**_ allows you to:
 - Easily store, retrieve and query kotlin objects.
 - Stop carrying about schema definitions.
 - Easily set up a new project.
 
-.Kodein-DB is a good choice because it:
+._**Kodein-DB**_ is a good choice because it:
 - proposes a very simple and readable DSL.
 - integrates nicely with Android and iOS.
 - offers very good performances.
