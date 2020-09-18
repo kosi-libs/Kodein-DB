@@ -1,5 +1,5 @@
 image::kodein-db-logo.svg[KODIEN-DB, 700]
-:version: 0.2.0
+:version: 0.2.0-beta
 
 [.lead]
 _**Kodein-DB**_ is a Kotlin/Multiplatform embedded NoSQL database that works on JVM, Android, Kotlin/Native and iOS.

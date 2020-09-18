@@ -19,7 +19,7 @@ buildscript {
 
 allprojects {
     group = "org.kodein.db"
-    version = "0.2.0"
+    version = "0.2.0-beta"
 
     repositories {
         mavenLocal()
