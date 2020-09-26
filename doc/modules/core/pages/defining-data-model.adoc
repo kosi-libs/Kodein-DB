@@ -171,7 +171,7 @@ val johnKey = db.put(Person("John"))
 
 val parents = listOf(janeKey, johnKey)
 db.put(Child("Jill", parents))
-db.put(Person("Jack", parents))
+db.put(Child("Jack", parents))
 ----
 
 Using the preceding code, there will be two different collections, one `Person`, one `Child`, meaning if you were to look for all `Person` models, you would only get Jane & John.
