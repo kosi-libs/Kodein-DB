@@ -127,27 +127,27 @@ You can iterate:
 +
 [source,kotlin]
 ----
-val cursor = db.find<User>().all()
+val cursor = db.find(User::class).all()
 ----
 +
 - Over all models of a collection whose composite ID begins with a specific value, ordered by id:
 +
 [source,kotlin]
 ----
-val cursor = db.find<User>().byId("Doe")
+val cursor = db.find(User::class).byId("Doe")
 ----
 +
 - Over all models of a collection, ordered by an index:
 +
 [source,kotlin]
 ----
-val cursor = db.find<User>().byIndex("lastName")
+val cursor = db.find(User::class).byIndex("lastName")
 ----
 - Over all models of a collection with the specific index (composite or not) value, ordered by that index:
 +
 [source,kotlin]
 ----
-val cursor = db.find<User>().byIndex("lastName", "Doe")
+val cursor = db.find(User::class).byIndex("lastName", "Doe")
 ----
 +
 - Over all models of the database:
@@ -175,7 +175,7 @@ By default, a cursor points to the first value of the matching query.
 [source,kotlin]
 .Iterating with a cursor
 ----
-db.find<User>().byIndex("lastName", "Doe").use { cursor -> //<1>
+db.find(User::class).byIndex("lastName", "Doe").use { cursor -> //<1>
     while (cursor.isValid()) {
         val model = cursor.model()
         println(model)
@@ -196,7 +196,7 @@ You can use either `models()` that creates a squence of models, or `entries`, th
 [source,kotlin]
 .Iterating with a sequence
 ----
-db.find<User>().byIndex("lastName", "Doe").models().forEach {
+db.find(User::class).byIndex("lastName", "Doe").models().forEach {
     println(it)
 }
 ----
@@ -210,7 +210,7 @@ The following code will *not* close the associated cursor and create a *resource
 [source,kotlin]
 .Creating a cursor leak
 ----
-val first3 = db.find<User>().all()
+val first3 = db.find(User::class).all()
     .models()
     .take(3) //<1>
     .toList()
@@ -222,7 +222,7 @@ The correct way to do this is as such:
 [source,kotlin]
 .Getting the first 3 items without resource leak:
 ----
-val first3 = db.find<User>().all().use { //<1>
+val first3 = db.find(User::class).all().use { //<1>
     it.models()
         .take(3)
         .toList()
