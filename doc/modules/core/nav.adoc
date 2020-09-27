@@ -5,6 +5,7 @@
 * xref:setup-database.adoc[Setting up the database]
 * xref:defining-data-model.adoc[Defining the data model]
 * xref:operations.adoc[Read / Write operations]
+* xref:iteration.adoc[Iterate with cursors & sequences]
 * xref:consistency.adoc[Managing consistency]
 * xref:reactive.adoc[Being reactive]
 * xref:advanced.adoc[Advanced usage]
