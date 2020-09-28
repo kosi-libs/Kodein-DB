@@ -13,27 +13,27 @@ You can iterate:
 +
 [source,kotlin]
 ----
-val cursor = db.find<User>().all()
+val cursor = db.find(User::class).all()
 ----
 +
 - Over all models of a collection whose composite ID begins with a specific value, ordered by id:
 +
 [source,kotlin]
 ----
-val cursor = db.find<User>().byId("Doe")
+val cursor = db.find(User::class).byId("Doe")
 ----
 +
 - Over all models of a collection, ordered by an index:
 +
 [source,kotlin]
 ----
-val cursor = db.find<User>().byIndex("lastName")
+val cursor = db.find(User::class).byIndex("lastName")
 ----
 - Over all models of a collection with the specific index (composite or not) value, ordered by that index:
 +
 [source,kotlin]
 ----
-val cursor = db.find<User>().byIndex("lastName", "Doe")
+val cursor = db.find(User::class).byIndex("lastName", "Doe")
 ----
 +
 - Over all models of the database:
@@ -61,7 +61,7 @@ By default, a cursor points to the first value of the matching query.
 [source,kotlin]
 .Iterating with a cursor
 ----
-db.find<User>().byIndex("lastName", "Doe").use { cursor -> //<1>
+db.find(User::class).byIndex("lastName", "Doe").use { cursor -> //<1>
     while (cursor.isValid()) {
         val model = cursor.model()
         println(model)
@@ -83,7 +83,7 @@ You can easily transform a `Cursor` to a Kotlin `Sequence`.
 [source,kotlin]
 .Iterating with a sequence
 ----
-db.find<User>().byIndex("lastName", "Doe").use {
+db.find(User::class).byIndex("lastName", "Doe").use {
     it.asModelSequence().forEach {
         println(it)
     }
@@ -95,7 +95,7 @@ The above code can be simplified: each `as*Sequence` offers a `use*` utility:
 [source,kotlin]
 .Iterating with an auto-closed sequence
 ----
-db.find<User>().byIndex("lastName", "Doe").useModels {
+db.find(User::class).byIndex("lastName", "Doe").useModels {
     it.forEach {
         println(it)
     }
