@@ -32,7 +32,7 @@ db.put(User("John", "Doe"))
 db.put(User("Jane", "Doe"))
 db.put(User("Someone", "Else"))
 
-val does = db.find<User>().byIndex("lastName", "Doe").models()
+val does = db.find(User::class).byIndex("lastName", "Doe").useModels { it }
 println(does.joinToString()) // Jane, John
 ```
 
