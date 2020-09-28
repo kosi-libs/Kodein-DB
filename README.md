@@ -38,15 +38,15 @@ println(does.joinToString()) // Jane, John
 
 ### Support
 
-- Drop by the https://kotlinlang.slack.com/messages/kodein/[Kodein Slack channel]
-- https://stackoverflow.com/questions/tagged/kodein[Stackoverflow] with the tag #kodein
+- Drop by the [Kodein Slack channel](https://kotlinlang.slack.com/messages/kodein/)
+- [Stackoverflow](https://stackoverflow.com/questions/tagged/kodein) with the tag #kodein
 
 ### Contribute
 
 Contributions are very welcome and greatly appreciated! The great majority of pull requests are eventually merged.
 
-To contribute, simply fork https://github.com/Kodein-Framework/Kodein-DB[the project on Github], fix whatever is iching you, and submit a pull request!
+To contribute, simply fork [the project on Github](https://github.com/Kodein-Framework/Kodein-DB), fix whatever is iching you, and submit a pull request!
 
 We are sure that this documentation contains typos, inaccuracies and languages error.
-If you feel like enhancing this document, you can propose a pull request that modifies https://github.com/Kodein-Framework/Kodein-DB/tree/master/doc[the documentation documents].
+If you feel like enhancing this document, you can propose a pull request that modifies [the documentation documents](https://github.com/Kodein-Framework/Kodein-DB/tree/master/doc).
 (Documentation is auto-generated from those).
