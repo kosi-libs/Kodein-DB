@@ -1,0 +1,103 @@
+= Iterate with cursors & sequences
+
+[[getting-cursor]]
+== Getting a cursor
+
+To iterate over a collection or a subset of a collection, you need to create cursor.
+
+IMPORTANT: Cursors are `Closeable`! You need to either close them after use, or to call `use*` on them.
+
+You can iterate:
+
+- Over all models of a collection, ordered by ID:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().all()
+----
++
+- Over all models of a collection whose composite ID begins with a specific value, ordered by id:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byId("Doe")
+----
++
+- Over all models of a collection, ordered by an index:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byIndex("lastName")
+----
+- Over all models of a collection with the specific index (composite or not) value, ordered by that index:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byIndex("lastName", "Doe")
+----
++
+- Over all models of the database:
++
+[source,kotlin]
+----
+val cursor = db.findAll()
+----
++
+CAUTION: When using `findAll()` on multiplatform projects, you *must* define a xref:defining-data-model.adoc#type-table[type table] that defines all model classes!
+
+IMPORTANT: Cursors are working on a xref:consistency.adoc#snapshot[snapshot] of the database.
+This means that once an iterator is created, subsequent writes to the database won't be reflected in the result of the iteration.
+
+== Using a cursor
+
+=== As is
+
+By default, a cursor points to the first value of the matching query.
+
+- You can get the key and model with `key()` and `model()`.
+- You can move the cursor one item with `next()` and `previous()`, or directly to the start or end of the matching items with `seekToFirst` or `seekToLast`. +
+- Each time the cursor moves, you need to check whether it is still valid with `isValid()`.
+
+[source,kotlin]
+.Iterating with a cursor
+----
+db.find<User>().byIndex("lastName", "Doe").use { cursor -> //<1>
+    while (cursor.isValid()) {
+        val model = cursor.model()
+        println(model)
+        cursor.next()
+    }
+}
+----
+<1> `use` ensures to close the cursor when iteration ends.
+
+
+=== As a sequence
+
+You can easily transform a `Cursor` to a Kotlin `Sequence`.
+
+* `asModelSequence()` creates a sequence of models
+* `asKeySequence()` creates a sequence of keys
+* `asEntrySequence()` creates a sequence of model and key pairs.
+
+[source,kotlin]
+.Iterating with a sequence
+----
+db.find<User>().byIndex("lastName", "Doe").use {
+    it.asModelSequence().forEach {
+        println(it)
+    }
+}
+----
+
+The above code can be simplified: each `as*Sequence` offers a `use*` utility:
+
+[source,kotlin]
+.Iterating with an auto-closed sequence
+----
+db.find<User>().byIndex("lastName", "Doe").useModels {
+    it.forEach {
+        println(it)
+    }
+}
+----

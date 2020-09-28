@@ -5,13 +5,13 @@ It is suited for client or mobile applications.
 
 **_Kodein-DB_** allows you to:
 - Easily store, retrieve and query kotlin objects.
-- Stop carrying about schema definitions.
+- Stop caring about schema definitions.
 - Easily set up a new project.
 
 **_Kodein-DB_** is a good choice because it:
 - proposes a very simple and readable DSL.
 - integrates nicely with Android and iOS.
-- offers very good performances.
+- offers very good performance.
 - is just Kotlin!
 
 _**CAUTION**: Under no circumstances should it be used in a server!_

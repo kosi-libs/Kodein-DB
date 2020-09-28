@@ -171,10 +171,10 @@ val johnKey = db.put(Person("John"))
 
 val parents = listOf(janeKey, johnKey)
 db.put(Child("Jill", parents))
-db.put(Person("Jack", parents))
+db.put(Child("Jack", parents))
 ----
 
-Using the preceding code, there will be two different collections, one `Person`, one `Adult`, meaning if you were to look for all `Person` models, you would only get Jane & John.
+Using the preceding code, there will be two different collections, one `Person`, one `Child`, meaning if you were to look for all `Person` models, you would only get Jane & John.
 
 Children are person too (even when they keep asking you when's the end of this documentation...) so, you probably want to put every `Child` model into the `Person` collection.
 To do that, you need to enable polymorphism: the fact that a collection can hold multiple types of models.
