@@ -40,8 +40,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Setup gradle.properties
-        run: mv .github/conf/gradle.${{ matrix.os }} gradle.properties
+      - name: Setup kodein.local.properties
+        run: cp .github/conf/kodein.local.${{ matrix.os }}.properties kodein.local.properties
       - name: Check
         run: ./gradlew check
         shell: bash
@@ -85,8 +85,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Setup gradle.properties
-        run: mv .github/conf/gradle.ubuntu-latest gradle.properties
+      - name: Setup kodein.local.properties
+        run: cp .github/conf/kodein.local.ubuntu-latest.properties kodein.local.properties
       - name: Check
         run: ./gradlew check
         shell: bash

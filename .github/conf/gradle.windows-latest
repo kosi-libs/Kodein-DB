@@ -1,6 +1,0 @@
-org.gradle.daemon=true
-org.gradle.jvmargs=-Xmx4g -XX:MaxPermSize=2048m
-
-javah=${JAVA_HOME_8_0_265_X64}\bin\javah
-
-excludeTargets=android

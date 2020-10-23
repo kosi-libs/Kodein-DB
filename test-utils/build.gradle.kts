@@ -18,7 +18,7 @@ kodein {
         common.main.dependencies {
             api("org.kodein.log:kodein-log:$kodeinLogVer")
             api("org.kodein.memory:kodein-memory:$kodeinMemoryVer")
-            api("org.kodein.memory:kodein-file:$kodeinMemoryVer")
+            api("org.kodein.memory:kodein-memory-files:$kodeinMemoryVer")
             api(project(":ldb:kodein-leveldb-api"))
 
             api("org.jetbrains.kotlin:kotlin-test-common")

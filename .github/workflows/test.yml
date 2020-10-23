@@ -46,8 +46,8 @@ jobs:
       - name: install default NDK for AGP
         if: matrix.os == 'ubuntu-latest'
         run: $ANDROID_HOME/tools/bin/sdkmanager "ndk;21.0.6113669"
-      - name: Setup gradle.properties
-        run: mv .github/conf/gradle.${{ matrix.os }} gradle.properties
+      - name: Setup kodein.local.properties
+        run: cp .github/conf/kodein.local.${{ matrix.os }}.properties kodein.local.properties
       - name: Check
         run: ./gradlew check
         shell: bash

@@ -1,6 +1,7 @@
 plugins {
     `cpp-library`
     kotlin("multiplatform")
+    id("org.kodein.local-properties")
 }
 
 evaluationDependsOn(":ldb:lib")
@@ -33,7 +34,7 @@ val configure = task("configureJniGeneration") {
         val jvmCompilation = kotlin.targets["jvm"].compilations["main"]
         val classPath = jvmCompilation.output.classesDirs + jvmCompilation.compileDependencyFiles
 
-        var javah = project.findProperty("javah") as String? ?: "javah"
+        var javah = kodeinLocalProperties["javah"] ?: "javah"
         javah = javah.replace(Regex("\\\$\\{([^}]+)}")) { System.getenv(it.groupValues[1])
                 ?: error("No such environment variable: ${it.groupValues[1]}.\n  Environment:\n${System.getenv().map { (k, v) -> "    $k = \"$v\"" }.joinToString("\n")}") }
 
