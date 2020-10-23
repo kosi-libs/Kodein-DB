@@ -1,16 +1,17 @@
 import org.jetbrains.kotlin.gradle.targets.js.npm.SemVer
 import java.util.*
 
+plugins {
+    id("org.kodein.local-properties")
+}
+
 val buildAll = tasks.create("build") {
     group = "build"
 }
 
 val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
 
-val excludedTargets = (project.findProperty("excludeTargets") as String?)
-        ?.split(",")
-        ?.map { it.trim() }
-        ?: emptyList()
+val excludedTargets = kodeinLocalProperties.getAsList("excludeTargets")
 val withAndroid = "android" !in excludedTargets
 
 class CMakeOptions {
