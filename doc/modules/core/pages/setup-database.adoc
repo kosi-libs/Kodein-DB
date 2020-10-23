@@ -33,7 +33,7 @@ If you are targeting JVM only, then Kodein-DB will find the serializer by itself
 .Opening an existing database
 ----
 val db = DB.open("path/to/db",
-    KotlinXSerializer { //<1>
+    KotlinxSerializer { //<1>
         +User.serializer() //<2>
         +Address.serializer() //<2>
     }
