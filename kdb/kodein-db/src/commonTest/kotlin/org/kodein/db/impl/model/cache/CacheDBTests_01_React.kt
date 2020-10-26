@@ -5,9 +5,14 @@ import org.kodein.db.Key
 import org.kodein.db.Options
 import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Date
+import org.kodein.db.impl.model.default
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
 import org.kodein.db.model.orm.Metadata
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.ReadMemory
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -15,7 +20,11 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 
 @Suppress("ClassName")
-class CacheDBTests_01_React : CacheDBTests() {
+abstract class CacheDBTests_01_React : CacheDBTests() {
+
+    class LDB : CacheDBTests_01_React() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : CacheDBTests_01_React() { override val factory = ModelDB.inMemory }
+
 
     @Test
     fun test00_ReactDidPutException() {

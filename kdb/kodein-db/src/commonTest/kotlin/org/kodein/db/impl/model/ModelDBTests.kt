@@ -1,5 +1,6 @@
 package org.kodein.db.impl.model
 
+import org.kodein.db.DBFactory
 import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.inDir
@@ -18,7 +19,8 @@ abstract class ModelDBTests {
 
     protected val mdb: ModelDB get() = _mdb!!
 
-    private val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path)
+    abstract val factory: DBFactory<ModelDB>
+//    private val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path)
 
     open fun testSerializer(): DefaultSerializer? = KotlinxSerializer {
         +Adult.serializer()

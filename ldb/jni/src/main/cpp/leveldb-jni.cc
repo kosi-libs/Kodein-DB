@@ -359,42 +359,6 @@ JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_getA (JNIEnv *env,
     return J_LevelDBJNI_Get(env, ldbPtr, BYTES_S(key), verifyChecksum, fillCache, snapshotPtr);
 }
 
-jlong J_LevelDBJNI_IndirectGet (JNIEnv *env, jlong ldbPtr, Bytes key, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
-    CAST(leveldb::DB, ldb);
-
-    leveldb::ReadOptions options = _readOptions(verifyChecksum, fillCache, snapshotPtr);
-
-	std::string indir;
-	leveldb::Status status = ldb->Get(options, key.slice, &indir);
-
-	if (!status.ok() && !status.IsNotFound()) {
-		throwLevelDBExceptionFromStatus(env, status);
-		return 0;
-	}
-
-	if (status.IsNotFound())
-		return 0;
-
-    return LevelDBJNI_Get(env, ldb, leveldb::Slice(indir), options);
-}
-
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_indirectGetB (JNIEnv *env, jclass, jlong ldbPtr, jobject keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
-    return J_LevelDBJNI_IndirectGet(env, ldbPtr, BYTES_S(key), verifyChecksum, fillCache, snapshotPtr);
-}
-
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_indirectGetA (JNIEnv *env, jclass, jlong ldbPtr, jbyteArray keyBytes, jint keyOffset, jint keyLen, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
-    return J_LevelDBJNI_IndirectGet(env, ldbPtr, BYTES_S(key), verifyChecksum, fillCache, snapshotPtr);
-}
-
-JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_indirectGetI (JNIEnv *env, jclass, jlong ldbPtr, jlong itPtr, jboolean verifyChecksum, jboolean fillCache, jlong snapshotPtr) {
-    CAST(leveldb::DB, ldb);
-    CAST(leveldb::Iterator, it);
-
-	CHECK_IT_VALID(0)
-
-    return LevelDBJNI_Get(env, ldb, it->value(), _readOptions(verifyChecksum, fillCache, snapshotPtr));
-}
-
 
 ////////////////////////////////////////// ITERATOR //////////////////////////////////////////
 

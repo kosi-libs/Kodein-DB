@@ -1,9 +1,13 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.Value
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.Primitive
 import org.kodein.db.model.get
 import org.kodein.db.test.utils.assertBytesEquals
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.array
 import kotlin.test.Test
@@ -11,7 +15,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
 
 @Suppress("ClassName")
-open class ModelDBTests_08_Primitives : ModelDBTests() {
+abstract class ModelDBTests_08_Primitives : ModelDBTests() {
+
+    class LDB : ModelDBTests_08_Primitives() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBTests_08_Primitives() { override val factory = ModelDB.inMemory }
+
 
     @Test
     fun test00_Int() {

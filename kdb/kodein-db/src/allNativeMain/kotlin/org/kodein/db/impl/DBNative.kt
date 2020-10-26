@@ -8,9 +8,9 @@ import org.kodein.db.model.ModelDB
 
 public object DBNative : AbstractDBFactory() {
 
-    override fun mdbFactory(): DBFactory<ModelDB> = ModelDBNative
+    override val mdbFactory: DBFactory<ModelDB> get() = ModelDBNative
 
 }
 
 @Suppress("unused")
-public actual val DB.Companion.factory: DBFactory<DB> get() = DBNative
+public actual val DB.Companion.default: DBFactory<DB> get() = DBNative

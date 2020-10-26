@@ -1,14 +1,23 @@
 package org.kodein.db.leveldb.test
 
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.leveldb.LevelDBFactory
+import org.kodein.db.leveldb.default
+import org.kodein.db.leveldb.inDir
+import org.kodein.db.leveldb.inmemory.inMemory
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertNull
 
 @Suppress("ClassName")
-class LDBTests_02_Batch : LevelDBTests() {
+abstract class LDBTests_02_Batch : LevelDBTests() {
+
+    class LDB : LDBTests_02_Batch() { override val factory: LevelDBFactory = LevelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : LDBTests_02_Batch() { override val factory: LevelDBFactory = LevelDB.inMemory }
+
 
     @Test
     fun test_00_PutGet() {

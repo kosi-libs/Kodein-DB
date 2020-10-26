@@ -11,6 +11,7 @@ import kotlin.test.assertEquals
 
 @Suppress("ClassName")
 class DataKeysTests_00_Key {
+
     @Test
     fun test00_SimpleKey() {
         val size = getDocumentKeySize(Value.ofAscii("one"))

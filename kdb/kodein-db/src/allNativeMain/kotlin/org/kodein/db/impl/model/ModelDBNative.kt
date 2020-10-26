@@ -12,11 +12,6 @@ public object ModelDBNative : AbstractModelDBFactory() {
 
     override val ddbFactory: DBFactory<DataDB> get() = DataDBNative
 
-    override fun defaultSerializer(): DefaultSerializer? = null
-
-    override fun defaultMetadataExtractor(): MetadataExtractor? = null
-
-    override fun defaultTypeTable(): TypeTable? = null
 }
 
 public actual val ModelDB.Companion.default: DBFactory<ModelDB> get() = ModelDBNative

@@ -1,16 +1,21 @@
 package org.kodein.db.impl
 
-import org.kodein.db.delete
-import org.kodein.db.execBatch
+import org.kodein.db.*
 import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Person
-import org.kodein.db.on
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.cache.ModelCache
 import org.kodein.db.test.utils.assertBytesEquals
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.text.toAsciiBytes
 import kotlin.test.*
 
 @Suppress("ClassName")
-open class DBTests_03_Listeners : DBTests() {
+abstract class DBTests_03_Listeners : DBTests() {
+
+    class LDB : DBTests_03_Listeners() { override val factory = DB.inDir(FileSystem.tempDirectory.path) }
+    class IM : DBTests_03_Listeners() { override val factory = DB.inMemory }
+
 
     @Test
     fun test00_put() {

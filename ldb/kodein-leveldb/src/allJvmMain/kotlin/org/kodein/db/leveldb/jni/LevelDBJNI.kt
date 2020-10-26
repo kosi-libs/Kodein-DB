@@ -90,21 +90,6 @@ public class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: L
 
     }
 
-    override fun indirectGet(key: ReadMemory, options: LevelDB.ReadOptions): Allocation? {
-        val directKey = key.directJvmNioKBuffer()
-        val valuePtr = if (directKey != null) {
-            Native.indirectGetB(nonZeroPtr, directKey.byteBuffer, directKey.absPosition, directKey.available, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot))
-        } else {
-            Native.indirectGetA(nonZeroPtr, key.array(), key.arrayOffset(), key.size, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot))
-        }
-        return if (valuePtr == 0L) null else NativeBytes(valuePtr, dbHandler, this.options)
-    }
-
-    override fun indirectGet(cursor: LevelDB.Cursor, options: LevelDB.ReadOptions): Allocation? {
-        val valuePtr = Native.indirectGetI(nonZeroPtr, (cursor as Cursor).nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot))
-        return if (valuePtr == 0L) null else NativeBytes(valuePtr, dbHandler, this.options)
-    }
-
     override fun newCursor(options: LevelDB.ReadOptions): LevelDB.Cursor {
         return Cursor(Native.iteratorNew(nonZeroPtr, options.verifyChecksums, options.fillCache, snapshotPtr(options.snapshot)), dbHandler, this.options)
     }
@@ -123,7 +108,7 @@ public class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: L
         Native.optionsRelease(optionsPtr)
     }
 
-    private class NativeBytes internal constructor(ptr: Long, handler: Handler, options: LevelDB.Options, val buffer: KBuffer = KBuffer.wrap(Native.bufferNew(ptr)))
+    private class NativeBytes constructor(ptr: Long, handler: Handler, options: LevelDB.Options, val buffer: KBuffer = KBuffer.wrap(Native.bufferNew(ptr)))
         : NativeBound(ptr, "Value", handler, options), Allocation, KBuffer by buffer {
 
         override fun release(ptr: Long) {
@@ -133,7 +118,7 @@ public class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: L
         override fun toString(): String = buffer.toString()
     }
 
-    private class WriteBatch internal constructor(ptr: Long, handler: Handler, options: LevelDB.Options) : NativeBound(ptr, "WriteBatch", handler, options), LevelDB.WriteBatch {
+    private class WriteBatch constructor(ptr: Long, handler: Handler, options: LevelDB.Options) : NativeBound(ptr, "WriteBatch", handler, options), LevelDB.WriteBatch {
 
         override fun put(key: ReadMemory, value: ReadMemory) {
             val directKey: JvmNioKBuffer? = key.directJvmNioKBuffer()
@@ -173,7 +158,7 @@ public class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: L
     }
 
 
-    private class Snapshot internal constructor(private val _dbPtr: Long, ptr: Long, handler: Handler, options: LevelDB.Options) : NativeBound(ptr, "Snapshot", handler, options), LevelDB.Snapshot {
+    private class Snapshot constructor(private val _dbPtr: Long, ptr: Long, handler: Handler, options: LevelDB.Options) : NativeBound(ptr, "Snapshot", handler, options), LevelDB.Snapshot {
 
         override fun release(ptr: Long) {
             Native.snapshotRelease(_dbPtr, ptr)
@@ -181,7 +166,7 @@ public class LevelDBJNI private constructor(ptr: Long, private val optionsPtr: L
 
     }
 
-    private class Cursor internal constructor(ptr: Long, handler: Handler, options: LevelDB.Options) : NativeBound(ptr, "Cursor", handler, options), LevelDB.Cursor {
+    private class Cursor constructor(ptr: Long, handler: Handler, options: LevelDB.Options) : NativeBound(ptr, "Cursor", handler, options), LevelDB.Cursor {
 
         private val lens = IntArray(2) { -1 }
 

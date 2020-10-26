@@ -1,5 +1,6 @@
 package org.kodein.db.impl.data
 
+import org.kodein.db.DBFactory
 import org.kodein.db.data.DataCursor
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
@@ -25,10 +26,10 @@ abstract class DataDBTests {
 
     protected val ddb: DataDB get() = _ddb!!
 
-    private val factory = DataDB.default.inDir(FileSystem.tempDirectory.path)
+    abstract val factory: DBFactory<DataDB>
 
     protected fun open() {
-        _ddb = factory.open("datadb", TrackClosableAllocation(true), FailOnBadClose(true), DBLoggerFactory(LoggerFactory(listOf(printFrontend))))
+        _ddb = factory.open("datadb", TrackClosableAllocation(true), FailOnBadClose(true), DBLoggerFactory(LoggerFactory(printFrontend)))
     }
 
     @BeforeTest

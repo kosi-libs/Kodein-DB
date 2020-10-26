@@ -19,7 +19,7 @@ abstract class LevelDBTests {
 
     open fun options(): LevelDB.Options = baseOptions()
 
-    open val factory: LevelDBFactory = LevelDB.default.inDir(FileSystem.tempDirectory.path)
+    abstract val factory: LevelDBFactory
 
     private val buffers = ArrayList<Allocation>()
 

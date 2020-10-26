@@ -2,13 +2,22 @@ package org.kodein.db.impl.model.cache
 
 import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Date
+import org.kodein.db.impl.model.default
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.cache.ModelCache
 import org.kodein.db.model.get
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.*
 
 @Suppress("ClassName")
-class CacheDBTests_04_Options : CacheDBTests() {
+abstract class CacheDBTests_04_Options : CacheDBTests() {
+
+    class LDB : CacheDBTests_04_Options() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : CacheDBTests_04_Options() { override val factory = ModelDB.inMemory }
+
 
     @Test
     fun test00_putSkip() {

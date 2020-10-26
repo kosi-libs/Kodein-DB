@@ -9,7 +9,7 @@ import org.kodein.db.model.cache.ModelCache
 
 public abstract class AbstractDBFactory : DBFactory<DB> {
 
-   internal abstract fun mdbFactory(): DBFactory<ModelDB>
+    protected abstract val mdbFactory: DBFactory<ModelDB>
 
     override fun open(path: String, vararg options: Options.Open): DB {
         val mdbOptions = if (options<ModelCache.Disable>() == null) {
@@ -22,12 +22,12 @@ public abstract class AbstractDBFactory : DBFactory<DB> {
             options
         }
 
-        val mdb = mdbFactory().open(path, *mdbOptions)
+        val mdb = mdbFactory.open(path, *mdbOptions)
 
         return DBImpl(mdb)
     }
 
     override fun destroy(path: String, vararg options: Options.Open) {
-        mdbFactory().destroy(path, *options)
+        mdbFactory.destroy(path, *options)
     }
 }

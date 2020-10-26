@@ -1,11 +1,15 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.impl.model.jvm.AnnotationMetadataExtractor
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
 import org.kodein.db.model.Id
 import org.kodein.db.model.Indexed
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.orm.kryo.KryoSerializer
 import org.kodein.db.test.utils.assertBytesEquals
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.array
 import kotlin.test.Test
@@ -14,7 +18,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 @Suppress("ClassName")
-class ModelDBJvmTests_00_MetadataAnnotations : ModelDBTests() {
+abstract class ModelDBJvmTests_00_MetadataAnnotations : ModelDBTests() {
+
+    class LDB : ModelDBJvmTests_00_MetadataAnnotations() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBJvmTests_00_MetadataAnnotations() { override val factory = ModelDB.inMemory }
+
 
     override fun testSerializer(): DefaultSerializer = KryoSerializer()
 

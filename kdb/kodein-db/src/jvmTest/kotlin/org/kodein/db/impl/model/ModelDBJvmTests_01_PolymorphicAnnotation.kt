@@ -1,18 +1,25 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.TypeTable
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.findAllByType
 import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.model.putAll
 import org.kodein.db.orm.kryo.KryoSerializer
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.*
 
 @Suppress("ClassName")
-class ModelDBJvmTests_01_PolymorphicAnnotation : ModelDBTests() {
+abstract class ModelDBJvmTests_01_PolymorphicAnnotation : ModelDBTests() {
+
+    class LDB : ModelDBJvmTests_01_PolymorphicAnnotation() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBJvmTests_01_PolymorphicAnnotation() { override val factory = ModelDB.inMemory }
+
 
     override fun testSerializer(): DefaultSerializer = KryoSerializer()
-
     override fun testTypeTable(): TypeTable? = null
 
     @Test

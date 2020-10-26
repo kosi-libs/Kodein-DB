@@ -1,12 +1,17 @@
 package org.kodein.db.leveldb.test
 
-import org.kodein.db.leveldb.LevelDB
-import org.kodein.db.leveldb.LevelDBException
+import org.kodein.db.leveldb.*
+import org.kodein.db.leveldb.inmemory.inMemory
+import org.kodein.memory.file.FileSystem
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 @Suppress("ClassName")
-class LDBTests_06_OpenPolicy : LevelDBTests() {
+abstract class LDBTests_06_OpenPolicy : LevelDBTests() {
+
+    class LDB : LDBTests_06_OpenPolicy() { override val factory: LevelDBFactory = LevelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : LDBTests_06_OpenPolicy() { override val factory: LevelDBFactory = LevelDB.inMemory }
+
 
     @Test
     fun test_00_OpenInexisting() {

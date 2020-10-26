@@ -1,11 +1,19 @@
 package org.kodein.db.impl.model
 
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.findAllByType
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.*
 
 @Suppress("ClassName")
-open class ModelDBTests_01_Types : ModelDBTests() {
+abstract class ModelDBTests_01_Types : ModelDBTests() {
+
+    class LDB : ModelDBTests_01_Types() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBTests_01_Types() { override val factory = ModelDB.inMemory }
+
 
     @Test
     fun test00_findByType() {

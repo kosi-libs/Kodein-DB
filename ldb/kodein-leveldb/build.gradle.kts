@@ -45,6 +45,7 @@ kodein {
         common.test.dependencies {
             implementation(project(":test-utils"))
             implementation("org.kodein.log:kodein-log:$kodeinLogVer")
+            implementation(project(":ldb:kodein-leveldb-inmemory"))
         }
 
         add(kodeinTargets.jvm.android)

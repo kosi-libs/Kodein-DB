@@ -23,9 +23,11 @@ include(
         ":ldb:kodein-leveldb",
         ":ldb:jni",
         ":ldb:kodein-leveldb-jni",
+        ":ldb:kodein-leveldb-inmemory",
 
         ":kdb:kodein-db-api",
         ":kdb:kodein-db",
+        ":kdb:kodein-db-inmemory",
 
         ":kdb:serializer:kodein-db-serializer-kotlinx",
         ":kdb:serializer:kodein-db-serializer-kryo-jvm",

@@ -62,42 +62,6 @@ public interface LevelDB : Closeable {
     public fun get(key: ReadMemory, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
 
     /**
-     * Get an entry value bytes by following the value of the given key.
-     *
-     * This function will get the value associated with this key, use this value as second key and return the value associated with this second key.
-     *
-     * This is equivalent (but a lot faster) to:
-     *
-     * ```kotlin
-     * db.Get(key, options).use { indirection ->
-     *     return db.Get(indirection.getBuffer(), options)
-     * }
-     * ```
-     *
-     * @param key The key of the entry to follow.
-     * @param options Options that control this read operation.
-     * @return The found entry value
-     */
-    public fun indirectGet(key: ReadMemory, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
-
-    /**
-     * Get an entry value bytes by following the value of the cursor current key.
-     *
-     * This function will get the value associated with this key, use this value as second key and return the value associated with this second key.
-     *
-     * This is equivalent (but a lot faster) to:
-     *
-     * ```java
-     * db.Get(cursor.transientValue(), options);
-     * ```
-     *
-     * @param cursor The cursor that's position on the entry to follow.
-     * @param options Options that control this read operation.
-     * @return The found entry value
-     */
-    public fun indirectGet(cursor: Cursor, options: ReadOptions = ReadOptions.DEFAULT): Allocation?
-
-    /**
      * Creates a new Cursor.
      *
      * **Warning**: Cursors are `Closeable`!

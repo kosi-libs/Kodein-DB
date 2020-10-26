@@ -1,12 +1,16 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.Value
+import org.kodein.db.inDir
 import org.kodein.db.indexSet
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.findAllByIndex
 import org.kodein.db.model.findAllByType
 import org.kodein.db.model.orm.Metadata
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.putAll
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,7 +18,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Suppress("ClassName")
-open class ModelDBTests_10_MetadataExtractor : ModelDBTests() {
+abstract class ModelDBTests_10_MetadataExtractor : ModelDBTests() {
+
+    class LDB : ModelDBTests_10_MetadataExtractor() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBTests_10_MetadataExtractor() { override val factory = ModelDB.inMemory }
+
 
     override fun testMetadataExtractor() = MetadataExtractor { model, _ ->
         when (model) {

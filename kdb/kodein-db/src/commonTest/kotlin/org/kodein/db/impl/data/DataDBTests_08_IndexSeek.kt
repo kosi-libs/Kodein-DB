@@ -1,8 +1,12 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.Value
+import org.kodein.db.data.DataDB
+import org.kodein.db.inDir
 import org.kodein.db.indexSet
+import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.wrap
 import org.kodein.memory.use
@@ -11,7 +15,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Suppress("ClassName")
-class DataDBTests_08_IndexSeek : DataDBTests() {
+abstract class DataDBTests_08_IndexSeek : DataDBTests() {
+
+    class LDB : DataDBTests_08_IndexSeek() { override val factory = DataDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : DataDBTests_08_IndexSeek() { override val factory = DataDB.inMemory }
+
 
     @Test
     fun test00_SeekIndex() {

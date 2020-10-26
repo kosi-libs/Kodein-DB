@@ -1,12 +1,21 @@
 package org.kodein.db.impl.data
 
+import org.kodein.db.DBFactory
 import org.kodein.db.Value
+import org.kodein.db.data.DataDB
+import org.kodein.db.inDir
 import org.kodein.db.indexSet
+import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.file.FileSystem
 import kotlin.test.Test
 
 @Suppress("ClassName")
-class DataDBTests_00_Put : DataDBTests() {
+abstract class DataDBTests_00_Put : DataDBTests() {
+
+    class LDB : DataDBTests_00_Put() { override val factory = DataDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : DataDBTests_00_Put() { override val factory = DataDB.inMemory }
+
 
     @Test
     fun test00_PutSimpleKeyWithoutIndex() {

@@ -34,6 +34,7 @@ kodein {
                 implementation(project(":test-utils"))
                 implementation(project(":kdb:serializer:kodein-db-serializer-kotlinx"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVer")
+                implementation(project(":kdb:kodein-db-inmemory"))
             }
         }
 

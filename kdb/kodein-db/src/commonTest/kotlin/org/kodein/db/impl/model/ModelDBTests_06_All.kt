@@ -1,7 +1,11 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.TypeTable
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.putAll
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,7 +13,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Suppress("ClassName")
-open class ModelDBTests_06_All : ModelDBTests() {
+abstract class ModelDBTests_06_All : ModelDBTests() {
+
+    class LDB : ModelDBTests_06_All() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBTests_06_All() { override val factory = ModelDB.inMemory }
+
 
     override fun testTypeTable() = TypeTable {
         root<Adult>()

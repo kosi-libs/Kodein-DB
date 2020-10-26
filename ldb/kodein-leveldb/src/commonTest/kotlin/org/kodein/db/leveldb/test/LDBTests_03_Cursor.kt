@@ -1,13 +1,22 @@
 package org.kodein.db.leveldb.test
 
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.leveldb.LevelDBFactory
+import org.kodein.db.leveldb.default
+import org.kodein.db.leveldb.inDir
+import org.kodein.db.leveldb.inmemory.inMemory
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.*
 
 @Suppress("ClassName")
-class LDBTests_03_Cursor : LevelDBTests() {
+abstract class LDBTests_03_Cursor : LevelDBTests() {
+
+    class LDB : LDBTests_03_Cursor() { override val factory: LevelDBFactory = LevelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : LDBTests_03_Cursor() { override val factory: LevelDBFactory = LevelDB.inMemory }
+
 
     @Test
     fun test_00_Forward() {
@@ -131,35 +140,7 @@ class LDBTests_03_Cursor : LevelDBTests() {
     }
 
     @Test
-    fun test_06_IndirectValue() {
-        ldb!!.put(buffer("one"), buffer("two"))
-        ldb!!.put(buffer("two"), buffer("three"))
-
-        ldb!!.newCursor().use { cursor ->
-            cursor.seekTo(buffer("one"))
-            assertTrue(cursor.isValid())
-
-            val value = ldb!!.indirectGet(cursor)!!
-            assertBytesEquals(byteArray("three"), value)
-            value.close()
-        }
-    }
-
-    @Test
-    fun test_07_IndirectUnexistingValue() {
-        ldb!!.put(buffer("one"), buffer("two"))
-
-        ldb!!.newCursor().use { cursor ->
-            cursor.seekTo(buffer("one"))
-            assertTrue(cursor.isValid())
-
-            assertNull(ldb!!.indirectGet(cursor))
-            assertNull(ldb!!.indirectGet(cursor, LevelDB.ReadOptions()))
-        }
-    }
-
-    @Test
-    fun test_08_PutInside() {
+    fun test_06_PutInside() {
         ldb!!.put(buffer("A"), buffer("A"))
         ldb!!.put(buffer("C"), buffer("C"))
 

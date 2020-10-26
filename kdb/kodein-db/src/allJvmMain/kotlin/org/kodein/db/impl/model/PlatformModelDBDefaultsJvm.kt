@@ -6,22 +6,22 @@ import org.kodein.db.impl.model.jvm.AnnotationTypeTable
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.DefaultSerializer
 
-public abstract class AbstractModelDBJvm : AbstractModelDBFactory() {
+internal actual object PlatformModelDBDefaults {
 
     private fun getClass(name: String): Class<*>? =
             try { Class.forName(name) }
             catch (_: ClassNotFoundException) { null }
 
-    final override fun defaultSerializer(): DefaultSerializer? {
+    internal actual fun serializer(): DefaultSerializer? {
         val serializerClass =
-                    getClass("org.kodein.db.orm.kryo.KryoSerializer")
+            getClass("org.kodein.db.orm.kryo.KryoSerializer")
                 ?:  getClass("org.kodein.db.orm.kotlinx.KotlinxSerializer")
 
         @Suppress("UNCHECKED_CAST")
         return serializerClass?.getConstructor()?.newInstance() as? DefaultSerializer
     }
 
-    final override fun defaultMetadataExtractor(): MetadataExtractor = AnnotationMetadataExtractor()
+    internal actual fun metadataExtractor(): MetadataExtractor? = AnnotationMetadataExtractor()
 
-    final override fun defaultTypeTable(): TypeTable? = AnnotationTypeTable()
+    internal actual fun typeTable(): TypeTable? = AnnotationTypeTable()
 }

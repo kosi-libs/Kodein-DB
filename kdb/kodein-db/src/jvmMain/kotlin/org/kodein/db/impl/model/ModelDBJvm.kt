@@ -5,7 +5,7 @@ import org.kodein.db.data.DataDB
 import org.kodein.db.impl.data.DataDBJvm
 import org.kodein.db.model.ModelDB
 
-public object ModelDBJvm : AbstractModelDBJvm() {
+public object ModelDBJvm : AbstractModelDBFactory() {
 
     override val ddbFactory: DBFactory<DataDB> get() = DataDBJvm
 

@@ -2,9 +2,13 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.Anticipate
 import org.kodein.db.Value
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.Primitive
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
 import kotlin.test.Test
@@ -13,7 +17,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 @Suppress("ClassName")
-open class ModelDBTests_09_Checks : ModelDBTests() {
+abstract class ModelDBTests_09_Checks : ModelDBTests() {
+
+    class LDB : ModelDBTests_09_Checks() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBTests_09_Checks() { override val factory = ModelDB.inMemory }
+
 
     @Test
     fun test00_putOK() {

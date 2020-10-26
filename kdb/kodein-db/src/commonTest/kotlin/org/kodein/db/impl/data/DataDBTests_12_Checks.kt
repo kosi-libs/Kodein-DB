@@ -2,6 +2,10 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.Anticipate
 import org.kodein.db.Value
+import org.kodein.db.data.DataDB
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
 import kotlin.test.Test
@@ -10,7 +14,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 @Suppress("ClassName")
-class DataDBTests_12_Checks : DataDBTests() {
+abstract class DataDBTests_12_Checks : DataDBTests() {
+
+    class LDB : DataDBTests_12_Checks() { override val factory = DataDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : DataDBTests_12_Checks() { override val factory = DataDB.inMemory }
+
 
     @Test
     fun test00_putOK() {

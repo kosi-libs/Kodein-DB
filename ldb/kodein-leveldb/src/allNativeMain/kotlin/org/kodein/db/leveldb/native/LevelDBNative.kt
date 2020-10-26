@@ -168,35 +168,6 @@ public class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options
         throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
     }
 
-    override fun indirectGet(key: ReadMemory, options: LevelDB.ReadOptions): Allocation? {
-        options.usePointer { optionsPtr ->
-            val (newKey, newKeySize) = ldbCall {
-                val newKeySize = alloc<size_tVar>()
-                val newKey = leveldb_get(nonNullPtr, optionsPtr, key.pointer(), key.size.convert(), newKeySize.ptr, it.ptr)
-                newKey to newKeySize.value
-            }
-            if (newKey == null)
-                return null
-            return ldbCall {
-                val valueSize = alloc<size_tVar>()
-                val value = leveldb_get(nonNullPtr, optionsPtr, newKey, newKeySize, valueSize.ptr, it.ptr)
-                if (value != null)
-                    NativeBytes(value, valueSize.value.toInt(), dbHandler, this@LevelDBNative.options)
-                else
-                    null
-            }
-        }
-        throw IllegalStateException() // TODO: Wait for contracts to become outside of experimental
-    }
-
-    override fun indirectGet(cursor: LevelDB.Cursor, options: LevelDB.ReadOptions): Allocation? {
-        (cursor as Cursor).checkValid()
-
-        val newKey = cursor.transientValue()
-
-        return get(newKey, options)
-    }
-
     internal class Cursor internal constructor(ptr: CPointer<leveldb_iterator_t>, handler: Handler, options: LevelDB.Options) : PointerBound<leveldb_iterator_t>(ptr, "Cursor", handler, options), LevelDB.Cursor {
 
         internal fun checkValid() {

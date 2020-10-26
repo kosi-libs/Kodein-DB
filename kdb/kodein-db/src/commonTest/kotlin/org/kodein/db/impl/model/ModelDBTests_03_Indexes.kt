@@ -1,14 +1,22 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.Value
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
 import org.kodein.db.model.findAllByIndex
 import org.kodein.db.model.findByIndex
 import org.kodein.db.key
+import org.kodein.db.model.ModelDB
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.*
 
 @Suppress("ClassName")
-open class ModelDBTests_03_Indexes : ModelDBTests() {
+abstract class ModelDBTests_03_Indexes : ModelDBTests() {
+
+    class LDB : ModelDBTests_03_Indexes() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBTests_03_Indexes() { override val factory = ModelDB.inMemory }
+
 
     @Test
     fun test00_FindAllByIndex() {

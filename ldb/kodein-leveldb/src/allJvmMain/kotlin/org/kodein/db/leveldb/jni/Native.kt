@@ -43,10 +43,6 @@ internal object Native {
     @JvmStatic external fun getB(dbPtr: Long, key: ByteBuffer, keyOffset: Int, keyLength: Int, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
     @JvmStatic external fun getA(dbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
 
-    @JvmStatic external fun indirectGetB(dbPtr: Long, key: ByteBuffer, keyOffset: Int, keyLength: Int, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
-    @JvmStatic external fun indirectGetA(dbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
-    @JvmStatic external fun indirectGetI(dbPtr: Long, iteratorPtr: Long, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
-
     @JvmStatic external fun iteratorNew(dbPtr: Long, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
     @JvmStatic external fun iteratorRelease(itPtr: Long)
 

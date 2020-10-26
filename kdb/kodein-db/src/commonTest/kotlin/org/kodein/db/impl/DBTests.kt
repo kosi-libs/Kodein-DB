@@ -14,7 +14,7 @@ abstract class DBTests {
 
     protected val db: DB get() = _db!!
 
-    private val factory = DB.inDir(FileSystem.tempDirectory.path)
+    abstract val factory: DBFactory<DB>
 
     protected val kxSerializer = KotlinxSerializer {
         +Adult.serializer()

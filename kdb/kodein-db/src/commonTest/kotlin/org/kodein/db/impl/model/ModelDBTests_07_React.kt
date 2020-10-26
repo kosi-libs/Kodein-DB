@@ -3,10 +3,14 @@ package org.kodein.db.impl.model
 import org.kodein.db.DBListener
 import org.kodein.db.Key
 import org.kodein.db.Options
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
 import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.Closeable
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.text.Charset
 import org.kodein.memory.text.getString
@@ -16,7 +20,11 @@ import org.kodein.memory.util.getShadowed
 import kotlin.test.*
 
 @Suppress("ClassName")
-open class ModelDBTests_07_React : ModelDBTests() {
+abstract class ModelDBTests_07_React : ModelDBTests() {
+
+    class LDB : ModelDBTests_07_React() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBTests_07_React() { override val factory = ModelDB.inMemory }
+
 
     @Test
     fun test00_PutDelete() {

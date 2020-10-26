@@ -1,14 +1,23 @@
 package org.kodein.db.leveldb.test
 
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.leveldb.LevelDBFactory
+import org.kodein.db.leveldb.default
+import org.kodein.db.leveldb.inDir
+import org.kodein.db.leveldb.inmemory.inMemory
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertNull
 
 @Suppress("ClassName")
-class LDBTests_00_SimpleOp : LevelDBTests() {
+abstract class LDBTests_00_SimpleOp : LevelDBTests() {
+
+    class LDB : LDBTests_00_SimpleOp() { override val factory: LevelDBFactory = LevelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : LDBTests_00_SimpleOp() { override val factory: LevelDBFactory = LevelDB.inMemory }
+
 
     @Test
     fun test_00_PutGet() {
@@ -67,36 +76,5 @@ class LDBTests_00_SimpleOp : LevelDBTests() {
 
         assertNull(ldb!!.get(buffer("key")))
     }
-
-    @Test
-    fun test_06_IndirectGet() {
-        ldb!!.put(buffer("one"), buffer("two"))
-        ldb!!.put(buffer("two"), buffer("three"))
-
-        val value = ldb!!.indirectGet(buffer("one"))!!
-        assertBytesEquals(byteArray("three"), value)
-        value.close()
-    }
-
-    @Test
-    fun test_07_IndirectUnexistingGet() {
-        ldb!!.put(buffer("one"), buffer("two"))
-
-        assertNull(ldb!!.indirectGet(buffer("one")))
-        assertNull(ldb!!.indirectGet(buffer("two")))
-    }
-
-    @Test
-    fun test_08_IndirectUnexistingGetInSnapshot() {
-        ldb!!.put(buffer("one"), buffer("two"))
-
-        ldb!!.newSnapshot().use { snapshot ->
-            ldb!!.put(buffer("two"), buffer("three"))
-
-            assertNull(ldb!!.indirectGet(buffer("one"), LevelDB.ReadOptions(snapshot = snapshot)))
-            assertNull(ldb!!.indirectGet(buffer("two"), LevelDB.ReadOptions(snapshot = snapshot)))
-        }
-    }
-
 
 }

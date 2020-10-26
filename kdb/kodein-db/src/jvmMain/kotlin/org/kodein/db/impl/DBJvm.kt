@@ -6,8 +6,8 @@ import org.kodein.db.impl.model.ModelDBJvm
 import org.kodein.db.model.ModelDB
 
 public object DBJvm : AbstractDBFactory() {
-    override fun mdbFactory(): DBFactory<ModelDB> = ModelDBJvm
+    override val mdbFactory: DBFactory<ModelDB> get() = ModelDBJvm
 }
 
 @Suppress("unused")
-public actual val DB.Companion.factory: DBFactory<DB> get() = DBJvm
+public actual val DB.Companion.default: DBFactory<DB> get() = DBJvm

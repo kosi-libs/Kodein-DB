@@ -1,13 +1,21 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.TypeTable
+import org.kodein.db.inDir
+import org.kodein.db.inmemory.inMemory
+import org.kodein.db.model.ModelDB
 import org.kodein.db.model.findAllByType
 import org.kodein.db.model.putAll
+import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.*
 
 @Suppress("ClassName")
-open class ModelDBTests_05_PolymorphicTypeTable : ModelDBTests() {
+abstract class ModelDBTests_05_PolymorphicTypeTable : ModelDBTests() {
+
+    class LDB : ModelDBTests_05_PolymorphicTypeTable() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
+    class IM : ModelDBTests_05_PolymorphicTypeTable() { override val factory = ModelDB.inMemory }
+
 
     override fun testTypeTable() = TypeTable {
         root<Person>()
