@@ -40,6 +40,16 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Set up Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          rm.exe "C:/WINDOWS/system32/bash.EXE"
+          echo "C:\msys64\usr\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          choco install llvm
+          echo "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          # https://youtrack.jetbrains.com/issue/KT-42485
+          echo "LIBCLANG_DISABLE_CRASH_RECOVERY=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Setup Android SDK dir
         if: matrix.os == 'ubuntu-latest'
         run: echo sdk.dir=$ANDROID_HOME > local.properties
@@ -48,6 +58,9 @@ jobs:
         run: $ANDROID_HOME/tools/bin/sdkmanager "ndk;21.0.6113669"
       - name: Setup kodein.local.properties
         run: cp .github/conf/kodein.local.${{ matrix.os }}.properties kodein.local.properties
-      - name: Check
-        run: ./gradlew check
+      - name: Set up Gradle & Konan
         shell: bash
+        run: ./gradlew
+      - name: Check
+        shell: bash
+        run: ./gradlew check

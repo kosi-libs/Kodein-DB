@@ -49,8 +49,8 @@ kodein {
 
         add(kodeinTargets.native.allDarwin + kodeinTargets.native.allDesktop)
 
-        allTargets {
-            mainCommonCompilation.kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+        sourceSets.all {
+            languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
         }
     }
 }

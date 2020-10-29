@@ -28,7 +28,7 @@ tasks.getByName<ProcessResources>(kotlin.target.compilations["main"].processReso
 }
 
 kodeinUpload {
-    name = "kodein-leveldb-jni-linux"
+    name = "kodein-leveldb-jni-jvm-linux"
     description = "LevelDB native library for Linux JVM"
     packageOf = ":ldb:jni:kodein-leveldb-jni-jvm"
 }
