@@ -4,8 +4,10 @@ import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.LevelDBException
 import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.memory.io.ReadMemory
+import kotlin.native.concurrent.ThreadLocal
 
 
+@ThreadLocal
 public object LevelDBInMemory : LevelDBFactory {
     private class IMData {
         val data = HashMap<ReadMemory, ByteArray>()

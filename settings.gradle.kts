@@ -5,7 +5,7 @@ buildscript {
         maven(url = "https://dl.bintray.com/kodein-framework/kodein-dev")
     }
     dependencies {
-        classpath("org.kodein.internal.gradle:kodein-internal-gradle-settings:5.0.2")
+        classpath("org.kodein.internal.gradle:kodein-internal-gradle-settings:5.1.0")
     }
 }
 
@@ -20,9 +20,14 @@ include(
 
         ":ldb:lib",
 
-        ":ldb:kodein-leveldb",
         ":ldb:jni",
-        ":ldb:kodein-leveldb-jni",
+        ":ldb:jni:c",
+        ":ldb:jni:kodein-leveldb-jni-jvm",
+        ":ldb:jni:kodein-leveldb-jni-jvm:kodein-leveldb-jni-jvm-macos",
+        ":ldb:jni:kodein-leveldb-jni-jvm:kodein-leveldb-jni-jvm-linux",
+        ":ldb:jni:kodein-leveldb-jni-jvm:kodein-leveldb-jni-jvm-windows",
+
+        ":ldb:kodein-leveldb",
         ":ldb:kodein-leveldb-inmemory",
 
         ":kdb:kodein-db-api",

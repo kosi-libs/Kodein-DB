@@ -1,8 +1,0 @@
-
-model {
-    //noinspection GrUnresolvedAccess
-    toolChains {
-        //noinspection GrUnresolvedAccess
-        clang(Clang)
-    }
-}

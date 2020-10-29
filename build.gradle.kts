@@ -2,11 +2,6 @@ plugins {
     id("org.kodein.root")
 }
 
-val kotlinxAtomicFuVer by extra { "0.14.4" } // CAUTION: also change in buildscript!
-val kotlinxSerializationVer by extra { "1.0.0-RC" }
-val kodeinLogVer by extra { "0.6.0" }
-val kodeinMemoryVer by extra { "0.4.0" }
-
 buildscript {
     repositories {
         maven(url = "https://kotlin.bintray.com/kotlinx")
@@ -31,9 +26,35 @@ allprojects {
     }
 }
 
+val kotlinxAtomicFuVer by extra { "0.14.4" } // CAUTION: also change in buildscript!
+val kotlinxSerializationVer by extra { "1.0.0-RC" }
+val kodeinLogVer by extra { "0.6.0" }
+val kodeinMemoryVer by extra { "0.4.0" }
+
+val androidNdkVer by extra { "21.0.6113669" } // CAUTION: also change in CI workflows!
+
+val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
+
+when {
+    currentOs.isWindows -> {
+        extra["osName"] = "windows"
+        extra["libExt"] = "dll"
+    }
+    currentOs.isMacOsX -> {
+        extra["osName"] = "macos"
+        extra["libExt"] = "dylib"
+    }
+    currentOs.isLinux -> {
+        extra["osName"] = "linux"
+        extra["libExt"] = "so"
+    }
+    else -> error("Unknown operating system ${currentOs.name}")
+}
+
+
 kodeinPublications {
     repo = "Kodein-DB"
 }
 
 // see https://github.com/gradle/kotlin-dsl/issues/607#issuecomment-375687119
-subprojects { parent!!.path.takeIf { it != rootProject.path }?.let { evaluationDependsOn(it)  } }
+//subprojects { parent!!.path.takeIf { it != rootProject.path }?.let { evaluationDependsOn(it)  } }

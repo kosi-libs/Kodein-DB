@@ -41,7 +41,7 @@ kodein {
         add(kodeinTargets.jvm.jvm) {
             test.dependencies {
                 implementation(project(":kdb:serializer:kodein-db-serializer-kryo-jvm"))
-                implementation(project(":ldb:kodein-leveldb-jni"))
+                implementation(project(":ldb:jni:kodein-leveldb-jni-jvm"))
             }
         }
 

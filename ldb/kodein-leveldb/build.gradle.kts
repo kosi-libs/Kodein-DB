@@ -13,22 +13,22 @@ evaluationDependsOn(":ldb:lib")
 
 val kodeinLogVer: String by rootProject.extra
 
-kodeinAndroid {
-    android {
-        defaultConfig {
-            externalNativeBuild {
-                cmake {
-                    arguments.add("-DPATH_BASE:PATH=${project(":ldb").projectDir.absolutePath}")
-                }
-            }
-        }
-        externalNativeBuild {
-            cmake {
-                setPath("src/androidMain/cpp/CMakeLists.txt")
-            }
-        }
-    }
-}
+//kodeinAndroid {
+//    android {
+//        defaultConfig {
+//            externalNativeBuild {
+//                cmake {
+//                    arguments.add("-DPATH_BASE:PATH=${project(":ldb").projectDir.absolutePath}")
+//                }
+//            }
+//        }
+//        externalNativeBuild {
+//            cmake {
+//                setPath("src/androidMain/cpp/CMakeLists.txt")
+//            }
+//        }
+//    }
+//}
 
 afterEvaluate {
     tasks.withType<AndroidUnitTest>().all {
@@ -52,11 +52,11 @@ kodein {
 
         add(kodeinTargets.jvm.jvm) {
             test.dependencies {
-                implementation(project(":ldb:kodein-leveldb-jni"))
+                implementation(project(":ldb:jni:kodein-leveldb-jni-jvm"))
             }
         }
 
-        fun KodeinMppExtension.TargetBuilder<KotlinNativeTarget>.configureCInterop(compilation: String) {
+        fun KodeinMppExtension.TargetBuilder<KotlinNativeTarget>.configureCInterop(compilation: String, useFat: Boolean = false) {
             mainCompilation.cinterops.create("libleveldb") {
                 packageName("org.kodein.db.libleveldb")
 
@@ -71,19 +71,36 @@ kodein {
                 }
             }
 
-//            // https://github.com/JetBrains/kotlin-native/issues/2314
-            mainCompilation.kotlinOptions.freeCompilerArgs = listOf(
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libleveldb.a",
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libcrc32c.a",
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libsnappy.a"
-            )
+            val dep = if (useFat) {
+                // https://github.com/JetBrains/kotlin-native/issues/2314
+                mainCompilation.kotlinOptions.freeCompilerArgs = listOf(
+                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libfatleveldb.a"
+                )
+                "archiveFatLeveldb"
+            } else {
+                // https://github.com/JetBrains/kotlin-native/issues/2314
+                mainCompilation.kotlinOptions.freeCompilerArgs = listOf(
+                        "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libcrc32c.a",
+                        "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libsnappy.a",
+                        "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libleveldb.a"
+                )
+                "buildLeveldb"
+            }
 
-            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
-            tasks[mainCompilation.compileAllTaskName].dependsOn(project(":ldb:lib").tasks["build${compilation.capitalize()}Leveldb"])
+            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(":ldb:lib:$dep-$compilation")
+            tasks[mainCompilation.compileAllTaskName].dependsOn(":ldb:lib:$dep-$compilation")
         }
 
-        add(kodeinTargets.native.allDesktop) {
-            configureCInterop("konan")
+        add(kodeinTargets.native.linuxX64) {
+            if (currentOs.isLinux) configureCInterop("konan-linux")
+        }
+
+        add(kodeinTargets.native.macosX64) {
+            if (currentOs.isMacOsX) configureCInterop("konan-macos")
+        }
+
+        add(kodeinTargets.native.mingwX64) {
+            if (currentOs.isWindows) configureCInterop("konan-windows", useFat = true)
         }
 
         add(listOf(kodeinTargets.native.iosArm32, kodeinTargets.native.iosArm64)) {
@@ -113,16 +130,16 @@ kodein {
     }
 }
 
-if (kodeinAndroid.isIncluded) {
-    afterEvaluate {
-        configure(listOf("Debug", "Release").map { tasks["externalNativeBuild$it"] }) {
-            dependsOn(
-                    project(":ldb:lib").tasks["buildAllAndroidLibs"],
-                    project(":ldb:jni").tasks["generateJniHeaders"]
-            )
-        }
-    }
-}
+//if (kodeinAndroid.isIncluded) {
+//    afterEvaluate {
+//        configure(listOf("Debug", "Release").map { tasks["externalNativeBuild$it"] }) {
+//            dependsOn(
+//                    project(":ldb:lib").tasks["buildAllAndroidLibs"],
+//                    project(":ldb:jni").tasks["generateJniHeaders"]
+//            )
+//        }
+//    }
+//}
 
 (tasks.findByName("linkDebugTestMingwX64") as org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink?)?.apply {
     this.binary.linkerOpts.addAll(listOf("--verbose", "-femulated-tls"))
