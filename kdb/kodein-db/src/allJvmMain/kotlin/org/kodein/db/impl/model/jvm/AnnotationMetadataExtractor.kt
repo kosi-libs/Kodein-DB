@@ -95,7 +95,7 @@ public class AnnotationMetadataExtractor : MetadataExtractor {
         }
 
         val getters = ValueGetters (id, indexes.toMap())
-                .merge(this, interfaces?.takeIf { it.isNotEmpty() } ?.map { it.getters() } ?.reduce { acc, vg -> acc.merge(this, vg) } ?: ValueGetters.EMPTY)
+                .merge(this, interfaces.takeIf { it.isNotEmpty() } ?.map { it.getters() } ?.reduce { acc, vg -> acc.merge(this, vg) } ?: ValueGetters.EMPTY)
                 .merge(this, superclass?.getters() ?: ValueGetters.EMPTY)
 
         cache[this] = getters

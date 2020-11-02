@@ -4,7 +4,7 @@
 
 === Open statement
 
-To open a new database, use `DB.factory`:
+To open a new database, use `DB.open`:
 
 [source,kotlin]
 .Opening a database

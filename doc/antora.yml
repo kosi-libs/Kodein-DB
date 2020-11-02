@@ -1,7 +1,10 @@
 name: kodein-db
 title: Kodein-DB
-version: 0.3.0
+version: 0.4.0
 prerelease: beta
 nav:
   - modules/ROOT/nav.adoc
   - modules/core/nav.adoc
+asciidoc:
+  attributes:
+    version: '0.4.0-beta'
