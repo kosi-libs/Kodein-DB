@@ -1,5 +1,5 @@
 [[immutability]]
-== Immutability requirement
+= Immutability requirement
 
 Kodein-DB works under the assumption that your models (ie. the objects that are going to be managed by the database) are immutable.
 This can be seen as paradoxical for a database library: you need to be able to update your data!

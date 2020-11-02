@@ -8,6 +8,7 @@
 * xref:iteration.adoc[Iterate with cursors & sequences]
 * xref:consistency.adoc[Managing consistency]
 * xref:reactive.adoc[Being reactive]
+* xref:tests.adoc[Test your DB code]
 * xref:advanced.adoc[Advanced usage]
 ** xref:advanced.adoc#handling-cache[Handling the cache]
 ** xref:advanced.adoc#using-primitives[Using primitives]

@@ -1,17 +1,16 @@
 = Install
-:version: 0.3.0-beta
 
 [[install-jvm]]
 == JVM
 
 Add the repository:
 
-[source,groovy]
-.build.gradle
+[source,kotlin]
+.build.gradle.kts
 ----
 buildscript {
     repositories {
-        maven { url "https://dl.bintray.com/kodein-framework/Kodein-DB" }
+        maven(url = "https://dl.bintray.com/kodein-framework/Kodein-DB")
     }
 }
 ----
@@ -20,11 +19,11 @@ NOTE: Kodein-DB will eventually be sync'd with JCenter, when it exits beta.
 
 Then add the dependency:
 
-[source,groovy,subs=attributes+]
-.build.gradle
+[source,kotlin,subs=attributes+]
+.build.gradle.kts
 ----
 dependencies {
-    implementation 'org.kodein.db:kodein-db-jvm:{version}'
+    implementation("org.kodein.db:kodein-db-jvm:{version}")
 }
 ----
 
@@ -33,25 +32,27 @@ TIP: If you are developing a library and not an application, use the artifact `o
 Furthermore, you need to add the serializer you are going to use.
 When targetting JVM only, you can use https://github.com/EsotericSoftware/kryo[Kryo]:
 
-[source,groovy,subs=attributes+]
-.build.gradle
+[source,kotlin,subs=attributes+]
+.build.gradle.kts
 ----
 dependencies {
-    implementation 'org.kodein.db:kodein-db-serializer-kryo-jvm:{version}'
+    implementation("org.kodein.db:kodein-db-serializer-kryo-jvm:{version}")
 }
 ----
 
 Finally, if you are targeting a desktop OS, you must add the OS specific leveldb native build dependency:
 
-[source,groovy,subs=attributes+]
-.build.gradle
+[source,kotlin,subs=attributes+]
+.build.gradle.kts
 ----
 dependencies {
-    implementation 'org.kodein.db:kodein-leveldb-jni-linux:{version}' // 'linux' or 'macos'
+    implementation("org.kodein.db:kodein-leveldb-jni-jvm-linux:{version}")
+    //                                                  -linux, -macos or -windows
 }
 ----
 
-TIP: If you are targeting multiple desktop OS, it is OK to add multiple `kodein-leveldb-jni-*` dependencies.
+TIP: If you are targeting multiple desktop OS, you can use the `kodein-leveldb-jni-jvm` dependency, which imports all three (Linux, MacOS & Windows) artifacts.
+
 
 [[install-kmp]]
 == Multiplatform and/or Native (Gradle)
@@ -59,23 +60,16 @@ TIP: If you are targeting multiple desktop OS, it is OK to add multiple `kodein-
 NOTE: Kodein-DB supports the following targets: +
 iosArm32, iosArm64, iosX64, linuxX64, macosX64, mingwX64
 
-Kodein-DB uses the new gradle native dependency model, which is experimental in gradle.
-You need to enable it in your `settings.gradle` file:
+Kodein-DB uses the new gradle native dependency model featured in Gradle 5.3 and later.
 
-[source,groovy]
-.settings.gradle
-----
-enableFeaturePreview("GRADLE_METADATA")
-----
+In your `build.gradle.kts` file, add the repository:
 
-Then, in your `build.gradle` file, add the repository:
-
-[source,groovy]
-.build.gradle
+[source,kotlin]
+.build.gradle.kts
 ----
 buildscript {
     repositories {
-        maven { url "https://dl.bintray.com/kodein-framework/Kodein-DB" }
+        maven(url = "https://dl.bintray.com/kodein-framework/Kodein-DB")
     }
 }
 ----
@@ -84,14 +78,14 @@ NOTE: Kodein-DB will eventually be sync'd with JCenter, when it exits beta.
 
 Then add the dependency:
 
-[source,groovy,subs=attributes+]
+[source,kotlin,subs=attributes+]
 .build.gradle
 ----
 kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation "org.kodein.db:kodein-db:{version}"
+                implementation("org.kodein.db:kodein-db:{version}")
             }
         }
     }
@@ -103,16 +97,16 @@ Thanks to Gradle Metadata, you don't need to add any additional dependency to yo
 TIP: If you are developing a library and not an application, use the artifact `org.kodein.db:kodein-db-api:{version}` instead, which only provides the Kodein-DB API, and not its implementation.
 
 Furthermore, you need to add the serializer you are going to use.
-When targetting Multiplatform, you need to use https://github.com/Kotlin/kotlinx.serialization[KotlinX Serialization]:
+When targeting Multiplatform, you need to use https://github.com/Kotlin/kotlinx.serialization[KotlinX Serialization]:
 
-[source,groovy,subs=attributes+]
+[source,kotlin,subs=attributes+]
 .build.gradle
 ----
 kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation 'org.kodein.db:kodein-db-serializer-kotlinx:{version}'
+                implementation("org.kodein.db:kodein-db-serializer-kotlinx:{version}")
             }
         }
     }

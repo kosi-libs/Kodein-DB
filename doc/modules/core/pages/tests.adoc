@@ -1,0 +1,53 @@
+= Testing your DB code
+
+Kodein-DB provides an in-memory backend which does not need any filesystem and stores all documents in a big `HashMap`.
+
+IMPORTANT: *Never use this in production!* +
+           This backend is absolutely not optimised neither for performance nor for memory packing.
+           It is *only meant for testing!
+
+== Install
+
+Add the `kodein-db-inmemory` module dependency:
+
+[source,kotlin,subs=attributes+]
+.build.gradle.kts
+----
+dependencies {
+    implementation("org.kodein.db:kodein-db-inmemory:{version}")
+}
+----
+
+
+== Use
+
+To create an in-memory database, use the `DB.inmemory` factory:
+
+[source,kotlin]
+.Opening an in-memory test database
+----
+val db = DB.inmemory.open("my-db-name", options)
+----
+
+`DB.inmemory` implements the `DBFactory<DB>` interface, which means that you can easily create a factory function that abstracts your database configuration:
+
+[source,kotlin]
+.Opening an in-memory test database
+----
+fun createDatabase(val factory: DBFactory<DB>, dir: String): DB =
+    factory.open(
+        "$dir/app-db",
+        KotlinxSerializer {
+            +User.serializer()
+            +Address.serializer()
+        },
+        TypeTable {
+            root<Address>()
+                .sub<BillingAddress>()
+                .sub<DeliveringAddress>()
+        }
+    )
+
+val realDb = createDatabase(DB.default, getApplicationDirectory())
+val testDb = createDatabase(DB.inmemory, "fake")
+----
