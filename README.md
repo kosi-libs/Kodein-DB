@@ -36,6 +36,9 @@ val does = db.find<User>().byIndex("lastName", "Doe").models()
 println(does.joinToString()) // Jane, John
 ```
 
+### [Kodein-DB documentation](https://docs.kodein.org/kodein-db)
+
+
 ### Support
 
 - Drop by the [Kodein Slack channel](https://kotlinlang.slack.com/messages/kodein/)
