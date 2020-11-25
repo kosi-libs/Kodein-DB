@@ -192,13 +192,14 @@ if (withAndroid) {
     addAndroidTarget("x86_64")
 }
 
-fun addIosTarget(target: String) {
+fun addIosTarget(target: String, specificOptions: CMakeOptions.() -> Unit = {}) {
     val build = if (currentOs.isMacOsX) addTarget("ios-$target") {
         "G" -= "Xcode"
         "CMAKE_TOOLCHAIN_FILE:PATH" += "${projectDir.absolutePath}/src/ios-cmake/ios.toolchain.cmake"
         "PLATFORM:STRING" += target.toUpperCase()
         "CMAKE_C_FLAGS:STRING" += "-Wno-shorten-64-to-32"
         "CMAKE_CXX_FLAGS:STRING" += "-Wno-shorten-64-to-32"
+        specificOptions()
     }
     else task("buildIos-${target}Leveldb") {
         enabled = false
@@ -212,8 +213,12 @@ fun addIosTarget(target: String) {
 
 addIosTarget("os")
 addIosTarget("simulator64")
-addIosTarget("watchos")
-addIosTarget("simulator_watchos")
+addIosTarget("watchos") {
+    "CMAKE_CXX_FLAGS:STRING" += "-std=c++11"
+}
+addIosTarget("simulator_watchos") {
+    "CMAKE_CXX_FLAGS:STRING" += "-std=c++11"
+}
 addIosTarget("tvos")
 addIosTarget("simulator_tvos")
 
