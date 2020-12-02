@@ -93,7 +93,7 @@ This can be useful for configuration-like values.
 ----
 db.put(Primitive(id = "name", value = "John Doe"))
 /*...*/
-val name = db[db.newKey<StringPrimitive>("name")]?.value
+val name = db[db.key<StringPrimitive>("name")]?.value
 ----
 
 

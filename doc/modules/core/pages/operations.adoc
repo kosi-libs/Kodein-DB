@@ -61,11 +61,11 @@ You can always ask Kodein-DB to provide you with the key of a specific model:
 [source,kotlin]
 .Creating a key
 ----
-val key = db.newKey(user)
+val key = db.key(user)
 ----
 
 CAUTION: You can create a key from any model, whether it exists in database or not.
-Using `newKeyFrom` does *not* ensure you that the model exists in database, nor does it put it.
+Using `keyFrom` does *not* ensure you that the model exists in database, nor does it put it.
 
 
 [[key-from-id]]
@@ -76,7 +76,7 @@ You can easily create a key from its ID value(s):
 [source,kotlin]
 .Creating a key
 ----
-val key = db.newKey<User>("01234567-89ab-cdef-0123-456789abcdef")
+val key = db.key<User>("01234567-89ab-cdef-0123-456789abcdef")
 ----
 
 [IMPORTANT]
@@ -87,14 +87,14 @@ In the case of the earlier example, you would need to create the key as such:
 [source,kotlin]
 .Creating a key with a composite ID
 ----
-val key = db.newKey<User>("Doe", "John", "01234567-89ab-cdef-0123-456789abcdef")
+val key = db.key<User>("Doe", "John", "01234567-89ab-cdef-0123-456789abcdef")
 ----
 ====
 
 
 ==== From a Base64 representation
 
-Once you have a `Key` (either from `put` or `newKey`), you can serialize it to Base64:
+Once you have a `Key` (either from `put` or `key`), you can serialize it to Base64:
 
 [source,kotlin]
 .serializing a key to Base64
@@ -107,7 +107,7 @@ Then, you can re-create a key from a Base64 string:
 [source,kotlin]
 .deserializing a key from Base64
 ----
-val key = db.newKeyFromB64(b64)
+val key = db.keyFromB64(b64)
 ----
 
 IMPORTANT: Even when serialized in Base64, a Key is only valid on the Kodein-DB that created it.
