@@ -26,4 +26,7 @@ public interface DBRead : KeyMaker {
 }
 
 public inline operator fun <reified M : Any> DBRead.get(key: Key<M>, vararg options: Options.Read): M? = get(M::class, key, *options)
+
+public inline fun <reified M : Any> DBRead.getById(vararg id: Any, options: Array<out Options.Read> = emptyArray()): M? = get(key<M>(*id), *options)
+
 public inline fun <reified M : Any> DBRead.find(vararg options: Options.Read): DBRead.FindDsl<M> = find(M::class, *options)

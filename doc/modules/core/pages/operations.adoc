@@ -3,9 +3,9 @@
 == Put, Delete, Get
 
 Kodein-DB does not know the difference between Put and Update.
-If you put a document that already exists in the database, it will be overwritten (you can, however, manually xref:advanced.adoc#locking-check[check] the existence and state of an overwritten model).
+If you put a model that already exists in the database, it will be overwritten (you can, however, manually xref:advanced.adoc#locking-check[check] the existence and state of an overwritten model).
 
-To put a document inside the database, simply use the `put` method:
+You can easily put a model inside the database:
 
 [source,kotlin]
 .Putting a model
@@ -14,20 +14,36 @@ val key = db.put(user) //<1>
 ----
 <1> The `put` method returns the `Key` that refers to the model.
 
-You can as easily delete a document:
+You can as delete a model with its key:
 
 [source,kotlin]
-.Deleting a document
+.Deleting a model by key
 ----
 db.delete(key)
 ----
 
-To get a model, simply use the `get` method:
+...or with its type and id
 
 [source,kotlin]
-.Getting a model
+.Deleting a model by type and id
+----
+val user = db.deleteById<User>(userId)
+----
+
+You can get a model with its key key:
+
+[source,kotlin]
+.Getting a model by key
 ----
 val user = db[key]
+----
+
+...or with its type and type and id
+
+[source,kotlin]
+.Getting a model by id
+----
+val user = db.getById<User>(userId)
 ----
 
 == Handling Keys
