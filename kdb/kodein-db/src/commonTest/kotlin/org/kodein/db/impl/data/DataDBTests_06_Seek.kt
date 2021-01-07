@@ -3,7 +3,6 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
-import org.kodein.db.indexSet
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.byteArray
 import org.kodein.memory.file.FileSystem
@@ -21,8 +20,8 @@ abstract class DataDBTests_06_Seek : DataDBTests() {
 
     @Test
     fun test00_SeekPK() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())
@@ -37,8 +36,8 @@ abstract class DataDBTests_06_Seek : DataDBTests() {
 
     @Test
     fun test01_SeekPKBefore() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())
@@ -51,8 +50,8 @@ abstract class DataDBTests_06_Seek : DataDBTests() {
 
     @Test
     fun test02_SeekPKAfter() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())

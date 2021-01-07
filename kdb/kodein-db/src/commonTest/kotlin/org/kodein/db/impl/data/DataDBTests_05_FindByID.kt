@@ -3,7 +3,6 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
-import org.kodein.db.indexSet
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
@@ -22,9 +21,9 @@ abstract class DataDBTests_05_FindByID : DataDBTests() {
 
     @Test
     fun test00_FindByPKCompositeKey() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findById(1, Value.ofAscii("aaa")).use {
             assertTrue(it.isValid())
@@ -41,9 +40,9 @@ abstract class DataDBTests_05_FindByID : DataDBTests() {
 
     @Test
     fun test01_FindByPKReverseCompositeKey() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findById(1, Value.ofAscii("aaa")).use {
             assertTrue(it.isValid())
@@ -62,8 +61,8 @@ abstract class DataDBTests_05_FindByID : DataDBTests() {
 
     @Test
     fun test02_FindByPKUnknownKey() {
-        ddb.put( ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put( ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put( ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put( ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findById(1, Value.ofAscii("ccc")).use {
             assertFalse(it.isValid())

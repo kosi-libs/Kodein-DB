@@ -85,17 +85,17 @@ class DataValuesTests {
 
     @Test
     fun test02_all() {
-        val value = Value.ofAll(
-                true,
-                42.toByte(),
-                2142.toShort(),
-                123456789,
-                1234567890123456789L,
-                Value.emptyValue,
-                byteArrayOf(1, 2, 3, 4),
-                KBuffer.array(4) { putBytes(byteArrayOf(5, 6, 7, 8)) },
-                'B', 'R', 'Y', 'S',
-                "Salomon"
+        val value = Value.of(
+            Value.of(true),
+            Value.of(42.toByte()),
+            Value.of(2142.toShort()),
+            Value.of(123456789),
+            Value.of(1234567890123456789L),
+            Value.emptyValue,
+            Value.of(byteArrayOf(1, 2, 3, 4)),
+            Value.of(KBuffer.array(4) { putBytes(byteArrayOf(5, 6, 7, 8)) }),
+            Value.ofAscii('B', 'R', 'Y', 'S'),
+            Value.ofAscii("Salomon")
         )
         assertEquals(47, value.size)
 

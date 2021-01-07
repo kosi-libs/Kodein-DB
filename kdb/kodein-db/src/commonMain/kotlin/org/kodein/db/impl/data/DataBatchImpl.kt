@@ -15,7 +15,7 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
 
     private val deleteRefKeys = ArrayList<KBuffer>()
 
-    private fun put(sb: SliceBuilder, body: Body, key: ReadMemory, indexes: Set<Index>): Int {
+    private fun put(sb: SliceBuilder, body: Body, key: ReadMemory, indexes: Map<String, Value>): Int {
         val value = sb.newSlice { putBody(body) }
         batch.put(key, value)
 
@@ -27,7 +27,7 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
         return value.available
     }
 
-    override fun put(key: ReadMemory,  body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
+    override fun put(key: ReadMemory,  body: Body, indexes: Map<String, Value>, vararg options: Options.Write): Int {
         key.verifyDocumentKey()
         SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
             return put(it, body, key, indexes)

@@ -47,16 +47,15 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         batch.delete(refKey)
     }
 
-    internal fun putIndexesInBatch(sb: SliceBuilder, batch: LevelDB.WriteBatch, key: ReadMemory, refKey: ReadBuffer, indexes: Set<Index>) {
+    internal fun putIndexesInBatch(sb: SliceBuilder, batch: LevelDB.WriteBatch, key: ReadMemory, refKey: ReadBuffer, indexes: Map<String, Value>) {
         if (indexes.isEmpty())
             return
 
         val ref = sb.newSlice {
-            for (index in indexes) {
-                val indexValue = Value.ofAny(index.value)
-                val indexKeySize = getIndexKeySize(key, index.name, indexValue)
+            for ((name, value) in indexes) {
+                val indexKeySize = getIndexKeySize(key, name, value)
                 putInt(indexKeySize)
-                val indexKey = subSlice { putIndexKey(key, index.name, indexValue) }
+                val indexKey = subSlice { putIndexKey(key, name, value) }
                 batch.put(indexKey, key)
             }
         }
@@ -64,7 +63,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         batch.put(refKey, ref)
     }
 
-    private fun putInBatch(sb: SliceBuilder, batch: LevelDB.WriteBatch, key: ReadMemory, body: Body, indexes: Set<Index>): Int {
+    private fun putInBatch(sb: SliceBuilder, batch: LevelDB.WriteBatch, key: ReadMemory, body: Body, indexes: Map<String, Value>): Int {
         val refKey = sb.newSlice {
             putRefKeyFromDocumentKey(key)
         }
@@ -78,7 +77,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         return value.available
     }
 
-    override fun put(key: ReadMemory, body: Body, indexes: Set<Index>, vararg options: Options.Write): Int {
+    override fun put(key: ReadMemory, body: Body, indexes: Map<String, Value>, vararg options: Options.Write): Int {
         key.verifyDocumentKey()
         SliceBuilder.native(DEFAULT_CAPACITY).use { sb ->
             val checks = options.all<Anticipate>()

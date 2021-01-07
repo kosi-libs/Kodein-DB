@@ -1,9 +1,6 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.DBListener
-import org.kodein.db.Options
-import org.kodein.db.Sized
-import org.kodein.db.TypeTable
+import org.kodein.db.*
 import org.kodein.db.ascii.getAscii
 import org.kodein.db.data.DataDB
 import org.kodein.db.impl.utils.*
@@ -18,19 +15,27 @@ import org.kodein.memory.use
 import org.kodein.memory.util.forEachResilient
 import kotlin.reflect.KClass
 
-internal class ModelDBImpl(private val defaultSerializer: Serializer<Any>?, userClassSerializers: Map<KClass<*>, Serializer<*>>, private val metadataExtractors: List<MetadataExtractor>, val typeTable: TypeTable, override val data: DataDB) : ModelDB, ModelReadModule, ModelWriteModule, Closeable by data {
+internal class ModelDBImpl(
+    private val defaultSerializer: Serializer<Any>?,
+    userClassSerializers: Map<KClass<*>, Serializer<*>>,
+    private val metadataExtractors: List<MetadataExtractor>,
+    internal val valueConverters: List<ValueConverter>,
+    internal val typeTable: TypeTable,
+    override val data: DataDB
+) : ModelDB, ModelReadModule, ModelWriteModule, Closeable by data {
 
     private val listenersLock = newRWLock()
     private val listeners = LinkedHashSet<DBListener<Any>>()
 
-    internal val typeLock = newLock()
+    private val typeLock = newLock()
     private var nextTypeId: Int? = null
     private val typeNameMap = HashMap<ReadMemory, Int>()
     private val typeIdMap = HashMap<Int, ReadMemory>()
 
     private val typeCache = HashMap<Int, KClass<*>>()
 
-    private val classSerializers = HashMap<KClass<*>, Serializer<*>>().apply {
+    @OptIn(ExperimentalStdlibApi::class)
+    private val classSerializers = buildMap<KClass<*>, Serializer<*>> {
         putAll(userClassSerializers)
         put(IntPrimitive::class, IntPrimitive.S)
         put(LongPrimitive::class, LongPrimitive.S)

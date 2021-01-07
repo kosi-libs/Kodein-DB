@@ -8,7 +8,7 @@ import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.Closeable
 import kotlin.reflect.KClass
 
-internal class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val copyMaxSize: Long) : CachedModelReadModule, ModelDB, KeyMaker by mdb, Closeable by mdb {
+internal class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val copyMaxSize: Long) : CachedModelReadModule, ModelDB, KeyMaker by mdb, ValueMaker by mdb, Closeable by mdb {
 
     internal fun didPut(model: Any, key: Key<*>, size: Int, options: Array<out Options>) {
         if (ModelCache.Skip in options) cache.evict(key)

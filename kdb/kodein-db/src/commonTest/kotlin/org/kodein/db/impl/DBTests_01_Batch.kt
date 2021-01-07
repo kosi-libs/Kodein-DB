@@ -41,7 +41,7 @@ abstract class DBTests_01_Batch : DBTests() {
         }
 
         assertEquals(1, db[counterKey]!!.value)
-        assertNotNull(db[db.key<Message>(Value.of(uid))])
+        assertNotNull(db.getById<Message>(uid))
     }
 
     @Test
@@ -62,7 +62,7 @@ abstract class DBTests_01_Batch : DBTests() {
         }
 
         assertEquals(0, db[counterKey]!!.value)
-        assertNull(db[db.key<Message>(Value.of(uid))])
+        assertNull(db.getById<Message>(uid))
     }
 
 }

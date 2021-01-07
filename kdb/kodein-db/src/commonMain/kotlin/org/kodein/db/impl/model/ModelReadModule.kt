@@ -26,13 +26,13 @@ internal interface ModelReadModule : ModelKeyMakerModule, ModelRead {
             ModelCursorImpl(data.findAllByType(mdb.getTypeId(mdb.typeTable.getTypeName(type)), *options), mdb, type)
 
     override fun <M : Any> findById(type: KClass<M>, id: Any, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findById(mdb.getTypeId(mdb.typeTable.getTypeName(type)), Value.ofAny(id), isOpen, *options), mdb, type)
+            ModelCursorImpl(data.findById(mdb.getTypeId(mdb.typeTable.getTypeName(type)), valueOf(id), isOpen, *options), mdb, type)
 
     override fun <M : Any> findAllByIndex(type: KClass<M>, index: String, vararg options: Options.Read): ModelCursor<M> =
             ModelCursorImpl(data.findAllByIndex(mdb.getTypeId(mdb.typeTable.getTypeName(type)), index, *options), mdb, type)
 
     override fun <M : Any> findByIndex(type: KClass<M>, index: String, value: Any, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> =
-            ModelCursorImpl(data.findByIndex(mdb.getTypeId(mdb.typeTable.getTypeName(type)), index, Value.ofAny(value), isOpen, *options), mdb, type)
+            ModelCursorImpl(data.findByIndex(mdb.getTypeId(mdb.typeTable.getTypeName(type)), index, valueOf(value), isOpen, *options), mdb, type)
 
     override fun getIndexesOf(key: Key<*>, vararg options: Options.Read): Set<String> =
             data.getIndexesOf(key.bytes, *options)

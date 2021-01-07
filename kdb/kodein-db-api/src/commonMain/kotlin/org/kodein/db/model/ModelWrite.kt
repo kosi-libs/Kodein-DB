@@ -1,12 +1,9 @@
 package org.kodein.db.model
 
-import org.kodein.db.Key
-import org.kodein.db.KeyAndSize
-import org.kodein.db.KeyMaker
-import org.kodein.db.Options
+import org.kodein.db.*
 import kotlin.reflect.KClass
 
-public interface ModelWrite : KeyMaker {
+public interface ModelWrite : KeyMaker, ValueMaker {
     public fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M>
     public fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int
 

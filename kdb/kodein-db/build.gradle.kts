@@ -52,6 +52,10 @@ kodein {
         }
 
         add(kodeinTargets.native.allDarwin + kodeinTargets.native.allDesktop)
+
+        sourceSets.all {
+            languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
+        }
     }
 }
 

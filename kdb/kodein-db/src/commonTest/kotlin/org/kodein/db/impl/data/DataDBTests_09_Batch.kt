@@ -3,7 +3,6 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
-import org.kodein.db.indexSet
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.byteArray
 import org.kodein.memory.file.FileSystem
@@ -22,8 +21,8 @@ abstract class DataDBTests_09_Batch : DataDBTests() {
     fun test00_BatchPut() {
 
         val batch = ddb.newBatch()
-        batch.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        batch.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        batch.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        batch.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         assertDBIs()
 
@@ -42,9 +41,9 @@ abstract class DataDBTests_09_Batch : DataDBTests() {
     @Test
     fun test01_BatchDelete() {
 
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.newBatch().use { batch ->
             batch.delete(ddb.newKey(1, Value.ofAscii("aaa")))
@@ -76,11 +75,11 @@ abstract class DataDBTests_09_Batch : DataDBTests() {
     fun test02_BatchOverride() {
 
         val batch = ddb.newBatch()
-        batch.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueBatch!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        batch.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueBatch!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
 
         assertDBIs()
 
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValuePut!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValuePut!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         assertDBIs(
                 byteArray('i', 0, 0, 0, 0, 1, "Numbers", 0, "forty", 0, "two", 0, "aaa", 0) to byteArray('o', 0, 0, 0, 0, 1, "aaa", 0),

@@ -3,11 +3,12 @@ package org.kodein.db.data
 import org.kodein.db.Body
 import org.kodein.db.Index
 import org.kodein.db.Options
+import org.kodein.db.Value
 import org.kodein.memory.io.ReadMemory
 
 public interface DataWrite : DataKeyMaker {
 
-    public fun put(key: ReadMemory, body: Body, indexes: Set<Index> = emptySet(), vararg options: Options.Write): Int
+    public fun put(key: ReadMemory, body: Body, indexes: Map<String, Value> = emptyMap(), vararg options: Options.Write): Int
 
     public fun delete(key: ReadMemory, vararg options: Options.Write)
 

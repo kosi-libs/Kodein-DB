@@ -3,7 +3,6 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
-import org.kodein.db.indexSet
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
@@ -22,9 +21,9 @@ abstract class DataDBTests_04_FindByType : DataDBTests() {
 
     @Test
     fun test00_FindByTypeAll() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB2!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB2!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())
@@ -41,9 +40,9 @@ abstract class DataDBTests_04_FindByType : DataDBTests() {
 
     @Test
     fun test01_FindByTypeAllReverse() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())
@@ -69,8 +68,8 @@ abstract class DataDBTests_04_FindByType : DataDBTests() {
 
     @Test
     fun test03_FindByTypeNothingInEmptyCollection() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("ValueA1!")), Value.ofAscii("aaa"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("ValueB1!")), Value.ofAscii("bbb"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("ValueA1!")), Value.ofAscii("aaa"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("ValueB1!")), Value.ofAscii("bbb"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         ddb.findAllByType(2).use {
             assertFalse(it.isValid())

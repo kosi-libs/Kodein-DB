@@ -3,7 +3,6 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
-import org.kodein.db.indexSet
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.byteArray
 import org.kodein.memory.file.FileSystem
@@ -23,9 +22,9 @@ abstract class DataDBTests_08_IndexSeek : DataDBTests() {
 
     @Test
     fun test00_SeekIndex() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex(1, "Symbols").use {
             assertTrue(it.isValid())
@@ -39,9 +38,9 @@ abstract class DataDBTests_08_IndexSeek : DataDBTests() {
 
     @Test
     fun test01_SeekIndexBefore() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("ccc")), Value.ofAscii("ValueC1!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex(1, "Symbols").use {
             assertTrue(it.isValid())
@@ -53,9 +52,9 @@ abstract class DataDBTests_08_IndexSeek : DataDBTests() {
 
     @Test
     fun test02_SeekIndexAfter() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("ValueA1!")), Value.ofAscii("aaa"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("ValueB1!")), Value.ofAscii("bbb"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("ValueC1!")), Value.ofAscii("ccc"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("ValueA1!")), Value.ofAscii("aaa"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("ValueB1!")), Value.ofAscii("bbb"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("ValueC1!")), Value.ofAscii("ccc"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAllByIndex(1, "Symbols").use {
             assertTrue(it.isValid())

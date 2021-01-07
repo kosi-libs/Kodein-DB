@@ -7,7 +7,7 @@ import org.kodein.memory.util.MaybeThrowable
 import org.kodein.memory.util.forEachCatchTo
 import kotlin.reflect.KClass
 
-internal class CachedModelBatch(private val cmdb: CachedModelDB, private val batch: ModelBatch) : ModelBatch, KeyMaker by batch, Closeable by batch {
+internal class CachedModelBatch(private val cmdb: CachedModelDB, private val batch: ModelBatch) : ModelBatch, KeyMaker by cmdb, ValueMaker by cmdb, Closeable by batch {
 
     private val reacts = ArrayList<CachedModelDB.() -> Unit>()
 

@@ -16,7 +16,6 @@ import org.kodein.memory.text.Charset
 import org.kodein.memory.text.getString
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
-import org.kodein.memory.util.getShadowed
 import kotlin.test.*
 
 @Suppress("ClassName")
@@ -301,7 +300,7 @@ abstract class ModelDBTests_07_React : ModelDBTests() {
             mdb.put(me)
         }
         assertNull(putEx.cause)
-        assertEquals(emptyList(), putEx.getShadowed())
+        assertEquals(emptyList(), putEx.suppressedExceptions)
 
         assertNull(mdb[key])
 
@@ -315,7 +314,7 @@ abstract class ModelDBTests_07_React : ModelDBTests() {
             mdb.delete(key)
         }
         assertNull(deleteEx.cause)
-        assertEquals(emptyList(), deleteEx.getShadowed())
+        assertEquals(emptyList(), deleteEx.suppressedExceptions)
 
         assertTrue(firstWillDeleteCalled)
         assertFalse(firstDidDeleteCalled)
@@ -347,8 +346,8 @@ abstract class ModelDBTests_07_React : ModelDBTests() {
             mdb.put(me)
         }
         assertNull(putEx.cause)
-        assertEquals(1, putEx.getShadowed().size)
-        assertEquals("second didPut", (putEx.getShadowed()[0] as IllegalStateException).message)
+        assertEquals(1, putEx.suppressedExceptions.size)
+        assertEquals("second didPut", (putEx.suppressedExceptions[0] as IllegalStateException).message)
 
         assertNotNull(mdb[key])
 
@@ -356,8 +355,8 @@ abstract class ModelDBTests_07_React : ModelDBTests() {
             mdb.delete(key)
         }
         assertNull(deleteEx.cause)
-        assertEquals(1, deleteEx.getShadowed().size)
-        assertEquals("second didDelete", (deleteEx.getShadowed()[0] as IllegalStateException).message)
+        assertEquals(1, deleteEx.suppressedExceptions.size)
+        assertEquals("second didDelete", (deleteEx.suppressedExceptions[0] as IllegalStateException).message)
 
         assertNull(mdb[key])
     }

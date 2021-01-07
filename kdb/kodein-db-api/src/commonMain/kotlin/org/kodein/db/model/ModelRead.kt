@@ -3,7 +3,7 @@ package org.kodein.db.model
 import org.kodein.db.*
 import kotlin.reflect.KClass
 
-public interface ModelRead : KeyMaker {
+public interface ModelRead : KeyMaker, ValueMaker {
 
     public operator fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>?
 

@@ -151,16 +151,6 @@ public interface Value : Body {
             }
         }
 
-        public fun of(vararg values: UUID): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putUUID(values[pos])
-                }
-                override fun size(pos: Int) = 16
-                override fun toString() = values.joinToString()
-            }
-        }
-
         public fun ofAscii(vararg values: Char): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
@@ -181,47 +171,8 @@ public interface Value : Body {
                 override fun toString() = values.joinToString()
             }
         }
-
-        private fun Any.toValue(): Value = when (this) {
-            is Value ->  this
-            is ByteArray -> of(this)
-            is ReadBuffer -> of(this)
-            is Allocation -> of(this)
-            is Boolean ->  of((if (this) 1 else 0).toByte())
-            is Byte ->  of(this)
-            is Char ->  ofAscii(this)
-            is Short ->  of(this)
-            is Int ->  of(this)
-            is Long ->  of(this)
-            is UUID -> of(this)
-            is String ->  ofAscii(this)
-            else -> throw IllegalArgumentException("invalid value: $this")
-        }
-
-        public fun ofAll(vararg values: Any): Value {
-            if (values.isEmpty())
-                return emptyValue
-
-            if (values.size == 1 && values[0] is Value)
-                return values[0] as Value
-
-            val sized = Array(values.size) {
-                values[it].toValue()
-            }
-
-            return of(*sized)
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        public fun ofAny(value: Any): Value = when (value) {
-            is Collection<*> ->
-                if (value.size == 1) value.requireNoNulls().first().toValue()
-                else ofAll(*value.toTypedArray().requireNoNulls())
-            is Array<*> ->
-                if (value.size == 1) (value as Array<Any?>).requireNoNulls().first().toValue()
-                else ofAll(*(value as Array<Any?>).requireNoNulls())
-            else -> value.toValue()
-        }
     }
 
 }
+
+public fun Value.toArrayBuffer(): ByteArrayKBuffer = KBuffer.array(size).also { writeInto(it) }

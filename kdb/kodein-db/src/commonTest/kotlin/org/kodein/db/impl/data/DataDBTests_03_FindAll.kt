@@ -3,7 +3,6 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
-import org.kodein.db.indexSet
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.byteArray
 import org.kodein.memory.file.FileSystem
@@ -21,9 +20,9 @@ abstract class DataDBTests_03_FindAll : DataDBTests() {
 
     @Test
     fun test00_FindAll() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey(2, Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(2, Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAll().use {
             assertTrue(it.isValid())
@@ -41,9 +40,9 @@ abstract class DataDBTests_03_FindAll : DataDBTests() {
 
     @Test
     fun test01_FindAllReverse() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey(2, Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), indexSet("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(2, Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
 
         ddb.findAll().use {
             it.seekToLast()

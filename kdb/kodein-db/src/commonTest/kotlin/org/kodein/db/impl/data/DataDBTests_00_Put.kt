@@ -28,7 +28,7 @@ abstract class DataDBTests_00_Put : DataDBTests() {
 
     @Test
     fun test01_PutSimpleKeyWith1Index() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
 
         assertDBIs(
                 byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0) to byteArray('o', 0, 0, 0, 0, 1, "aaa", 0),
@@ -39,7 +39,7 @@ abstract class DataDBTests_00_Put : DataDBTests() {
 
     @Test
     fun test02_PutSimpleKeyWith2Index() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta"), "Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta"), "Numbers" to Value.ofAscii("forty", "two")))
 
         assertDBIs(
                 byteArray('i', 0, 0, 0, 0, 1, "Numbers", 0, "forty", 0, "two", 0, "aaa", 0) to byteArray('o', 0, 0, 0, 0, 1, "aaa", 0),
@@ -51,7 +51,7 @@ abstract class DataDBTests_00_Put : DataDBTests() {
 
     @Test
     fun test03_PutTwiceWithRemovedIndex() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "bbb")), Value.ofAscii("ValueAB1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "bbb")), Value.ofAscii("ValueAB1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
         ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "bbb")), Value.ofAscii("ValueAB2!"))
 
         assertDBIs(
@@ -61,8 +61,8 @@ abstract class DataDBTests_00_Put : DataDBTests() {
 
     @Test
     fun test04_PutTwiceWithDifferentIndex() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "bbb")), Value.ofAscii("ValueAB1!"), indexSet("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "bbb")), Value.ofAscii("ValueAB2!"), indexSet("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "bbb")), Value.ofAscii("ValueAB1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "bbb")), Value.ofAscii("ValueAB2!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
 
         assertDBIs(
                 byteArray('i', 0, 0, 0, 0, 1, "Numbers", 0, "forty", 0, "two", 0, "aaa", 0, "bbb", 0) to byteArray('o', 0, 0, 0, 0, 1, "aaa", 0, "bbb", 0),

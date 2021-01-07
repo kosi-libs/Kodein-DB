@@ -23,7 +23,7 @@ abstract class LDBTests_05_ForgetClose : LevelDBTests() {
     fun test_00_CursorTrack() {
         val logger = AssertLogger()
         ldb!!.close()
-        ldb = factory.open("db", options().copy(loggerFactory = { cls -> Logger(cls, listOf(logger.frontEnd)) }))
+        ldb = factory.open("db", options().copy(loggerFactory = LoggerFactory(logger.frontEnd)))
         val cursor = ldb!!.newCursor()
         val countBeforeClose = logger.entries.count()
         ldb!!.close()
@@ -37,7 +37,7 @@ abstract class LDBTests_05_ForgetClose : LevelDBTests() {
     fun test_01_CursorNoTrack() {
         val logger = AssertLogger()
         ldb!!.close()
-        ldb = factory.open("db", options().copy(loggerFactory = { cls -> Logger(cls, listOf(logger.frontEnd)) }, trackClosableAllocation = false))
+        ldb = factory.open("db", options().copy(loggerFactory = LoggerFactory(logger.frontEnd), trackClosableAllocation = false))
         val cursor = ldb!!.newCursor()
         val countBeforeClose = logger.entries.count()
         ldb!!.close()

@@ -3,7 +3,6 @@ package org.kodein.db.impl.data
 import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
-import org.kodein.db.indexSet
 import org.kodein.db.inmemory.inMemory
 import org.kodein.memory.file.FileSystem
 import kotlin.test.Test
@@ -20,7 +19,7 @@ abstract class DataDBTests_11_FindIndexes : DataDBTests() {
     @Test
     fun test00_FindIndexes() {
         val key = ddb.newKey(1, Value.ofAscii("aaa"))
-        ddb.put(key, Value.ofAscii("ValueA!"), indexSet("Numbers" to Value.ofAscii("forty", "two"), "Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(key, Value.ofAscii("ValueA!"), mapOf("Numbers" to Value.ofAscii("forty", "two"), "Symbols" to Value.ofAscii("alpha", "beta")))
         val indexes = ddb.getIndexesOf(key)
 
         assertEquals(2, indexes.size.toLong())

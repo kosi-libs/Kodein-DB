@@ -20,7 +20,6 @@ abstract class ModelDBTests {
     protected val mdb: ModelDB get() = _mdb!!
 
     abstract val factory: DBFactory<ModelDB>
-//    private val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path)
 
     open fun testSerializer(): DefaultSerializer? = KotlinxSerializer {
         +Adult.serializer()

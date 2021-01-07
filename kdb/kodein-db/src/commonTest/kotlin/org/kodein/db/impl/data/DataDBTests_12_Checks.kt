@@ -25,7 +25,7 @@ abstract class DataDBTests_12_Checks : DataDBTests() {
         val key = ddb.newKey(1, Value.ofAscii("test"))
 
         ddb.put(key, Value.of(21))
-        ddb.put(key, Value.of(42), emptySet(), Anticipate {
+        ddb.put(key, Value.of(42), emptyMap(), Anticipate {
             ddb.get(key)!!.use {
                 check(it.readInt() == 21)
             }
@@ -42,7 +42,7 @@ abstract class DataDBTests_12_Checks : DataDBTests() {
 
         ddb.put(key, Value.of(21))
         assertFailsWith<IllegalStateException> {
-            ddb.put(key, Value.of(42), emptySet(), Anticipate {
+            ddb.put(key, Value.of(42), emptyMap(), Anticipate {
                 ddb.get(key)!!.use {
                     check(it.readInt() == 0)
                 }

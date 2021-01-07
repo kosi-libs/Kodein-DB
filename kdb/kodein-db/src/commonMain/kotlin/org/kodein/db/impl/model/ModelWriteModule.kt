@@ -29,21 +29,22 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
             mdb.serialize(model, body, *options)
         }
         val key = block(rootTypeName, metadata)
-        val size = data.put(key.bytes, body, metadata.indexes(), *options)
+        val indexMap = metadata.indexes().associateBy({ it.name }, { valueOf(it.value) })
+        val size = data.put(key.bytes, body, indexMap, *options)
         didAction { didPut(model, key, rootTypeName, metadata, size, options) }
         return KeyAndSize(key, size)
     }
 
     override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> =
         put(model, options) { rootTypeName, metadata ->
-            val key = Key<M>(data.newKey(mdb.getTypeId(rootTypeName), Value.ofAny(metadata.id)))
+            val key = Key<M>(data.newKey(mdb.getTypeId(rootTypeName), valueOf(metadata.id)))
             key
         }
 
     override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int =
         put(model, options) { rootTypeName, metadata ->
             key.bytes.markBuffer {
-                verify(it) { putDocumentKey(mdb.getTypeId(rootTypeName), Value.ofAny(metadata.id)) }
+                verify(it) { putDocumentKey(mdb.getTypeId(rootTypeName), valueOf(metadata.id)) }
             }
             key
         }.size

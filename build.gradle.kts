@@ -8,13 +8,13 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.14.4")
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.15.1")
     }
 }
 
 allprojects {
     group = "org.kodein.db"
-    version = "0.4.1-beta"
+    version = "0.4.2-beta"
 
     repositories {
         mavenLocal()
@@ -26,10 +26,10 @@ allprojects {
     }
 }
 
-val kotlinxAtomicFuVer by extra { "0.14.4" } // CAUTION: also change in buildscript!
-val kotlinxSerializationVer by extra { "1.0.0" }
-val kodeinLogVer by extra { "0.7.0" }
-val kodeinMemoryVer by extra { "0.4.1" }
+val kotlinxAtomicFuVer by extra { "0.15.1" } // CAUTION: also change in buildscript!
+val kotlinxSerializationVer by extra { "1.0.1" }
+val kodeinLogVer by extra { "0.8.0" }
+val kodeinMemoryVer by extra { "0.5.0" }
 
 val androidNdkVer by extra { "21.0.6113669" } // CAUTION: also change in CI workflows!
 
