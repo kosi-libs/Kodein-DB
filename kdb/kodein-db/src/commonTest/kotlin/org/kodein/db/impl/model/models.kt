@@ -21,7 +21,7 @@ interface Person : Metadata {
     val fullName get() = "$firstName $lastName"
 
     override val id get() = listOf(lastName, firstName)
-    override fun indexes(): Set<Index> = indexSet(
+    override fun indexes() = mapOf(
             "firstName" to firstName,
             "birth" to listOf(birth.year, birth.month, birth.day)
     )
@@ -39,7 +39,7 @@ data class Location(val lat: Double, val lng: Double)
 @Serializable
 data class City(val name: String, val location: Location, val postalCode: Int) : Metadata {
     override val id get() = postalCode
-    override fun indexes(): Set<Index> = indexSet("name" to name)
+    override fun indexes() = mapOf("name" to name)
 }
 
 @Serializable

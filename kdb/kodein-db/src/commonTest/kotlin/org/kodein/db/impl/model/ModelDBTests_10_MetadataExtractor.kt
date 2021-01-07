@@ -2,7 +2,6 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.Value
 import org.kodein.db.inDir
-import org.kodein.db.indexSet
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.model.ModelDB
 import org.kodein.db.model.findAllByIndex
@@ -28,7 +27,7 @@ abstract class ModelDBTests_10_MetadataExtractor : ModelDBTests() {
         when (model) {
             is Date -> Metadata(
                     id = Value.of(model.year, model.month, model.day),
-                    indexes = indexSet(
+                    indexes = mapOf(
                             "month" to Value.of(model.month, model.year, model.day),
                             "day" to Value.of(model.day)
                     )

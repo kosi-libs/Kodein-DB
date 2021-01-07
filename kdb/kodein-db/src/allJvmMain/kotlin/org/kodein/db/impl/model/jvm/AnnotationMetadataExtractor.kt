@@ -1,6 +1,5 @@
 package org.kodein.db.impl.model.jvm
 
-import org.kodein.db.Index
 import org.kodein.db.Options
 import org.kodein.db.model.Id
 import org.kodein.db.model.Indexed
@@ -109,7 +108,7 @@ public class AnnotationMetadataExtractor : MetadataExtractor {
 
         getters.id ?: return null
         val id = getters.id.get(model) ?: error("Id cannot be null in $model")
-        val indexes = getters.indexes.mapNotNullTo(HashSet()) { entry -> entry.value.get(model)?.let { Index(entry.key, it) } }
+        val indexes = getters.indexes.mapNotNull { entry -> entry.value.get(model)?.let { entry.key to it } } .toMap()
 
         return Metadata(id, indexes)
     }
