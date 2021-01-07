@@ -6,8 +6,6 @@ plugins {
     id("kotlinx-atomicfu")
 }
 
-val kotlinxAtomicFuVer: String by rootProject.extra
-
 atomicfu {
     dependenciesVersion = null
 }
@@ -21,6 +19,7 @@ afterEvaluate {
 kodein {
     kotlin {
 
+        val kotlinxAtomicFuVer: String by rootProject.extra
         val kotlinxSerializationVer: String by rootProject.extra
 
         common {

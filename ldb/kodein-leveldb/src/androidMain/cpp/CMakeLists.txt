@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 add_library( kodein-leveldb-jni SHARED
-    ${PATH_BASE}/jni/src/main/cpp/leveldb-jni.cc
+    ${PATH_BASE}/jni/c/src/main/cpp/leveldb-jni.cc
 )
 
 target_include_directories( kodein-leveldb-jni PUBLIC
-    ${PATH_BASE}/jni/build/nativeHeaders
+    ${PATH_BASE}/jni/c/build/nativeHeaders
 )
 
 target_include_directories( kodein-leveldb-jni PRIVATE

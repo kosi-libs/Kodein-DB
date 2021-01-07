@@ -8,27 +8,26 @@ plugins {
 
 val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
 
-evaluationDependsOn(":ldb:jni")
 evaluationDependsOn(":ldb:lib")
 
 val kodeinLogVer: String by rootProject.extra
 
-//kodeinAndroid {
-//    android {
-//        defaultConfig {
-//            externalNativeBuild {
-//                cmake {
-//                    arguments.add("-DPATH_BASE:PATH=${project(":ldb").projectDir.absolutePath}")
-//                }
-//            }
-//        }
-//        externalNativeBuild {
-//            cmake {
-//                setPath("src/androidMain/cpp/CMakeLists.txt")
-//            }
-//        }
-//    }
-//}
+kodeinAndroid {
+    android {
+        defaultConfig {
+            externalNativeBuild {
+                cmake {
+                    arguments.add("-DPATH_BASE:PATH=$rootDir/ldb")
+                }
+            }
+        }
+        externalNativeBuild {
+            cmake {
+                path = file("src/androidMain/cpp/CMakeLists.txt")
+            }
+        }
+    }
+}
 
 afterEvaluate {
     tasks.withType<AndroidUnitTest>().all {
@@ -130,16 +129,16 @@ kodein {
     }
 }
 
-//if (kodeinAndroid.isIncluded) {
-//    afterEvaluate {
-//        configure(listOf("Debug", "Release").map { tasks["externalNativeBuild$it"] }) {
-//            dependsOn(
-//                    project(":ldb:lib").tasks["buildAllAndroidLibs"],
-//                    project(":ldb:jni").tasks["generateJniHeaders"]
-//            )
-//        }
-//    }
-//}
+if (kodeinAndroid.isIncluded) {
+    afterEvaluate {
+        configure(listOf("Debug", "Release").map { tasks["externalNativeBuild$it"] }) {
+            dependsOn(
+                    ":ldb:lib:buildAllAndroidLibs",
+                    ":ldb:jni:c:generateJniHeaders"
+            )
+        }
+    }
+}
 
 (tasks.findByName("linkDebugTestMingwX64") as org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink?)?.apply {
     this.binary.linkerOpts.addAll(listOf("--verbose", "-femulated-tls"))
