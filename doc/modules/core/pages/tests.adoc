@@ -4,7 +4,7 @@ Kodein-DB provides an in-memory backend which does not need any filesystem and s
 
 IMPORTANT: *Never use this in production!* +
            This backend is absolutely not optimised neither for performance nor for memory packing.
-           It is *only meant for testing!
+           It is *only meant for testing*!
 
 == Install
 

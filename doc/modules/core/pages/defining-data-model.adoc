@@ -67,7 +67,7 @@ data class User(
     val firstName: String,
     val lastName: String
 ) : Metadata {
-    override fun indexes() = indexSet("lastName" to listOf(lastName, firstName)) //<2>
+    override fun indexes() = mapOf("lastName" to listOf(lastName, firstName)) //<2>
 }
 ----
 <1> The `id` property override is mandatory
@@ -144,11 +144,42 @@ data class User(
     val name: Name, //<1>
     val address: Key<Address> //<2>
 ) : Metadata {
-    override fun indexes() = indexSet("lastName" to listOf(name.last, name.first))
+    override fun indexes() = mapOf("lastName" to listOf(name.last, name.first))
 }
 ----
 <1> Will be included as part of this model's document.
 <2> References another model with its own document.
+
+
+[[values]]
+== IDs and indexes values
+
+While models are stored in the database as serialized blobs, IDs and indexes are stored as `Value`.
+
+NOTE: A `Value` is a serializable entity where the serialized bytes define the ordering of IDs and indexes.
+
+=== Types usable as Value
+
+By default, the Kodein-DB understands the following types to be used as values: `ByteArray`, `ReadBuffer`, `Boolean`, `Short`, `Int`, `Long`, ASCII `Char`, ASCII `CharSequence` (such as `String`), Kodein-Memory `UUID` (*not* `java.util.UUID`).
+
+IMPORTANT: in order to keep the database efficient and indexes ordering semantic, `Char` and `CharSequence` are stored as ASCII characters (i.e. using only one byte per character). You should not use non-ascii characters in IDs or indexes values.
+
+
+=== Adding new types as value
+
+You can configure Kodein-DB to accept more types as values (and therefore use these types in IDs and indexes).
+You simply need to add a `ValueConverter` to the database when creating it:
+
+[source,kotlin]
+.a sample ValueConverter for KotlinX LocalDateTime:
+----
+val db = DB.default.open("path/to/db",
+    ValueConverter.forClass<LocalDateTime> {
+        Value.of(it.toInstant(TimeZone.UTC).epochSeconds)
+    }
+)
+
+----
 
 
 [[polymorphism]]

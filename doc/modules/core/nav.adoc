@@ -13,7 +13,6 @@
 ** xref:advanced.adoc#handling-cache[Handling the cache]
 ** xref:advanced.adoc#using-primitives[Using primitives]
 ** xref:advanced.adoc#locking-check[Locking checks and reactions]
-** xref:advanced.adoc#values-and-buffers[Handling Values and Buffers]
 ** xref:advanced.adoc#custom-serialization[Fine-graining (de)serialization]
 ** xref:advanced.adoc#leveldb-options[LevelDB Options]
 ** xref:advanced.adoc#middleware[Embedding your logic]

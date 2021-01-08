@@ -98,7 +98,7 @@ class UserListener : DBListener<User> {
     override fun willPut(model: User, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {
         check(model.name.isNotBlank()) { "User firstName and lastName must not be blank" }
     }
-    override fun willDelete(key: Key<*>, getModel: () -> User?, typeName: ReadMemory, options: Array<out Options.Write>) {
+    override fun willDelete(key: Key<User>, getModel: () -> User?, typeName: ReadMemory, options: Array<out Options.Write>) {
         val pictureCount = db.find<Picture>().byIndex("userKey", key).entries().count()
         check(pictureCount == 0) { "User has pictures, delete them first" }
     }
@@ -130,7 +130,7 @@ db.on<User>().register {
 .DSL delete check with model
 ----
 class UserListener : DBListener<User> {
-    override fun willDelete(key: Key<*>, getModel: () -> User?, typeName: ReadMemory, options: Array<out Options.Write>) {
+    override fun willDelete(key: Key<User>, getModel: () -> User?, typeName: ReadMemory, options: Array<out Options.Write>) {
         val user = getModel()
         val pictureCount = db.find<Picture>().byIndex("userId", user.id).entries().count()
         check(pictureCount == 0) { "User has pictures, delete them first" }
@@ -165,10 +165,10 @@ db.on<User>().register {
 .A class reaction
 ----
 class UserListener : DBListener<User> {
-    override fun didPut(model: User, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+    override fun didPut(model: User, key: Key<User>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
         ui.add(model)
     }
-    override fun didDelete(key: Key<*>, model: User?, typeName: ReadMemory, options: Array<out Options.Write>) {
+    override fun didDelete(key: Key<User>, model: User?, typeName: ReadMemory, options: Array<out Options.Write>) {
         ui.reload()
     }
 }
@@ -216,10 +216,10 @@ db.on<User>().register {
 .DSL delete reaction with model
 ----
 class UserListener : DBListener<User> {
-    override fun willDelete(key: Key<*>, getModel: () -> User?, typeName: ReadMemory, options: Array<out Options.Write>) {
+    override fun willDelete(key: Key<User>, getModel: () -> User?, typeName: ReadMemory, options: Array<out Options.Write>) {
         getModel()
     }
-    override fun didDelete(key: Key<*>, model: User?, typeName: ReadMemory, options: Array<out Options.Write>) {
+    override fun didDelete(key: Key<User>, model: User?, typeName: ReadMemory, options: Array<out Options.Write>) {
         ui.remove(model)
     }
 }

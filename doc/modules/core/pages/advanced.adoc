@@ -93,7 +93,7 @@ This can be useful for configuration-like values.
 ----
 db.put(Primitive(id = "name", value = "John Doe"))
 /*...*/
-val name = db[db.key<StringPrimitive>("name")]?.value
+val name = db.getById<StringPrimitive>("name")?.value
 ----
 
 
@@ -106,22 +106,6 @@ Using this means that the database will be completely write-locked for the durat
 CAUTION: This can be very useful for things like transactions but can lead to dead locks and/or performance degradations.
 Be extra-careful when using this feature !
 
-
-[[values-and-buffers]]
-== Handling Values and Buffers
-
-Kodein-DB uses https://github.com/Kodein-Framework/Kodein-Memory[Kodein-Memory] for its low-level bit-level memory manipulation.
-Every memory that LevelDB (the low-level data store) handles is actually a `KBuffer`.
-
-Kodein-DB uses the concept of `Value` to transform IDs and indexes to memory.
-Every Kodein-DB API that takes an `Any` parameter for the ID or an index value can be slightly optimized by giving it the `Value` representation.
-The optimization becomes more important for composite values.
-
-[source,kotlin]
-.Using Values:
-----
-db.find<Address>().byId(Value.ofAll(Value.ofAscii("France"), Value.ofInt(75000)))
-----
 
 [[custom-serialization]]
 == Fine-graining (de)serialization
@@ -266,10 +250,11 @@ val db = DB.open(
 )
 ----
 
+
 === Data middleware
 
 A data middleware sits between the *Data* and the *Model* layers.
-It works exactly like a model middleware, except that you manipulate <<values-and-buffers,values and buffers>> instead of models and objects.
+It works exactly like a model middleware, except that you manipulate xref:defining-data-model.adoc#values[Values] and Kodein-Memory KBuffers instead of models and objects.
 
 To implement a data middleware, use the `org.kodein.db.data.DataDB` interface and the `org.kodein.db.Middleware.Data` container.
 
