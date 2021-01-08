@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.15.1")
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.14.4")
     }
 }
 
@@ -26,7 +26,7 @@ allprojects {
     }
 }
 
-val kotlinxAtomicFuVer by extra { "0.15.1" } // CAUTION: also change in buildscript!
+val kotlinxAtomicFuVer by extra { "0.14.4" } // CAUTION: also change in buildscript!
 val kotlinxSerializationVer by extra { "1.0.1" }
 val kodeinLogVer by extra { "0.8.0" }
 val kodeinMemoryVer by extra { "0.5.0" }
