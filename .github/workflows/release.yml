@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macOS-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
     steps:
       - name: Check out
         uses: actions/checkout@v2
@@ -68,7 +68,7 @@ jobs:
 
   build-upload-publish:
     needs: build-upload
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Check out
         uses: actions/checkout@v2
@@ -99,13 +99,20 @@ jobs:
         with:
           java-version: 11
       - name: Setup kodein.local.properties
-        run: cp .github/conf/kodein.local.ubuntu-latest.properties kodein.local.properties
+        run: cp .github/conf/kodein.local.macos-latest.properties kodein.local.properties
       - name: Set up Gradle & Konan
         shell: bash
         run: ./gradlew
       - name: Check
         shell: bash
         run: ./gradlew check
+      - name: Check Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          ndk: 21.3.6528147
+          cmake: 3.10.2.4988404
+          script: ./gradlew connectedCheck
       - name: Upload
         shell: bash
         run: ./gradlew publish --stacktrace
