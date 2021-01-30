@@ -31,7 +31,7 @@ val kotlinxSerializationVer by extra { "1.0.1" }
 val kodeinLogVer by extra { "0.8.0" }
 val kodeinMemoryVer by extra { "0.5.0" }
 
-val androidNdkVer by extra { "21.0.6113669" } // CAUTION: also change in CI workflows!
+val androidNdkVer by extra { "21.3.6528147" } // CAUTION: also change in CI workflows!
 
 val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
 
