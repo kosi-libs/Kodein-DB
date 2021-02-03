@@ -21,15 +21,15 @@ dependencies {
 
 == Use
 
-To create an in-memory database, use the `DB.inmemory` factory:
+To create an in-memory database, use the `DB.inMemory` factory:
 
 [source,kotlin]
 .Opening an in-memory test database
 ----
-val db = DB.inmemory.open("my-db-name", options)
+val db = DB.inMemory.open("my-db-name", options)
 ----
 
-`DB.inmemory` implements the `DBFactory<DB>` interface, which means that you can easily create a factory function that abstracts your database configuration:
+`DB.inMemory` implements the `DBFactory<DB>` interface, which means that you can easily create a factory function that abstracts your database configuration:
 
 [source,kotlin]
 .Opening an in-memory test database
@@ -49,5 +49,5 @@ fun createDatabase(val factory: DBFactory<DB>, dir: String): DB =
     )
 
 val realDb = createDatabase(DB.default, getApplicationDirectory())
-val testDb = createDatabase(DB.inmemory, "fake")
+val testDb = createDatabase(DB.inMemory, "fake")
 ----
