@@ -5,8 +5,11 @@ plugins {
 kodein {
     kotlin {
 
-        common.main.dependencies {
-            api(project(":ldb:kodein-leveldb-api"))
+        common.main {
+            kotlin.srcDir("$buildDir/generated/stemmers/commonKotlin")
+            dependencies {
+                api(project(":ldb:kodein-leveldb-api"))
+            }
         }
 
         add(kodeinTargets.jvm.jvm) {
