@@ -27,9 +27,9 @@ allprojects {
 }
 
 val kotlinxAtomicFuVer by extra { "0.14.4" } // CAUTION: also change in buildscript!
-val kotlinxSerializationVer by extra { "1.0.1" }
-val kodeinLogVer by extra { "0.9.0" }
-val kodeinMemoryVer by extra { "0.6.0" }
+val kotlinxSerializationVer by extra { "1.1.0" }
+val kodeinLogVer by extra { "0.10.0" }
+val kodeinMemoryVer by extra { "0.7.0" }
 
 val androidNdkVer by extra { "21.3.6528147" } // CAUTION: also change in CI workflows!
 
@@ -49,11 +49,6 @@ when {
         extra["libExt"] = "so"
     }
     else -> error("Unknown operating system ${currentOs.name}")
-}
-
-
-kodeinPublications {
-    repo = "Kodein-DB"
 }
 
 task<Delete>("clean") {

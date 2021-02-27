@@ -24,7 +24,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
       - name: Check out
         uses: actions/checkout@v2
@@ -46,6 +46,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '8.0.265'
+      - name: Setup Android SDK dir for MacOS
+        if: matrix.os == 'macos-latest'
+        run: echo sdk.dir=$ANDROID_HOME > local.properties
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
@@ -65,53 +68,17 @@ jobs:
       - name: Set up Gradle & Konan
         shell: bash
         run: ./gradlew
-      - name: Check
+      # Host only for Ubuntu / Windows
+      - name: Check (ubuntu / windows)
+        if: matrix.os != 'macos-latest'
+        run: ./gradlew hostOnlyTest
         shell: bash
-        run: ./gradlew check
-      - name: Upload
+      - name: Upload (ubuntu / windows)
+        if: matrix.os != 'macos-latest'
         shell: bash
         run: ./gradlew hostOnlyPublish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
-      - name: Discard
-        if: ${{ failure() || cancelled() }}
-        shell: bash
-        run: ./gradlew postBintrayDiscard -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }}
-
-  build-upload-publish:
-    needs: build-upload
-    runs-on: macos-latest
-    steps:
-      - name: Check out
-        uses: actions/checkout@v2
-        with:
-          submodules: 'true'
-      - name: Cached Konan
-        uses: actions/cache@v2
-        with:
-          path: ~/.konan
-          key: ${{ runner.os }}-konan-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-konan-
-      - name: Cached Gradle
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-      - name: Set up JDK 8
-        uses: actions/setup-java@v1
-        with:
-          java-version: '8.0.265'
-      - name: Setup Android SDK dir
-        run: echo sdk.dir=$ANDROID_HOME > local.properties
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Setup kodein.local.properties
-        run: cp .github/conf/kodein.local.macos-latest.properties kodein.local.properties
-      - name: Set up Gradle & Konan
-        shell: bash
-        run: ./gradlew
-      - name: Check
+        # Host only for MacOS
+      - name: Check (macos)
         shell: bash
         run: ./gradlew check
       - name: Check Android
@@ -121,13 +88,6 @@ jobs:
           ndk: 21.3.6528147
           cmake: 3.10.2.4988404
           script: ./gradlew connectedCheck
-      - name: Upload
+      - name: Upload (macos)
         shell: bash
-        run: ./gradlew publish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
-      - name: Discard
-        if: ${{ failure() || cancelled() }}
-        shell: bash
-        run: ./gradlew postBintrayDiscard -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }}
-      - name: Publish
-        shell: bash
-        run: ./gradlew postBintrayPublish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }}
+        run: ./gradlew publishAllPublicationsToOssrhStagingRepository -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
