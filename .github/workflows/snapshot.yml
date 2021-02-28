@@ -78,7 +78,7 @@ jobs:
         if: matrix.os != 'macos-latest'
         shell: bash
         run: ./gradlew hostOnlyPublish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
-        # Host only for MacOS
+        # Publish all on MacOS
       - name: Check (macos)
         if: matrix.os == 'macos-latest'
         shell: bash
