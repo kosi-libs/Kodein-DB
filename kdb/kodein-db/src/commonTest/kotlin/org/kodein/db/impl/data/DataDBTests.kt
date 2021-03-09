@@ -13,6 +13,7 @@ import org.kodein.log.LoggerFactory
 import org.kodein.log.frontend.printFrontend
 import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.Allocation
+import org.kodein.memory.io.readAllBytes
 import org.kodein.memory.io.readBytes
 import org.kodein.memory.use
 import kotlin.test.AfterTest
@@ -52,12 +53,12 @@ abstract class DataDBTests {
     }
 
     fun assertDBIs(vararg keyValues: Pair<ByteArray, ByteArray>) {
-        (ddb as DataDBImpl).ldb.newCursor().use { cursor ->
+        ddb.ldb.newCursor().use { cursor ->
             cursor.seekToFirst()
             var i = 0
             while (cursor.isValid()) {
                 if (i >= keyValues.size) {
-                    fail("DB contains additional entrie(s): " + cursor.transientKey().readBytes().description())
+                    fail("DB contains additional entrie(s): " + cursor.transientKey().readAllBytes().description())
                 }
                 assertBytesEquals(keyValues[i].first, cursor.transientKey(), prefix = "Key ${i + 1}: ")
                 assertBytesEquals(keyValues[i].second, cursor.transientValue(), prefix = "Value ${i + 1}: ")

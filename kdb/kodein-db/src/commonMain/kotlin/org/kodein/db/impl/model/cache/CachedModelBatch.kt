@@ -30,7 +30,7 @@ internal class CachedModelBatch(private val cmdb: CachedModelDB, private val bat
     }
 
     override fun write(afterErrors: MaybeThrowable, vararg options: Options.Write) {
-        batch.write(afterErrors, *(options + React(true) {
+        batch.write(afterErrors, *(options + ReactInLock {
             reacts.forEachCatchTo(afterErrors) { cmdb.it() }
         }))
     }

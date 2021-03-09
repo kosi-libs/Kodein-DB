@@ -1,6 +1,7 @@
 package org.kodein.db.test.utils
 
 import org.kodein.memory.io.*
+import org.kodein.memory.text.putString
 import kotlin.test.fail
 
 private fun KBuffer.putValues(vararg values: Any) {
@@ -8,10 +9,10 @@ private fun KBuffer.putValues(vararg values: Any) {
         when (value) {
             is Number -> putByte(value.toByte())
             is Char -> putByte(value.toByte())
-            is String -> {
-                for (i in 0 until value.length)
-                    putByte(value[i].toByte())
+            is CharSequence -> {
+                putString(value)
             }
+            is ReadMemory -> putMemoryBytes(value)
             else -> throw IllegalArgumentException(value.toString())
         }
     }
@@ -21,7 +22,7 @@ private fun KBuffer.putValues(vararg values: Any) {
 fun byteArray(vararg values: Any): ByteArray {
     val buffer = KBuffer.array(16384)
     buffer.putValues(*values)
-    return buffer.readBytes()
+    return buffer.readAllBytes()
 }
 
 fun newBuffer(vararg values: Any): Allocation {
@@ -69,7 +70,7 @@ fun assertBytesEquals(expected: ByteArray, actual: ByteArray, description: Boole
 }
 
 fun assertBytesEquals(expected: ByteArray, actual: ReadMemory, description: Boolean = true, prefix: String = "") =
-        assertBytesEquals(expected, actual.duplicate().readBytes(), description, prefix)
+        assertBytesEquals(expected, actual.duplicate().readAllBytes(), description, prefix)
 
 fun assertBytesEquals(expected: ReadMemory, actual: ReadMemory, description: Boolean = true) =
         assertBytesEquals(expected.getBytes(0), actual.getBytes(0), description)

@@ -1,5 +1,11 @@
 package org.kodein.db
 
-public class Anticipate(public val needsLock: Boolean = false, public val block: () -> Unit) : Options.Write
+import org.kodein.db.leveldb.LevelDB
 
-public class React(public val needsLock: Boolean = false, public val block: (Int) -> Unit) : Options.Write
+public class Anticipate(public val block: () -> Unit) : Options.Write
+
+public class AnticipateInLock(public val block: (LevelDB.WriteBatch) -> Unit) : Options.Write
+
+public class React(public val block: (Int) -> Unit) : Options.Write
+
+public class ReactInLock(public val block: (Int) -> Unit) : Options.Write

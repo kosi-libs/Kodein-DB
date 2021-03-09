@@ -29,7 +29,7 @@ allprojects {
 val kotlinxAtomicFuVer by extra { "0.14.4" } // CAUTION: also change in buildscript!
 val kotlinxSerializationVer by extra { "1.1.0" }
 val kodeinLogVer by extra { "0.10.0" }
-val kodeinMemoryVer by extra { "0.7.0" }
+val kodeinMemoryVer by extra { "0.8.0" }
 
 val androidNdkVer by extra { "21.3.6528147" } // CAUTION: also change in CI workflows!
 
@@ -52,5 +52,6 @@ when {
 }
 
 task<Delete>("clean") {
+    group = "build"
     delete(rootProject.buildDir)
 }

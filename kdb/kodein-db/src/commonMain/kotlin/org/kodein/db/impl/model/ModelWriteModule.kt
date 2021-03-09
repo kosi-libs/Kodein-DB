@@ -54,7 +54,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
         var model: Any? = null
         val getModel: () -> Any? = {
             if (!fetched) {
-                model = mdb[type, key]?.model
+                model = mdb.get(type, key)?.model
                 fetched = true
             }
             model
