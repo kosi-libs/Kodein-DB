@@ -1,4 +1,12 @@
 
+#### 0.6.0 (08-01-2021)
+
+- CORE
+  * Kotlin `1.4.31`.
+  * KotlinX Serialization `1.1.0`.
+  * kodein-Log `0.10.0`.
+  * Kodein-Memory `0.7.0`.
+
 #### 0.5.0 (08-01-2021)
 
 - BREAKING CHANGES
