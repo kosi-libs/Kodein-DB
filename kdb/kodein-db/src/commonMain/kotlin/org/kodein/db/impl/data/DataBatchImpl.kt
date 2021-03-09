@@ -2,8 +2,8 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.*
 import org.kodein.db.data.DataBatch
-import org.kodein.db.impl.utils.putBody
 import org.kodein.db.impl.utils.withLock
+import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
@@ -24,7 +24,7 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
 
         deleteRefKeys += refKey
 
-        return value.available
+        return value.size
     }
 
     override fun put(key: ReadMemory,  body: Body, indexes: Map<String, Value>, vararg options: Options.Write): Int {
@@ -42,21 +42,24 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
     }
 
     override fun write(afterErrors: MaybeThrowable, vararg options: Options.Write) {
-        val checks = options.all<Anticipate>()
-        val reacts = options.all<React>()
-        use {
-            checks.filter { it.needsLock.not() } .forEach { it.block() }
+        val anticipations = options.all<Anticipate>()
+        val inLockAnticipations = options.all<AnticipateInLock>()
+        val inLockReactions = options.all<ReactInLock>()
+        val reactions = options.all<React>()
+
+        this.use {
+            anticipations.forEach { it.block() }
             ddb.ldb.newWriteBatch().use { fullBatch ->
                 ddb.lock.withLock {
-                    checks.filter { it.needsLock } .forEach { it.block() }
+                    inLockAnticipations.forEach { it.block(batch) }
                     deleteRefKeys.forEach { ddb.deleteIndexesInBatch(fullBatch, it) }
                     fullBatch.append(batch)
-                    ddb.ldb.write(fullBatch, DataDBImpl.toLdb(options))
-                    reacts.filter { it.needsLock } .forEachCatchTo(afterErrors) { it.block(-1) }
+                    ddb.ldb.write(fullBatch, LevelDB.WriteOptions.from(options))
+                    inLockReactions.forEachCatchTo(afterErrors) { it.block(-1) }
                 }
             }
         }
-        reacts.filter { it.needsLock.not() } .forEachCatchTo(afterErrors) { it.block(-1) }
+        reactions.forEachCatchTo(afterErrors) { it.block(-1) }
     }
 
     override fun close() = batch.close()

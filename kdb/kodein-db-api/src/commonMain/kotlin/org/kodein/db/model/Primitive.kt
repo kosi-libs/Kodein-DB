@@ -41,7 +41,7 @@ public data class StringPrimitive(override val id: Any, val value: String) : Met
 public data class BytesPrimitive(override val id: Any, val value: ByteArray) : Metadata {
     public object S : Serializer<BytesPrimitive> {
         override fun serialize(model: BytesPrimitive, output: Writeable, vararg options: Options.Write) { output.putBytes(model.value) }
-        override fun deserialize(type: KClass<out BytesPrimitive>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): BytesPrimitive = BytesPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readBytes())
+        override fun deserialize(type: KClass<out BytesPrimitive>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): BytesPrimitive = BytesPrimitive(Value.of(KBuffer.arrayCopy(transientId)), input.readAllBytes())
     }
 
     override fun equals(other: Any?): Boolean {

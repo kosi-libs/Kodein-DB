@@ -83,9 +83,9 @@ public interface Value : Body {
         public fun of(vararg values: ReadBuffer): Value {
             return object : Value.ZeroSpacedValues(values.size) {
                 override fun write(dst: Writeable, pos: Int) {
-                    dst.putBytes(values[pos].duplicate())
+                    dst.putMemoryBytes(values[pos])
                 }
-                override fun size(pos: Int) = values[pos].available
+                override fun size(pos: Int) = values[pos].remaining
                 override fun toString() = values.joinToString()
             }
         }

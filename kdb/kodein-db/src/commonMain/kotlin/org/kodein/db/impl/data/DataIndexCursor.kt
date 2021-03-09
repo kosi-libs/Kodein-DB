@@ -26,7 +26,7 @@ internal class DataIndexCursor internal constructor(private val ldb: LevelDB, cu
 
     override fun thisKey() = itValue()
 
-    override fun thisValue() = ldb.get(itValue(), options) ?: throw IllegalStateException("Index entry points to invalid object entry")
+    override fun thisValue() = ldb.get(itValue(), options) ?: error("Inconsistent internal state: Index entry points to invalid document entry")
 
     override fun duplicate(): DataCursor = DataIndexCursor(ldb, ldb.newCursor(options), prefix, options).also {
         it.cursor.seekTo(it.cursor.transientKey())

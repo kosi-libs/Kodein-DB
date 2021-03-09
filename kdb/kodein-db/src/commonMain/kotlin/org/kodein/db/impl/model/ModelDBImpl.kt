@@ -136,15 +136,17 @@ internal class ModelDBImpl(
             @Suppress("UNCHECKED_CAST")
             realType as KClass<M>
 
-            val r = buffer.available
+            val r = buffer.remaining
 
             @Suppress("UNCHECKED_CAST")
             val model = ((classSerializers[realType] as? Serializer<Any>)?.deserialize(realType, transientId, buffer, *options)
                     ?: defaultSerializer?.deserialize(realType, transientId, buffer, *options)
                     ?: throw IllegalArgumentException("No serializer found for type $realType")) as M
 
-            return Sized(model, r - buffer.available)
+            return Sized(model, r - buffer.remaining)
         }
     }
+
+    override fun <T : Any> getExtension(key: ExtensionKey<T>): T? = data.getExtension(key)
 
 }

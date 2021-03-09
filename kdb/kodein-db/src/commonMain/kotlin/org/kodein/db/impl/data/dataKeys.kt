@@ -2,9 +2,19 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.Value
 import org.kodein.db.ascii.putAscii
-import org.kodein.db.impl.utils.firstIndexOf
-import org.kodein.db.impl.utils.putBody
+import org.kodein.db.putBody
 import org.kodein.memory.io.*
+
+
+/*
+    documentKey = 'o' 0 type id 0
+    indexKey = 'i' 0 type name 0 value 0 id 0
+    refKey = 'r' 0 type id 0
+
+    documentKey -> document
+    indexKey -> documentKey
+    refKey -> (indexKey.size indexKey)+
+*/
 
 private object Prefix {
     const val DOCUMENT = 'o'.toByte()
@@ -53,7 +63,7 @@ internal fun Writeable.putRefKeyFromDocumentKey(documentKey: ReadMemory) {
     putByte(Prefix.REFERENCE)
     documentKey.markBuffer {
         it.skip(1)
-        putBytes(it)
+        putReadableBytes(it)
     }
 }
 
@@ -85,7 +95,7 @@ private fun Writeable.putIndexKey(type: Int, id: ReadMemory, name: String, value
     putBody(value)
     putByte(NULL)
 
-    id.markBuffer { putBytes(it) }
+    putMemoryBytes(id)
     putByte(NULL)
 }
 

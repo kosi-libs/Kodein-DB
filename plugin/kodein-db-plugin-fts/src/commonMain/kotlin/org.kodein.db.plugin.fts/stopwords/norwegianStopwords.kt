@@ -1,0 +1,28 @@
+package org.kodein.db.plugin.fts.stopwords
+
+@OptIn(ExperimentalStdlibApi::class)
+internal val norwegianStopwords by lazy { buildSet {
+    addAll(arrayOf("alle", "andre", "arbeid", "at", "av", "bare", "begge", "ble", "blei", "bli"))
+    addAll(arrayOf("blir", "blitt", "bort", "bra", "bruke", "både", "båe", "da", "de", "deg"))
+    addAll(arrayOf("dei", "deim", "deira", "deires", "dem", "den", "denne", "der", "dere", "deres"))
+    addAll(arrayOf("det", "dette", "di", "din", "disse", "ditt", "du", "dykk", "dykkar", "då"))
+    addAll(arrayOf("eg", "ein", "eit", "eitt", "eller", "elles", "en", "ene", "eneste", "enhver"))
+    addAll(arrayOf("enn", "er", "et", "ett", "etter", "folk", "for", "fordi", "forsûke", "fra"))
+    addAll(arrayOf("få", "før", "fûr", "fûrst", "gjorde", "gjûre", "god", "gå", "ha", "hadde"))
+    addAll(arrayOf("han", "hans", "har", "hennar", "henne", "hennes", "her", "hjå", "ho", "hoe"))
+    addAll(arrayOf("honom", "hoss", "hossen", "hun", "hva", "hvem", "hver", "hvilke", "hvilken", "hvis"))
+    addAll(arrayOf("hvor", "hvordan", "hvorfor", "i", "ikke", "ikkje", "ingen", "ingi", "inkje", "inn"))
+    addAll(arrayOf("innen", "inni", "ja", "jeg", "kan", "kom", "korleis", "korso", "kun", "kunne"))
+    addAll(arrayOf("kva", "kvar", "kvarhelst", "kven", "kvi", "kvifor", "lage", "lang", "lik", "like"))
+    addAll(arrayOf("makt", "man", "mange", "me", "med", "medan", "meg", "meget", "mellom", "men"))
+    addAll(arrayOf("mens", "mer", "mest", "mi", "min", "mine", "mitt", "mot", "mye", "mykje"))
+    addAll(arrayOf("må", "måte", "navn", "ned", "nei", "no", "noe", "noen", "noka", "noko"))
+    addAll(arrayOf("nokon", "nokor", "nokre", "ny", "nå", "når", "og", "også", "om", "opp"))
+    addAll(arrayOf("oss", "over", "part", "punkt", "på", "rett", "riktig", "samme", "sant", "seg"))
+    addAll(arrayOf("selv", "si", "sia", "sidan", "siden", "sin", "sine", "sist", "sitt", "sjøl"))
+    addAll(arrayOf("skal", "skulle", "slik", "slutt", "so", "som", "somme", "somt", "start", "stille"))
+    addAll(arrayOf("så", "sånn", "tid", "til", "tilbake", "tilstand", "um", "under", "upp", "ut"))
+    addAll(arrayOf("uten", "var", "vart", "varte", "ved", "verdi", "vere", "verte", "vi", "vil"))
+    addAll(arrayOf("ville", "vite", "vore", "vors", "vort", "vår", "være", "vært", "vöre", "vört"))
+    addAll(arrayOf("å"))
+}}

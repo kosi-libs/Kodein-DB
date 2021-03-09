@@ -9,6 +9,7 @@ import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.byteArray
 import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
+import org.kodein.memory.util.deferScope
 import kotlin.test.*
 
 @Suppress("ClassName")
@@ -116,26 +117,26 @@ abstract class LDBTests_03_Cursor : LevelDBTests() {
         ldb!!.put(buffer(1), buffer("one"))
         ldb!!.put(buffer(3), buffer("three"))
 
-        ldb!!.newSnapshot().use { snapshot ->
+        deferScope {
+            val snapshot = ldb!!.newSnapshot().useInScope()
             ldb!!.put(buffer(2), buffer("three"))
 
-            ldb!!.newCursor(LevelDB.ReadOptions(snapshot = snapshot)).use { cursor ->
-                cursor.seekToFirst()
+            val cursor = ldb!!.newCursor(LevelDB.ReadOptions(snapshot = snapshot)).useInScope()
+            cursor.seekToFirst()
 
-                assertTrue(cursor.isValid())
-                assertBytesEquals(byteArray(1), cursor.transientKey())
-                assertBytesEquals(byteArray("one"), cursor.transientValue())
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray(1), cursor.transientKey())
+            assertBytesEquals(byteArray("one"), cursor.transientValue())
 
-                cursor.next()
+            cursor.next()
 
-                assertTrue(cursor.isValid())
-                assertBytesEquals(byteArray(3), cursor.transientKey())
-                assertBytesEquals(byteArray("three"), cursor.transientValue())
+            assertTrue(cursor.isValid())
+            assertBytesEquals(byteArray(3), cursor.transientKey())
+            assertBytesEquals(byteArray("three"), cursor.transientValue())
 
-                cursor.next()
+            cursor.next()
 
-                assertFalse(cursor.isValid())
-            }
+            assertFalse(cursor.isValid())
         }
     }
 

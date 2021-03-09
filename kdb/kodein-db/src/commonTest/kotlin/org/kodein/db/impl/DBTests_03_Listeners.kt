@@ -4,10 +4,9 @@ import org.kodein.db.*
 import org.kodein.db.impl.model.Adult
 import org.kodein.db.impl.model.Person
 import org.kodein.db.inmemory.inMemory
-import org.kodein.db.model.cache.ModelCache
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.memory.file.FileSystem
-import org.kodein.memory.text.toAsciiBytes
+import org.kodein.memory.text.Charset
 import kotlin.test.*
 
 @Suppress("ClassName")
@@ -23,7 +22,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             var wCounter = 0
             var dCounter = 0
             willPut {
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -38,7 +37,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             willDelete { fail() }
             didPut {
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(1, wCounter)
@@ -66,7 +65,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             var dCounter = 0
             willPut { fail() }
             willDelete {
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -79,7 +78,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didPut { fail() }
             didDelete {
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(1, wCounter)
@@ -105,7 +104,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             var dCounter = 0
             willPut { fail() }
             willDeleteIt {
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -120,7 +119,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didPut { fail() }
             didDeleteIt {
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(1, wCounter)
@@ -148,7 +147,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             var wCounter = 0
             var dCounter = 0
             willPut {
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -162,7 +161,7 @@ abstract class DBTests_03_Listeners : DBTests() {
                 }
             }
             willDeleteIt {
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (wCounter++) {
                     2 -> {
                         assertEquals(2, dCounter)
@@ -177,7 +176,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didPut {
                 assertTrue(pBatchApplied)
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(2, wCounter)
@@ -192,7 +191,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didDeleteIt {
                 assertTrue(dBatchApplied)
-                assertBytesEquals("Adult".toAsciiBytes(), typeName)
+                assertBytesEquals(Charset.ASCII.stringToBytes("Adult"), typeName)
                 when (dCounter++) {
                     2 -> {
                         assertEquals(4, wCounter)

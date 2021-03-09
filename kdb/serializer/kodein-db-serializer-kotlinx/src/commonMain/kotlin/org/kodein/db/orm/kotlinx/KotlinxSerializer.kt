@@ -13,10 +13,7 @@ import kotlinx.serialization.modules.serializersModuleOf
 import org.kodein.db.Options
 import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.simpleTypeNameOf
-import org.kodein.memory.io.ReadBuffer
-import org.kodein.memory.io.ReadMemory
-import org.kodein.memory.io.Writeable
-import org.kodein.memory.io.readBytes
+import org.kodein.memory.io.*
 import org.kodein.memory.util.UUID
 import kotlin.collections.set
 import kotlin.jvm.JvmOverloads
@@ -80,7 +77,7 @@ public class KotlinxSerializer @JvmOverloads constructor(module: SerializersModu
     @InternalSerializationApi @ExperimentalSerializationApi
     override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
         val serializer = serializers[type] ?: type.serializer().also { serializers[type] = it }
-        val bytes = input.readBytes()
+        val bytes = input.readAllBytes()
         @Suppress("UNCHECKED_CAST")
         return cbor.decodeFromByteArray(serializer as DeserializationStrategy<Any>, bytes)
     }

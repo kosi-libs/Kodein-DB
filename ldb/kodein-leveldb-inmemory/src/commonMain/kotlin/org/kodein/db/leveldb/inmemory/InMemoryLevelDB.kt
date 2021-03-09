@@ -1,6 +1,7 @@
 package org.kodein.db.leveldb.inmemory
 
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.PlatformCloseable
 import org.kodein.memory.io.*
 import kotlin.collections.ArrayList

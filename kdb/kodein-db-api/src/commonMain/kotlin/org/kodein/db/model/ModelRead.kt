@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 
 public interface ModelRead : KeyMaker, ValueMaker {
 
-    public operator fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>?
+    public fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>?
 
     public fun findAll(vararg options: Options.Read): ModelCursor<*>
 

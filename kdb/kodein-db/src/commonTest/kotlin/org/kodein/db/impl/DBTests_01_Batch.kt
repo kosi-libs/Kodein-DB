@@ -37,7 +37,7 @@ abstract class DBTests_01_Batch : DBTests() {
         db.execBatch {
             put(Message(uid, db.keyFrom(Models.salomon), "Coucou !"))
             put(counter.copy(value = counter.value + 1))
-            addOptions(Anticipate(true) { check(db[counterKey]!!.value == counter.value) })
+            addOptions(AnticipateInLock { check(db[counterKey]!!.value == counter.value) })
         }
 
         assertEquals(1, db[counterKey]!!.value)
@@ -57,7 +57,7 @@ abstract class DBTests_01_Batch : DBTests() {
             db.execBatch {
                 put(Message(uid, db.keyFrom(Models.salomon), "Coucou !"))
                 put(counter.copy(value = counter.value + 1))
-                addOptions(Anticipate(true) { check(db[counterKey]!!.value == counter.value + 1) })
+                addOptions(AnticipateInLock { check(db[counterKey]!!.value == counter.value + 1) })
             }
         }
 

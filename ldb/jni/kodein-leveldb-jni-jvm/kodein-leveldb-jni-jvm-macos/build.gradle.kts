@@ -30,7 +30,6 @@ tasks.getByName<ProcessResources>(kotlin.target.compilations["main"].processReso
 kodeinUpload {
     name = "kodein-leveldb-jni-jvm-macos"
     description = "LevelDB native library for MacOS JVM"
-    packageOf = ":ldb:jni:kodein-leveldb-jni-jvm"
 }
 
 tasks.withType<PublishToMavenRepository>().all {

@@ -15,7 +15,7 @@ public const val typeIdKeySize: Int = 2 + 4
 internal fun Writeable.putTypeNameKey(typeName: ReadMemory) {
     putByte(Prefix.TYPE)
     putByte('n'.toByte())
-    typeName.markBuffer { putBytes(it) }
+    putMemoryBytes(typeName)
 }
 
 

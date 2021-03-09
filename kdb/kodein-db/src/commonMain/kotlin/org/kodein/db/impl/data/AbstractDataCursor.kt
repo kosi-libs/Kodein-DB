@@ -1,7 +1,6 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.data.DataCursor
-import org.kodein.db.impl.utils.startsWith
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
 
@@ -36,9 +35,8 @@ internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor,
         cacheReset()
     }
 
-    final override fun isValid(): Boolean {
-        return cachedValid ?: (cursor.isValid() && isValidSeekKey(itKey())).also { cachedValid = it }
-    }
+    final override fun isValid(): Boolean =
+        cachedValid ?: (cursor.isValid() && isValidSeekKey(itKey())).also { cachedValid = it }
 
     final override fun next() {
         cacheReset()
@@ -54,7 +52,7 @@ internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor,
 
     final override fun seekTo(target: ReadMemory) {
         cacheReset()
-        require(isValidSeekKey(target)) { "Not a valid seek key" }
+        check(isValidSeekKey(target)) { "Not a valid seek key" }
         cursor.seekTo(target)
     }
 
@@ -85,7 +83,6 @@ internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor,
 
     final override fun transientKey(): ReadMemory {
         check(isValid()) { "Cursor is not valid" }
-
         return  thisKey().duplicate()
     }
 

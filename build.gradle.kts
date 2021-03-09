@@ -27,9 +27,9 @@ allprojects {
 }
 
 val kotlinxAtomicFuVer by extra { "0.14.4" } // CAUTION: also change in buildscript!
-val kotlinxSerializationVer by extra { "1.0.1" }
+val kotlinxSerializationVer by extra { "1.1.0" }
 val kodeinLogVer by extra { "0.8.0" }
-val kodeinMemoryVer by extra { "0.5.0" }
+val kodeinMemoryVer by extra { "0.8.0" }
 
 val androidNdkVer by extra { "21.0.6113669" } // CAUTION: also change in CI workflows!
 
@@ -52,10 +52,7 @@ when {
 }
 
 
-kodeinPublications {
-    repo = "Kodein-DB"
-}
-
 task<Delete>("clean") {
+    group = "build"
     delete(rootProject.buildDir)
 }
