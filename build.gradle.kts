@@ -21,15 +21,15 @@ allprojects {
         google()
         maven(url = "https://kotlin.bintray.com/kotlinx")
         maven(url = "https://dl.bintray.com/kodein-framework/kodein-dev")
-        maven(url = "https://dl.bintray.com/kodein-framework/Kodein-Memory")
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
         jcenter()
     }
 }
 
 val kotlinxAtomicFuVer by extra { "0.14.4" } // CAUTION: also change in buildscript!
-val kotlinxSerializationVer by extra { "1.1.0" }
+val kotlinxSerializationVer by extra { "1.0.1" }
 val kodeinLogVer by extra { "0.10.0" }
-val kodeinMemoryVer by extra { "0.7.0" }
+val kodeinMemoryVer by extra { "0.7.0-kx.ser-1.0.1-55-SNAPSHOT" }
 
 val androidNdkVer by extra { "21.3.6528147" } // CAUTION: also change in CI workflows!
 
