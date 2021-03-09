@@ -1,7 +1,6 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.*
-import org.kodein.db.ascii.getAscii
 import org.kodein.db.data.DataDB
 import org.kodein.db.impl.utils.*
 import org.kodein.db.model.*
@@ -11,6 +10,7 @@ import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.Serializer
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.*
+import org.kodein.memory.text.readString
 import org.kodein.memory.use
 import org.kodein.memory.util.forEachResilient
 import kotlin.reflect.KClass
@@ -126,9 +126,9 @@ internal class ModelDBImpl(
             val realType = typeCache[typeId] ?: run {
                 val typeName = getTypeName(typeId) ?: throw IllegalStateException("Unknown type ID. Has this LevelDB entry been inserted outside of Kodein DB?")
                 typeTable.getTypeClass(typeName) ?: run {
-                    check(type != Any::class) { "Type ${typeName.getAscii()} is not declared in type table." }
+                    check(type != Any::class) { "Type ${typeName.duplicate().readString()} is not declared in type table." }
                     val expectedTypeName = typeTable.getTypeName(type)
-                    check(typeName.compareTo(expectedTypeName) == 0) { "Type ${typeName.getAscii()} is not declared in type table and do not match expected type ${expectedTypeName.getAscii()}." }
+                    check(typeName.compareTo(expectedTypeName) == 0) { "Type ${typeName.duplicate().readString()} is not declared in type table and do not match expected type ${expectedTypeName.duplicate().readString()}." }
                     type
                 }.also { typeCache[typeId] = it }
             }

@@ -2,12 +2,12 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.Options
 import org.kodein.db.Value
-import org.kodein.db.ascii.getAscii
 import org.kodein.db.data.DataCursor
 import org.kodein.db.data.DataRead
 import org.kodein.db.from
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.memory.io.*
+import org.kodein.memory.text.readString
 import org.kodein.memory.transfer
 import org.kodein.memory.use
 
@@ -65,8 +65,7 @@ internal interface DataReadModule : DataKeyMakerModule, DataRead {
                 val indexKey = indexes.slice(indexes.position, length)
                 indexes.skip(length)
 
-                val name = getIndexKeyName(indexKey)
-                set.add(name.getAscii())
+                set.add(getIndexKeyName(indexKey).readString())
             }
         }
 

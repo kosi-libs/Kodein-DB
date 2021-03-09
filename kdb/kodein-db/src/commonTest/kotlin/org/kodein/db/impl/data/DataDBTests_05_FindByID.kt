@@ -21,11 +21,11 @@ abstract class DataDBTests_05_FindByID : DataDBTests() {
 
     @Test
     fun test00_FindByPKCompositeKey() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.of("aaa", "a")), Value.of("ValueAa1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("aaa", "b")), Value.of("ValueAb1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
 
-        ddb.findById(1, Value.ofAscii("aaa")).use {
+        ddb.findById(1, Value.of("aaa")).use {
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, 0, 0, 0, 1, "aaa", 0, 'a', 0), byteArray("ValueAa1!"), it)
             assertBytesEquals(it.transientKey(), it.transientSeekKey())
@@ -40,11 +40,11 @@ abstract class DataDBTests_05_FindByID : DataDBTests() {
 
     @Test
     fun test01_FindByPKReverseCompositeKey() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "a")), Value.ofAscii("ValueAa1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa", "b")), Value.ofAscii("ValueAb1!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.of("aaa", "a")), Value.of("ValueAa1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("aaa", "b")), Value.of("ValueAb1!"), mapOf("Symbols" to Value.of("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
 
-        ddb.findById(1, Value.ofAscii("aaa")).use {
+        ddb.findById(1, Value.of("aaa")).use {
             assertTrue(it.isValid())
             it.seekToLast()
             assertTrue(it.isValid())
@@ -61,10 +61,10 @@ abstract class DataDBTests_05_FindByID : DataDBTests() {
 
     @Test
     fun test02_FindByPKUnknownKey() {
-        ddb.put( ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put( ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put( ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put( ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
 
-        ddb.findById(1, Value.ofAscii("ccc")).use {
+        ddb.findById(1, Value.of("ccc")).use {
             assertFalse(it.isValid())
         }
     }

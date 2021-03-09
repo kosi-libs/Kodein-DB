@@ -60,14 +60,13 @@ void throwLevelDBExceptionFromStatus(JNIEnv *env, const leveldb::Status &status)
 	throwLevelDBExceptionFromMessage(env, status.ToString());
 }
 
-char *getAsciiString(JNIEnv *env, jstring jstr) {
-	int length = env->GetStringLength(jstr);
-	const jchar *chars = env->GetStringCritical(jstr, nullptr);
+char *copyUTFString(JNIEnv *env, jstring jstr) {
+	int length = env->GetStringUTFLength(jstr);
 	char *str = new char[length + 1];
-	for (int i = 0; i < length; ++i)
-		str[i] = (char) chars[i];
+	const char *chars = env->GetStringUTFChars(jstr, nullptr);
+    memcpy(str, chars, length);
 	str[length] = 0;
-	env->ReleaseStringCritical(jstr, chars);
+	env->ReleaseStringUTFChars(jstr, chars);
 	return str;
 }
 
@@ -239,7 +238,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_optionsRelease (JNI
 JNIEXPORT jlong JNICALL Java_org_kodein_db_leveldb_jni_Native_dbOpen (JNIEnv *env, jclass, jstring jpath, jlong optionsPtr, jboolean repairOnCorruption) {
     CAST(leveldb::Options, options);
 
-	const char *path = getAsciiString(env, jpath);
+	const char *path = copyUTFString(env, jpath);
 
 	leveldb::DB *ldb = nullptr;
 
@@ -270,7 +269,7 @@ JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_dbRelease (JNIEnv *
 JNIEXPORT void JNICALL Java_org_kodein_db_leveldb_jni_Native_dbDestroy (JNIEnv *env, jclass, jstring jpath, jlong optionsPtr) {
     CAST(leveldb::Options, options);
 
-	const char *path = getAsciiString(env, jpath);
+	const char *path = copyUTFString(env, jpath);
     leveldb::Status s = leveldb::DestroyDB(path, *options);
     delete[] path;
 

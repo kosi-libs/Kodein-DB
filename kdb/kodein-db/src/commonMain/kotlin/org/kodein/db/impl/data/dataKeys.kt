@@ -1,9 +1,10 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.Value
-import org.kodein.db.ascii.putAscii
 import org.kodein.db.putBody
 import org.kodein.memory.io.*
+import org.kodein.memory.text.Charset
+import org.kodein.memory.text.putString
 
 
 /*
@@ -89,7 +90,7 @@ private fun Writeable.putIndexKey(type: Int, id: ReadMemory, name: String, value
 
     putInt(type)
 
-    putAscii(name)
+    putString(name, Charset.UTF8)
     putByte(NULL)
 
     putBody(value)
@@ -125,7 +126,7 @@ internal fun Writeable.putIndexKeyStart(type: Int, name: String, value: Value?, 
 
     putInt(type)
 
-    putAscii(name)
+    putString(name, Charset.UTF8)
     putByte(NULL)
 
     if (value != null) {

@@ -1,18 +1,18 @@
 package org.kodein.db.impl.model
 
 import org.kodein.db.*
-import org.kodein.db.ascii.getAscii
 import org.kodein.db.data.DataKeyMaker
 import org.kodein.db.impl.data.getDocumentKeyType
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.wrap
+import org.kodein.memory.text.readString
 import kotlin.reflect.KClass
 
 internal interface ModelKeyMakerModule : KeyMaker, ModelValueMakerModule {
 
     val data: DataKeyMaker
 
-    override fun <M : Any> key(type: KClass<M>, vararg id: Any) = Key<M>(data.newKey(mdb.getTypeId(mdb.typeTable.getTypeName(type)), valueOf(id)))
+    override fun <M : Any> keyById(type: KClass<M>, vararg id: Any) = Key<M>(data.newKey(mdb.getTypeId(mdb.typeTable.getTypeName(type)), valueOf(id)))
 
     override fun <M : Any> keyFrom(model: M, vararg options: Options.Write) = Key<M>(data.newKey(mdb.getTypeId(mdb.typeTable.getTypeName(model::class)), valueOf(mdb.getMetadata(model, options).id)))
 
@@ -23,8 +23,8 @@ internal interface ModelKeyMakerModule : KeyMaker, ModelValueMakerModule {
         val typeId = mdb.getTypeId(typeName, false)
         check(typeId == keyTypeId) {
             val keyTypeName = mdb.getTypeName(keyTypeId)
-            if (keyTypeName != null) "Key is of type ${keyTypeName.getAscii(0)} but was expected to be of type ${typeName.getAscii(0)}. Are you sure this key was created with this Kodein-DB?"
-            else "Key is of unknown type, but was expected to be of type ${typeName.getAscii(0)}. Are you sure this key was created with this Kodein-DB?"
+            if (keyTypeName != null) "Key is of type ${keyTypeName.duplicate().readString()} but was expected to be of type ${typeName.duplicate().readString()}. Are you sure this key was created with this Kodein-DB?"
+            else "Key is of unknown type, but was expected to be of type ${typeName.duplicate().readString()}. Are you sure this key was created with this Kodein-DB?"
         }
         return key
     }

@@ -17,8 +17,8 @@ abstract class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test00_DeleteWithoutIndex() {
-        val key = ddb.newKey(1, Value.ofAscii("aaa", "bbb"))
-        ddb.put(key, Value.ofAscii("ValueAB1"))
+        val key = ddb.newKey(1, Value.of("aaa", "bbb"))
+        ddb.put(key, Value.of("ValueAB1"))
         ddb.delete(key)
 
         assertDBIs(
@@ -27,8 +27,8 @@ abstract class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test01_DeleteWithIndex() {
-        val key = ddb.newKey(1, Value.ofAscii("aaa"))
-        ddb.put(key, Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta"), "Numbers" to Value.ofAscii("forty", "two")))
+        val key = ddb.newKey(1, Value.of("aaa"))
+        ddb.put(key, Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta"), "Numbers" to Value.of("forty", "two")))
         ddb.delete(key)
 
         assertDBIs(
@@ -37,8 +37,8 @@ abstract class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test02_DeleteUnknown() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        val key = ddb.newKey(1, Value.ofAscii("bbb"))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        val key = ddb.newKey(1, Value.of("bbb"))
         ddb.delete(key)
 
         assertDBIs(
@@ -50,9 +50,9 @@ abstract class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test03_Delete1of2() {
-        val key = ddb.newKey(1, Value.ofAscii("aaa"))
-        ddb.put(key, Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        val key = ddb.newKey(1, Value.of("aaa"))
+        ddb.put(key, Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
         ddb.delete(key)
 
         assertDBIs(

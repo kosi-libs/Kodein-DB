@@ -14,10 +14,10 @@ class DataKeysTests_03_IndexKeyStart {
 
     @Test
     fun test00_SimpleIndexKeyStart() {
-        val size = getIndexKeyStartSize("Symbols", Value.ofAscii("alpha"))
+        val size = getIndexKeyStartSize("Symbols", Value.of("alpha"))
         assertEquals(size, 20)
         Allocation.native(size).use {
-            it.putIndexKeyStart(1, "Symbols", Value.ofAscii("alpha"))
+            it.putIndexKeyStart(1, "Symbols", Value.of("alpha"))
             it.flip()
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0), it)
         }
@@ -25,10 +25,10 @@ class DataKeysTests_03_IndexKeyStart {
 
     @Test
     fun test01_SimpleIndexKeyStartPrefix() {
-        val size = getIndexKeyStartSize("Symbols", Value.ofAscii("alpha"), isOpen = true)
+        val size = getIndexKeyStartSize("Symbols", Value.of("alpha"), isOpen = true)
         assertEquals(size, 19)
         Allocation.native(size).use {
-            it.putIndexKeyStart(1, "Symbols", Value.ofAscii("alpha"), isOpen = true)
+            it.putIndexKeyStart(1, "Symbols", Value.of("alpha"), isOpen = true)
             it.flip()
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha"), it)
         }
@@ -36,10 +36,10 @@ class DataKeysTests_03_IndexKeyStart {
 
     @Test
     fun test02_CompositeIndexKeyStart() {
-        val size = getIndexKeyStartSize("Symbols", Value.ofAscii("alpha", "beta"))
+        val size = getIndexKeyStartSize("Symbols", Value.of("alpha", "beta"))
         assertEquals(size, 25)
         Allocation.native(size).use {
-            it.putIndexKeyStart(1, "Symbols", Value.ofAscii("alpha", "beta"))
+            it.putIndexKeyStart(1, "Symbols", Value.of("alpha", "beta"))
             it.flip()
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0, "beta", 0), it)
         }
@@ -47,10 +47,10 @@ class DataKeysTests_03_IndexKeyStart {
 
     @Test
     fun test03_CompositeIndexKeyStartPrefix() {
-        val size = getIndexKeyStartSize("Symbols", Value.ofAscii("alpha", "beta"), isOpen = true)
+        val size = getIndexKeyStartSize("Symbols", Value.of("alpha", "beta"), isOpen = true)
         assertEquals(size, 24)
         Allocation.native(size).use {
-            it.putIndexKeyStart(1, "Symbols", Value.ofAscii("alpha", "beta"), isOpen = true)
+            it.putIndexKeyStart(1, "Symbols", Value.of("alpha", "beta"), isOpen = true)
             it.flip()
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0, "beta"), it)
         }

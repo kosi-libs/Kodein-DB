@@ -120,8 +120,8 @@ If you want to handle a specific class serialization by yourself you can write y
 data class User(@Id val id: String, val name: String) {
     object S : Serializer<User> {
         override fun serialize(model: User, output: Writeable, vararg options: Options.Write) { //<1>
-            output.putSizeAndString(model.id, Charset.ASCII)
-            output.putSizeAndString(model.name, Charset.UTF8)
+            output.putSizeAndString(model.id)
+            output.putSizeAndString(model.name)
         }
         override fun deserialize(type: KClass<out User>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): User { //<1>
             val id = input.readSizeAndString(Charset.UTF8)

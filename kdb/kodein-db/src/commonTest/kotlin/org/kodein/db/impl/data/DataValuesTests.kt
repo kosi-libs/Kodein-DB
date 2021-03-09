@@ -63,10 +63,10 @@ class DataValuesTests {
     }
 
     @Test
-    fun test02_ascii() {
+    fun test02_text() {
         val value = Value.of(
-                Value.ofAscii("B", "R", "Y", "S"),
-                Value.ofAscii("Salomon")
+                Value.of("B", "R", "Y", "S"),
+                Value.of("Salomon")
         )
         assertEquals(15, value.size)
 
@@ -94,8 +94,8 @@ class DataValuesTests {
             Value.emptyValue,
             Value.of(byteArrayOf(1, 2, 3, 4)),
             Value.of(KBuffer.array(4) { putBytes(byteArrayOf(5, 6, 7, 8)) }),
-            Value.ofAscii('B', 'R', 'Y', 'S'),
-            Value.ofAscii("Salomon")
+            Value.of('B', 'R', 'Y', 'S'),
+            Value.of("Salomon")
         )
         assertEquals(47, value.size)
 

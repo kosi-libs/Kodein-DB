@@ -21,13 +21,13 @@ abstract class DataDBTests_10_CloseOpen : DataDBTests() {
 
     @Test
     fun test090_PutCloseOpenGet() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("key")), Value.ofAscii("value"))
+        ddb.put(ddb.newKey(1, Value.of("key")), Value.of("value"))
 
         ddb.close()
 
         open()
 
-        val key = ddb.newKey(1, Value.ofAscii("key"))
+        val key = ddb.newKey(1, Value.of("key"))
         ddb.get(key)!!.use {
             assertBytesEquals(byteArray("value"), it)
         }
@@ -35,7 +35,7 @@ abstract class DataDBTests_10_CloseOpen : DataDBTests() {
 
     @Test
     fun test091_PutCloseOpenIter() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("key")), Value.ofAscii("value"))
+        ddb.put(ddb.newKey(1, Value.of("key")), Value.of("value"))
 
         ddb.close()
 

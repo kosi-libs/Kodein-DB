@@ -2,7 +2,12 @@ package org.kodein.db
 
 import org.kodein.memory.io.KBuffer
 import org.kodein.memory.io.ReadMemory
+import org.kodein.memory.io.array
 import org.kodein.memory.io.wrap
+import org.kodein.memory.text.Charset
+import org.kodein.memory.text.putString
+import org.kodein.memory.text.sizeOf
+import org.kodein.memory.text.wrap
 import kotlin.reflect.KClass
 
 public interface TypeTable : Options.Open {
@@ -79,6 +84,11 @@ public interface TypeTable : Options.Open {
     }
 
     public companion object {
-        public operator fun invoke(defaultNameOf: (KClass<*>) -> ReadMemory = { KBuffer.wrap(simpleTypeAsciiNameOf(it)) }, defaultClassOf: (ReadMemory) -> KClass<*>? = { null }, builder: Builder.() -> Unit = {}): TypeTable = Impl(Builder(defaultNameOf).apply(builder).roots, defaultNameOf, defaultClassOf)
+        public operator fun invoke(
+            defaultNameOf: (KClass<*>) -> ReadMemory = { simpleTypeNameOf(it).let { KBuffer.wrap(it, Charset.UTF8) } },
+            defaultClassOf: (ReadMemory) -> KClass<*>? = { null },
+            builder: Builder.() -> Unit = {}
+        ): TypeTable =
+            Impl(Builder(defaultNameOf).apply(builder).roots, defaultNameOf, defaultClassOf)
     }
 }

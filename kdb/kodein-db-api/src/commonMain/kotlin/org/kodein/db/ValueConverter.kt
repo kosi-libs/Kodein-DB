@@ -15,6 +15,8 @@ public fun interface ValueConverter : Options.Open {
 
         public val uuid: ValueConverter = forClass<UUID> { Value.of(it.mostSignificantBits, it.leastSignificantBits) }
 
-        public val defaults: List<ValueConverter> = listOf(uuid)
+        public val key: ValueConverter = forClass<Key<*>> { Value.of(it.bytes) }
+
+        public val defaults: List<ValueConverter> = listOf(key, uuid)
     }
 }

@@ -14,10 +14,10 @@ class DataKeysTests_00_Key {
 
     @Test
     fun test00_SimpleKey() {
-        val size = getDocumentKeySize(Value.ofAscii("one"))
+        val size = getDocumentKeySize(Value.of("one"))
         assertEquals(size, 10)
         Allocation.native(size).use {
-            it.putDocumentKey(1, Value.ofAscii("one"))
+            it.putDocumentKey(1, Value.of("one"))
             it.flip()
             assertBytesEquals(byteArray('o', 0, 0, 0, 0, 1, "one", 0), it)
         }
@@ -25,10 +25,10 @@ class DataKeysTests_00_Key {
 
     @Test
     fun test01_SimpleKeyPrefix() {
-        val size = getDocumentKeySize(Value.ofAscii("one"), isOpen = true)
+        val size = getDocumentKeySize(Value.of("one"), isOpen = true)
         assertEquals(size, 9)
         Allocation.native(size).use {
-            it.putDocumentKey(1, Value.ofAscii("one"), isOpen = true)
+            it.putDocumentKey(1, Value.of("one"), isOpen = true)
             it.flip()
             assertBytesEquals(byteArray('o', 0, 0, 0, 0, 1, "one"), it)
         }
@@ -36,10 +36,10 @@ class DataKeysTests_00_Key {
 
     @Test
     fun test02_CompositeKey() {
-        val size = getDocumentKeySize(Value.ofAscii("one", "two"))
+        val size = getDocumentKeySize(Value.of("one", "two"))
         assertEquals(size, 14)
         Allocation.native(size).use {
-            it.putDocumentKey(1, Value.ofAscii("one", "two"))
+            it.putDocumentKey(1, Value.of("one", "two"))
             it.flip()
             assertBytesEquals(byteArray('o', 0, 0, 0, 0, 1, "one", 0, "two", 0), it)
         }
@@ -47,10 +47,10 @@ class DataKeysTests_00_Key {
 
     @Test
     fun test03_CompositeKeyPrefix() {
-        val size = getDocumentKeySize(Value.ofAscii("one", "two"), isOpen = true)
+        val size = getDocumentKeySize(Value.of("one", "two"), isOpen = true)
         assertEquals(size, 13)
         Allocation.native(size).use {
-            it.putDocumentKey(1, Value.ofAscii("one", "two"), isOpen = true)
+            it.putDocumentKey(1, Value.of("one", "two"), isOpen = true)
             it.flip()
             assertBytesEquals(byteArray('o', 0, 0, 0, 0, 1, "one", 0, "two"), it)
         }

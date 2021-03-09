@@ -18,8 +18,8 @@ abstract class DataDBTests_11_FindIndexes : DataDBTests() {
 
     @Test
     fun test00_FindIndexes() {
-        val key = ddb.newKey(1, Value.ofAscii("aaa"))
-        ddb.put(key, Value.ofAscii("ValueA!"), mapOf("Numbers" to Value.ofAscii("forty", "two"), "Symbols" to Value.ofAscii("alpha", "beta")))
+        val key = ddb.newKey(1, Value.of("aaa"))
+        ddb.put(key, Value.of("ValueA!"), mapOf("Numbers" to Value.of("forty", "two"), "Symbols" to Value.of("alpha", "beta")))
         val indexes = ddb.getIndexesOf(key)
 
         assertEquals(2, indexes.size.toLong())
@@ -29,15 +29,15 @@ abstract class DataDBTests_11_FindIndexes : DataDBTests() {
 
     @Test
     fun test01_FindNoIndexes() {
-        val key = ddb.newKey(1, Value.ofAscii("aaa"))
-        ddb.put(key, Value.ofAscii("ValueA!"))
+        val key = ddb.newKey(1, Value.of("aaa"))
+        ddb.put(key, Value.of("ValueA!"))
         val indexes = ddb.getIndexesOf(key)
         assertTrue(indexes.isEmpty())
     }
 
     @Test
     fun test02_FindUnknownIndexes() {
-        val indexes = ddb.getIndexesOf(ddb.newKey(2, Value.ofAscii("A")))
+        val indexes = ddb.getIndexesOf(ddb.newKey(2, Value.of("A")))
 
         assertTrue(indexes.isEmpty())
     }

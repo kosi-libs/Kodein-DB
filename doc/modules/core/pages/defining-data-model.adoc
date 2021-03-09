@@ -36,9 +36,6 @@ data class User(
 )
 ----
 
-CAUTION: When using `@Id` or `@Index`, Kodein-DB converts `String` values to byte array using the ASCII charset.
-Therefore, only ASCII characters are allowed.
-
 Using this configuration, when getting all users by index `"lastName"`, they will be ordered first by `lastName`, then by `uid`.
 If you want the results to be ordered by `lastName` then `firstName` (then `uid`), you can use a composite index:
 
@@ -160,10 +157,13 @@ NOTE: A `Value` is a serializable entity where the serialized bytes define the o
 
 === Types usable as Value
 
-By default, the Kodein-DB understands the following types to be used as values: `ByteArray`, `ReadBuffer`, `Boolean`, `Short`, `Int`, `Long`, ASCII `Char`, ASCII `CharSequence` (such as `String`), Kodein-Memory `UUID` (*not* `java.util.UUID`).
+By default, the Kodein-DB understands the following types to be used as values: `ByteArray`, `ReadBuffer`, `Boolean`, `Short`, `Int`, `Long`, `Char`, `CharSequence` (such as `String`), Kodein-Memory `UUID` (*not* `java.util.UUID`, `Key`).
 
-IMPORTANT: in order to keep the database efficient and indexes ordering semantic, `Char` and `CharSequence` are stored as ASCII characters (i.e. using only one byte per character). You should not use non-ascii characters in IDs or indexes values.
-
+[IMPORTANT]
+====
+In order to keep the database efficient and indexes ordering semantic, `Char` and `CharSequence` are stored as UTF-8 characters (i.e. using a variable number of byte per character). You should be careful when using non-ascii characters as their ordering will not always be natural. +
+For example, the French language uses the accented letter 'é'. UTF ordering means that "céleri" will be sorted *after* "cuisse". You should therefore unaccent index values.
+====
 
 === Adding new types as value
 

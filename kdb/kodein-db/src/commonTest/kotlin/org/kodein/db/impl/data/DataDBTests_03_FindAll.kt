@@ -20,9 +20,9 @@ abstract class DataDBTests_03_FindAll : DataDBTests() {
 
     @Test
     fun test00_FindAll() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey(2, Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB!"), mapOf("Numbers" to Value.of("forty", "two")))
+        ddb.put(ddb.newKey(2, Value.of("ccc")), Value.of("ValueC!"), mapOf("Symbols" to Value.of("gamma", "delta")))
 
         ddb.findAll().use {
             assertTrue(it.isValid())
@@ -40,9 +40,9 @@ abstract class DataDBTests_03_FindAll : DataDBTests() {
 
     @Test
     fun test01_FindAllReverse() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
-        ddb.put(ddb.newKey(2, Value.ofAscii("ccc")), Value.ofAscii("ValueC!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB!"), mapOf("Numbers" to Value.of("forty", "two")))
+        ddb.put(ddb.newKey(2, Value.of("ccc")), Value.of("ValueC!"), mapOf("Symbols" to Value.of("gamma", "delta")))
 
         ddb.findAll().use {
             it.seekToLast()

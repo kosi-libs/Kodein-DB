@@ -1,4 +1,10 @@
 
+#### 0.7.0 (08-01-2021)
+
+- API
+  * `db.key(vararg id: Any)` is renamed `db.keyById(vararg id: Any)` to align with `getById` & `deleteById`
+  * A `Key` can now be serialized as a `Value`, and therefore be part of an index.
+
 #### 0.6.0 (08-01-2021)
 
 - CORE

@@ -13,7 +13,7 @@ public abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
     final override fun open(path: String, vararg options: Options.Open): ModelDB {
         val serializer = options<DefaultSerializer>() ?: PlatformModelDBDefaults.serializer()
         val metadataExtractors = options.all<MetadataExtractor>() + listOfNotNull(PlatformModelDBDefaults.metadataExtractor())
-        val valueConverters = options.all<ValueConverter>() + ValueConverter.defaults
+        val valueConverters = ValueConverter.defaults + options.all<ValueConverter>()
         val typeTable = options<TypeTable>() ?: PlatformModelDBDefaults.typeTable() ?: TypeTable()
         val serializers = options.all<DBClassSerializer<*>>()
 

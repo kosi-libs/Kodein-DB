@@ -1,9 +1,10 @@
 package org.kodein.db
 
-import org.kodein.db.ascii.putAscii
 import org.kodein.memory.io.*
-import org.kodein.memory.util.UUID
-import org.kodein.memory.util.putUUID
+import org.kodein.memory.text.Charset
+import org.kodein.memory.text.putString
+import org.kodein.memory.text.sizeOf
+import org.kodein.memory.text.toHexString
 
 public interface Value : Body {
 
@@ -42,25 +43,24 @@ public interface Value : Body {
         }
     }
 
-    public abstract class ZeroSpacedValues(private val _count: Int) : AbstractValue(), Value {
+    public class ZeroSpacedValues(private val values: Array<out Value>) : AbstractValue() {
 
-        final override fun writeInto(dst: Writeable) {
-            for (i in 0 until _count) {
+        override fun writeInto(dst: Writeable) {
+            for (i in values.indices) {
                 if (i != 0)
                     dst.putByte(0.toByte())
-                write(dst, i)
+                values[i].writeInto(dst)
             }
         }
 
         override val size: Int get() {
-            var size = _count - 1
-            for (i in 0 until _count)
-                size += size(i)
+            var size = values.size - 1
+            for (i in values.indices)
+                size += values[i].size
             return size
         }
 
-        protected abstract fun write(dst: Writeable, pos: Int)
-        protected abstract fun size(pos: Int): Int
+        override fun toString(): String = values.joinToString()
     }
 
     public companion object {
@@ -70,107 +70,95 @@ public interface Value : Body {
             override fun writeInto(dst: Writeable) {}
         }
 
-        public fun of(vararg values: ByteArray): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putBytes(values[pos], 0, values[pos].size)
-                }
-                override fun size(pos: Int) = values[pos].size
-                override fun toString() = values.joinToString()
-            }
-        }
+        public fun of(first: Value, second: Value, vararg other: Value): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: Value): Value = ZeroSpacedValues(values)
 
-        public fun of(vararg values: ReadBuffer): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putMemoryBytes(values[pos])
-                }
-                override fun size(pos: Int) = values[pos].remaining
-                override fun toString() = values.joinToString()
+        public fun of(value: ByteArray): Value =
+            object : Value.AbstractValue() {
+                override fun writeInto(dst: Writeable) { dst.putBytes(value) }
+                override val size get() = value.size
+                override fun toString() = value.toHexString()
             }
-        }
+        public fun of(first: ByteArray, second: ByteArray, vararg other: ByteArray): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: ByteArray): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
-        public fun of(vararg values: Value): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    val value = values[pos]
-                    value.writeInto(dst)
-                }
-                override fun size(pos: Int) = values[pos].size
-                override fun toString() = values.joinToString()
+        public fun of(value: ReadMemory): Value =
+            object : Value.AbstractValue() {
+                override fun writeInto(dst: Writeable) { dst.putMemoryBytes(value) }
+                override val size get() = value.size
+                override fun toString() = value.getBytes(0).toHexString()
             }
-        }
+        public fun of(first: ReadMemory, second: ReadMemory, vararg other: ReadMemory): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: ReadMemory): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
-        public fun of(vararg values: Boolean): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putByte((if (values[pos]) 1 else 0).toByte())
-                }
-                override fun size(pos: Int) = 1
-                override fun toString() = values.joinToString()
+        public fun of(value: Boolean): Value =
+            object : Value.AbstractValue() {
+                override fun writeInto(dst: Writeable) { dst.putByte((if (value) 1 else 0).toByte()) }
+                override val size get() = 1
+                override fun toString() = if (value) "true" else "false"
             }
-        }
+        public fun of(first: Boolean, second: Boolean, vararg other: Boolean): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: Boolean): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
-        public fun of(vararg values: Byte): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putByte(values[pos])
-                }
-                override fun size(pos: Int) = 1
-                override fun toString() = values.joinToString()
+        public fun of(value: Byte): Value =
+            object : Value.AbstractValue() {
+                override fun writeInto(dst: Writeable) { dst.putByte(value) }
+                override val size get() = 1
+                override fun toString() = "0x${value.toString(radix = 16).padStart(2, '0')}"
             }
-        }
+        public fun of(first: Byte, second: Byte, vararg other: Byte): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: Byte): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
-        public fun of(vararg values: Short): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putShort(values[pos])
-                }
-                override fun size(pos: Int) = 2
-                override fun toString() = values.joinToString()
+        public fun of(value: Short): Value =
+            object : Value.AbstractValue() {
+                override fun writeInto(dst: Writeable) { dst.putShort(value) }
+                override val size get() = 2
+                override fun toString() = value.toString()
             }
-        }
+        public fun of(first: Short, second: Short, vararg other: Short): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: Short): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
-        public fun of(vararg values: Int): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putInt(values[pos])
-                }
-                override fun size(pos: Int) = 4
-                override fun toString() = values.joinToString()
+        public fun of(value: Int): Value =
+            object : Value.AbstractValue() {
+                override fun writeInto(dst: Writeable) { dst.putInt(value) }
+                override val size get() = 4
+                override fun toString() = value.toString()
             }
-        }
+        public fun of(first: Int, second: Int, vararg other: Int): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: Int): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
-        public fun of(vararg values: Long): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putLong(values[pos])
-                }
-                override fun size(pos: Int) = 8
-                override fun toString() = values.joinToString()
+        public fun of(value: Long): Value =
+            object : Value.AbstractValue() {
+                override fun writeInto(dst: Writeable) { dst.putLong(value) }
+                override val size get() = 8
+                override fun toString() = value.toString()
             }
-        }
+        public fun of(first: Long, second: Long, vararg other: Long): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: Long): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
-        public fun ofAscii(vararg values: Char): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putByte(values[pos].toByte())
-                }
-                override fun size(pos: Int) = 1
-                override fun toString() = values.joinToString()
+        public fun of(value: Char): Value =
+            object : Value.AbstractValue() {
+                override fun writeInto(dst: Writeable) { Charset.UTF8.encode(value, dst) }
+                override val size get() = Charset.UTF8.sizeOf(value)
+                override fun toString() = "\'$value\'"
             }
-        }
+        public fun of(first: Char, second: Char, vararg other: Char): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: Char): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
-
-        public fun ofAscii(vararg values: CharSequence): Value {
-            return object : Value.ZeroSpacedValues(values.size) {
-                override fun write(dst: Writeable, pos: Int) {
-                    dst.putAscii(values[pos])
-                }
-                override fun size(pos: Int) = values[pos].length
-                override fun toString() = values.joinToString()
+        public fun of(value: CharSequence): Value =
+            object : Value.AbstractValue() {
+                override fun writeInto(dst: Writeable) { dst.putString(value, Charset.UTF8) }
+                override val size get() = Charset.UTF8.sizeOf(value)
+                override fun toString() = "\"$value\""
             }
-        }
+        public fun of(first: CharSequence, second: CharSequence, vararg other: CharSequence): Value = ofAll(first, second, *other)
+        public fun ofAll(vararg values: CharSequence): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
+
+        @Deprecated("Use of which doesn't restrict to ASCII anymore", replaceWith = ReplaceWith("this.of(*values)"), level = DeprecationLevel.ERROR)
+        public fun ofAscii(vararg values: Char): Value = ofAll(*values)
+
+        @Deprecated("Use of which doesn't restrict to ASCII anymore", replaceWith = ReplaceWith("this.of(*values)"), level = DeprecationLevel.ERROR)
+        public fun ofAscii(vararg values: CharSequence): Value = ofAll(*values)
     }
 
 }

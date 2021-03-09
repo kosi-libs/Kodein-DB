@@ -21,9 +21,9 @@ abstract class DataDBTests_04_FindByType : DataDBTests() {
 
     @Test
     fun test00_FindByTypeAll() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB2!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Symbols" to Value.of("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB2!"), mapOf("Numbers" to Value.of("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())
@@ -40,9 +40,9 @@ abstract class DataDBTests_04_FindByType : DataDBTests() {
 
     @Test
     fun test01_FindByTypeAllReverse() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Symbols" to Value.ofAscii("gamma", "delta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Symbols" to Value.of("gamma", "delta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())
@@ -68,8 +68,8 @@ abstract class DataDBTests_04_FindByType : DataDBTests() {
 
     @Test
     fun test03_FindByTypeNothingInEmptyCollection() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("ValueA1!")), Value.ofAscii("aaa"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("ValueB1!")), Value.ofAscii("bbb"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.of("ValueA1!")), Value.of("aaa"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("ValueB1!")), Value.of("bbb"), mapOf("Numbers" to Value.of("forty", "two")))
 
         ddb.findAllByType(2).use {
             assertFalse(it.isValid())

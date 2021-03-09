@@ -16,10 +16,10 @@ class DataKeysTests_04_IndexKeyInfos {
     fun test00_IndexName() {
         deferScope {
             val objectKey = Allocation.native(32).useInScope()
-            objectKey.putDocumentKey(1, Value.ofAscii("one"))
+            objectKey.putDocumentKey(1, Value.of("one"))
             objectKey.flip()
             val indexKey = Allocation.native(32).useInScope()
-            indexKey.putIndexKey(objectKey, "Symbols", Value.ofAscii("alpha", "beta"))
+            indexKey.putIndexKey(objectKey, "Symbols", Value.of("alpha", "beta"))
             indexKey.flip()
             assertBytesEquals(byteArray("Symbols"), getIndexKeyName(indexKey))
         }

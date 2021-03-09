@@ -1,5 +1,6 @@
 package org.kodein.db.impl.model
 
+import org.kodein.db.Key
 import org.kodein.db.Value
 import org.kodein.db.ValueConverter
 import org.kodein.db.ValueMaker
@@ -18,11 +19,11 @@ internal interface ModelValueMakerModule : ValueMaker {
             is Allocation -> return Value.of(this)
             is Boolean -> return Value.of((if (this) 1 else 0).toByte())
             is Byte -> return Value.of(this)
-            is Char -> return Value.ofAscii(this)
+            is Char -> return Value.of(this)
             is Short -> return Value.of(this)
             is Int -> return Value.of(this)
             is Long -> return Value.of(this)
-            is String -> return Value.ofAscii(this)
+            is String -> return Value.of(this)
             else -> {
                 mdb.valueConverters.forEach {
                     it.toValue(this)?.let { return it }
@@ -54,6 +55,6 @@ internal interface ModelValueMakerModule : ValueMaker {
             values[it].toValue()
         }
 
-        return Value.of(*sized)
+        return Value.ofAll(*sized)
     }
 }

@@ -1,12 +1,12 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.Value
-import org.kodein.db.inDir
+import kotlinx.serialization.Serializable
+import org.kodein.db.*
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.model.findAllByIndex
 import org.kodein.db.model.findByIndex
-import org.kodein.db.key
 import org.kodein.db.model.ModelDB
+import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.*
@@ -134,7 +134,26 @@ abstract class ModelDBTests_03_Indexes : ModelDBTests() {
         val me = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         mdb.put(me)
 
-        val indexes = mdb.getIndexesOf(mdb.key<Adult>(Value.ofAscii("BRYS", "Salomon"))).toSet()
+        val indexes = mdb.getIndexesOf(mdb.keyById<Adult>(Value.of("BRYS", "Salomon"))).toSet()
         assertEquals(setOf("birth", "firstName"), indexes)
+    }
+
+    @Serializable
+    data class T05_Parent(override val id: String, val child: Key<T05_Child>) : Metadata {
+        override fun indexes(): Map<String, Any> = mapOf("child" to child)
+    }
+
+    @Serializable
+    data class T05_Child(override val id: String) : Metadata
+
+    @Test
+    fun test05_keyIndex() {
+        val child = T05_Child("C")
+        val parent = T05_Parent("P", mdb.keyById(child.id))
+
+        mdb.put(parent)
+        val retreived = mdb.findByIndex<T05_Parent>("child", mdb.keyFrom(child)).use { it.model().model }
+
+        assertEquals(parent, retreived)
     }
 }

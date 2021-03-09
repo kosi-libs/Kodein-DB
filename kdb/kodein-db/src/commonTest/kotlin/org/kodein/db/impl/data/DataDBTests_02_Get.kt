@@ -18,10 +18,10 @@ abstract class DataDBTests_02_Get : DataDBTests() {
 
     @Test
     fun test00_GetExisting() {
-        val aKey = ddb.newKey(1, Value.ofAscii("aaa"))
-        ddb.put(aKey, Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        val bKey = ddb.newKey(1, Value.ofAscii("bbb"))
-        ddb.put(bKey, Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        val aKey = ddb.newKey(1, Value.of("aaa"))
+        ddb.put(aKey, Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        val bKey = ddb.newKey(1, Value.of("bbb"))
+        ddb.put(bKey, Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
 
         assertDataIs(byteArray("ValueA1!"), ddb.get(aKey))
         assertDataIs(byteArray("ValueB1!"), ddb.get(bKey))
@@ -29,15 +29,15 @@ abstract class DataDBTests_02_Get : DataDBTests() {
 
     @Test
     fun test01_GetUnknownInEmptyDB() {
-        val key = ddb.newKey(1, Value.ofAscii("aaa"))
+        val key = ddb.newKey(1, Value.of("aaa"))
         assertNull(ddb.get(key))
     }
 
     @Test
     fun test02_GetUnknownInNonEmptyDB() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
 
-        assertNull(ddb.get(ddb.newKey(1, Value.ofAscii("bbb"))))
+        assertNull(ddb.get(ddb.newKey(1, Value.of("bbb"))))
     }
 
 }

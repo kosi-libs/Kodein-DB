@@ -25,7 +25,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test00_putOK() {
-        val int = Primitive(Value.ofAscii("test"), 21)
+        val int = Primitive(Value.of("test"), 21)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -36,7 +36,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test01_putKO() {
-        val int = Primitive(Value.ofAscii("test"), 21)
+        val int = Primitive(Value.of("test"), 21)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -49,7 +49,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test02_deleteOK() {
-        val int = Primitive(Value.ofAscii("test"), 42)
+        val int = Primitive(Value.of("test"), 42)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -60,7 +60,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test03_deleteKO() {
-        val int = Primitive(Value.ofAscii("test"), 42)
+        val int = Primitive(Value.of("test"), 42)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -73,7 +73,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test04_batchOK() {
-        val int = Primitive(Value.ofAscii("test"), 21)
+        val int = Primitive(Value.of("test"), 21)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -87,7 +87,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test05_batchKO() {
-        val int = Primitive(Value.ofAscii("test"), 21)
+        val int = Primitive(Value.of("test"), 21)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 

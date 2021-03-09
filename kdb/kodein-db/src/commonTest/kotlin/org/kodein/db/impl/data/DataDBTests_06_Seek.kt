@@ -20,12 +20,12 @@ abstract class DataDBTests_06_Seek : DataDBTests() {
 
     @Test
     fun test00_SeekPK() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())
-            val key = ddb.newKey(1, Value.ofAscii("bba"))
+            val key = ddb.newKey(1, Value.of("bba"))
             it.seekTo(key)
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, 0, 0, 0, 1, "bbb", 0), byteArray("ValueB1!"), it)
@@ -36,12 +36,12 @@ abstract class DataDBTests_06_Seek : DataDBTests() {
 
     @Test
     fun test01_SeekPKBefore() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())
-            val key = ddb.newKey(1, Value.ofAscii("A"))
+            val key = ddb.newKey(1, Value.of("A"))
             it.seekTo(key)
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, 0, 0, 0, 1, "aaa", 0), byteArray("ValueA1!"), it)
@@ -50,12 +50,12 @@ abstract class DataDBTests_06_Seek : DataDBTests() {
 
     @Test
     fun test02_SeekPKAfter() {
-        ddb.put(ddb.newKey(1, Value.ofAscii("aaa")), Value.ofAscii("ValueA1!"), mapOf("Symbols" to Value.ofAscii("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.ofAscii("bbb")), Value.ofAscii("ValueB1!"), mapOf("Numbers" to Value.ofAscii("forty", "two")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
 
         ddb.findAllByType(1).use {
             assertTrue(it.isValid())
-            val key = ddb.newKey(1, Value.ofAscii("z"))
+            val key = ddb.newKey(1, Value.of("z"))
             it.seekTo(key)
             assertFalse(it.isValid())
         }
