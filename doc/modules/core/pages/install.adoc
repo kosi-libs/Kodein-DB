@@ -16,8 +16,6 @@ In your `build.gradle.kts` file, add the repository:
 buildscript {
     repositories {
         mavenCentral()
-        // Needed until KotlinX.DateTime is published to Maven Central.
-        maven(url = "https://kotlin.bintray.com/kotlinx")
     }
 }
 ----
@@ -78,9 +76,7 @@ Add the repository:
 ----
 buildscript {
     repositories {
-        maven(url = "https://dl.bintray.com/kodein-framework/Kodein-DB")
-        // Needed until KotlinX.DateTime is published to MavenCentral.
-        maven(url = "https://kotlin.bintray.com/kotlinx")
+        mavenCentral()
     }
 }
 ----
@@ -138,9 +134,7 @@ Add the repository:
 ----
 buildscript {
     repositories {
-        maven(url = "https://dl.bintray.com/kodein-framework/Kodein-DB")
-        // Needed until KotlinX.DateTime is published to MavenCentral.
-        maven(url = "https://kotlin.bintray.com/kotlinx")
+        mavenCentral()
     }
 }
 ----
