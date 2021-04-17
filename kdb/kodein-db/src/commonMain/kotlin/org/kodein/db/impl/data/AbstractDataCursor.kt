@@ -58,7 +58,7 @@ internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor,
 
     final override fun seekToFirst() {
         cacheReset()
-        cursor.seekTo(KBuffer.wrap(prefix))
+        cursor.seekTo(Memory.wrap(prefix))
     }
 
     final override fun seekToLast() {
@@ -66,8 +66,8 @@ internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor,
         if (lastKey == null) {
             val prefix = prefix
             lastKey = Allocation.native(prefix.size + CORK.size) {
-                putBytes(prefix)
-                putBytes(CORK)
+                writeBytes(prefix)
+                writeBytes(CORK)
             }
         }
         cursor.seekTo(lastKey!!)
@@ -83,7 +83,7 @@ internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor,
 
     final override fun transientKey(): ReadMemory {
         check(isValid()) { "Cursor is not valid" }
-        return  thisKey().duplicate()
+        return thisKey()
     }
 
     protected abstract fun thisValue(): ReadAllocation
@@ -91,7 +91,7 @@ internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor,
     final override fun transientValue(): ReadMemory {
         check(isValid()) { "Cursor is not valid" }
 
-        cachedValue?.let { return it.duplicate() }
+        cachedValue?.let { return it }
 
         return thisValue().also { cachedValue = it }
     }

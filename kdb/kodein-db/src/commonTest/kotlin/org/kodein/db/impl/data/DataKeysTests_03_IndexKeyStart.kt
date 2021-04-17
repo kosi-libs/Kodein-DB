@@ -16,9 +16,9 @@ class DataKeysTests_03_IndexKeyStart {
     fun test00_SimpleIndexKeyStart() {
         val size = getIndexKeyStartSize("Symbols", Value.of("alpha"))
         assertEquals(size, 20)
-        Allocation.native(size).use {
-            it.putIndexKeyStart(1, "Symbols", Value.of("alpha"))
-            it.flip()
+        Allocation.native(size) {
+            writeIndexKeyStart(1, "Symbols", Value.of("alpha"))
+        } .use {
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0), it)
         }
     }
@@ -27,9 +27,9 @@ class DataKeysTests_03_IndexKeyStart {
     fun test01_SimpleIndexKeyStartPrefix() {
         val size = getIndexKeyStartSize("Symbols", Value.of("alpha"), isOpen = true)
         assertEquals(size, 19)
-        Allocation.native(size).use {
-            it.putIndexKeyStart(1, "Symbols", Value.of("alpha"), isOpen = true)
-            it.flip()
+        Allocation.native(size) {
+            writeIndexKeyStart(1, "Symbols", Value.of("alpha"), isOpen = true)
+        } .use {
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha"), it)
         }
     }
@@ -38,9 +38,9 @@ class DataKeysTests_03_IndexKeyStart {
     fun test02_CompositeIndexKeyStart() {
         val size = getIndexKeyStartSize("Symbols", Value.of("alpha", "beta"))
         assertEquals(size, 25)
-        Allocation.native(size).use {
-            it.putIndexKeyStart(1, "Symbols", Value.of("alpha", "beta"))
-            it.flip()
+        Allocation.native(size) {
+            writeIndexKeyStart(1, "Symbols", Value.of("alpha", "beta"))
+        } .use {
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0, "beta", 0), it)
         }
     }
@@ -49,9 +49,9 @@ class DataKeysTests_03_IndexKeyStart {
     fun test03_CompositeIndexKeyStartPrefix() {
         val size = getIndexKeyStartSize("Symbols", Value.of("alpha", "beta"), isOpen = true)
         assertEquals(size, 24)
-        Allocation.native(size).use {
-            it.putIndexKeyStart(1, "Symbols", Value.of("alpha", "beta"), isOpen = true)
-            it.flip()
+        Allocation.native(size) {
+            writeIndexKeyStart(1, "Symbols", Value.of("alpha", "beta"), isOpen = true)
+        } .use {
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0, "beta"), it)
         }
     }
@@ -60,9 +60,9 @@ class DataKeysTests_03_IndexKeyStart {
     fun test04_NullIndexPrefix() {
         val size = getIndexKeyStartSize("Symbols", null)
         assertEquals(size, 14)
-        Allocation.native(size).use {
-            it.putIndexKeyStart(1, "Symbols", null)
-            it.flip()
+        Allocation.native(size) {
+            writeIndexKeyStart(1, "Symbols", null)
+        } .use {
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0), it)
         }
     }

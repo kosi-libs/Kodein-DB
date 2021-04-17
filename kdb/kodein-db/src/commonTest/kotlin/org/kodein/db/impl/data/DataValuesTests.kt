@@ -2,8 +2,9 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.Value
 import org.kodein.db.test.utils.assertBytesEquals
-import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.Memory
 import org.kodein.memory.io.array
+import org.kodein.memory.io.writeBytes
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -22,7 +23,7 @@ class DataValuesTests {
         )
         assertEquals(20, value.size)
 
-        val buffer = KBuffer.array(value.size) { value.writeInto(this) }
+        val buffer = Memory.array(value.size) { value.writeInto(this) }
 
         assertBytesEquals(
                 ubyteArrayOf(
@@ -45,11 +46,11 @@ class DataValuesTests {
     fun test01_bytes() {
         val value = Value.of(
                 Value.of(byteArrayOf(1, 2, 3, 4)),
-                Value.of(KBuffer.array(4) { putBytes(byteArrayOf(5, 6, 7, 8)) })
+                Value.of(Memory.array(4) { writeBytes(byteArrayOf(5, 6, 7, 8)) })
         )
         assertEquals(9, value.size)
 
-        val buffer = KBuffer.array(value.size) { value.writeInto(this) }
+        val buffer = Memory.array(value.size) { value.writeInto(this) }
 
         assertBytesEquals(
                 ubyteArrayOf(
@@ -70,7 +71,7 @@ class DataValuesTests {
         )
         assertEquals(15, value.size)
 
-        val buffer = KBuffer.array(value.size) { value.writeInto(this) }
+        val buffer = Memory.array(value.size) { value.writeInto(this) }
 
         assertBytesEquals(
                 ubyteArrayOf(
@@ -93,13 +94,13 @@ class DataValuesTests {
             Value.of(1234567890123456789L),
             Value.emptyValue,
             Value.of(byteArrayOf(1, 2, 3, 4)),
-            Value.of(KBuffer.array(4) { putBytes(byteArrayOf(5, 6, 7, 8)) }),
+            Value.of(Memory.array(4) { writeBytes(byteArrayOf(5, 6, 7, 8)) }),
             Value.of('B', 'R', 'Y', 'S'),
             Value.of("Salomon")
         )
         assertEquals(47, value.size)
 
-        val buffer = KBuffer.array(value.size) { value.writeInto(this) }
+        val buffer = Memory.array(value.size) { value.writeInto(this) }
 
         assertBytesEquals(
                 ubyteArrayOf(

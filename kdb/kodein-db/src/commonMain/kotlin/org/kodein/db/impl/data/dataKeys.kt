@@ -1,10 +1,10 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.Value
-import org.kodein.db.putBody
+import org.kodein.db.writeBody
 import org.kodein.memory.io.*
 import org.kodein.memory.text.Charset
-import org.kodein.memory.text.putString
+import org.kodein.memory.text.writeString
 
 
 /*
@@ -33,16 +33,15 @@ internal fun ReadMemory.verifyDocumentKey() {
 
 internal val emptyDocumentPrefix = byteArrayOf(Prefix.DOCUMENT, NULL)
 
-internal fun Writeable.putDocumentKey(type: Int, id: Value?, isOpen: Boolean = false) {
-    putByte(Prefix.DOCUMENT)
-    putByte(NULL)
+internal fun Writeable.writeDocumentKey(type: Int, id: Value?, isOpen: Boolean = false) {
+    writeByte(Prefix.DOCUMENT)
+    writeByte(NULL)
 
-    putInt(type)
+    writeInt(type)
 
     if (id != null) {
-        putBody(id)
-        if (!isOpen)
-            putByte(NULL)
+        writeBody(id)
+        if (!isOpen) writeByte(NULL)
     }
 }
 
@@ -60,23 +59,20 @@ internal fun getDocumentKeySize(id: Value?, isOpen: Boolean = false): Int {
     return size
 }
 
-internal fun Writeable.putRefKeyFromDocumentKey(documentKey: ReadMemory) {
-    putByte(Prefix.REFERENCE)
-    documentKey.markBuffer {
-        it.skip(1)
-        putReadableBytes(it)
-    }
+internal fun Writeable.writeRefKeyFromDocumentKey(documentKey: ReadMemory) {
+    writeByte(Prefix.REFERENCE)
+    writeBytes(documentKey.sliceAt(1))
 }
 
 internal fun getDocumentKeyType(key: ReadMemory): Int {
     return key.getInt(2)
 }
 
-internal fun getDocumentKeyID(key: ReadMemory): ReadBuffer {
+internal fun getDocumentKeyID(key: ReadMemory): ReadMemory {
     return key.slice(6, key.size - 7)
 }
 
-internal fun getIndexKeyName(key: ReadMemory): ReadBuffer {
+internal fun getIndexKeyName(key: ReadMemory): ReadMemory {
     val nameEnd = key.firstIndexOf(NULL, 6)
     check(nameEnd != -1)
 
@@ -84,27 +80,27 @@ internal fun getIndexKeyName(key: ReadMemory): ReadBuffer {
     return key.slice(6, nameSize)
 }
 
-private fun Writeable.putIndexKey(type: Int, id: ReadMemory, name: String, value: Value) {
-    putByte(Prefix.INDEX)
-    putByte(NULL)
+private fun Writeable.writeIndexKey(type: Int, id: ReadMemory, name: String, value: Value) {
+    writeByte(Prefix.INDEX)
+    writeByte(NULL)
 
-    putInt(type)
+    writeInt(type)
 
-    putString(name, Charset.UTF8)
-    putByte(NULL)
+    writeString(name, Charset.UTF8)
+    writeByte(NULL)
 
-    putBody(value)
-    putByte(NULL)
+    writeBody(value)
+    writeByte(NULL)
 
-    putMemoryBytes(id)
-    putByte(NULL)
+    writeBytes(id)
+    writeByte(NULL)
 }
 
-internal fun Writeable.putIndexKey(documentKey: ReadMemory, name: String, value: Value) {
+internal fun Writeable.writeIndexKey(documentKey: ReadMemory, name: String, value: Value) {
     val type = getDocumentKeyType(documentKey)
     val id = getDocumentKeyID(documentKey)
 
-    putIndexKey(type, id, name, value)
+    writeIndexKey(type, id, name, value)
 }
 
 internal fun getIndexKeySize(documentKey: ReadMemory, name: String, value: Value): Int {
@@ -120,19 +116,19 @@ internal fun getIndexKeySize(documentKey: ReadMemory, name: String, value: Value
 }
 
 @Suppress("DuplicatedCode")
-internal fun Writeable.putIndexKeyStart(type: Int, name: String, value: Value?, isOpen: Boolean = false) {
-    putByte(Prefix.INDEX)
-    putByte(NULL)
+internal fun Writeable.writeIndexKeyStart(type: Int, name: String, value: Value?, isOpen: Boolean = false) {
+    writeByte(Prefix.INDEX)
+    writeByte(NULL)
 
-    putInt(type)
+    writeInt(type)
 
-    putString(name, Charset.UTF8)
-    putByte(NULL)
+    writeString(name, Charset.UTF8)
+    writeByte(NULL)
 
     if (value != null) {
-        putBody(value)
+        writeBody(value)
         if (!isOpen)
-            putByte(NULL)
+            writeByte(NULL)
     }
 }
 

@@ -15,13 +15,13 @@ public class InMemoryLevelDB(private val data: MutableMap<ReadMemory, ByteArray>
 
     override fun put(key: ReadMemory, value: ReadMemory, options: LevelDB.WriteOptions) {
         checkIsOpen()
-        data[KBuffer.arrayCopy(key)] = value.getBytes(0)
+        data[Memory.arrayCopy(key)] = value.getBytes()
     }
 
-    private class NativeBytes constructor(val buffer: KBuffer, handler: Handler, options: LevelDB.Options)
-        : PlatformCloseable("Value", handler, options), Allocation, KBuffer by buffer {
+    private class NativeBytes constructor(override val memory: Memory, handler: Handler, options: LevelDB.Options)
+        : PlatformCloseable("Value", handler, options), Allocation, Memory by memory {
         override fun platformClose() {}
-        override fun toString(): String = buffer.toString()
+        override fun toString(): String = memory.toString()
     }
 
     override fun get(key: ReadMemory, options: LevelDB.ReadOptions): Allocation? {
@@ -30,7 +30,7 @@ public class InMemoryLevelDB(private val data: MutableMap<ReadMemory, ByteArray>
             require(it is Snapshot)
             it.data
         } ?: data
-        return readData[key]?.let { NativeBytes(KBuffer.wrap(it), dbHandler, this.options) }
+        return readData[key]?.let { NativeBytes(Memory.wrap(it), dbHandler, this.options) }
     }
 
     override fun delete(key: ReadMemory, options: LevelDB.WriteOptions) {
@@ -72,14 +72,14 @@ public class InMemoryLevelDB(private val data: MutableMap<ReadMemory, ByteArray>
 
         override fun put(key: ReadMemory, value: ReadMemory) {
             checkIsOpen()
-            val keyCopy = KBuffer.arrayCopy(key)
-            val valueBytes = value.getBytes(0)
+            val keyCopy = Memory.arrayCopy(key)
+            val valueBytes = value.getBytes()
             ops.add { it[keyCopy] = valueBytes }
         }
 
         override fun delete(key: ReadMemory) {
             checkIsOpen()
-            val keyCopy = KBuffer.arrayCopy(key)
+            val keyCopy = Memory.arrayCopy(key)
             ops.add { it.remove(keyCopy) }
         }
 
@@ -125,18 +125,18 @@ public class InMemoryLevelDB(private val data: MutableMap<ReadMemory, ByteArray>
 
         override fun seekTo(target: ReadMemory) {
             checkIsOpen()
-            val targetBytes = target.getBytes(0)
+            val targetBytes = target.getBytes()
             pos = keys.indexOfFirst { it >= targetBytes }
         }
 
-        override fun transientKey(): ReadBuffer {
+        override fun transientKey(): ReadMemory {
             checkIsOpen()
-            return keys[pos].duplicate()
+            return keys[pos]
         }
 
-        override fun transientValue(): ReadBuffer {
+        override fun transientValue(): ReadMemory {
             checkIsOpen()
-            return KBuffer.wrap(data[keys[pos]]!!)
+            return Memory.wrap(data[keys[pos]]!!)
         }
 
         override fun platformClose() {}

@@ -14,6 +14,7 @@ public abstract class PlatformCloseable(private val name: String, private val ha
     }
 
     private val closed = atomic(false)
+    public val isClosed: Boolean get() = closed.value
 
     init {
         @Suppress("LeakingThis")

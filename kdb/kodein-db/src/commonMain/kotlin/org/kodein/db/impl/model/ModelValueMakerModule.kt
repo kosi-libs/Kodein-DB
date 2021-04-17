@@ -1,11 +1,8 @@
 package org.kodein.db.impl.model
 
-import org.kodein.db.Key
 import org.kodein.db.Value
-import org.kodein.db.ValueConverter
 import org.kodein.db.ValueMaker
-import org.kodein.memory.io.Allocation
-import org.kodein.memory.io.ReadBuffer
+import org.kodein.memory.io.ReadMemory
 
 internal interface ModelValueMakerModule : ValueMaker {
 
@@ -15,8 +12,7 @@ internal interface ModelValueMakerModule : ValueMaker {
         when (this) {
             is Value -> return this
             is ByteArray -> return Value.of(this)
-            is ReadBuffer -> return Value.of(this)
-            is Allocation -> return Value.of(this)
+            is ReadMemory -> return Value.of(this)
             is Boolean -> return Value.of((if (this) 1 else 0).toByte())
             is Byte -> return Value.of(this)
             is Char -> return Value.of(this)

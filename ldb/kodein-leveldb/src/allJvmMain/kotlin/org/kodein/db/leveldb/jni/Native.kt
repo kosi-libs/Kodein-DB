@@ -30,17 +30,17 @@ internal object Native {
 
     @JvmStatic external fun dbDestroy(path: String, optionsPtr: Long)
 
-    @JvmStatic external fun putBB(dbPtr: Long, key: ByteBuffer, keyOffset: Int, keyLength: Int, body: ByteBuffer, bodyOffset: Int, bodyLength: Int, sync: Boolean)
-    @JvmStatic external fun putAB(dbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, body: ByteBuffer, bodyOffset: Int, bodyLength: Int, sync: Boolean)
-    @JvmStatic external fun putBA(dbPtr: Long, key: ByteBuffer, keyOffset: Int, keyLength: Int, body: ByteArray, bodyOffset: Int, bodyLength: Int, sync: Boolean)
+    @JvmStatic external fun putBB(dbPtr: Long, key: ByteBuffer, keyLength: Int, body: ByteBuffer, bodyLength: Int, sync: Boolean)
+    @JvmStatic external fun putAB(dbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, body: ByteBuffer, bodyLength: Int, sync: Boolean)
+    @JvmStatic external fun putBA(dbPtr: Long, key: ByteBuffer, keyLength: Int, body: ByteArray, bodyOffset: Int, bodyLength: Int, sync: Boolean)
     @JvmStatic external fun putAA(dbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, body: ByteArray, bodyOffset: Int, bodyLength: Int, sync: Boolean)
 
-    @JvmStatic external fun deleteB(dbPtr: Long, key: ByteBuffer, keyOffset: Int, keyLength: Int, sync: Boolean)
+    @JvmStatic external fun deleteB(dbPtr: Long, key: ByteBuffer, keyLength: Int, sync: Boolean)
     @JvmStatic external fun deleteA(dbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, sync: Boolean)
 
     @JvmStatic external fun write(dbPtr: Long, batchPtr: Long, sync: Boolean)
 
-    @JvmStatic external fun getB(dbPtr: Long, key: ByteBuffer, keyOffset: Int, keyLength: Int, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
+    @JvmStatic external fun getB(dbPtr: Long, key: ByteBuffer, keyLength: Int, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
     @JvmStatic external fun getA(dbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
 
     @JvmStatic external fun iteratorNew(dbPtr: Long, verifyChecksum: Boolean, fillCache: Boolean, snapshotPtr: Long): Long
@@ -51,14 +51,14 @@ internal object Native {
     @JvmStatic external fun iteratorSeekToFirst(itPtr: Long, lens: IntArray)
     @JvmStatic external fun iteratorSeekToLast(itPtr: Long, lens: IntArray)
 
-    @JvmStatic external fun iteratorSeekB(itPtr: Long, target: ByteBuffer, targetOffset: Int, targetLength: Int, lens: IntArray)
+    @JvmStatic external fun iteratorSeekB(itPtr: Long, target: ByteBuffer, targetLength: Int, lens: IntArray)
     @JvmStatic external fun iteratorSeekA(itPtr: Long, target: ByteArray, targetOffset: Int, targetLength: Int, lens: IntArray)
 
     @JvmStatic external fun iteratorNext(itPtr: Long, lens: IntArray)
     @JvmStatic external fun iteratorPrev(itPtr: Long, lens: IntArray)
 
-    @JvmStatic external fun iteratorKey(itPtr: Long, buffer: ByteBuffer)
-    @JvmStatic external fun iteratorValue(itPtr: Long, buffer: ByteBuffer)
+    @JvmStatic external fun iteratorKey(itPtr: Long): ByteBuffer
+    @JvmStatic external fun iteratorValue(itPtr: Long): ByteBuffer
 
     @JvmStatic external fun snapshotNew(dbPtr: Long): Long
     @JvmStatic external fun snapshotRelease(dbPtr: Long, snapshotPtr: Long)
@@ -66,12 +66,12 @@ internal object Native {
     @JvmStatic external fun writeBatchNew(): Long
     @JvmStatic external fun writeBatchRelease(wbPtr: Long)
 
-    @JvmStatic external fun writeBatchPutBB(wbPtr: Long, key: ByteBuffer, keyOffset: Int, keyLength: Int, body: ByteBuffer, bodyOffset: Int, bodyLength: Int)
-    @JvmStatic external fun writeBatchPutAB(wbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, body: ByteBuffer, bodyOffset: Int, bodyLength: Int)
-    @JvmStatic external fun writeBatchPutBA(wbPtr: Long, key: ByteBuffer, keyOffset: Int, keyLength: Int, body: ByteArray, bodyOffset: Int, bodyLength: Int)
+    @JvmStatic external fun writeBatchPutBB(wbPtr: Long, key: ByteBuffer, keyLength: Int, body: ByteBuffer, bodyLength: Int)
+    @JvmStatic external fun writeBatchPutAB(wbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, body: ByteBuffer, bodyLength: Int)
+    @JvmStatic external fun writeBatchPutBA(wbPtr: Long, key: ByteBuffer, keyLength: Int, body: ByteArray, bodyOffset: Int, bodyLength: Int)
     @JvmStatic external fun writeBatchPutAA(wbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int, body: ByteArray, bodyOffset: Int, bodyLength: Int)
 
-    @JvmStatic external fun writeBatchDeleteB(wbPtr: Long, key: ByteBuffer, keyOffset: Int, keyLength: Int)
+    @JvmStatic external fun writeBatchDeleteB(wbPtr: Long, key: ByteBuffer, keyLength: Int)
     @JvmStatic external fun writeBatchDeleteA(wbPtr: Long, key: ByteArray, keyOffset: Int, keyLength: Int)
 
     @JvmStatic external fun writeBatchClear(wbPtr: Long)

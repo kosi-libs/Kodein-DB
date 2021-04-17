@@ -17,12 +17,12 @@ import kotlin.reflect.KClass
 public class KryoSerializer @JvmOverloads public constructor(public val kryo: Kryo = createKryo()) : DefaultSerializer {
 
     override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
-        Output(output.asOuputStream()).use {
+        Output(output.asOutputStream()).use {
             kryo.writeObject(it, model)
         }
     }
 
-    override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: ReadBuffer, vararg options: Options.Read): Any {
+    override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: CursorReadable, vararg options: Options.Read): Any {
         Input(input.asInputStream()).use {
             return kryo.readObject(it, type.java)
         }

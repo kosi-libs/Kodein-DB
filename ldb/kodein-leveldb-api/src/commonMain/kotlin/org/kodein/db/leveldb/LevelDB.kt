@@ -4,7 +4,6 @@ package org.kodein.db.leveldb
 import org.kodein.log.LoggerFactory
 import org.kodein.memory.Closeable
 import org.kodein.memory.io.Allocation
-import org.kodein.memory.io.ReadBuffer
 import org.kodein.memory.io.ReadMemory
 
 /**
@@ -233,7 +232,7 @@ public interface LevelDB : Closeable {
          *
          * @return The key bytes.
          */
-        public fun transientKey(): ReadBuffer
+        public fun transientKey(): ReadMemory
 
         /**
          * Get a Buffer containing the current value.
@@ -242,7 +241,7 @@ public interface LevelDB : Closeable {
          *
          * @return The value bytes.
          */
-        public fun transientValue(): ReadBuffer
+        public fun transientValue(): ReadMemory
 
         override fun close()
     }

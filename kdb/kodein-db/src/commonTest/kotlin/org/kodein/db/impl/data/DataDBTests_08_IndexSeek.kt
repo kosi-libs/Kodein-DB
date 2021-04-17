@@ -6,7 +6,7 @@ import org.kodein.db.inDir
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.byteArray
 import org.kodein.memory.file.FileSystem
-import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.Memory
 import org.kodein.memory.io.wrap
 import org.kodein.memory.use
 import kotlin.test.Test
@@ -28,7 +28,7 @@ abstract class DataDBTests_08_IndexSeek : DataDBTests() {
 
         ddb.findAllByIndex(1, "Symbols").use {
             assertTrue(it.isValid())
-            it.seekTo(KBuffer.wrap(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "gamma", 0, "delta", 0, "ccc", 0)))
+            it.seekTo(Memory.wrap(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "gamma", 0, "delta", 0, "ccc", 0)))
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, 0, 0, 0, 1, "ccc", 0), byteArray("ValueC1!"), it)
             it.next()
@@ -44,7 +44,7 @@ abstract class DataDBTests_08_IndexSeek : DataDBTests() {
 
         ddb.findAllByIndex(1, "Symbols").use {
             assertTrue(it.isValid())
-            it.seekTo(KBuffer.wrap(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "A", 0, "A", 0)))
+            it.seekTo(Memory.wrap(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "A", 0, "A", 0)))
             assertTrue(it.isValid())
             assertCursorIs(byteArray('o', 0, 0, 0, 0, 1, "aaa", 0), byteArray("ValueA1!"), it)
         }
@@ -58,7 +58,7 @@ abstract class DataDBTests_08_IndexSeek : DataDBTests() {
 
         ddb.findAllByIndex(1, "Symbols").use {
             assertTrue(it.isValid())
-            it.seekTo(KBuffer.wrap(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "z", 0, "z", 0)))
+            it.seekTo(Memory.wrap(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "z", 0, "z", 0)))
             assertFalse(it.isValid())
         }
     }

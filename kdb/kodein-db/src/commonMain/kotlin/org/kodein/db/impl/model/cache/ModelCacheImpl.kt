@@ -4,8 +4,7 @@ import kotlinx.atomicfu.atomic
 import org.kodein.db.Key
 import org.kodein.db.Sized
 import org.kodein.db.impl.utils.newRWLock
-import org.kodein.db.impl.utils.read
-import org.kodein.db.impl.utils.write
+import org.kodein.db.impl.utils.withLock
 import org.kodein.db.model.cache.BaseModelCache
 import org.kodein.db.model.cache.ModelCache
 import kotlin.jvm.Volatile
@@ -73,7 +72,7 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
         while (true) {
             var trimNeeded = false
             val version = internalsVersion
-            internals.lock.read {
+            internals.lock.readLock().withLock {
                 if (internalsVersion == version) {
                     val maxSize = if (internals.refCount.value == 1) instanceMaxSize else internals.maxSize
                     if (internals.maxSize != maxSize || internals.size > maxSize) {
@@ -96,7 +95,7 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
     private inline fun <T> lockWrite(block: () -> T): T {
         while (true) {
             val version = internalsVersion
-            internals.lock.write {
+            internals.lock.writeLock().withLock {
                 if (internalsVersion == version) {
                     val ret = block()
                     internals.unsafeTrimToSize()

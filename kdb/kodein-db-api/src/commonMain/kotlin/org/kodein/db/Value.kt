@@ -2,9 +2,9 @@ package org.kodein.db
 
 import org.kodein.memory.io.*
 import org.kodein.memory.text.Charset
-import org.kodein.memory.text.putString
 import org.kodein.memory.text.sizeOf
-import org.kodein.memory.text.toHexString
+import org.kodein.memory.text.toHex
+import org.kodein.memory.text.writeString
 
 public interface Value : Body {
 
@@ -16,9 +16,8 @@ public interface Value : Body {
 
         override fun hashCode(): Int {
             if (_hashCode == 0) {
-                val buffer = KBuffer.array(size)
-                writeInto(buffer)
-                buffer.flip()
+                val buffer = Memory.array(size)
+                writeInto(buffer.asWriteable())
                 _hashCode = buffer.hashCode()
             }
             return _hashCode
@@ -31,15 +30,13 @@ public interface Value : Body {
             if (size != other.size)
                 return false
 
-            val thisBuffer = KBuffer.array(size)
-            writeInto(thisBuffer)
-            thisBuffer. flip()
+            val thisMemory = Memory.array(size)
+            writeInto(thisMemory.asWriteable())
 
-            val otherBuffer = KBuffer.array(other.size)
-            other.writeInto(otherBuffer)
-            otherBuffer.flip()
+            val otherMemory = Memory.array(other.size)
+            other.writeInto(otherMemory.asWriteable())
 
-            return thisBuffer == otherBuffer
+            return thisMemory == otherMemory
         }
     }
 
@@ -48,7 +45,7 @@ public interface Value : Body {
         override fun writeInto(dst: Writeable) {
             for (i in values.indices) {
                 if (i != 0)
-                    dst.putByte(0.toByte())
+                    dst.writeByte(0.toByte())
                 values[i].writeInto(dst)
             }
         }
@@ -75,25 +72,25 @@ public interface Value : Body {
 
         public fun of(value: ByteArray): Value =
             object : Value.AbstractValue() {
-                override fun writeInto(dst: Writeable) { dst.putBytes(value) }
+                override fun writeInto(dst: Writeable) { dst.writeBytes(value) }
                 override val size get() = value.size
-                override fun toString() = value.toHexString()
+                override fun toString() = value.toHex()
             }
         public fun of(first: ByteArray, second: ByteArray, vararg other: ByteArray): Value = ofAll(first, second, *other)
         public fun ofAll(vararg values: ByteArray): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
         public fun of(value: ReadMemory): Value =
             object : Value.AbstractValue() {
-                override fun writeInto(dst: Writeable) { dst.putMemoryBytes(value) }
+                override fun writeInto(dst: Writeable) { dst.writeBytes(value) }
                 override val size get() = value.size
-                override fun toString() = value.getBytes(0).toHexString()
+                override fun toString() = value.getBytes().toHex()
             }
         public fun of(first: ReadMemory, second: ReadMemory, vararg other: ReadMemory): Value = ofAll(first, second, *other)
         public fun ofAll(vararg values: ReadMemory): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
 
         public fun of(value: Boolean): Value =
             object : Value.AbstractValue() {
-                override fun writeInto(dst: Writeable) { dst.putByte((if (value) 1 else 0).toByte()) }
+                override fun writeInto(dst: Writeable) { dst.writeByte((if (value) 1 else 0).toByte()) }
                 override val size get() = 1
                 override fun toString() = if (value) "true" else "false"
             }
@@ -102,7 +99,7 @@ public interface Value : Body {
 
         public fun of(value: Byte): Value =
             object : Value.AbstractValue() {
-                override fun writeInto(dst: Writeable) { dst.putByte(value) }
+                override fun writeInto(dst: Writeable) { dst.writeByte(value) }
                 override val size get() = 1
                 override fun toString() = "0x${value.toString(radix = 16).padStart(2, '0')}"
             }
@@ -111,7 +108,7 @@ public interface Value : Body {
 
         public fun of(value: Short): Value =
             object : Value.AbstractValue() {
-                override fun writeInto(dst: Writeable) { dst.putShort(value) }
+                override fun writeInto(dst: Writeable) { dst.writeShort(value) }
                 override val size get() = 2
                 override fun toString() = value.toString()
             }
@@ -120,7 +117,7 @@ public interface Value : Body {
 
         public fun of(value: Int): Value =
             object : Value.AbstractValue() {
-                override fun writeInto(dst: Writeable) { dst.putInt(value) }
+                override fun writeInto(dst: Writeable) { dst.writeInt(value) }
                 override val size get() = 4
                 override fun toString() = value.toString()
             }
@@ -129,7 +126,7 @@ public interface Value : Body {
 
         public fun of(value: Long): Value =
             object : Value.AbstractValue() {
-                override fun writeInto(dst: Writeable) { dst.putLong(value) }
+                override fun writeInto(dst: Writeable) { dst.writeLong(value) }
                 override val size get() = 8
                 override fun toString() = value.toString()
             }
@@ -147,7 +144,7 @@ public interface Value : Body {
 
         public fun of(value: CharSequence): Value =
             object : Value.AbstractValue() {
-                override fun writeInto(dst: Writeable) { dst.putString(value, Charset.UTF8) }
+                override fun writeInto(dst: Writeable) { dst.writeString(value, Charset.UTF8) }
                 override val size get() = Charset.UTF8.sizeOf(value)
                 override fun toString() = "\"$value\""
             }
@@ -163,4 +160,4 @@ public interface Value : Body {
 
 }
 
-public fun Value.toArrayBuffer(): ByteArrayKBuffer = KBuffer.array(size).also { writeInto(it) }
+public fun Value.toArrayBuffer(): ByteArrayMemory = Memory.array(size) { writeInto(this) }

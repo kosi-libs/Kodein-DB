@@ -2,23 +2,23 @@ package org.kodein.db.impl.model.jvm
 
 import org.kodein.db.TypeTable
 import org.kodein.db.model.PolymorphicCollection
-import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.Memory
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.text.Charset
+import org.kodein.memory.text.array
 import org.kodein.memory.text.readString
-import org.kodein.memory.text.wrap
 import kotlin.reflect.KClass
 
 public class AnnotationTypeTable : TypeTable {
     private val rootCache = HashMap<KClass<*>, KClass<*>>()
     private val nameCache = HashMap<ReadMemory, KClass<*>>()
 
-    override fun getTypeName(type: KClass<*>): ReadMemory = KBuffer.wrap(type.java.name, Charset.UTF8)
+    override fun getTypeName(type: KClass<*>): ReadMemory = Memory.array(type.java.name, Charset.UTF8)
 
     override fun getTypeClass(name: ReadMemory): KClass<*>? {
         nameCache[name]?.let { return it }
         return try {
-            Class.forName(name.duplicate().readString()).kotlin.also { nameCache[name] = it }
+            Class.forName(name.readString()).kotlin.also { nameCache[name] = it }
         } catch (_: Throwable) {
             null
         }

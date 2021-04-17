@@ -146,8 +146,8 @@ public class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options
         }
     }
 
-    internal class NativeBytes(ptr: CPointer<ByteVar>, len: Int, handler: Handler, options: LevelDB.Options, private val buffer: KBuffer = KBuffer.wrap(ptr, len))
-        : PointerBound<ByteVar>(ptr, "Value", handler, options), Allocation, KBuffer by buffer {
+    internal class NativeBytes(ptr: CPointer<ByteVar>, len: Int, handler: Handler, options: LevelDB.Options, override val memory: Memory = Memory.wrap(ptr, len))
+        : PointerBound<ByteVar>(ptr, "Value", handler, options), Allocation, Memory by memory {
 
         override fun release(ptr: CPointer<ByteVar>) {
             nativeHeap.free(ptr)
@@ -209,21 +209,21 @@ public class LevelDBNative private constructor(ptr: CPointer<leveldb_t>, options
             ldbItCall { leveldb_iter_prev(nonNullPtr) }
         }
 
-        override fun transientKey(): KBuffer {
+        override fun transientKey(): ReadMemory {
             checkValid()
             return ldbItCall {
                 val keySize = alloc<size_tVar>()
                 val key = leveldb_iter_key(nonNullPtr, keySize.ptr)!!
-                KBuffer.wrap(key, keySize.value.toInt())
+                Memory.wrap(key, keySize.value.toInt())
             }
         }
 
-        override fun transientValue(): KBuffer {
+        override fun transientValue(): ReadMemory {
             checkValid()
             return ldbItCall {
                 val valueSize = alloc<size_tVar>()
                 val value = leveldb_iter_value(nonNullPtr, valueSize.ptr)!!
-                KBuffer.wrap(value, valueSize.value.toInt())
+                Memory.wrap(value, valueSize.value.toInt())
             }
         }
 

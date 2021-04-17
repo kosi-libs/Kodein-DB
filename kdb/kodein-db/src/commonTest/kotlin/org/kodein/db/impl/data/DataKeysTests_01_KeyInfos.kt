@@ -14,9 +14,9 @@ class DataKeysTests_01_KeyInfos {
 
     @Test
     fun test00_KeyType() {
-        Allocation.native(32).use {
-            it.putDocumentKey(1, Value.of("one", "two"))
-            it.flip()
+        Allocation.native(32) {
+            writeDocumentKey(1, Value.of("one", "two"))
+        } .use {
             val type = getDocumentKeyType(it)
             assertEquals(1, type)
         }
@@ -24,9 +24,9 @@ class DataKeysTests_01_KeyInfos {
 
     @Test
     fun test01_KeyID() {
-        Allocation.native(32).use {
-            it.putDocumentKey(1, Value.of("one", "two"))
-            it.flip()
+        Allocation.native(32) {
+            writeDocumentKey(1, Value.of("one", "two"))
+        } .use {
             val id = getDocumentKeyID(it)
             assertBytesEquals(byteArray("one", 0, "two"), id)
         }

@@ -16,9 +16,9 @@ class DataKeysTests_00_Key {
     fun test00_SimpleKey() {
         val size = getDocumentKeySize(Value.of("one"))
         assertEquals(size, 10)
-        Allocation.native(size).use {
-            it.putDocumentKey(1, Value.of("one"))
-            it.flip()
+        Allocation.native(size) {
+            writeDocumentKey(1, Value.of("one"))
+        } .use {
             assertBytesEquals(byteArray('o', 0, 0, 0, 0, 1, "one", 0), it)
         }
     }
@@ -27,9 +27,9 @@ class DataKeysTests_00_Key {
     fun test01_SimpleKeyPrefix() {
         val size = getDocumentKeySize(Value.of("one"), isOpen = true)
         assertEquals(size, 9)
-        Allocation.native(size).use {
-            it.putDocumentKey(1, Value.of("one"), isOpen = true)
-            it.flip()
+        Allocation.native(size) {
+            writeDocumentKey(1, Value.of("one"), isOpen = true)
+        } .use {
             assertBytesEquals(byteArray('o', 0, 0, 0, 0, 1, "one"), it)
         }
     }
@@ -38,9 +38,9 @@ class DataKeysTests_00_Key {
     fun test02_CompositeKey() {
         val size = getDocumentKeySize(Value.of("one", "two"))
         assertEquals(size, 14)
-        Allocation.native(size).use {
-            it.putDocumentKey(1, Value.of("one", "two"))
-            it.flip()
+        Allocation.native(size) {
+            writeDocumentKey(1, Value.of("one", "two"))
+        } .use {
             assertBytesEquals(byteArray('o', 0, 0, 0, 0, 1, "one", 0, "two", 0), it)
         }
     }
@@ -49,9 +49,9 @@ class DataKeysTests_00_Key {
     fun test03_CompositeKeyPrefix() {
         val size = getDocumentKeySize(Value.of("one", "two"), isOpen = true)
         assertEquals(size, 13)
-        Allocation.native(size).use {
-            it.putDocumentKey(1, Value.of("one", "two"), isOpen = true)
-            it.flip()
+        Allocation.native(size) {
+            writeDocumentKey(1, Value.of("one", "two"), isOpen = true)
+        } .use {
             assertBytesEquals(byteArray('o', 0, 0, 0, 0, 1, "one", 0, "two"), it)
         }
     }
@@ -60,9 +60,9 @@ class DataKeysTests_00_Key {
     fun test04_NullKey() {
         val size = getDocumentKeySize(null)
         assertEquals(size, 6)
-        Allocation.native(size).use {
-            it.putDocumentKey(1, null)
-            it.flip()
+        Allocation.native(size) {
+            writeDocumentKey(1, null)
+        } .use {
             assertBytesEquals(byteArray('o', 0, 0, 0, 0, 1), it)
         }
     }

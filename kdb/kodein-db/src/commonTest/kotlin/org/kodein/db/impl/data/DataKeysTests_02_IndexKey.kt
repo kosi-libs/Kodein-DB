@@ -16,15 +16,16 @@ class DataKeysTests_02_IndexKey {
     @Test
     fun test00_SimpleIndexKey() {
         deferScope {
-            val objectKey = Allocation.native(32).useInScope()
-            objectKey.putDocumentKey(1, Value.of("one"))
-            objectKey.flip()
+            val objectKey = Allocation.native(32) {
+                writeDocumentKey(1, Value.of("one"))
+            }.useInScope()
 
             val indexSize = getIndexKeySize(objectKey, "Symbols", Value.of("alpha"))
             assertEquals(24, indexSize)
-            val indexKey = Allocation.native(indexSize).useInScope()
-            indexKey.putIndexKey(objectKey, "Symbols", Value.of("alpha"))
-            indexKey.flip()
+
+            val indexKey = Allocation.native(indexSize) {
+                writeIndexKey(objectKey, "Symbols", Value.of("alpha"))
+            }.useInScope()
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0, "one", 0), indexKey)
         }
     }
@@ -32,15 +33,15 @@ class DataKeysTests_02_IndexKey {
     @Test
     fun test01_CompositeIndexKey() {
         deferScope {
-            val objectKey = Allocation.native(32).useInScope()
-            objectKey.putDocumentKey(1, Value.of("one", "two"))
-            objectKey.flip()
+            val objectKey = Allocation.native(32) {
+                writeDocumentKey(1, Value.of("one", "two"))
+            }.useInScope()
 
             val indexSize = getIndexKeySize(objectKey, "Symbols", Value.of("alpha", "beta"))
             assertEquals(33, indexSize)
-            val indexKey = Allocation.native(indexSize).useInScope()
-            indexKey.putIndexKey(objectKey, "Symbols", Value.of("alpha", "beta"))
-            indexKey.flip()
+            val indexKey = Allocation.native(indexSize) {
+                writeIndexKey(objectKey, "Symbols", Value.of("alpha", "beta"))
+            }.useInScope()
             assertBytesEquals(byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0, "beta", 0, "one", 0, "two", 0), indexKey)
         }
     }

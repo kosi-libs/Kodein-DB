@@ -1,35 +1,30 @@
 package org.kodein.db.test.utils
 
 import org.kodein.memory.io.*
-import org.kodein.memory.text.putString
+import org.kodein.memory.text.writeString
 import kotlin.test.fail
 
-private fun KBuffer.putValues(vararg values: Any) {
+private fun Writeable.writeValues(vararg values: Any) {
     for (value in values) {
         when (value) {
-            is Number -> putByte(value.toByte())
-            is Char -> putByte(value.toByte())
-            is CharSequence -> {
-                putString(value)
-            }
-            is ReadMemory -> putMemoryBytes(value)
+            is Number -> writeByte(value.toByte())
+            is Char -> writeByte(value.toByte())
+            is CharSequence -> writeString(value)
+            is ReadMemory -> writeBytes(value)
             else -> throw IllegalArgumentException(value.toString())
         }
     }
-    flip()
 }
 
-fun byteArray(vararg values: Any): ByteArray {
-    val buffer = KBuffer.array(16384)
-    buffer.putValues(*values)
-    return buffer.readAllBytes()
-}
+fun byteArray(vararg values: Any): ByteArray =
+    Memory.array(16384) {
+        writeValues(*values)
+    } .getBytes()
 
-fun newBuffer(vararg values: Any): Allocation {
-    val buffer = Allocation.native(16384)
-    buffer.putValues(*values)
-    return buffer
-}
+fun newBuffer(vararg values: Any): Allocation =
+    Allocation.native(16384) {
+        writeValues(*values)
+    }
 
 fun ByteArray.description(): String {
     if (isEmpty())
@@ -70,7 +65,7 @@ fun assertBytesEquals(expected: ByteArray, actual: ByteArray, description: Boole
 }
 
 fun assertBytesEquals(expected: ByteArray, actual: ReadMemory, description: Boolean = true, prefix: String = "") =
-        assertBytesEquals(expected, actual.duplicate().readAllBytes(), description, prefix)
+        assertBytesEquals(expected, actual.getBytes(), description, prefix)
 
 fun assertBytesEquals(expected: ReadMemory, actual: ReadMemory, description: Boolean = true) =
-        assertBytesEquals(expected.getBytes(0), actual.getBytes(0), description)
+        assertBytesEquals(expected.getBytes(), actual.getBytes(), description)

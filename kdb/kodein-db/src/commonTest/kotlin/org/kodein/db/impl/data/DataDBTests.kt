@@ -3,7 +3,6 @@ package org.kodein.db.impl.data
 import org.kodein.db.DBFactory
 import org.kodein.db.data.DataCursor
 import org.kodein.db.data.DataDB
-import org.kodein.db.inDir
 import org.kodein.db.ldb.DBLoggerFactory
 import org.kodein.db.ldb.FailOnBadClose
 import org.kodein.db.ldb.TrackClosableAllocation
@@ -11,10 +10,8 @@ import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.db.test.utils.description
 import org.kodein.log.LoggerFactory
 import org.kodein.log.frontend.printFrontend
-import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.Allocation
-import org.kodein.memory.io.readAllBytes
-import org.kodein.memory.io.readBytes
+import org.kodein.memory.io.getBytes
 import org.kodein.memory.use
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -58,7 +55,7 @@ abstract class DataDBTests {
             var i = 0
             while (cursor.isValid()) {
                 if (i >= keyValues.size) {
-                    fail("DB contains additional entrie(s): " + cursor.transientKey().readAllBytes().description())
+                    fail("DB contains additional entrie(s): " + cursor.transientKey().getBytes().description())
                 }
                 assertBytesEquals(keyValues[i].first, cursor.transientKey(), prefix = "Key ${i + 1}: ")
                 assertBytesEquals(keyValues[i].second, cursor.transientValue(), prefix = "Value ${i + 1}: ")

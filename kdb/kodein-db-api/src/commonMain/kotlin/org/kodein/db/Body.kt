@@ -9,4 +9,4 @@ public fun interface Body {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-public inline fun Writeable.putBody(value: Body): Unit = value.writeInto(this)
+public inline fun Writeable.writeBody(value: Body): Unit = value.writeInto(this)

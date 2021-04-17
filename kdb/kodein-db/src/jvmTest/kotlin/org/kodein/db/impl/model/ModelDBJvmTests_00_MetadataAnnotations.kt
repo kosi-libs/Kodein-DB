@@ -8,10 +8,7 @@ import org.kodein.db.model.Indexed
 import org.kodein.db.model.ModelDB
 import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.orm.kryo.KryoSerializer
-import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.memory.file.FileSystem
-import org.kodein.memory.io.KBuffer
-import org.kodein.memory.io.array
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

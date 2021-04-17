@@ -2,11 +2,11 @@ package org.kodein.db.impl.model
 
 import org.kodein.db.*
 import org.kodein.db.data.DataWrite
-import org.kodein.db.impl.data.putDocumentKey
+import org.kodein.db.impl.data.writeDocumentKey
 import org.kodein.db.model.ModelWrite
 import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.io.ReadMemory
-import org.kodein.memory.io.markBuffer
+import org.kodein.memory.io.asReadable
 import org.kodein.memory.io.verify
 import kotlin.reflect.KClass
 
@@ -25,7 +25,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
         willAction { willPut(model, rootTypeName, metadata, options) }
         val body = Body { body ->
             val typeId = mdb.getTypeId(typeName)
-            body.putInt(typeId)
+            body.writeInt(typeId)
             mdb.serialize(model, body, *options)
         }
         val key = block(rootTypeName, metadata)
@@ -43,9 +43,7 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
 
     override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int =
         put(model, options) { rootTypeName, metadata ->
-            key.bytes.markBuffer {
-                verify(it) { putDocumentKey(mdb.getTypeId(rootTypeName), valueOf(metadata.id)) }
-            }
+            verify(key.bytes.asReadable()) { writeDocumentKey(mdb.getTypeId(rootTypeName), valueOf(metadata.id)) }
             key
         }.size
 

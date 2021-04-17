@@ -4,6 +4,8 @@ import org.kodein.db.DBFactory
 import org.kodein.db.Options
 import org.kodein.db.TypeTable
 import org.kodein.db.inDir
+import org.kodein.db.ldb.LevelDBOptions
+import org.kodein.db.ldb.TrackClosableAllocation
 import org.kodein.db.model.*
 import org.kodein.db.model.orm.MetadataExtractor
 import org.kodein.db.model.orm.DefaultSerializer
@@ -37,6 +39,7 @@ abstract class ModelDBTests {
 
     open fun newModelDB(): ModelDB {
         val options = ArrayList<Options.Open>()
+        options.add(TrackClosableAllocation(true))
         testSerializer()?.let { options.add(it) }
         testMetadataExtractor()?.let { options.add(it) }
         testTypeTable()?.let { options.add(it) }

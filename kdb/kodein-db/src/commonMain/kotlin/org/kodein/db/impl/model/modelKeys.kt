@@ -6,21 +6,21 @@ private object Prefix {
     const val TYPE = 't'.toByte()
 }
 
-internal val nextTypeKey = KBuffer.wrap(byteArrayOf(Prefix.TYPE, 'I'.toByte()))
+internal val nextTypeKey = Memory.wrap(byteArrayOf(Prefix.TYPE, 'I'.toByte()))
 
 internal fun getTypeNameKeySize(typeName: ReadMemory) = 2 + typeName.size
 
 public const val typeIdKeySize: Int = 2 + 4
 
 internal fun Writeable.putTypeNameKey(typeName: ReadMemory) {
-    putByte(Prefix.TYPE)
-    putByte('n'.toByte())
-    putMemoryBytes(typeName)
+    writeByte(Prefix.TYPE)
+    writeByte('n'.toByte())
+    writeBytes(typeName)
 }
 
 
 internal fun Writeable.putTypeIdKey(typeId: Int) {
-    putByte(Prefix.TYPE)
-    putByte('i'.toByte())
-    putInt(typeId)
+    writeByte(Prefix.TYPE)
+    writeByte('i'.toByte())
+    writeInt(typeId)
 }

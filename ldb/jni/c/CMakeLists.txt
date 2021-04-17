@@ -10,11 +10,9 @@ add_library(
         src/main/cpp/leveldb-jni.cc
 )
 
-set(
-        DEPS_DIR "${CMAKE_SOURCE_DIR}/../../lib/build/out/host"
-        CACHE PATH
-        "Directory containing library dependencies (must be absolute path)"
-)
+if(NOT DEFINED DEPS_DIR)
+    message(FATAL_ERROR "DEPS_DIR must be defined")
+endif()
 
 target_include_directories(
         kodein-leveldb-jni

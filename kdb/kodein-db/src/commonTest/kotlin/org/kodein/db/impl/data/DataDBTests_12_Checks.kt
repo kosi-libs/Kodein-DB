@@ -27,12 +27,12 @@ abstract class DataDBTests_12_Checks : DataDBTests() {
         ddb.put(key, Value.of(21))
         ddb.put(key, Value.of(42), emptyMap(), Anticipate {
             ddb.get(key)!!.use {
-                check(it.readInt() == 21)
+                check(it.getInt(0) == 21)
             }
         })
 
         ddb.get(key)!!.use {
-            assertEquals(42, it.readInt())
+            assertEquals(42, it.getInt(0))
         }
     }
 
@@ -44,13 +44,13 @@ abstract class DataDBTests_12_Checks : DataDBTests() {
         assertFailsWith<IllegalStateException> {
             ddb.put(key, Value.of(42), emptyMap(), Anticipate {
                 ddb.get(key)!!.use {
-                    check(it.readInt() == 0)
+                    check(it.getInt(0) == 0)
                 }
             })
         }
 
         ddb.get(key)!!.use {
-            assertEquals(21, it.readInt())
+            assertEquals(21, it.getInt(0))
         }
     }
 
@@ -61,7 +61,7 @@ abstract class DataDBTests_12_Checks : DataDBTests() {
 
         ddb.delete(key, Anticipate {
             ddb.get(key)!!.use {
-                check(it.readInt() == 42)
+                check(it.getInt(0) == 42)
             }
         })
 
@@ -76,13 +76,13 @@ abstract class DataDBTests_12_Checks : DataDBTests() {
         assertFailsWith<IllegalStateException> {
             ddb.delete(key, Anticipate {
                 ddb.get(ddb.newKey(1, Value.of("test")))!!.use {
-                    check(it.readInt() == 0)
+                    check(it.getInt(0) == 0)
                 }
             })
         }
 
         ddb.get(key)!!.use {
-            assertEquals(42, it.readInt())
+            assertEquals(42, it.getInt(0))
         }
     }
 
@@ -96,14 +96,14 @@ abstract class DataDBTests_12_Checks : DataDBTests() {
             MaybeThrowable().also {
                 batch.write(it, Anticipate {
                     ddb.get(key)!!.use {
-                        check(it.readInt() == 21)
+                        check(it.getInt(0) == 21)
                     }
                 })
             }.shoot()
         }
 
         ddb.get(key)!!.use {
-            assertEquals(42, it.readInt())
+            assertEquals(42, it.getInt(0))
         }
     }
 
@@ -118,7 +118,7 @@ abstract class DataDBTests_12_Checks : DataDBTests() {
                 MaybeThrowable().also {
                     batch.write(it, Anticipate {
                         ddb.get(key)!!.use {
-                            check(it.readInt() == 0)
+                            check(it.getInt(0) == 0)
                         }
                     })
                 }.shoot()
@@ -126,7 +126,7 @@ abstract class DataDBTests_12_Checks : DataDBTests() {
         }
 
         ddb.get(key)!!.use {
-            assertEquals(21, it.readInt())
+            assertEquals(21, it.getInt(0))
         }
     }
 

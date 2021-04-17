@@ -7,7 +7,7 @@ import org.kodein.db.data.DataCursor
 import org.kodein.db.impl.data.getDocumentKeyID
 import org.kodein.db.model.ModelCursor
 import org.kodein.memory.Closeable
-import org.kodein.memory.io.KBuffer
+import org.kodein.memory.io.Memory
 import org.kodein.memory.io.getBytes
 import org.kodein.memory.io.wrap
 import kotlin.reflect.KClass
@@ -22,7 +22,7 @@ internal class ModelCursorImpl<B : Any, M : B>(override val cursor: DataCursor, 
         model = null
     }
 
-    override fun key() = key ?: Key<M>(KBuffer.wrap(cursor.transientKey().getBytes(0))).also { key = it }
+    override fun key() = key ?: Key<M>(Memory.wrap(cursor.transientKey().getBytes())).also { key = it }
 
     override fun model(vararg options: Options.Read): Sized<M> = model ?: mdb.deserialize(modelType, getDocumentKeyID(key().bytes), cursor.transientValue(), options).also { model = it }
 

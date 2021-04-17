@@ -2,7 +2,7 @@ package org.kodein.db.leveldb.jvm
 
 import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.jni.LevelDBJNI
-import org.kodein.memory.text.toHexString
+import org.kodein.memory.text.toHex
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -25,7 +25,7 @@ public abstract class AbstractLevelDBJvmLoader(
                 if (n == -1) break
                 if (n > 0) digest.update(buf, 0, n)
             }
-            return digest.digest().toHexString()
+            return digest.digest().toHex()
         }
     }
 

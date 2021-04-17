@@ -2,6 +2,7 @@ package org.kodein.db.impl
 
 import org.kodein.db.*
 import org.kodein.db.impl.model.*
+import org.kodein.db.ldb.TrackClosableAllocation
 import org.kodein.db.orm.kotlinx.KotlinxSerializer
 import org.kodein.memory.file.FileSystem
 import kotlin.test.AfterTest
@@ -24,7 +25,7 @@ abstract class DBTests {
         +Birth.serializer()
     }
 
-    open fun options(): Array<out Options.Open> = arrayOf(kxSerializer, TypeTable())
+    open fun options(): Array<out Options.Open> = arrayOf(kxSerializer, TypeTable(), TrackClosableAllocation(true))
 
     protected fun open() {
         _db = factory.open("testdb", *options())

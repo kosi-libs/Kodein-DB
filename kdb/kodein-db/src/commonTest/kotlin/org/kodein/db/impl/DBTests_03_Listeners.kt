@@ -6,9 +6,8 @@ import org.kodein.db.impl.model.Person
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.memory.file.FileSystem
-import org.kodein.memory.io.KBuffer
-import org.kodein.memory.text.Charset
-import org.kodein.memory.text.wrap
+import org.kodein.memory.io.Memory
+import org.kodein.memory.text.array
 import kotlin.test.*
 
 @Suppress("ClassName")
@@ -24,7 +23,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             var wCounter = 0
             var dCounter = 0
             willPut {
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -39,7 +38,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             willDelete { fail() }
             didPut {
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(1, wCounter)
@@ -67,7 +66,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             var dCounter = 0
             willPut { fail() }
             willDelete {
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -80,7 +79,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didPut { fail() }
             didDelete {
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(1, wCounter)
@@ -106,7 +105,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             var dCounter = 0
             willPut { fail() }
             willDeleteIt {
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -121,7 +120,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didPut { fail() }
             didDeleteIt {
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(1, wCounter)
@@ -149,7 +148,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             var wCounter = 0
             var dCounter = 0
             willPut {
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -163,7 +162,7 @@ abstract class DBTests_03_Listeners : DBTests() {
                 }
             }
             willDeleteIt {
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     2 -> {
                         assertEquals(2, dCounter)
@@ -178,7 +177,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didPut {
                 assertTrue(pBatchApplied)
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(2, wCounter)
@@ -193,7 +192,7 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didDeleteIt {
                 assertTrue(dBatchApplied)
-                assertBytesEquals(KBuffer.wrap("Adult"), typeName)
+                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     2 -> {
                         assertEquals(4, wCounter)

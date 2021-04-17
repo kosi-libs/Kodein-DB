@@ -43,7 +43,7 @@ abstract class ModelDBTests_07_React : ModelDBTests() {
 
             override fun willPut(model: Any, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {
                 assertSame(me, model)
-                assertEquals("Adult", typeName.slice(0).readString().split(".").last())
+                assertEquals("Adult", typeName.readString().split(".").last())
                 assertEquals(me.id, metadata.id)
                 assertEquals(me.indexes(), metadata.indexes())
                 ++willPutCalls
@@ -51,7 +51,7 @@ abstract class ModelDBTests_07_React : ModelDBTests() {
 
             override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
                 assertSame(me, model)
-                assertEquals("Adult", typeName.slice(0).readString().split(".").last())
+                assertEquals("Adult", typeName.readString().split(".").last())
                 assertEquals(me.id, metadata.id)
                 assertEquals(me.indexes(), metadata.indexes())
                 ++didPutCalls
@@ -59,7 +59,7 @@ abstract class ModelDBTests_07_React : ModelDBTests() {
 
             override fun willDelete(key: Key<*>, getModel: () -> Any?, typeName: ReadMemory, options: Array<out Options.Write>) {
                 assertEquals(mdb.keyFrom(me), key)
-                assertEquals("Adult", typeName.slice(0).readString().split(".").last())
+                assertEquals("Adult", typeName.readString().split(".").last())
                 val model = getModel()
                 assertNotSame(me, model)
                 assertEquals(me, model)
@@ -71,7 +71,7 @@ abstract class ModelDBTests_07_React : ModelDBTests() {
                 assertEquals(mdb.keyFrom(me), key)
                 assertNotSame(me, model)
                 assertEquals(me, model)
-                assertEquals("Adult", typeName.slice(0).readString().split(".").last())
+                assertEquals("Adult", typeName.readString().split(".").last())
                 ++didDeleteCalls
             }
         }
