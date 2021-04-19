@@ -201,7 +201,7 @@ fun addIosTarget(target: String, specificOptions: CMakeOptions.() -> Unit = {}) 
         "CMAKE_CXX_FLAGS:STRING" += "-Wno-shorten-64-to-32"
         specificOptions()
     }
-    else task("buildIos-${target}Leveldb") {
+    else task("buildLeveldb-ios-${target}") {
         enabled = false
     }
 
