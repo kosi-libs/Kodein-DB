@@ -16,7 +16,7 @@ val copyResources by tasks.creating(Sync::class) {
             ":ldb:jni:c:genInfoProperties-windows"
         )
     }
-    from(rootDir.resolve("ldb/jni/c/build/cmake/out/kodein-leveldb-jni-windows/lib/libkodein-leveldb-jni.dll"))
+    from(rootDir.resolve("ldb/jni/c/build/cmake/out/kodein-leveldb-jni-windows/lib/kodein-leveldb-jni.dll"))
     from(rootDir.resolve("ldb/jni/c/build/generated/kodein-leveldb-jni-windows/kodein-leveldb-jni.properties"))
     into(buildDir.resolve("jniResources/org/kodein/db/leveldb/jvm/jni/windows"))
 }

@@ -26,11 +26,15 @@ target_compile_definitions(
         PUBLIC _GLIBCXX_USE_CXX11_ABI=0
 )
 
+#if(MSVC)
+#    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:leveldb")
+#endif()
+
 target_link_libraries(
         kodein-leveldb-jni
-        ${DEPS_DIR}/lib/libleveldb.a
-        ${DEPS_DIR}/lib/libsnappy.a
-        ${DEPS_DIR}/lib/libcrc32c.a
+        ${DEPS_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}leveldb${CMAKE_STATIC_LIBRARY_SUFFIX}
+        ${DEPS_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}snappy${CMAKE_STATIC_LIBRARY_SUFFIX}
+        ${DEPS_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}crc32c${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
 
 install(

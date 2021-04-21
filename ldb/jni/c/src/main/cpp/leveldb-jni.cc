@@ -1,5 +1,8 @@
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
+# if defined(__WINDOWS__)
+#   define __int64 long long
+# endif
 
 #include "kodein/org_kodein_db_leveldb_jni_Native.h"
 

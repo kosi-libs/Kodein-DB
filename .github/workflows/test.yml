@@ -41,8 +41,6 @@ jobs:
         run: |
           rm.exe "C:/WINDOWS/system32/bash.EXE"
           echo "C:\msys64\usr\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          choco install llvm
-          echo "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           # https://youtrack.jetbrains.com/issue/KT-42485
           echo "LIBCLANG_DISABLE_CRASH_RECOVERY=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append

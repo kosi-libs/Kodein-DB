@@ -39,17 +39,25 @@ task<Exec>("generateJniHeaders") {
 }
 
 val osName: String by rootProject.extra
-val libExt: String by rootProject.extra
+val libSuffix: String by rootProject.extra
+val libPrefix: String by rootProject.extra
 
 val buildHost = cmake.compilation("kodein-leveldb-jni-$osName") {
     conf {
         dependsOn("generateJniHeaders", ":ldb:lib:buildLeveldb-$osName")
         cmakeOptions {
             "DEPS_DIR:PATH" += rootDir.resolve("ldb/lib/build/out/$osName").absolutePath
+            "CMAKE_BUILD_TYPE" += "Release"
 
             if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
-                "G" -= "MinGW Makefiles"
+//                "G" -= "MinGW Makefiles"
+                "CMAKE_C_FLAGS:STRING" += "-D__WINDOWS__"
+                "CMAKE_CXX_FLAGS:STRING" += "-D__WINDOWS__"
+
             }
+        }
+        build {
+            args("--config", "Release")
         }
     }
 }
@@ -61,7 +69,7 @@ task("genInfoProperties-$osName") {
 
     val outputFile = file("$buildDir/generated/kodein-leveldb-jni-$osName/kodein-leveldb-jni.properties")
     outputs.file(outputFile)
-    val library = file("$rootDir/ldb/jni/c/build/cmake/out/kodein-leveldb-jni-$osName/lib/libkodein-leveldb-jni.$libExt")
+    val library = file("$rootDir/ldb/jni/c/build/cmake/out/kodein-leveldb-jni-$osName/lib/${libPrefix}kodein-leveldb-jni.$libSuffix")
     inputs.file(library)
 
     doLast {

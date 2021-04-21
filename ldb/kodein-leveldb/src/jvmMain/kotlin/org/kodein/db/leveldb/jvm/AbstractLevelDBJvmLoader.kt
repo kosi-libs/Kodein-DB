@@ -12,7 +12,8 @@ import java.util.*
 
 public abstract class AbstractLevelDBJvmLoader(
     private val osName: String,
-    private val libExtension: String,
+    private val libPrefix: String,
+    private val libSuffix: String,
     private val jniDefaultLocation: String
 ) : LevelDBFactory by LevelDBJNI.Factory {
 
@@ -43,7 +44,7 @@ public abstract class AbstractLevelDBJvmLoader(
         val props = propsPath.takeIf { Files.exists(it) }
             ?.let { Files.newInputStream(it) }
             ?.use { Properties().apply { load(it) } }
-        val libFileName = "libkodein-leveldb-jni.$libExtension"
+        val libFileName = "${libPrefix}kodein-leveldb-jni.$libSuffix"
         val libPath = location.resolve(libFileName)
 
         val safeChecks = System.getProperty("org.kodein.db.leveldb.jvm.jni.safe-checks") == "true"

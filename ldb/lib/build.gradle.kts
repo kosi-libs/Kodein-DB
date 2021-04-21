@@ -29,10 +29,6 @@ fun addCMakeTasks(lib: String, target: String, dir: String = lib, specificConf: 
                 "CMAKE_C_FLAGS:STRING" += "-D_GLIBCXX_USE_CXX11_ABI=0"
                 "CMAKE_CXX_FLAGS:STRING" += "-D_GLIBCXX_USE_CXX11_ABI=0"
                 "CMAKE_BUILD_TYPE" += "Release"
-
-                if (currentOs.isWindows) {
-                    "G" -= "MinGW Makefiles"
-                }
             }
         }
         build {
@@ -89,8 +85,6 @@ fun addHostTarget(target: String, specificOptions: CMakeOptions.() -> Unit) = ad
             "CMAKE_CXX_FLAGS:STRING" += "-mmacosx-version-min=10.11"
         }
         currentOs.isWindows -> {
-            "CMAKE_C_FLAGS:STRING" += "-femulated-tls"
-            "CMAKE_CXX_FLAGS:STRING" += "-femulated-tls"
         }
     }
     specificOptions()
@@ -99,12 +93,9 @@ fun addHostTarget(target: String, specificOptions: CMakeOptions.() -> Unit) = ad
 val osName: String by rootProject.extra
 
 addHostTarget(osName) {
-    "CMAKE_C_COMPILER:STRING" += "clang"
-    "CMAKE_CXX_COMPILER:STRING" += "clang++"
-
-    if (currentOs.isWindows) {
-        "CMAKE_C_FLAGS:STRING" += "-target x86_64-pc-windows-gnu"
-        "CMAKE_CXX_FLAGS:STRING" += "-target x86_64-pc-windows-gnu"
+    if (!currentOs.isWindows) {
+        "CMAKE_C_COMPILER:STRING" += "clang"
+        "CMAKE_CXX_COMPILER:STRING" += "clang++"
     }
 }
 
@@ -132,6 +123,7 @@ val konanBuild = addHostTarget("konan-$osName") {
             val cFlags = "-femulated-tls"
             "CMAKE_C_FLAGS:STRING" += cFlags
             "CMAKE_CXX_FLAGS:STRING" += "$cFlags -std=c++11"
+            "G" -= "MinGW Makefiles"
         }
     }
 }

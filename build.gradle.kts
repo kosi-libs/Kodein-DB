@@ -30,15 +30,18 @@ val currentOs = org.gradle.internal.os.OperatingSystem.current()!!
 when {
     currentOs.isWindows -> {
         extra["osName"] = "windows"
-        extra["libExt"] = "dll"
+        extra["libPrefix"] = ""
+        extra["libSuffix"] = "dll"
     }
     currentOs.isMacOsX -> {
         extra["osName"] = "macos"
-        extra["libExt"] = "dylib"
+        extra["libPrefix"] = "lib"
+        extra["libSuffix"] = "dylib"
     }
     currentOs.isLinux -> {
         extra["osName"] = "linux"
-        extra["libExt"] = "so"
+        extra["libPrefix"] = "lib"
+        extra["libSuffix"] = "so"
     }
     else -> error("Unknown operating system ${currentOs.name}")
 }
