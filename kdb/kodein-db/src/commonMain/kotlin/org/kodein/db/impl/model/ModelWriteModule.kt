@@ -29,7 +29,8 @@ internal interface ModelWriteModule : ModelKeyMakerModule, ModelWrite {
             mdb.serialize(model, body, *options)
         }
         val key = block(rootTypeName, metadata)
-        val indexMap = metadata.indexes().mapValues { valueOf(it.value) }
+        // TODO support multiple values
+        val indexMap = metadata.indexes().mapValues { listOf<Pair<Value, Body?>>(valueOf(it.value) to null) }
         val size = data.put(key.bytes, body, indexMap, *options)
         didAction { didPut(model, key, rootTypeName, metadata, size, options) }
         return KeyAndSize(key, size)

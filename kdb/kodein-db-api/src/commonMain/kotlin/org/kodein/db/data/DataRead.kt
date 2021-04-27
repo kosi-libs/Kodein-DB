@@ -15,9 +15,9 @@ public interface DataRead : DataKeyMaker {
 
     public fun findById(type: Int, id: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
 
-    public fun findAllByIndex(type: Int, index: String, vararg options: Options.Read): DataCursor
+    public fun findAllByIndex(type: Int, index: String, vararg options: Options.Read): DataIndexCursor
 
-    public fun findByIndex(type: Int, index: String, value: Value, isOpen: Boolean = false, vararg options: Options.Read): DataCursor
+    public fun findByIndex(type: Int, index: String, value: Value, isOpen: Boolean = false, vararg options: Options.Read): DataIndexCursor
 
     public fun getIndexesOf(key: ReadMemory, vararg options: Options.Read): Set<String>
 

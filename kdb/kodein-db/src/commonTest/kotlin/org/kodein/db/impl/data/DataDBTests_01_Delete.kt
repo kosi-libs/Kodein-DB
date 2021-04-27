@@ -4,8 +4,11 @@ import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
 import org.kodein.db.inmemory.inMemory
-import org.kodein.db.test.utils.byteArray
+import org.kodein.db.test.utils.array
+import org.kodein.db.test.utils.int
+import org.kodein.db.test.utils.ushort
 import org.kodein.memory.file.FileSystem
+import org.kodein.memory.io.asMemory
 import kotlin.test.Test
 
 @Suppress("ClassName")
@@ -18,7 +21,7 @@ abstract class DataDBTests_01_Delete : DataDBTests() {
     @Test
     fun test00_DeleteWithoutIndex() {
         val key = ddb.newKey(1, Value.of("aaa", "bbb"))
-        ddb.put(key, Value.of("ValueAB1"))
+        ddb.put(key, Value.of("ValueAB"))
         ddb.delete(key)
 
         assertDBIs(
@@ -28,7 +31,7 @@ abstract class DataDBTests_01_Delete : DataDBTests() {
     @Test
     fun test01_DeleteWithIndex() {
         val key = ddb.newKey(1, Value.of("aaa"))
-        ddb.put(key, Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta"), "Numbers" to Value.of("forty", "two")))
+        ddb.put(key, Value.of("ValueA!"), mapOf("Symbols" to listOf(Value.of("alpha", "beta") to null), "Numbers" to listOf(Value.of("forty", "two") to Value.of("MetaNumbersA"))))
         ddb.delete(key)
 
         assertDBIs(
@@ -37,28 +40,47 @@ abstract class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test02_DeleteUnknown() {
-        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA!"), mapOf("Symbols" to listOf(Value.of("alpha", "beta") to Value.of("MetaSymbolsA"))))
         val key = ddb.newKey(1, Value.of("bbb"))
         ddb.delete(key)
 
         assertDBIs(
-                byteArray('i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0) to byteArray('o', 0, 0, 0, 0, 1, "aaa", 0),
-                byteArray('o', 0, 0, 0, 0, 1, "aaa", 0) to byteArray("ValueA1!"),
-                byteArray('r', 0, 0, 0, 0, 1, "aaa", 0) to byteArray(0, 0, 0, 29, 'i', 0, 0, 0, 0, 1, "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0)
+                array('i', 0, int(1), "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0) to array(128, ushort(10), ushort(3), "MetaSymbolsA"),
+                array('o', 0, int(1), "aaa", 0) to array("ValueA!"),
+                array('r', 0, int(1), "aaa", 0) to array(128, "Symbols", 0, int(12), ushort(10), "alpha", 0, "beta")
         )
     }
 
     @Test
     fun test03_Delete1of2() {
         val key = ddb.newKey(1, Value.of("aaa"))
-        ddb.put(key, Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
-        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
+        ddb.put(key, Value.of("ValueA!"), mapOf("Symbols" to listOf(Value.of("alpha", "beta") to Value.of("MetaSymbolsA"))))
+        ddb.put(ddb.newKey(1, Value.of("bbb")), Value.of("ValueB!"), mapOf("Numbers" to listOf(Value.of("forty", "two") to null)))
         ddb.delete(key)
 
         assertDBIs(
-                byteArray('i', 0, 0, 0, 0, 1, "Numbers", 0, "forty", 0, "two", 0, "bbb", 0) to byteArray('o', 0, 0, 0, 0, 1, "bbb", 0),
-                byteArray('o', 0, 0, 0, 0, 1, "bbb", 0) to byteArray("ValueB1!"),
-                byteArray('r', 0, 0, 0, 0, 1, "bbb", 0) to byteArray(0, 0, 0, 28, 'i', 0, 0, 0, 0, 1, "Numbers", 0, "forty", 0, "two", 0, "bbb", 0)
+                array('i', 0, int(1), "Numbers", 0, "forty", 0, "two", 0, "bbb", 0) to array(128, ushort(9), ushort(3)),
+                array('o', 0, int(1), "bbb", 0) to array("ValueB!"),
+                array('r', 0, int(1), "bbb", 0) to array(128, "Numbers", 0, int(11), ushort(9), "forty", 0, "two")
+        )
+    }
+
+    @Test
+    fun test04_DeleteV0WithIndex() {
+        ddb.ldb.put(array('o', 0, int(1), "aaa", 0).asMemory(), array("ValueA!").asMemory())
+        ddb.ldb.put(array('i', 0, int(1), "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0).asMemory(), array('o', 0, int(1), "aaa", 0).asMemory())
+        ddb.ldb.put(array('i', 0, int(1), "Numbers", 0, "forty", 0, "two", 0, "aaa", 0).asMemory(), array('o', 0, int(1), "aaa", 0).asMemory())
+        ddb.ldb.put(array('r', 0, int(1), "aaa", 0).asMemory(), array(int(29), 'i', 0, int(1), "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0, int(28), 'i', 0, int(1), "Numbers", 0, "forty", 0, "two", 0, "aaa", 0).asMemory())
+        ddb.ldb.put(array('o', 0, int(1), "bbb", 0).asMemory(), array("ValueB!").asMemory())
+        ddb.ldb.put(array('i', 0, int(1), "Symbols", 0, "delta", 0, "gamma", 0, "bbb", 0).asMemory(), array('o', 0, int(1), "bbb", 0).asMemory())
+        ddb.ldb.put(array('r', 0, int(1), "bbb", 0).asMemory(), array(int(30), 'i', 0, int(1), "Symbols", 0, "delta", 0, "gamma", 0, "bbb", 0).asMemory())
+
+        ddb.delete(ddb.newKey(1, Value.of("aaa")))
+
+        assertDBIs(
+            array('i', 0, int(1), "Symbols", 0, "delta", 0, "gamma", 0, "bbb", 0) to array('o', 0, int(1), "bbb", 0),
+            array('o', 0, int(1), "bbb", 0) to array("ValueB!"),
+            array('r', 0, int(1), "bbb", 0) to array( int(30), 'i', 0, int(1), "Symbols", 0, "delta", 0, "gamma", 0, "bbb", 0)
         )
     }
 }

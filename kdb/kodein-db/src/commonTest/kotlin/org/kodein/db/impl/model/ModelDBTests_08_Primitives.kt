@@ -6,7 +6,7 @@ import org.kodein.db.model.ModelDB
 import org.kodein.db.model.Primitive
 import org.kodein.db.model.get
 import org.kodein.db.test.utils.assertBytesEquals
-import org.kodein.db.toArrayBuffer
+import org.kodein.db.toArrayMemory
 import org.kodein.memory.file.FileSystem
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,7 +25,7 @@ abstract class ModelDBTests_08_Primitives : ModelDBTests() {
         val other = mdb[key]!!.model
         assertNotSame(int, other)
         assertNotSame(int.id, other.id)
-        assertEquals(mdb.valueOf(int.id).toArrayBuffer(), mdb.valueOf(other.id).toArrayBuffer())
+        assertEquals(mdb.valueOf(int.id).toArrayMemory(), mdb.valueOf(other.id).toArrayMemory())
         assertEquals(int.value, other.value)
     }
 
@@ -36,7 +36,7 @@ abstract class ModelDBTests_08_Primitives : ModelDBTests() {
         val other = mdb[key]!!.model
         assertNotSame(long, other)
         assertNotSame(long.id, other.id)
-        assertEquals(mdb.valueOf(long.id).toArrayBuffer(), mdb.valueOf(other.id).toArrayBuffer())
+        assertEquals(mdb.valueOf(long.id).toArrayMemory(), mdb.valueOf(other.id).toArrayMemory())
         assertEquals(long.value, other.value)
     }
 
@@ -47,7 +47,7 @@ abstract class ModelDBTests_08_Primitives : ModelDBTests() {
         val other = mdb[key]!!.model
         assertNotSame(double, other)
         assertNotSame(double.id, other.id)
-        assertEquals(mdb.valueOf(double.id).toArrayBuffer(), mdb.valueOf(other.id).toArrayBuffer())
+        assertEquals(mdb.valueOf(double.id).toArrayMemory(), mdb.valueOf(other.id).toArrayMemory())
         assertEquals(double.value, other.value)
     }
 
@@ -58,7 +58,7 @@ abstract class ModelDBTests_08_Primitives : ModelDBTests() {
         val other = mdb[key]!!.model
         assertNotSame(string, other)
         assertNotSame(string.id, other.id)
-        assertEquals(mdb.valueOf(string.id).toArrayBuffer(), mdb.valueOf(other.id).toArrayBuffer())
+        assertEquals(mdb.valueOf(string.id).toArrayMemory(), mdb.valueOf(other.id).toArrayMemory())
         assertEquals(string.value, other.value)
     }
 
@@ -69,7 +69,7 @@ abstract class ModelDBTests_08_Primitives : ModelDBTests() {
         val other = mdb[key]!!.model
         assertNotSame(bytes, other)
         assertNotSame(bytes.id, other.id)
-        assertEquals(mdb.valueOf(bytes.id).toArrayBuffer(), mdb.valueOf(other.id).toArrayBuffer())
+        assertEquals(mdb.valueOf(bytes.id).toArrayMemory(), mdb.valueOf(other.id).toArrayMemory())
         assertBytesEquals(bytes.value, other.value)
     }
 }

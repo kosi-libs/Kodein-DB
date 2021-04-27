@@ -6,7 +6,7 @@ import org.kodein.db.leveldb.default
 import org.kodein.db.leveldb.inDir
 import org.kodein.db.leveldb.inmemory.inMemory
 import org.kodein.db.test.utils.assertBytesEquals
-import org.kodein.db.test.utils.byteArray
+import org.kodein.db.test.utils.array
 import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.Test
@@ -22,21 +22,21 @@ abstract class LDBTests_01_Snapshot : LevelDBTests() {
     @Test
     fun test_00_PutGet() {
         ldb!!.newSnapshot().use { snapshot ->
-            ldb!!.put(buffer("key"), buffer("newValueBuffer"))
+            ldb!!.put(native("key"), native("newValueBuffer"))
 
-            assertNull(ldb!!.get(buffer("key"), LevelDB.ReadOptions(snapshot = snapshot)))
+            assertNull(ldb!!.get(native("key"), LevelDB.ReadOptions(snapshot = snapshot)))
         }
     }
 
     @Test
     fun test_01_PutDeleteGet() {
-        ldb!!.put(buffer("key"), buffer("newValueBuffer"))
+        ldb!!.put(native("key"), native("newValueBuffer"))
 
         ldb!!.newSnapshot().use { snapshot ->
-            ldb!!.delete(buffer("key"))
+            ldb!!.delete(native("key"))
 
-            val value = ldb!!.get(buffer("key"), LevelDB.ReadOptions(snapshot = snapshot))!!
-            assertBytesEquals(byteArray("newValueBuffer"), value)
+            val value = ldb!!.get(native("key"), LevelDB.ReadOptions(snapshot = snapshot))!!
+            assertBytesEquals(array("newValueBuffer"), value)
             value.close()
         }
     }

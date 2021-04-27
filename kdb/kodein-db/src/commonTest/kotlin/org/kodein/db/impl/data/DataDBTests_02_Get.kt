@@ -4,7 +4,7 @@ import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
 import org.kodein.db.inmemory.inMemory
-import org.kodein.db.test.utils.byteArray
+import org.kodein.db.test.utils.array
 import org.kodein.memory.file.FileSystem
 import kotlin.test.Test
 import kotlin.test.assertNull
@@ -19,12 +19,12 @@ abstract class DataDBTests_02_Get : DataDBTests() {
     @Test
     fun test00_GetExisting() {
         val aKey = ddb.newKey(1, Value.of("aaa"))
-        ddb.put(aKey, Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(aKey, Value.of("ValueA1!"), mapOf("Symbols" to listOf(Value.of("alpha", "beta") to Value.of("MetaSymbolsA"))))
         val bKey = ddb.newKey(1, Value.of("bbb"))
-        ddb.put(bKey, Value.of("ValueB1!"), mapOf("Numbers" to Value.of("forty", "two")))
+        ddb.put(bKey, Value.of("ValueB1!"), mapOf("Numbers" to listOf(Value.of("forty", "two") to null)))
 
-        assertDataIs(byteArray("ValueA1!"), ddb.get(aKey))
-        assertDataIs(byteArray("ValueB1!"), ddb.get(bKey))
+        assertDataIs(array("ValueA1!"), ddb.get(aKey))
+        assertDataIs(array("ValueB1!"), ddb.get(bKey))
     }
 
     @Test
@@ -35,7 +35,7 @@ abstract class DataDBTests_02_Get : DataDBTests() {
 
     @Test
     fun test02_GetUnknownInNonEmptyDB() {
-        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to Value.of("alpha", "beta")))
+        ddb.put(ddb.newKey(1, Value.of("aaa")), Value.of("ValueA1!"), mapOf("Symbols" to listOf(Value.of("alpha", "beta") to Value.of("MetaSymbolsA"))))
 
         assertNull(ddb.get(ddb.newKey(1, Value.of("bbb"))))
     }

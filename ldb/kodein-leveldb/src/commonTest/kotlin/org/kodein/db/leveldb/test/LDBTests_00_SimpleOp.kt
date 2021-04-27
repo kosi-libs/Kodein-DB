@@ -6,9 +6,8 @@ import org.kodein.db.leveldb.default
 import org.kodein.db.leveldb.inDir
 import org.kodein.db.leveldb.inmemory.inMemory
 import org.kodein.db.test.utils.assertBytesEquals
-import org.kodein.db.test.utils.byteArray
+import org.kodein.db.test.utils.array
 import org.kodein.memory.file.FileSystem
-import org.kodein.memory.use
 import kotlin.test.Test
 import kotlin.test.assertNull
 
@@ -21,39 +20,39 @@ abstract class LDBTests_00_SimpleOp : LevelDBTests() {
 
     @Test
     fun test_00_PutGet() {
-        ldb!!.put(buffer("key"), buffer("newValueBuffer"))
+        ldb!!.put(native("key"), native("newValueBuffer"))
 
-        val bytes = ldb!!.get(buffer("key"))!!
-        assertBytesEquals(byteArray("newValueBuffer"), bytes)
+        val bytes = ldb!!.get(native("key"))!!
+        assertBytesEquals(array("newValueBuffer"), bytes)
         bytes.close()
     }
 
     @Test
     fun test_01_BadGet() {
-        assertNull(ldb!!.get(buffer("key")))
+        assertNull(ldb!!.get(native("key")))
     }
 
     @Test
     fun test_02_PutDelete() {
-        ldb!!.put(buffer("key"), buffer("newValueBuffer"))
+        ldb!!.put(native("key"), native("newValueBuffer"))
 
-        ldb!!.delete(buffer("key"))
+        ldb!!.delete(native("key"))
 
-        assertNull(ldb!!.get(buffer("key")))
+        assertNull(ldb!!.get(native("key")))
     }
 
     @Test
     fun test_03_DirectPutGet() {
-        ldb!!.put(buffer("key0"), buffer("newValueBuffer0"))
-        ldb!!.put(buffer("key1"), buffer("newValueBuffer1"))
-        ldb!!.put(buffer("key2"), buffer("newValueBuffer2"))
+        ldb!!.put(native("key0"), native("newValueBuffer0"))
+        ldb!!.put(native("key1"), native("newValueBuffer1"))
+        ldb!!.put(native("key2"), native("newValueBuffer2"))
 
-        val value0 = ldb!!.get(buffer("key0"))!!
-        val value1 = ldb!!.get(buffer("key1"))!!
-        val value2 = ldb!!.get(buffer("key2"))!!
-        assertBytesEquals(byteArray("newValueBuffer0"), value0)
-        assertBytesEquals(byteArray("newValueBuffer1"), value1)
-        assertBytesEquals(byteArray("newValueBuffer2"), value2)
+        val value0 = ldb!!.get(native("key0"))!!
+        val value1 = ldb!!.get(native("key1"))!!
+        val value2 = ldb!!.get(native("key2"))!!
+        assertBytesEquals(array("newValueBuffer0"), value0)
+        assertBytesEquals(array("newValueBuffer1"), value1)
+        assertBytesEquals(array("newValueBuffer2"), value2)
         value0.close()
         value1.close()
         value2.close()
@@ -61,20 +60,20 @@ abstract class LDBTests_00_SimpleOp : LevelDBTests() {
 
     @Test
     fun test_04_PutDirectGet() {
-        ldb!!.put(buffer("key"), buffer("newValueBuffer"))
+        ldb!!.put(native("key"), native("newValueBuffer"))
 
-        val value = ldb!!.get(buffer("key"))!!
-        assertBytesEquals(byteArray("newValueBuffer"), value)
+        val value = ldb!!.get(native("key"))!!
+        assertBytesEquals(array("newValueBuffer"), value)
         value.close()
     }
 
     @Test
     fun test_05_PutDirectDelete() {
-        ldb!!.put(buffer("key"), buffer("newValueBuffer"))
+        ldb!!.put(native("key"), native("newValueBuffer"))
 
-        ldb!!.delete(buffer("key"), LevelDB.WriteOptions(sync = true))
+        ldb!!.delete(native("key"), LevelDB.WriteOptions(sync = true))
 
-        assertNull(ldb!!.get(buffer("key")))
+        assertNull(ldb!!.get(native("key")))
     }
 
 }

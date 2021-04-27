@@ -160,4 +160,4 @@ public interface Value : Body {
 
 }
 
-public fun Value.toArrayBuffer(): ByteArrayMemory = Memory.array(size) { writeInto(this) }
+public fun Value.toArrayMemory(): ByteArrayMemory = Memory.array(size) { writeInto(this) }

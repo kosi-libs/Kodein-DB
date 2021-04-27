@@ -2,10 +2,6 @@ package org.kodein.db.leveldb.test
 
 import org.kodein.db.leveldb.LevelDB
 import org.kodein.db.leveldb.LevelDBFactory
-import org.kodein.db.leveldb.default
-import org.kodein.db.leveldb.inDir
-import org.kodein.db.test.utils.newBuffer
-import org.kodein.memory.file.FileSystem
 import org.kodein.memory.io.Allocation
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -23,7 +19,7 @@ abstract class LevelDBTests {
 
     private val buffers = ArrayList<Allocation>()
 
-    protected fun buffer(vararg values: Any) = newBuffer(*values).also { buffers += it }
+    protected fun native(vararg values: Any) = org.kodein.db.test.utils.native(*values).also { buffers += it }
 
     @BeforeTest
     fun setUp() {

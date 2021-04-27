@@ -5,7 +5,8 @@ import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.assertBytesEquals
-import org.kodein.db.test.utils.byteArray
+import org.kodein.db.test.utils.array
+import org.kodein.db.test.utils.int
 import org.kodein.memory.file.FileSystem
 import org.kodein.memory.use
 import kotlin.test.Test
@@ -29,7 +30,7 @@ abstract class DataDBTests_10_CloseOpen : DataDBTests() {
 
         val key = ddb.newKey(1, Value.of("key"))
         ddb.get(key)!!.use {
-            assertBytesEquals(byteArray("value"), it)
+            assertBytesEquals(array("value"), it)
         }
     }
 
@@ -44,7 +45,7 @@ abstract class DataDBTests_10_CloseOpen : DataDBTests() {
         val it = ddb.findAllByType(1)
         try {
             assertTrue(it.isValid())
-            assertCursorIs(byteArray('o', 0, 0, 0, 0, 1, "key", 0), byteArray("value"), it)
+            assertCursorIs(array('o', 0, int(1), "key", 0), array("value"), it)
 
             it.next()
             assertFalse(it.isValid())

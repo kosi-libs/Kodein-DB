@@ -2,8 +2,10 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.*
 import org.kodein.db.data.DataBatch
+import org.kodein.db.data.DataIndexMap
 import org.kodein.db.impl.utils.withLock
 import org.kodein.db.leveldb.LevelDB
+import org.kodein.memory.closeAll
 import org.kodein.memory.io.*
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
@@ -13,31 +15,31 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
 
     private val batch = ddb.ldb.newWriteBatch()
 
-    private val deleteRefKeys = ArrayList<Memory>()
+    private val deleteRefKeys = ArrayList<Allocation>()
 
-    private fun put(sb: SliceBuilder, body: Body, key: ReadMemory, indexes: Map<String, Value>): Int {
-        val value = sb.slice { writeBody(body) }
-        batch.put(key, value)
+    private fun put(body: Body, documentKey: ReadMemory, indexes: DataIndexMap): Int {
+        val bodySize = ExpandableAllocation.native(DataDBImpl.DEFAULT_CAPACITY) { writeBody(body) } .use { bodyMemory ->
+            batch.put(documentKey, bodyMemory)
+            bodyMemory.size
+        }
 
-        val refKey = Memory.array(key.size) { writeRefKeyFromDocumentKey(key) }
-        ddb.putIndexesInBatch(sb, batch, key, refKey, indexes)
+        val refKey = Allocation.native(documentKey.size) { writeRefKeyFromDocumentKey(documentKey) }
+        ddb.putIndexesInBatch(batch, documentKey, refKey, indexes)
 
         deleteRefKeys += refKey
 
-        return value.size
+        return bodySize
     }
 
-    override fun put(key: ReadMemory,  body: Body, indexes: Map<String, Value>, vararg options: Options.Write): Int {
+    override fun put(key: ReadMemory,  body: Body, indexes: DataIndexMap, vararg options: Options.Write): Int {
         key.verifyDocumentKey()
-        SliceBuilder.native(DataDBImpl.DEFAULT_CAPACITY).use {
-            return put(it, body, key, indexes)
-        }
+        return put(body, key, indexes)
     }
 
     override fun delete(key: ReadMemory, vararg options: Options.Write) {
         key.verifyDocumentKey()
         batch.delete(key)
-        val refKey = Memory.array(key.size) { writeRefKeyFromDocumentKey(key) }
+        val refKey = Allocation.native(key.size) { writeRefKeyFromDocumentKey(key) }
         deleteRefKeys += refKey
     }
 
@@ -62,5 +64,7 @@ internal class DataBatchImpl(private val ddb: DataDBImpl) : DataKeyMakerModule, 
         reactions.forEachCatchTo(afterErrors) { it.block(-1) }
     }
 
-    override fun close() = batch.close()
+    override fun close() {
+        (deleteRefKeys + batch).closeAll()
+    }
 }

@@ -4,7 +4,11 @@ import org.kodein.db.Value
 import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
 import org.kodein.db.inmemory.inMemory
+import org.kodein.db.test.utils.array
+import org.kodein.db.test.utils.int
+import org.kodein.db.test.utils.ushort
 import org.kodein.memory.file.FileSystem
+import org.kodein.memory.io.asMemory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -19,12 +23,9 @@ abstract class DataDBTests_11_FindIndexes : DataDBTests() {
     @Test
     fun test00_FindIndexes() {
         val key = ddb.newKey(1, Value.of("aaa"))
-        ddb.put(key, Value.of("ValueA!"), mapOf("Numbers" to Value.of("forty", "two"), "Symbols" to Value.of("alpha", "beta")))
-        val indexes = ddb.getIndexesOf(key)
+        ddb.put(key, Value.of("ValueA!"), mapOf("Numbers" to listOf(Value.of("forty", "two") to null), "Symbols" to listOf(Value.of("alpha", "beta") to Value.of("MetaSymbolsA"))))
 
-        assertEquals(2, indexes.size.toLong())
-        assertTrue(indexes.contains("Numbers"))
-        assertTrue(indexes.contains("Symbols"))
+        assertEquals(setOf("Numbers", "Symbols"), ddb.getIndexesOf(key))
     }
 
     @Test
@@ -41,5 +42,4 @@ abstract class DataDBTests_11_FindIndexes : DataDBTests() {
 
         assertTrue(indexes.isEmpty())
     }
-
 }

@@ -1,8 +1,14 @@
 package org.kodein.db.test.utils
 
 import org.kodein.memory.io.*
+import org.kodein.memory.text.toHex
 import org.kodein.memory.text.writeString
 import kotlin.test.fail
+
+fun int(v: Int) = Memory.array(4) { writeInt(v) }
+
+@OptIn(ExperimentalUnsignedTypes::class)
+fun ushort(v: Int) = Memory.array(4) { writeUShort(v.toUShort()) }
 
 private fun Writeable.writeValues(vararg values: Any) {
     for (value in values) {
@@ -16,16 +22,17 @@ private fun Writeable.writeValues(vararg values: Any) {
     }
 }
 
-fun byteArray(vararg values: Any): ByteArray =
+fun array(vararg values: Any): ByteArray =
     Memory.array(16384) {
         writeValues(*values)
     } .getBytes()
 
-fun newBuffer(vararg values: Any): Allocation =
+fun native(vararg values: Any): Allocation =
     Allocation.native(16384) {
         writeValues(*values)
     }
 
+@OptIn(ExperimentalUnsignedTypes::class)
 fun ByteArray.description(): String {
     if (isEmpty())
         return "\"\""
@@ -44,7 +51,7 @@ fun ByteArray.description(): String {
         type = newType
         when (type) {
             1 -> sb.append(b.toChar())
-            2 -> sb.append("x" + b.toInt().toString(16))
+            2 -> sb.append("x" + b.toUByte().toUInt().toString(16))
         }
     }
 

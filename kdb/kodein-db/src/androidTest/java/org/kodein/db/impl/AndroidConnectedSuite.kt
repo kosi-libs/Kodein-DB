@@ -40,9 +40,9 @@ import org.kodein.memory.file.FileSystem
     DataDBTests_12_Checks.LDB::class,
     DataDBTests_12_Checks.IM::class,
 
-    DataKeysTests_00_Key::class,
-    DataKeysTests_01_KeyInfos::class,
-    DataKeysTests_02_IndexKey::class,
+    DataKeysTests_00_DocumentKey::class,
+    DataKeysTests_01_DocumentKeyInfos::class,
+    DataKeysTests_01_IndexKey::class,
     DataKeysTests_03_IndexKeyStart::class,
     DataKeysTests_04_IndexKeyInfos::class,
 

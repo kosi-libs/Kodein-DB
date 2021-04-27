@@ -3,9 +3,10 @@ package org.kodein.db.impl.model.cache
 import org.kodein.db.Key
 import org.kodein.db.Sized
 import org.kodein.db.Value
+import org.kodein.db.impl.data.getDocumentKeySize
 import org.kodein.db.impl.data.writeDocumentKey
 import org.kodein.db.model.cache.ModelCache
-import org.kodein.memory.io.SliceBuilder
+import org.kodein.memory.io.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -19,7 +20,8 @@ class ModelCacheTests  {
     fun putGetDeleteRemove() {
         val cache = ModelCacheImpl(1024)
 
-        val key = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("name")) })
+        val id = Value.of("name")
+        val key = Key<String>(Memory.array(getDocumentKeySize(id)) { writeDocumentKey(1, id) })
 
         assertEquals(0, cache.entryCount)
         assertEquals(0, cache.missCount)
@@ -65,7 +67,7 @@ class ModelCacheTests  {
     fun getOrRetrieve() {
         val cache = ModelCacheImpl(1024)
 
-        val key = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("name")) })
+        val key = Key<String>(ExpandableMemory.array(1024) { writeDocumentKey(1, Value.of("name")) })
 
         assertEquals(0, cache.retrieveCount)
         cache.getOrRetrieve(key) { Sized("Salomon", 7) }
@@ -75,8 +77,8 @@ class ModelCacheTests  {
 
     @Test
     fun evict() {
-        val k1 = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("1")) })
-        val k2 = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("2")) })
+        val k1 = Key<String>(ExpandableMemory.array(1024) { writeDocumentKey(1, Value.of("1")) })
+        val k2 = Key<String>(ExpandableMemory.array(1024) { writeDocumentKey(1, Value.of("2")) })
 
         val cache = ModelCacheImpl(100)
         cache.put(k1, "O", 50)
@@ -89,8 +91,8 @@ class ModelCacheTests  {
 
     @Test
     fun copyPutInCopy() {
-        val me = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("me")) })
-        val her = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("her")) })
+        val me = Key<String>(ExpandableMemory.array(1024) { writeDocumentKey(1, Value.of("me")) })
+        val her = Key<String>(ExpandableMemory.array(1024) { writeDocumentKey(1, Value.of("her")) })
 
 
         val cache = ModelCacheImpl(1024)
@@ -109,8 +111,8 @@ class ModelCacheTests  {
 
     @Test
     fun copyPutInOriginal() {
-        val me = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("me")) })
-        val her = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("her")) })
+        val me = Key<String>(ExpandableMemory.array(1024) { writeDocumentKey(1, Value.of("me")) })
+        val her = Key<String>(ExpandableMemory.array(1024) { writeDocumentKey(1, Value.of("her")) })
 
         val cache = ModelCacheImpl(1024)
         cache.put(me, "Salomon", 7)
@@ -128,8 +130,8 @@ class ModelCacheTests  {
 
     @Test
     fun clean() {
-        val me = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("me")) })
-        val her = Key<String>(SliceBuilder.array(1024).slice { writeDocumentKey(1, Value.of("her")) })
+        val me = Key<String>(ExpandableMemory.array(1024) { writeDocumentKey(1, Value.of("me")) })
+        val her = Key<String>(ExpandableMemory.array(1024) { writeDocumentKey(1, Value.of("her")) })
 
         val cache = ModelCacheImpl(1024)
         cache.put(me, "Salomon", 7)

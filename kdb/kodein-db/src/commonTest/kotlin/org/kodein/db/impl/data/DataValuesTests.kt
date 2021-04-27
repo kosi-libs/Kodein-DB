@@ -2,6 +2,7 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.Value
 import org.kodein.db.test.utils.assertBytesEquals
+import org.kodein.db.writeBody
 import org.kodein.memory.io.Memory
 import org.kodein.memory.io.array
 import org.kodein.memory.io.writeBytes
@@ -23,7 +24,7 @@ class DataValuesTests {
         )
         assertEquals(20, value.size)
 
-        val buffer = Memory.array(value.size) { value.writeInto(this) }
+        val buffer = Memory.array(value.size) { writeBody(value) }
 
         assertBytesEquals(
                 ubyteArrayOf(
@@ -50,7 +51,7 @@ class DataValuesTests {
         )
         assertEquals(9, value.size)
 
-        val buffer = Memory.array(value.size) { value.writeInto(this) }
+        val buffer = Memory.array(value.size) { writeBody(value) }
 
         assertBytesEquals(
                 ubyteArrayOf(
@@ -71,7 +72,7 @@ class DataValuesTests {
         )
         assertEquals(15, value.size)
 
-        val buffer = Memory.array(value.size) { value.writeInto(this) }
+        val buffer = Memory.array(value.size) { writeBody(value) }
 
         assertBytesEquals(
                 ubyteArrayOf(
@@ -100,7 +101,7 @@ class DataValuesTests {
         )
         assertEquals(47, value.size)
 
-        val buffer = Memory.array(value.size) { value.writeInto(this) }
+        val buffer = Memory.array(value.size) { writeBody(value) }
 
         assertBytesEquals(
                 ubyteArrayOf(
