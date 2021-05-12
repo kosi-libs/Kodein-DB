@@ -4,7 +4,8 @@ import kotlin.reflect.KClass
 
 public interface KeyMaker {
 
-    @Deprecated("Use keyById", ReplaceWith("keyById(type, *id)"))
+    // Deprecated since 0.6.0
+    @Deprecated("Use keyById", ReplaceWith("keyById(type, *id)"), DeprecationLevel.ERROR)
     public fun <M : Any> key(type: KClass<M>, vararg id: Any): Key<M> = keyById(type, *id)
 
     public fun <M : Any> keyById(type: KClass<M>, vararg id: Any): Key<M>
@@ -14,7 +15,8 @@ public interface KeyMaker {
     public fun <M : Any> keyFromB64(type: KClass<M>, b64: String): Key<M>
 }
 
-@Deprecated("Use keyById", ReplaceWith("this.keyById<M>(*id)"))
+// Deprecated since 0.6.0
+@Deprecated("Use keyById", ReplaceWith("this.keyById<M>(*id)"), DeprecationLevel.ERROR)
 public inline fun <reified M : Any> KeyMaker.key(vararg id: Any): Key<M> = keyById(*id)
 public inline fun <reified M : Any> KeyMaker.keyById(vararg id: Any): Key<M> = keyById(M::class, *id)
 

@@ -150,12 +150,6 @@ public interface Value : Body {
             }
         public fun of(first: CharSequence, second: CharSequence, vararg other: CharSequence): Value = ofAll(first, second, *other)
         public fun ofAll(vararg values: CharSequence): Value = ZeroSpacedValues(Array(values.size) { of(values[it]) })
-
-        @Deprecated("Use of which doesn't restrict to ASCII anymore", replaceWith = ReplaceWith("this.of(*values)"), level = DeprecationLevel.ERROR)
-        public fun ofAscii(vararg values: Char): Value = ofAll(*values)
-
-        @Deprecated("Use of which doesn't restrict to ASCII anymore", replaceWith = ReplaceWith("this.of(*values)"), level = DeprecationLevel.ERROR)
-        public fun ofAscii(vararg values: CharSequence): Value = ofAll(*values)
     }
 
 }
