@@ -68,14 +68,14 @@ public class KotlinxSerializer @JvmOverloads constructor(module: SerializersModu
     }
 
     @InternalSerializationApi @ExperimentalSerializationApi
-    override fun serialize(model: Any, output: Writeable, vararg options: Options.Write) {
+    override fun serialize(model: Any, output: Writeable, vararg options: Options.Puts) {
         @Suppress("UNCHECKED_CAST")
         val bytes = cbor.encodeToByteArray(getSerializer(model::class) as SerializationStrategy<Any>, model)
         output.writeBytes(bytes)
     }
 
     @InternalSerializationApi @ExperimentalSerializationApi
-    override fun deserialize(type: KClass<out Any>, transientId: ReadMemory, input: CursorReadable, vararg options: Options.Read): Any {
+    override fun deserialize(type: KClass<out Any>, input: CursorReadable, vararg options: Options.Get): Any {
         val serializer = serializers[type] ?: type.serializer().also { serializers[type] = it }
         val bytes = input.readBytes()
         @Suppress("UNCHECKED_CAST")

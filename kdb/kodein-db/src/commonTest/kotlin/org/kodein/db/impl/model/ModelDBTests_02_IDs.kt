@@ -1,23 +1,27 @@
 package org.kodein.db.impl.model
 
+import org.kodein.db.Middleware
 import org.kodein.db.Value
+import org.kodein.db.encryption.DBFeatureDisabledError
+import org.kodein.db.encryption.Encryption
 import org.kodein.db.inDir
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.model.ModelDB
 import org.kodein.db.model.findById
 import org.kodein.memory.file.FileSystem
+import org.kodein.memory.io.Memory
+import org.kodein.memory.text.array
 import org.kodein.memory.use
 import kotlin.test.*
 
 @Suppress("ClassName")
 abstract class ModelDBTests_02_IDs : ModelDBTests() {
 
-    class LDB : ModelDBTests_02_IDs() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
-    class IM : ModelDBTests_02_IDs() { override val factory = ModelDB.inMemory }
-
+    class LDB : ModelDBTests_02_IDs(), ModelDBTests.LDB
+    class IM : ModelDBTests_02_IDs(), ModelDBTests.IM
 
     @Test
-    fun test00_FindByPk() {
+    fun test00_FindByID() {
         val salomon = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         val laila = Adult("Laila", "BRYS", Date(25, 8, 1989))
         mdb.put(salomon)
@@ -42,7 +46,7 @@ abstract class ModelDBTests_02_IDs : ModelDBTests() {
     }
 
     @Test
-    fun test01_FindNothingByPk() {
+    fun test01_FindNothingByID() {
         mdb.put(Adult("Salomon", "BRYS", Date(15, 12, 1986)))
         mdb.put(Adult("Laila", "BRYS", Date(25, 8, 1989)))
 
@@ -52,7 +56,7 @@ abstract class ModelDBTests_02_IDs : ModelDBTests() {
     }
 
     @Test
-    fun test02_FindByPkOpen() {
+    open fun test02_FindByPkOpen() {
         val salomon = Adult("Salomon", "BRYS", Date(15, 12, 1986))
         val laila = Adult("Laila", "BRYS", Date(25, 8, 1989))
         mdb.put(salomon)

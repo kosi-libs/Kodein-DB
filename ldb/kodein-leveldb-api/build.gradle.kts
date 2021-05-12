@@ -9,12 +9,10 @@ atomicfu {
 
 val kodeinLogVer: String by getRootProject().extra
 val kodeinMemoryVer: String by getRootProject().extra
+val kotlinxAtomicFuVer: String by rootProject.extra
 
 kodein {
     kotlin {
-
-        val kotlinxAtomicFuVer: String by rootProject.extra
-
         common.main.dependencies {
             api("org.kodein.log:kodein-log:$kodeinLogVer")
             api("org.kodein.memory:kodein-memory:$kodeinMemoryVer")

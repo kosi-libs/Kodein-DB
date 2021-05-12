@@ -29,7 +29,7 @@ abstract class CacheDBTests_01_React : CacheDBTests() {
     @Test
     fun test00_ReactDidPutException() {
         val listener = object : DBListener<Any> {
-            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) = throw IllegalStateException()
+            override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Puts>) = throw IllegalStateException()
         }
 
         mdb.register(listener)
@@ -46,7 +46,7 @@ abstract class CacheDBTests_01_React : CacheDBTests() {
     @Test
     fun test01_ReactDidDeleteException() {
         val listener = object : DBListener<Any> {
-            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Write>) = throw IllegalStateException()
+            override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Deletes>) = throw IllegalStateException()
         }
 
         mdb.register(listener)

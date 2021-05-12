@@ -12,7 +12,7 @@ import org.kodein.memory.io.getBytes
 import org.kodein.memory.io.wrap
 import kotlin.reflect.KClass
 
-internal class ModelCursorImpl<B : Any, M : B>(override val cursor: DataCursor, private val mdb: ModelDBImpl, private val modelType: KClass<M>) : ModelCursor<M>, ResettableCursorModule, Closeable by cursor {
+internal open class ModelCursorImpl<M : Any>(override val cursor: DataCursor, val mdb: ModelDBImpl, private val modelType: KClass<M>) : ModelCursor<M>, ResettableCursorModule, Closeable by cursor {
 
     private var key: Key<M>? = null
     private var model: Sized<M>? = null
@@ -24,7 +24,6 @@ internal class ModelCursorImpl<B : Any, M : B>(override val cursor: DataCursor, 
 
     override fun key() = key ?: Key<M>(Memory.wrap(cursor.transientKey().getBytes())).also { key = it }
 
-    override fun model(vararg options: Options.Read): Sized<M> = model ?: mdb.deserialize(modelType, getDocumentKeyID(key().bytes), cursor.transientValue(), options).also { model = it }
+    override fun model(vararg options: Options.Get): Sized<M> = model ?: mdb.deserialize(modelType, getDocumentKeyID(key().bytes), cursor.transientValue(), options).also { model = it }
 
-    override fun duplicate(): ModelCursor<M> = ModelCursorImpl(cursor.duplicate(), mdb, modelType)
 }

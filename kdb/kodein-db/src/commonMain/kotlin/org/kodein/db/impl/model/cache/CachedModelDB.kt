@@ -5,41 +5,42 @@ import org.kodein.db.data.DataDB
 import org.kodein.db.model.ModelBatch
 import org.kodein.db.model.ModelDB
 import org.kodein.db.model.ModelSnapshot
+import org.kodein.db.model.ModelTypeMatcher
 import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.Closeable
 import kotlin.reflect.KClass
 
-internal class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val copyMaxSize: Long) : CachedModelReadModule, ModelDB, KeyMaker by mdb, ValueMaker by mdb, Closeable by mdb {
+internal class CachedModelDB(override val mdb: ModelDB, override val cache: ModelCache, override val copyMaxSize: Long) : CachedModelReadModule, ModelDB, ModelTypeMatcher by mdb, KeyMaker by mdb, ValueMaker by mdb, Closeable by mdb {
 
     internal fun didPut(model: Any, key: Key<*>, size: Int, options: Array<out Options>) {
         if (ModelCache.Skip in options) cache.evict(key)
         else cache.put(key, model, size)
     }
 
-    internal fun didDelete(key: Key<*>, options: Array<out Options.Write>) {
+    internal fun didDelete(key: Key<*>, options: Array<out Options>) {
         if (ModelCache.Skip in options) cache.evict(key)
         else cache.delete(key)
     }
 
-    override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> {
-        val key = mdb.keyFrom(model, *options)
+    override fun <M : Any> put(model: M, vararg options: Options.DirectPut): KeyAndSize<M> {
+        val key = mdb.keyFrom(model, *options.filterIsInstance<Options.Puts>().toTypedArray())
         val size = mdb.put(key, model, *(options + ReactInLock { didPut(model, key, it, options) }))
         return KeyAndSize(key, size)
     }
 
-    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int {
+    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.DirectPut): Int {
         return mdb.put(key, model, *(options + ReactInLock { didPut(model, key, it, options) }))
     }
 
-    override fun <M : Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.Write) {
+    override fun <M : Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.DirectDelete) {
         return mdb.delete(type, key, *(options + ReactInLock { didDelete(key, options) }))
     }
 
     override fun register(listener: DBListener<Any>): Closeable = mdb.register(listener)
 
-    override fun newBatch(): ModelBatch = CachedModelBatch(this, mdb.newBatch())
+    override fun newBatch(vararg options: Options.NewBatch): ModelBatch = CachedModelBatch(this, mdb.newBatch(*options))
 
-    override fun newSnapshot(vararg options: Options.Read): ModelSnapshot {
+    override fun newSnapshot(vararg options: Options.NewSnapshot): ModelSnapshot {
         val maxSize = maxSize(options)
         return CachedModelSnapshot(mdb.newSnapshot(*options), cache.newCopy(maxSize), maxSize)
     }

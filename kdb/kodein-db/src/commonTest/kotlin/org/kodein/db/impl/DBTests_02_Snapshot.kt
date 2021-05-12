@@ -15,13 +15,22 @@ import kotlin.test.assertNull
 @Suppress("ClassName")
 abstract class DBTests_02_Snapshot : DBTests() {
 
-    class LDB : DBTests_02_Snapshot() { override val factory = DB.inDir(FileSystem.tempDirectory.path) }
-    class IM : DBTests_02_Snapshot() { override val factory = DB.inMemory }
+    class LDB : DBTests_02_Snapshot(), DBTests.LDB
+    class IM : DBTests_02_Snapshot(), DBTests.IM
 
-    abstract class NoCache : DBTests_02_Snapshot() {
-        override fun options(): Array<out Options.Open> = arrayOf(kxSerializer, ModelCache.Disable)
-        class LDB : NoCache() { override val factory = DB.inDir(FileSystem.tempDirectory.path) }
-        class IM : NoCache() { override val factory = DB.inMemory }
+    abstract class NoCache : DBTests_02_Snapshot(), DBTests.NoCache {
+        class LDB : NoCache(), DBTests.LDB
+        class IM : NoCache(), DBTests.IM
+    }
+
+    abstract class Encrypted : DBTests_02_Snapshot(), DBTests.Encrypted {
+        class LDB : Encrypted(), DBTests.LDB
+        class IM : Encrypted(), DBTests.IM
+
+        abstract class NoCache : Encrypted(), DBTests.NoCache {
+            class LDB : NoCache(), DBTests.LDB
+            class IM : NoCache(), DBTests.IM
+        }
     }
 
 

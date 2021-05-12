@@ -5,6 +5,7 @@ import org.kodein.db.Options
 import org.kodein.db.Sized
 import org.kodein.db.invoke
 import org.kodein.db.model.ModelCursor
+import org.kodein.db.model.ModelIndexCursor
 import org.kodein.db.model.ModelRead
 import org.kodein.db.model.cache.ModelCache
 import kotlin.reflect.KClass
@@ -17,7 +18,7 @@ internal interface CachedModelReadModule : ModelRead {
 
     val copyMaxSize: Long
 
-    override fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Read): Sized<M>? {
+    override fun <M : Any> get(type: KClass<M>, key: Key<M>, vararg options: Options.Get): Sized<M>? {
         when {
             ModelCache.Skip in options -> {
                 cache.evict(key)
@@ -47,12 +48,12 @@ internal interface CachedModelReadModule : ModelRead {
         }
     }
 
-    fun maxSize(options: Array<out Options.Read>): Long {
+    fun maxSize(options: Array<out Options>): Long {
         val optMaxSize: ModelCache.CopyMaxSize? = options.invoke()
         return optMaxSize?.maxSize ?: copyMaxSize
     }
 
-    private fun <M : Any> wrapCursor(cursor: ModelCursor<M>, options: Array<out Options.Read>): ModelCursor<M> {
+    private fun <M : Any> wrapCursor(cursor: ModelCursor<M>, options: Array<out Options.Find>): ModelCursor<M> {
         return when {
             ModelCache.Skip in options -> cursor
             ModelCache.Refresh in options -> CachedModelCursor(cursor, ModelCacheImpl(maxSize(options)))
@@ -60,16 +61,24 @@ internal interface CachedModelReadModule : ModelRead {
         }
     }
 
-    override fun findAll(vararg options: Options.Read): ModelCursor<*> = wrapCursor(mdb.findAll(*options), options)
+    private fun <M : Any> wrapIndexCursor(cursor: ModelIndexCursor<M>, options: Array<out Options.Find>): ModelIndexCursor<M> {
+        return when {
+            ModelCache.Skip in options -> cursor
+            ModelCache.Refresh in options -> CachedModelIndexCursor(cursor, ModelCacheImpl(maxSize(options)))
+            else -> CachedModelIndexCursor(cursor, cache.newCopy(maxSize(options)))
+        }
+    }
 
-    override fun <M : Any> findAllByType(type: KClass<M>, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findAllByType(type, *options), options)
+    override fun findAll(vararg options: Options.Find): ModelCursor<*> = wrapCursor(mdb.findAll(*options), options)
 
-    override fun <M : Any> findById(type: KClass<M>, id: Any, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findById(type, id, isOpen, *options), options)
+    override fun <M : Any> findAllByType(type: KClass<M>, vararg options: Options.Find): ModelCursor<M> = wrapCursor(mdb.findAllByType(type, *options), options)
 
-    override fun <M : Any> findAllByIndex(type: KClass<M>, index: String, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findAllByIndex(type, index, *options), options)
+    override fun <M : Any> findById(type: KClass<M>, id: Any, isOpen: Boolean, vararg options: Options.Find): ModelCursor<M> = wrapCursor(mdb.findById(type, id, isOpen, *options), options)
 
-    override fun <M : Any> findByIndex(type: KClass<M>, index: String, value: Any, isOpen: Boolean, vararg options: Options.Read): ModelCursor<M> = wrapCursor(mdb.findByIndex(type, index, value, isOpen, *options), options)
+    override fun <M : Any> findAllByIndex(type: KClass<M>, index: String, vararg options: Options.Find): ModelIndexCursor<M> = wrapIndexCursor(mdb.findAllByIndex(type, index, *options), options)
 
-    override fun getIndexesOf(key: Key<*>, vararg options: Options.Read): Set<String> = mdb.getIndexesOf(key, *options)
+    override fun <M : Any> findByIndex(type: KClass<M>, index: String, value: Any, isOpen: Boolean, vararg options: Options.Find): ModelIndexCursor<M> = wrapIndexCursor(mdb.findByIndex(type, index, value, isOpen, *options), options)
+
+    override fun getIndexesOf(key: Key<*>): Set<String> = mdb.getIndexesOf(key)
 
 }

@@ -1,4 +1,4 @@
-package org.kodein.db.ldb
+package org.kodein.db.kv
 
 import org.kodein.db.Options
 import org.kodein.db.leveldb.LevelDB
@@ -142,7 +142,7 @@ public sealed class LevelDBOptions(internal val transform: LevelDB.Options.() ->
     public data class RepairOnCorruption(val repairOnCorruption: Boolean): LevelDBOptions({ copy(repairOnCorruption = repairOnCorruption) })
 
     public companion object {
-        public fun new(options: Array<out Options.Open>): LevelDB.Options = options.filterIsInstance<LevelDBOptions>().fold(LevelDB.Options.DEFAULT) { l, o -> o.transform(l) }
+        public fun from(options: Array<out Options.Open>): LevelDB.Options = options.filterIsInstance<LevelDBOptions>().fold(LevelDB.Options.DEFAULT) { l, o -> o.transform(l) }
     }
 
 }
@@ -152,3 +152,34 @@ public data class DBLoggerFactory(val loggerFactory: LoggerFactory): LevelDBOpti
 public data class TrackClosableAllocation(val trackClosableAllocation: Boolean): LevelDBOptions({ copy(trackClosableAllocation = trackClosableAllocation) })
 
 public data class FailOnBadClose(val failOnBadClose: Boolean): LevelDBOptions({ copy(failOnBadClose = failOnBadClose) })
+
+/**
+ * If true, the write will be flushed from the operating system buffer cache (by calling WritableFile::Sync()) before the write is considered complete.
+ *
+ * If this flag is true, writes will be slower.
+ *
+ * If this flag is false, and the machine crashes, some recent writes may be lost.
+ * Note that if it is just the process that crashes (i.e., the machine does not reboot), no writes will be lost even if sync==false.
+ *
+ * In other words, a DB write with sync==false has similar crash semantics as the "write()" system call.
+ * A DB write with sync==true has similar crash semantics to a "write()" system call followed by "fsync()".
+ *
+ * (Default: false)
+ */
+public data class FsSync(val sync: Boolean) : Options.Writes
+
+/**
+ * If true, all data read from underlying storage will be verified against corresponding checksums.
+ *
+ * (Default: false)
+ */
+public data class VerifyChecksum(val verifyChecksums: Boolean) : Options.Reads
+
+/**
+ * Should the data read for this iteration be cached in memory?
+ *
+ * Callers may wish to set this field to false for bulk scans.
+ *
+ * (Default: true)
+ */
+public data class FillRawCache(val fillCache: Boolean) : Options.Reads

@@ -21,7 +21,7 @@ import org.kodein.memory.use
     Indexes:
         v0: (indexKey = 'i' 0 type name 0 value 0 id 0) -> documentKey
             First bit is always 0 since a document key always starts with 'o', which is encoded b01101111
-        v1: (indexKey = 'i' 0 type name 0 value 0 id 0) -> 128 value.size:UShort id.size:UShort metadata
+        v1: (indexKey = 'i' 0 type name 0 value 0 id 0) -> 128 value.size:UShort id.size:UShort associatedData
             128 is the version number (b10000000). Its first bit is 1 to differentiate from v0.
 
     References:
@@ -131,13 +131,13 @@ internal fun getIndexKeyStartSize(name: String, value: Value?, isOpen: Boolean =
     return size
 }
 
-internal fun Writeable.writeIndexBody(documentId: ReadMemory, value: Value, metadata: Body?) {
+internal fun Writeable.writeIndexBody(documentId: ReadMemory, value: Value, associatedData: Body?) {
     check(documentId.size < UShort.MAX_VALUE.toInt()) { "Document ID too big (must be max ${UShort.MAX_VALUE} bytes)" }
     check(value.size < UShort.MAX_VALUE.toInt()) { "Index value too big (must be max ${UShort.MAX_VALUE} bytes)" }
     writeUByte(128u)
     writeUShort(value.size.toUShort())
     writeUShort(documentId.size.toUShort())
-    if (metadata != null) writeBody(metadata)
+    if (associatedData != null) writeBody(associatedData)
 }
 
 internal fun getIndexKeyDocumentType(key: ReadMemory): Int {
@@ -161,7 +161,7 @@ internal fun getIndexDocumentId(key: ReadMemory, body: ReadMemory): ReadMemory {
     return key.slice(key.size - 1 - size, size)
 }
 
-internal fun getIndexBodyMetadata(body: ReadMemory): ReadMemory? {
+internal fun getIndexBodyAssociatedData(body: ReadMemory): ReadMemory? {
     return when (body.getUByte(0)) {
         in 0u..127u -> { // v0
             null

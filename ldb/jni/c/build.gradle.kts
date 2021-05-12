@@ -11,8 +11,12 @@ evaluationDependsOn(":ldb:kodein-leveldb")
 val excludedTargets = kodeinLocalProperties.getAsList("excludeTargets")
 val withAndroid = "android" !in excludedTargets
 
+val skipJNIGeneration: String? by project
+
 task("configureJniGeneration") {
     dependsOn(":ldb:kodein-leveldb:jvmMainClasses")
+
+    onlyIf { skipJNIGeneration != "true" }
 
     doLast {
         val generation = tasks["generateJniHeaders"] as Exec
@@ -32,10 +36,16 @@ task("configureJniGeneration") {
     }
 }
 
-task<Exec>("generateJniHeaders") {
-    group = "build"
+if (skipJNIGeneration == "true")
+    task("generateJniHeaders") { onlyIf { false } }
+else {
+    task<Exec>("generateJniHeaders") {
+        group = "build"
 
-    dependsOn("configureJniGeneration")
+        onlyIf { skipJNIGeneration != "true" }
+
+        dependsOn("configureJniGeneration")
+    }
 }
 
 val osName: String by rootProject.extra

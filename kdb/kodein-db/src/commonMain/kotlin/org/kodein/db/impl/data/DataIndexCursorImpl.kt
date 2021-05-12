@@ -1,19 +1,24 @@
 package org.kodein.db.impl.data
 
+import org.kodein.db.Options
 import org.kodein.db.Value
-import org.kodein.db.data.DataCursor
 import org.kodein.db.data.DataIndexCursor
-import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.kv.KeyValueCursor
+import org.kodein.db.kv.KeyValueSnapshot
 import org.kodein.memory.io.Allocation
 import org.kodein.memory.io.ReadMemory
 import org.kodein.memory.io.native
 
-internal class DataIndexCursorImpl internal constructor(private val ldb: LevelDB, cursor: LevelDB.Cursor, prefix: ByteArray, options: LevelDB.ReadOptions) : AbstractDataCursor(cursor, prefix), DataIndexCursor {
+internal class DataIndexCursorImpl internal constructor(
+    private val snapshot: KeyValueSnapshot,
+    private val closeSnapshot: Boolean,
+    cursor: KeyValueCursor,
+    prefix: ByteArray,
+    private val getOptions: Array<out Options.Get>
+) : AbstractDataCursor(cursor, prefix), DataIndexCursor {
 
     private var cachedDocKey: Allocation? = null
-    private var cachedMetadata: Array<ReadMemory?>? = null
-
-    private val options: LevelDB.ReadOptions = if (options.snapshot == null) options.copy(snapshot = ldb.newSnapshot()) else options
+    private var cachedAssociatedData: Array<ReadMemory?>? = null
 
     override fun cacheReset() {
         super.cacheReset()
@@ -21,13 +26,13 @@ internal class DataIndexCursorImpl internal constructor(private val ldb: LevelDB
         cachedDocKey?.close()
         cachedDocKey = null
 
-        cachedMetadata = null
+        cachedAssociatedData = null
     }
 
     override fun close() {
         super.close()
 
-        options.snapshot?.close()
+        if (closeSnapshot) snapshot.close()
     }
 
     override fun thisKey(): ReadMemory {
@@ -39,18 +44,14 @@ internal class DataIndexCursorImpl internal constructor(private val ldb: LevelDB
             .also { cachedDocKey = it }
     }
 
-    override fun thisValue() = ldb.get(thisKey(), options) ?: error("Inconsistent internal state: Index entry points to invalid document entry")
+    override fun thisValue() = snapshot.get(thisKey(), *getOptions) ?: error("Inconsistent internal state: Index entry points to invalid document entry")
 
-    override fun duplicate(): DataCursor = DataIndexCursorImpl(ldb, ldb.newCursor(options), prefix, options).also {
-        it.cursor.seekTo(it.cursor.transientKey())
-    }
-
-    override fun transientMetadata(): ReadMemory? {
+    override fun transientAssociatedData(): ReadMemory? {
         check(isValid()) { "Cursor is not valid" }
 
-        cachedMetadata?.let { return it[0] }
+        cachedAssociatedData?.let { return it[0] }
 
-        return getIndexBodyMetadata(cursor.transientValue())?.also { cachedMetadata = arrayOf(it) }
+        return getIndexBodyAssociatedData(cursor.transientValue())?.also { cachedAssociatedData = arrayOf(it) }
     }
 
 }

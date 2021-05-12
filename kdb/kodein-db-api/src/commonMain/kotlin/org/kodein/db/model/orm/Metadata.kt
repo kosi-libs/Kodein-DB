@@ -7,7 +7,7 @@ public interface Metadata : HasMetadata {
     public val id: Any
     public fun indexes(): Map<String, Any> = emptyMap()
 
-    override fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata = this
+    override fun getMetadata(db: ModelDB, vararg options: Options.Puts): Metadata = this
 
     private class Impl(override val id: Any, val indexes: Map<String, Any> = emptyMap()) : Metadata {
         override fun indexes(): Map<String, Any> = indexes
@@ -20,10 +20,10 @@ public interface Metadata : HasMetadata {
 }
 
 public fun interface MetadataExtractor : Options.Open {
-    public fun extractMetadata(model: Any, vararg options: Options.Write): Metadata?
+    public fun extractMetadata(model: Any, vararg options: Options.Puts): Metadata?
 
     public companion object {
-        public inline fun <reified M: Any> forClass(crossinline extractor: (model: M, options: Array<out Options.Write>) -> Metadata): MetadataExtractor =
+        public inline fun <reified M: Any> forClass(crossinline extractor: (model: M, options: Array<out Options.Puts>) -> Metadata): MetadataExtractor =
                 MetadataExtractor { model, options ->
                     if (model is M) extractor(model, options)
                     else null
@@ -32,5 +32,5 @@ public fun interface MetadataExtractor : Options.Open {
 }
 
 public fun interface HasMetadata {
-    public fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata
+    public fun getMetadata(db: ModelDB, vararg options: Options.Puts): Metadata
 }

@@ -7,9 +7,9 @@ public interface ModelCache : BaseModelCache {
 
     public object Disable : Options.Open
     public data class MaxSize(val maxSize: Long) : Options.Open
-    public data class CopyMaxSize(val maxSize: Long) : Options.Open, Options.Read
-    public object Skip : Options.Read, Options.Write
-    public object Refresh : Options.Read
+    public data class CopyMaxSize(val maxSize: Long) : Options.Open, Options.Find, Options.NewSnapshot
+    public object Skip : Options.Reads, Options.Puts
+    public object Refresh : Options.Reads
 
     public sealed class Entry<M : Any> {
         public abstract val model: M?

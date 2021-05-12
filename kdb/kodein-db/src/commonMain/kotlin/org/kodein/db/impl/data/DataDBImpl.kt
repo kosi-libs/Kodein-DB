@@ -7,16 +7,15 @@ import org.kodein.db.data.DataIndexMap
 import org.kodein.db.data.DataSnapshot
 import org.kodein.db.impl.utils.newLock
 import org.kodein.db.impl.utils.withLock
-import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.kv.KeyValueBatch
+import org.kodein.db.kv.KeyValueDB
+import org.kodein.db.kv.KeyValueSnapshot
 import org.kodein.memory.io.*
-import org.kodein.memory.text.toHex
 import org.kodein.memory.use
 import org.kodein.memory.util.deferScope
 import org.kodein.memory.util.forEachResilient
 
-internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
-
-    override val snapshot: LevelDB.Snapshot? get() = null
+internal class DataDBImpl(override val kv: KeyValueDB) : DataReadModule, DataDB {
 
     internal val lock = newLock()
 
@@ -24,10 +23,12 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         internal const val DEFAULT_CAPACITY = 8 * 1024
     }
 
-    internal fun deleteIndexesInBatch(batch: LevelDB.WriteBatch, documentKey: ReadMemory) {
+    override fun currentOrNewSnapshot(): Pair<KeyValueSnapshot, Boolean> = kv.newSnapshot() to true
+
+    internal fun deleteIndexesInBatch(batch: KeyValueBatch, documentKey: ReadMemory) {
         deferScope {
             val refKey = Allocation.native(documentKey.size) { writeRefKeyFromDocumentKey(documentKey) } .useInScope()
-            val refBody = ldb.get(refKey)?.useInScope() ?: return
+            val refBody = kv.get(refKey)?.useInScope() ?: return
             getRefIndexKeys(refKey, refBody).forEach { indexKey ->
                 batch.delete(indexKey)
             }
@@ -35,7 +36,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         }
     }
 
-    internal fun putIndexesInBatch(batch: LevelDB.WriteBatch, documentKey: ReadMemory, refKey: ReadMemory, indexes: DataIndexMap) {
+    internal fun putIndexesInBatch(batch: KeyValueBatch, documentKey: ReadMemory, refKey: ReadMemory, indexes: DataIndexMap) {
         if (indexes.isEmpty())
             return
 
@@ -44,8 +45,8 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
 
         ExpandableAllocation.native(DEFAULT_CAPACITY).use { bodyAllocation ->
             for ((name, data) in indexes) {
-                for ((value, metadata) in data) {
-                    val indexBody = bodyAllocation.slice { writeIndexBody(id, value, metadata) }
+                for ((value, associatedData) in data) {
+                    val indexBody = bodyAllocation.slice { writeIndexBody(id, value, associatedData) }
                     Allocation.native(getIndexKeySize(id, name, value)) { writeIndexKey(type, id, name, value) } .use { indexKey ->
                         batch.put(indexKey, indexBody)
                     }
@@ -58,7 +59,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         }
     }
 
-    private fun putInBatch(batch: LevelDB.WriteBatch, documentKey: ReadMemory, body: Body, indexes: DataIndexMap): Int {
+    private fun putInBatch(batch: KeyValueBatch, documentKey: ReadMemory, body: Body, indexes: DataIndexMap): Int {
         Allocation.native(documentKey.size) { writeRefKeyFromDocumentKey(documentKey) } .use { refKey ->
             deleteIndexesInBatch(batch, refKey)
             putIndexesInBatch(batch, documentKey, refKey, indexes)
@@ -71,7 +72,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     }
 
     @Suppress("DuplicatedCode")
-    override fun put(key: ReadMemory, body: Body, indexes: DataIndexMap, vararg options: Options.Write): Int {
+    override fun put(key: ReadMemory, body: Body, indexes: DataIndexMap, vararg options: Options.DirectPut): Int {
         key.verifyDocumentKey()
 
         val anticipations = options.all<Anticipate>()
@@ -80,11 +81,11 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         val reactions = options.all<React>()
 
         anticipations.forEach { it.block() }
-        val length = ldb.newWriteBatch().use { batch ->
+        val length = kv.newBatch().use { batch ->
             lock.withLock {
                 inLockAnticipations.forEach { it.block(batch) }
                 val length = putInBatch(batch, key, body, indexes)
-                ldb.write(batch, LevelDB.WriteOptions.from(options))
+                batch.write(*options.filterIsInstance<Options.BatchWrite>().toTypedArray())
                 inLockReactions.forEachResilient { it.block(length) }
                 length
             }
@@ -93,7 +94,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         return length
     }
 
-    private fun deleteInBatch(batch: LevelDB.WriteBatch, documentKey: ReadMemory) {
+    private fun deleteInBatch(batch: KeyValueBatch, documentKey: ReadMemory) {
         Allocation.native(documentKey.size) { writeRefKeyFromDocumentKey(documentKey) } .use { refKey ->
             deleteIndexesInBatch(batch, refKey)
         }
@@ -102,7 +103,7 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
     }
 
     @Suppress("DuplicatedCode")
-    override fun delete(key: ReadMemory, vararg options: Options.Write) {
+    override fun delete(key: ReadMemory, vararg options: Options.DirectDelete) {
         key.verifyDocumentKey()
         val anticipations = options.all<Anticipate>()
         val inLockAnticipations = options.all<AnticipateInLock>()
@@ -110,24 +111,24 @@ internal class DataDBImpl(override val ldb: LevelDB) : DataReadModule, DataDB {
         val reactions = options.all<React>()
 
         anticipations.forEach { it.block() }
-        ldb.newWriteBatch().use { batch ->
+        kv.newBatch().use { batch ->
             lock.withLock {
                 inLockAnticipations.forEach { it.block(batch) }
                 deleteInBatch(batch, key)
-                ldb.write(batch, LevelDB.WriteOptions.from(options))
+                batch.write(*options.filterIsInstance<Options.BatchWrite>().toTypedArray())
                 inLockReactions.forEachResilient { it.block(-1) }
             }
         }
         reactions.forEachResilient { it.block(-1) }
     }
 
-    override fun newBatch(): DataBatch = DataBatchImpl(this)
+    override fun newBatch(vararg options: Options.NewBatch): DataBatch = DataBatchImpl(this, kv.newBatch(*options))
 
-    override fun newSnapshot(vararg options: Options.Read): DataSnapshot = DataSnapshotImpl(ldb, ldb.newSnapshot())
+    override fun newSnapshot(vararg options: Options.NewSnapshot): DataSnapshot = DataSnapshotImpl(kv.newSnapshot(*options))
 
     override fun <T : Any> getExtension(key: ExtensionKey<T>): T? = null
 
     override fun close() {
-        ldb.close()
+        kv.close()
     }
 }

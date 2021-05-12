@@ -9,7 +9,7 @@ public interface KeyMaker {
 
     public fun <M : Any> keyById(type: KClass<M>, vararg id: Any): Key<M>
 
-    public fun <M : Any> keyFrom(model: M, vararg options: Options.Write): Key<M>
+    public fun <M : Any> keyFrom(model: M, vararg options: Options.Puts): Key<M>
 
     public fun <M : Any> keyFromB64(type: KClass<M>, b64: String): Key<M>
 }

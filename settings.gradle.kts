@@ -36,5 +36,6 @@ include(
         ":kdb:serializer:kodein-db-serializer-kotlinx",
         ":kdb:serializer:kodein-db-serializer-kryo-jvm",
 
+        ":plugins:kodein-db-encryption",
         ""
 )

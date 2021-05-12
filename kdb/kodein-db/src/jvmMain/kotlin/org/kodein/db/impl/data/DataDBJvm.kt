@@ -2,12 +2,12 @@ package org.kodein.db.impl.data
 
 import org.kodein.db.DBFactory
 import org.kodein.db.data.DataDB
-import org.kodein.db.leveldb.LevelDBFactory
-import org.kodein.db.leveldb.jvm.LevelDBJvm
+import org.kodein.db.impl.kv.KeyValueDBJvm
+import org.kodein.db.kv.KeyValueDB
 
 
 public object DataDBJvm : AbstractDataDBFactory() {
-    override val ldbFactory: LevelDBFactory get() = LevelDBJvm
+    override val kvdbFactory: DBFactory<KeyValueDB> = KeyValueDBJvm
 }
 
 public actual val DataDB.Companion.default: DBFactory<DataDB> get() = DataDBJvm

@@ -67,13 +67,13 @@ abstract class DataDBTests_01_Delete : DataDBTests() {
 
     @Test
     fun test04_DeleteV0WithIndex() {
-        ddb.ldb.put(array('o', 0, int(1), "aaa", 0).asMemory(), array("ValueA!").asMemory())
-        ddb.ldb.put(array('i', 0, int(1), "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0).asMemory(), array('o', 0, int(1), "aaa", 0).asMemory())
-        ddb.ldb.put(array('i', 0, int(1), "Numbers", 0, "forty", 0, "two", 0, "aaa", 0).asMemory(), array('o', 0, int(1), "aaa", 0).asMemory())
-        ddb.ldb.put(array('r', 0, int(1), "aaa", 0).asMemory(), array(int(29), 'i', 0, int(1), "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0, int(28), 'i', 0, int(1), "Numbers", 0, "forty", 0, "two", 0, "aaa", 0).asMemory())
-        ddb.ldb.put(array('o', 0, int(1), "bbb", 0).asMemory(), array("ValueB!").asMemory())
-        ddb.ldb.put(array('i', 0, int(1), "Symbols", 0, "delta", 0, "gamma", 0, "bbb", 0).asMemory(), array('o', 0, int(1), "bbb", 0).asMemory())
-        ddb.ldb.put(array('r', 0, int(1), "bbb", 0).asMemory(), array(int(30), 'i', 0, int(1), "Symbols", 0, "delta", 0, "gamma", 0, "bbb", 0).asMemory())
+        ddb.kv.put(array('o', 0, int(1), "aaa", 0).asMemory(), array("ValueA!").asMemory())
+        ddb.kv.put(array('i', 0, int(1), "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0).asMemory(), array('o', 0, int(1), "aaa", 0).asMemory())
+        ddb.kv.put(array('i', 0, int(1), "Numbers", 0, "forty", 0, "two", 0, "aaa", 0).asMemory(), array('o', 0, int(1), "aaa", 0).asMemory())
+        ddb.kv.put(array('r', 0, int(1), "aaa", 0).asMemory(), array(int(29), 'i', 0, int(1), "Symbols", 0, "alpha", 0, "beta", 0, "aaa", 0, int(28), 'i', 0, int(1), "Numbers", 0, "forty", 0, "two", 0, "aaa", 0).asMemory())
+        ddb.kv.put(array('o', 0, int(1), "bbb", 0).asMemory(), array("ValueB!").asMemory())
+        ddb.kv.put(array('i', 0, int(1), "Symbols", 0, "delta", 0, "gamma", 0, "bbb", 0).asMemory(), array('o', 0, int(1), "bbb", 0).asMemory())
+        ddb.kv.put(array('r', 0, int(1), "bbb", 0).asMemory(), array(int(30), 'i', 0, int(1), "Symbols", 0, "delta", 0, "gamma", 0, "bbb", 0).asMemory())
 
         ddb.delete(ddb.newKey(1, Value.of("aaa")))
 

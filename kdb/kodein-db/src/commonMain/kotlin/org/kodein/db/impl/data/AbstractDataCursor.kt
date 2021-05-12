@@ -1,10 +1,10 @@
 package org.kodein.db.impl.data
 
 import org.kodein.db.data.DataCursor
-import org.kodein.db.leveldb.LevelDB
+import org.kodein.db.kv.KeyValueCursor
 import org.kodein.memory.io.*
 
-internal abstract class AbstractDataCursor(protected val cursor: LevelDB.Cursor, protected val prefix: ByteArray) : DataCursor {
+internal abstract class AbstractDataCursor(protected val cursor: KeyValueCursor, protected val prefix: ByteArray) : DataCursor {
 
     private var cachedValid: Boolean? = null
     private var cachedItKey: ReadMemory? = null

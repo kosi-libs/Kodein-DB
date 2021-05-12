@@ -11,25 +11,25 @@ internal class CachedModelBatch(private val cmdb: CachedModelDB, private val bat
 
     private val reacts = ArrayList<CachedModelDB.() -> Unit>()
 
-    override fun <M : Any> put(model: M, vararg options: Options.Write): KeyAndSize<M> {
+    override fun <M : Any> put(model: M, vararg options: Options.BatchPut): KeyAndSize<M> {
         val key = keyFrom(model)
         val size = batch.put(key, model, *options)
         reacts.add { didPut(model, key, size, options) }
         return KeyAndSize(key, size)
     }
 
-    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.Write): Int {
+    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.BatchPut): Int {
         val size = batch.put(key, model, *options)
         reacts.add { didPut(model, key, size, options) }
         return size
     }
 
-    override fun <M : Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.Write) {
+    override fun <M : Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.BatchDelete) {
         batch.delete(type, key, *options)
         reacts.add { didDelete(key, options) }
     }
 
-    override fun write(afterErrors: MaybeThrowable, vararg options: Options.Write) {
+    override fun write(afterErrors: MaybeThrowable, vararg options: Options.BatchWrite) {
         batch.write(afterErrors, *(options + ReactInLock {
             reacts.forEachCatchTo(afterErrors) { cmdb.it() }
         }))

@@ -1,14 +1,10 @@
 package org.kodein.db.impl.model
 
+import kotlinx.serialization.Serializable
 import org.kodein.db.Anticipate
-import org.kodein.db.Value
-import org.kodein.db.inDir
-import org.kodein.db.inmemory.inMemory
-import org.kodein.db.model.ModelDB
-import org.kodein.db.model.Primitive
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
-import org.kodein.memory.file.FileSystem
+import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.use
 import org.kodein.memory.util.MaybeThrowable
 import kotlin.test.Test
@@ -19,13 +15,21 @@ import kotlin.test.assertNull
 @Suppress("ClassName")
 abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
-    class LDB : ModelDBTests_09_Checks() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
-    class IM : ModelDBTests_09_Checks() { override val factory = ModelDB.inMemory }
+    class LDB : ModelDBTests_09_Checks(), ModelDBTests.LDB
+    class IM : ModelDBTests_09_Checks(), ModelDBTests.IM
 
+    abstract class Encrypted : ModelDBTests_09_Checks(), ModelDBTests.Encrypted {
+        class LDB : Encrypted(), ModelDBTests.LDB
+        class IM : Encrypted(), ModelDBTests.IM
+    }
+
+
+    @Serializable
+    private data class IntEntry(override val id: String, val value: Int) : Metadata
 
     @Test
     fun test00_putOK() {
-        val int = Primitive(Value.of("test"), 21)
+        val int = IntEntry("test", 21)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -36,7 +40,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test01_putKO() {
-        val int = Primitive(Value.of("test"), 21)
+        val int = IntEntry("test", 21)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -49,7 +53,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test02_deleteOK() {
-        val int = Primitive(Value.of("test"), 42)
+        val int = IntEntry("test", 42)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -60,7 +64,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test03_deleteKO() {
-        val int = Primitive(Value.of("test"), 42)
+        val int = IntEntry("test", 42)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -73,7 +77,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test04_batchOK() {
-        val int = Primitive(Value.of("test"), 21)
+        val int = IntEntry("test", 21)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 
@@ -87,7 +91,7 @@ abstract class ModelDBTests_09_Checks : ModelDBTests() {
 
     @Test
     fun test05_batchKO() {
-        val int = Primitive(Value.of("test"), 21)
+        val int = IntEntry("test", 21)
         val key = mdb.keyFrom(int)
         mdb.put(key, int)
 

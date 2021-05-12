@@ -6,11 +6,9 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import org.kodein.memory.io.Memory
-import org.kodein.memory.io.ReadMemory
-import org.kodein.memory.io.asReadable
-import org.kodein.memory.io.wrap
+import org.kodein.memory.io.*
 import org.kodein.memory.text.Base64
+import org.kodein.memory.text.toHex
 
 @Suppress("unused")
 @Serializable(with = Key.KeySerializer::class)
@@ -25,6 +23,8 @@ public data class Key<out T : Any>(val bytes: ReadMemory) {
     }
 
     public fun toBase64(): String = b64Encoder.encode(bytes.asReadable())
+
+    override fun toString(): String = "Key(${bytes.getInt(2)}: ${bytes.slice(6, bytes.size - 7).toHex()})"
 
     public companion object {
         public val b64Encoder: Base64.Encoder = Base64.encoder.withoutPadding()

@@ -5,8 +5,11 @@ import org.kodein.db.data.DataDB
 import org.kodein.db.inDir
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.test.utils.array
+import org.kodein.db.test.utils.assertBytesEquals
 import org.kodein.memory.file.FileSystem
+import org.kodein.memory.util.deferScope
 import kotlin.test.Test
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @Suppress("ClassName")
@@ -23,8 +26,10 @@ abstract class DataDBTests_02_Get : DataDBTests() {
         val bKey = ddb.newKey(1, Value.of("bbb"))
         ddb.put(bKey, Value.of("ValueB1!"), mapOf("Numbers" to listOf(Value.of("forty", "two") to null)))
 
-        assertDataIs(array("ValueA1!"), ddb.get(aKey))
-        assertDataIs(array("ValueB1!"), ddb.get(bKey))
+        deferScope {
+            assertBytesEquals(array("ValueA1!"), assertNotNull(ddb.get(aKey)?.useInScope()))
+            assertBytesEquals(array("ValueB1!"), assertNotNull(ddb.get(bKey)?.useInScope()))
+        }
     }
 
     @Test

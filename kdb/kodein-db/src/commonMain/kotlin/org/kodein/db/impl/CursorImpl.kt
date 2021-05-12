@@ -10,8 +10,6 @@ internal class CursorImpl<M : Any>(private val cursor: ModelCursor<M>) : Cursor<
 
     override fun key(): Key<M> = cursor.key()
 
-    override fun model(vararg options: Options.Read): M = cursor.model(*options).model
-
-    override fun duplicate(): Cursor<M> = CursorImpl(cursor.duplicate())
+    override fun model(vararg options: Options.Get): M = cursor.model(*options).model
 
 }

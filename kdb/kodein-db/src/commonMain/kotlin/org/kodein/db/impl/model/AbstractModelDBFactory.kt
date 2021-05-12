@@ -17,7 +17,7 @@ public abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
         val typeTable = options<TypeTable>() ?: PlatformModelDBDefaults.typeTable() ?: TypeTable()
         val serializers = options.all<DBClassSerializer<*>>()
 
-        val modelMiddlewares = options.all<Middleware.Model>().map { it.middleware }
+        val modelMiddlewares = options.all<Middleware.Model>()
 
         return modelMiddlewares.fold(
             ModelDBImpl(
@@ -28,7 +28,7 @@ public abstract class AbstractModelDBFactory : DBFactory<ModelDB> {
                 typeTable = typeTable,
                 data = ddbFactory.open(path, *options)
             ) as ModelDB
-        ) { mdb, middleware -> middleware(mdb) }
+        ) { mdb, middleware -> middleware.wrap(mdb) }
     }
 
     override fun destroy(path: String, vararg options: Options.Open) {

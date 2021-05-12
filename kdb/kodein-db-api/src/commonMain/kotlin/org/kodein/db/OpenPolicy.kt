@@ -1,6 +1,6 @@
 package org.kodein.db
 
-import org.kodein.db.ldb.LevelDBOptions
+import org.kodein.db.kv.LevelDBOptions
 import org.kodein.db.leveldb.LevelDB
 
 

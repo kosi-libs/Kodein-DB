@@ -11,4 +11,5 @@ internal interface DataKeyMakerModule : DataKeyMaker {
     override fun newKey(type: Int, id: Value): ReadMemory =
         Memory.array(getDocumentKeySize(id)) { writeDocumentKey(type, id) }
 
+    override fun keyType(key: ReadMemory): Int = getDocumentKeyType(key)
 }

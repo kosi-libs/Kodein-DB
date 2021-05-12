@@ -1,29 +1,38 @@
 package org.kodein.db.impl
 
-import org.kodein.db.*
-import org.kodein.db.impl.model.Adult
-import org.kodein.db.impl.model.Birth
-import org.kodein.db.impl.model.City
+import kotlinx.serialization.Serializable
+import org.kodein.db.AnticipateInLock
+import org.kodein.db.execBatch
+import org.kodein.db.get
+import org.kodein.db.getById
 import org.kodein.db.impl.model.Message
-import org.kodein.db.inmemory.inMemory
-import org.kodein.db.model.Primitive
-import org.kodein.db.model.cache.ModelCache
-import org.kodein.memory.file.FileSystem
+import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.util.UUID
 import kotlin.test.*
 
 @Suppress("ClassName")
 abstract class DBTests_01_Batch : DBTests() {
 
-    class LDB : DBTests_01_Batch() { override val factory = DB.inDir(FileSystem.tempDirectory.path) }
-    class IM : DBTests_01_Batch() { override val factory = DB.inMemory }
+    class LDB : DBTests_01_Batch(), DBTests.LDB
+    class IM : DBTests_01_Batch(), DBTests.IM
 
-    abstract class NoCache : DBTests_01_Batch() {
-        override fun options(): Array<out Options.Open> = arrayOf(kxSerializer, ModelCache.Disable)
-        class LDB : NoCache() { override val factory = DB.inDir(FileSystem.tempDirectory.path) }
-        class IM : NoCache() { override val factory = DB.inMemory }
+    abstract class NoCache : DBTests_01_Batch(), DBTests.NoCache {
+        class LDB : NoCache(), DBTests.LDB
+        class IM : NoCache(), DBTests.IM
     }
 
+    abstract class Encrypted : DBTests_01_Batch(), DBTests.Encrypted {
+        class LDB : Encrypted(), DBTests.LDB
+        class IM : Encrypted(), DBTests.IM
+
+        abstract class NoCache : Encrypted(), DBTests.NoCache {
+            class LDB : NoCache(), DBTests.LDB
+            class IM : NoCache(), DBTests.IM
+        }
+    }
+
+    @Serializable
+    private data class Counter(override val id: List<String>, val count: Int) : Metadata
 
     @Test
     fun test00_checkOK() {
@@ -31,16 +40,16 @@ abstract class DBTests_01_Batch : DBTests() {
 
         val uid = UUID.timeUUID()
 
-        val counterKey = db.put(Primitive(Models.salomon.id, 0))
+        val counterKey = db.put(Counter(Models.salomon.id, 0))
 
         val counter = db[counterKey]!!
         db.execBatch {
             put(Message(uid, db.keyFrom(Models.salomon), "Coucou !"))
-            put(counter.copy(value = counter.value + 1))
-            addOptions(AnticipateInLock { check(db[counterKey]!!.value == counter.value) })
+            put(counter.copy(count = counter.count + 1))
+            addOptions(AnticipateInLock { check(db[counterKey]!!.count == counter.count) })
         }
 
-        assertEquals(1, db[counterKey]!!.value)
+        assertEquals(1, db[counterKey]!!.count)
         assertNotNull(db.getById<Message>(uid))
     }
 
@@ -50,18 +59,18 @@ abstract class DBTests_01_Batch : DBTests() {
 
         val uid = UUID.timeUUID()
 
-        val counterKey = db.put(Primitive(Models.salomon.id, 0))
+        val counterKey = db.put(Counter(Models.salomon.id, 0))
 
         val counter = db[counterKey]!!
         assertFailsWith<IllegalStateException> {
             db.execBatch {
                 put(Message(uid, db.keyFrom(Models.salomon), "Coucou !"))
-                put(counter.copy(value = counter.value + 1))
-                addOptions(AnticipateInLock { check(db[counterKey]!!.value == counter.value + 1) })
+                put(counter.copy(count = counter.count + 1))
+                addOptions(AnticipateInLock { check(db[counterKey]!!.count == counter.count + 1) })
             }
         }
 
-        assertEquals(0, db[counterKey]!!.value)
+        assertEquals(0, db[counterKey]!!.count)
         assertNull(db.getById<Message>(uid))
     }
 

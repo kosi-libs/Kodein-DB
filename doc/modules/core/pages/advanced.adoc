@@ -264,4 +264,4 @@ To implement a data middleware, use the `org.kodein.db.data.DataDB` interface an
 A LevelDB middleware sits between the *LevelDB* and the *Data* layers.
 It works exactly like a data middleware, except that you manipulate raw data instead of documents, which means that a simple operation in Kodein-DB will probably lead to multiple operations at the LevelDB layer.
 
-To implement a LevelDB middleware, use the `org.kodein.db.leveldb.LevelDB` interface and the `org.kodein.db.Middleware.Level` container.
+To implement a LevelDB middleware, use the `org.kodein.db.leveldb.LevelDB` interface and the `KeyValue` container.

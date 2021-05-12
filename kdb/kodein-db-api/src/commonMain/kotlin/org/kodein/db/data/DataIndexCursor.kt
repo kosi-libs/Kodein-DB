@@ -5,6 +5,6 @@ import org.kodein.memory.io.ReadMemory
 
 public interface DataIndexCursor : DataCursor {
 
-    public fun transientMetadata(): ReadMemory?
+    public fun transientAssociatedData(): ReadMemory?
 
 }

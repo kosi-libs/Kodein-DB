@@ -47,11 +47,22 @@ data class Message(@Contextual override val id: UUID, val from: Key<Person>, val
 
 @Serializable
 data class Birth(val adult: Key<Adult>, val city: Key<City>) : HasMetadata {
-    override fun getMetadata(db: ModelDB, vararg options: Options.Write): Metadata {
+    override fun getMetadata(db: ModelDB, vararg options: Options.Puts): Metadata {
         val person = db[adult]!!
         return Metadata(person.model.id,
                 "city" to db[city]!!.model.name,
                 "date" to listOf(person.model.birth.year, person.model.birth.month, person.model.birth.day)
         )
     }
+}
+
+@Serializable
+data class Text(
+    override val id: String,
+    val text: String,
+    val tokens: List<Pair<String, Int>>
+) : Metadata {
+    override fun indexes() = mapOf(
+        "tokens" to IndexData.multipleWithAO(tokens)
+    )
 }

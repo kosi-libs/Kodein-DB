@@ -102,7 +102,7 @@ public class AnnotationMetadataExtractor : MetadataExtractor {
         return getters
     }
 
-    override fun extractMetadata(model: Any, vararg options: Options.Write): Metadata? {
+    override fun extractMetadata(model: Any, vararg options: Options.Puts): Metadata? {
         val type = model.javaClass
         val getters = type.getters()
 

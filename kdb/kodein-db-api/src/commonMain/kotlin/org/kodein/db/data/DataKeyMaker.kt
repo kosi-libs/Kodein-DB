@@ -7,4 +7,6 @@ public interface DataKeyMaker {
 
     public fun newKey(type: Int, id: Value): ReadMemory
 
+    public fun keyType(key: ReadMemory): Int
+
 }

@@ -5,9 +5,7 @@ import org.kodein.memory.use
 public interface Cursor<M: Any> : BaseCursor {
 
     public fun key(): Key<M>
-    public fun model(vararg options: Options.Read): M
-
-    public fun duplicate(): Cursor<M>
+    public fun model(vararg options: Options.Get): M
 
 }
 
@@ -28,10 +26,10 @@ private inline fun <M : Any, T> Cursor<M>.asSequence(reverse: Boolean, seekToSta
     }
 }
 
-public fun <M : Any> Cursor<M>.asModelSequence(reverse: Boolean = false, seekToStart: Boolean = true, vararg options: Options.Read): Sequence<M> =
+public fun <M : Any> Cursor<M>.asModelSequence(reverse: Boolean = false, seekToStart: Boolean = true, vararg options: Options.Get): Sequence<M> =
         asSequence(reverse, seekToStart) { model(*options) }
 
-public inline fun <M : Any, R> Cursor<M>.useModels(reverse: Boolean = false, seekToStart: Boolean = true, vararg options: Options.Read, block: (Sequence<M>) -> R): R =
+public inline fun <M : Any, R> Cursor<M>.useModels(reverse: Boolean = false, seekToStart: Boolean = true, vararg options: Options.Get, block: (Sequence<M>) -> R): R =
         use { block(asModelSequence(reverse, seekToStart, *options)) }
 
 public fun <M : Any> Cursor<M>.asKeySequence(reverse: Boolean = false, seekToStart: Boolean = true): Sequence<Key<M>> =
@@ -40,8 +38,8 @@ public fun <M : Any> Cursor<M>.asKeySequence(reverse: Boolean = false, seekToSta
 public fun <M : Any, R> Cursor<M>.useKeys(reverse: Boolean = false, seekToStart: Boolean = true, block: (Sequence<Key<M>>) -> R): R =
         use { block(asKeySequence(reverse, seekToStart)) }
 
-public fun <M : Any> Cursor<M>.asEntrySequence(reverse: Boolean = false, seekToStart: Boolean = true, vararg options: Options.Read): Sequence<Entry<M>> =
+public fun <M : Any> Cursor<M>.asEntrySequence(reverse: Boolean = false, seekToStart: Boolean = true, vararg options: Options.Get): Sequence<Entry<M>> =
         asSequence(reverse, seekToStart) { Entry(key(), model(*options)) }
 
-public fun <M : Any, R> Cursor<M>.useEntries(reverse: Boolean = false, seekToStart: Boolean = true, vararg options: Options.Read, block: (Sequence<Entry<M>>) -> R): R =
+public fun <M : Any, R> Cursor<M>.useEntries(reverse: Boolean = false, seekToStart: Boolean = true, vararg options: Options.Get, block: (Sequence<Entry<M>>) -> R): R =
         use { block(asEntrySequence(reverse, seekToStart, *options)) }

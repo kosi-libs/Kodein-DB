@@ -7,7 +7,7 @@ import org.kodein.db.model.ModelCursor
 import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.Closeable
 
-internal class CachedModelCursor<M : Any>(override val cursor: ModelCursor<M>, val cache: ModelCache) : ModelCursor<M>, ResettableCursorModule, Closeable by cursor {
+internal open class CachedModelCursor<M : Any>(override val cursor: ModelCursor<M>, val cache: ModelCache) : ModelCursor<M>, ResettableCursorModule, Closeable by cursor {
 
     private var cachedEntry: ModelCache.Entry.Cached<M>? = null
 
@@ -17,13 +17,11 @@ internal class CachedModelCursor<M : Any>(override val cursor: ModelCursor<M>, v
 
     override fun key() = cursor.key()
 
-    override fun model(vararg options: Options.Read): Sized<M> {
+    override fun model(vararg options: Options.Get): Sized<M> {
         if (cachedEntry == null) {
             @Suppress("UNCHECKED_CAST")
             cachedEntry = cache.getOrRetrieveEntry(key()) { cursor.model(*options) } as ModelCache.Entry.Cached<M>
         }
         return cachedEntry!!
     }
-
-    override fun duplicate(): ModelCursor<M> = CachedModelCursor(cursor.duplicate(), cache)
 }

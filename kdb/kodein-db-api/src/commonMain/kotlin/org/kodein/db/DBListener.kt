@@ -8,22 +8,22 @@ public interface DBListener<in M : Any> {
 
     public fun setSubscription(subscription: Closeable) {}
 
-    public fun willPut(model: M, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {}
+    public fun willPut(model: M, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Puts>) {}
 
-    public fun didPut(model: M, key: Key<M>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {}
+    public fun didPut(model: M, key: Key<M>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Puts>) {}
 
-    public fun willDelete(key: Key<M>, getModel: () -> M?, typeName: ReadMemory, options: Array<out Options.Write>) {}
+    public fun willDelete(key: Key<M>, getModel: () -> M?, typeName: ReadMemory, options: Array<out Options.Deletes>) {}
 
-    public fun didDelete(key: Key<M>, model: M?, typeName: ReadMemory, options: Array<out Options.Write>) {}
+    public fun didDelete(key: Key<M>, model: M?, typeName: ReadMemory, options: Array<out Options.Deletes>) {}
 
     public class Builder<M : Any> {
-        public class WillPut(public val typeName: ReadMemory, public val options: Array<out Options.Write>, public val subscription: Closeable)
+        public class WillPut(public val typeName: ReadMemory, public val options: Array<out Options.Puts>, public val subscription: Closeable)
 
-        public class DidPut<M : Any>(public val key: Key<M>, public val typeName: ReadMemory, public val options: Array<out Options.Write>, public val subscription: Closeable)
+        public class DidPut<M : Any>(public val key: Key<M>, public val typeName: ReadMemory, public val options: Array<out Options.Puts>, public val subscription: Closeable)
 
-        public class WillDelete<M : Any>(public val key: Key<M>, public val typeName: ReadMemory, public val options: Array<out Options.Write>, public val subscription: Closeable)
+        public class WillDelete<M : Any>(public val key: Key<M>, public val typeName: ReadMemory, public val options: Array<out Options.Deletes>, public val subscription: Closeable)
 
-        public class DidDelete<M : Any>(public val key: Key<M>, public val typeName: ReadMemory, public val options: Array<out Options.Write>, public val subscription: Closeable)
+        public class DidDelete<M : Any>(public val key: Key<M>, public val typeName: ReadMemory, public val options: Array<out Options.Deletes>, public val subscription: Closeable)
 
         private var willPut: (WillPut.(M) -> Unit)? = null
         private var didPut: (DidPut<M>.(M) -> Unit)? = null
@@ -65,21 +65,21 @@ public interface DBListener<in M : Any> {
                 this.subscription = subscription
             }
 
-            override fun willPut(model: M, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {
+            override fun willPut(model: M, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Puts>) {
                 willPut?.invoke(WillPut(typeName, options, subscription), model)
             }
 
-            override fun didPut(model: M, key: Key<M>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
+            override fun didPut(model: M, key: Key<M>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Puts>) {
                 didPut?.invoke(DidPut<M>(key, typeName, options, subscription), model)
             }
 
-            override fun willDelete(key: Key<M>, getModel: () -> M?, typeName: ReadMemory, options: Array<out Options.Write>) {
+            override fun willDelete(key: Key<M>, getModel: () -> M?, typeName: ReadMemory, options: Array<out Options.Deletes>) {
                 if (didDeleteNeedsModel)
                     getModel()
                 willDelete?.invoke(WillDelete(key, typeName, options, subscription), getModel)
             }
 
-            override fun didDelete(key: Key<M>, model: M?, typeName: ReadMemory, options: Array<out Options.Write>) {
+            override fun didDelete(key: Key<M>, model: M?, typeName: ReadMemory, options: Array<out Options.Deletes>) {
                 didDelete?.invoke(DidDelete(key, typeName, options, subscription), model)
             }
         }

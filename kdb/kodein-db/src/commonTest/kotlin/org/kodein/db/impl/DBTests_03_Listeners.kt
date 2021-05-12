@@ -13,8 +13,13 @@ import kotlin.test.*
 @Suppress("ClassName")
 abstract class DBTests_03_Listeners : DBTests() {
 
-    class LDB : DBTests_03_Listeners() { override val factory = DB.inDir(FileSystem.tempDirectory.path) }
-    class IM : DBTests_03_Listeners() { override val factory = DB.inMemory }
+    class LDB : DBTests_03_Listeners(), DBTests.LDB
+    class IM : DBTests_03_Listeners(), DBTests.IM
+
+    abstract class Encrypted : DBTests_03_Listeners(), DBTests.Encrypted {
+        class LDB : Encrypted(), DBTests.LDB
+        class IM : Encrypted(), DBTests.IM
+    }
 
 
     @Test

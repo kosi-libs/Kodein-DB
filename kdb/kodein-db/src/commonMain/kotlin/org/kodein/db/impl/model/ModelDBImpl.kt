@@ -21,9 +21,9 @@ internal class ModelDBImpl(
     userClassSerializers: Map<KClass<*>, Serializer<*>>,
     private val metadataExtractors: List<MetadataExtractor>,
     internal val valueConverters: List<ValueConverter>,
-    internal val typeTable: TypeTable,
+    override val typeTable: TypeTable,
     override val data: DataDB
-) : ModelDB, ModelReadModule, ModelWriteModule, Closeable by data {
+) : ModelDB, ModelReadModule, ModelWriteModule<DataDB>, Closeable by data {
 
     private val listenersLock = newRWLock()
     private val listeners = LinkedHashSet<DBListener<Any>>()
@@ -38,15 +38,21 @@ internal class ModelDBImpl(
     @OptIn(ExperimentalStdlibApi::class)
     private val classSerializers = buildMap<KClass<*>, Serializer<*>> {
         putAll(userClassSerializers)
+
+        @Suppress("DEPRECATION")
         put(IntPrimitive::class, IntPrimitive.S)
+        @Suppress("DEPRECATION")
         put(LongPrimitive::class, LongPrimitive.S)
+        @Suppress("DEPRECATION")
         put(DoublePrimitive::class, DoublePrimitive.S)
+        @Suppress("DEPRECATION")
         put(StringPrimitive::class, StringPrimitive.S)
+        @Suppress("DEPRECATION")
         put(BytesPrimitive::class, BytesPrimitive.S)
     }
 
     @Suppress("UNCHECKED_CAST")
-    internal fun serialize(model: Any, output: Writeable, vararg options: Options.Write) =
+    internal fun serialize(model: Any, output: Writeable, vararg options: Options.Puts) =
             (classSerializers[model::class] as? Serializer<Any>)?.serialize(model, output, *options)
                     ?: defaultSerializer?.serialize(model, output, *options)
                     ?: throw IllegalArgumentException("No serializer found for type ${model::class}")
@@ -59,7 +65,7 @@ internal class ModelDBImpl(
 
     override fun didAction(action: DBListener<Any>.() -> Unit) = getListeners().forEachResilient(action)
 
-    internal fun getMetadata(model: Any, options: Array<out Options.Write>): Metadata {
+    internal fun getMetadata(model: Any, options: Array<out Options.Puts>): Metadata {
         (model as? HasMetadata)?.getMetadata(this, *options)?.let { return it }
 
         metadataExtractors.forEach {
@@ -71,9 +77,19 @@ internal class ModelDBImpl(
 
     override val mdb: ModelDBImpl get() = this
 
-    override fun newBatch(): ModelBatch = ModelBatchImpl(this, data.newBatch())
+    override fun <M : Any> put(model: M, vararg options: Options.DirectPut): KeyAndSize<M> =
+        put(model, options, DataDB::put)
 
-    override fun newSnapshot(vararg options: Options.Read): ModelSnapshot = ModelSnapshotImpl(this, data.newSnapshot())
+    override fun <M : Any> put(key: Key<M>, model: M, vararg options: Options.DirectPut): Int =
+        put(key, model, options, DataDB::put)
+
+    override fun <M : Any> delete(type: KClass<M>, key: Key<M>, vararg options: Options.DirectDelete) {
+        delete(type, key, options, DataDB::delete)
+    }
+
+    override fun newBatch(vararg options: Options.NewBatch): ModelBatch = ModelBatchImpl(this, data.newBatch(*options))
+
+    override fun newSnapshot(vararg options: Options.NewSnapshot): ModelSnapshot = ModelSnapshotImpl(this, data.newSnapshot(*options))
 
     override fun register(listener: DBListener<Any>): Closeable {
         val subscription = Closeable { writeOnListeners { remove(listener) } }
@@ -81,7 +97,7 @@ internal class ModelDBImpl(
         return subscription
     }
 
-    internal fun getTypeId(typeName: ReadMemory, createIfNone: Boolean = true): Int {
+    override fun getTypeId(typeName: ReadMemory, createIfNone: Boolean): Int {
         typeNameMap[typeName]?.let { return it }
 
         deferScope {
@@ -91,7 +107,7 @@ internal class ModelDBImpl(
 
             val typeNameKey = Allocation.native(getTypeNameKeySize(typeName)) { putTypeNameKey(typeName) }.useInScope()
 
-            val existingTypeId = data.ldb.get(typeNameKey)?.use { it.getInt(0) }
+            val existingTypeId = data.kv.get(typeNameKey)?.use { it.getInt(0) }
             if (existingTypeId != null) {
                 typeNameMap[typeName] = existingTypeId
                 typeIdMap[existingTypeId] = typeName
@@ -100,14 +116,14 @@ internal class ModelDBImpl(
 
             if (!createIfNone) return 0
 
-            val newTypeId = nextTypeId ?: data.ldb.get(nextTypeKey)?.use { it.getInt(0) } ?.also { nextTypeId = it } ?: 1
+            val newTypeId = nextTypeId ?: data.kv.get(nextTypeKey)?.use { it.getInt(0) } ?.also { nextTypeId = it } ?: 1
             check(newTypeId != 0) { "No more type int available. Have you inserted UINT_MAX different types in this database ?!?!?!" }
             val typeIdKey = Allocation.native(typeIdKeySize) { putTypeIdKey(newTypeId) } .useInScope()
-            data.ldb.newWriteBatch().use {
+            data.kv.newBatch().use {
                 it.put(typeNameKey, Memory.array(4) { writeInt(newTypeId) })
                 it.put(typeIdKey, typeName)
                 it.put(nextTypeKey, Memory.array(4) { writeInt(newTypeId + 1) })
-                data.ldb.write(it)
+                it.write()
             }
             typeNameMap[typeName] = newTypeId
             typeIdMap[newTypeId] = typeName
@@ -116,12 +132,12 @@ internal class ModelDBImpl(
         }
     }
 
-    internal fun getTypeName(typeId: Int): ReadMemory? {
+    override fun getTypeName(typeId: Int): ReadMemory? {
         typeIdMap[typeId]?.let { return it }
         deferScope {
             lockInScope(typeLock)
             val typeIdKey = Allocation.native(typeIdKeySize) { putTypeIdKey(typeId) } .useInScope()
-            return data.ldb.get(typeIdKey)?.use { alloc ->
+            return data.kv.get(typeIdKey)?.use { alloc ->
                 Memory.arrayCopy(alloc).also { typeName ->
                     typeNameMap[typeName] = typeId
                     typeIdMap[typeId] = typeName
@@ -130,7 +146,7 @@ internal class ModelDBImpl(
         }
     }
 
-    internal fun <M : Any> deserialize(type: KClass<out M>, transientId: ReadMemory, body: ReadMemory, options: Array<out Options.Read>): Sized<M> {
+    internal fun <M : Any> deserialize(type: KClass<out M>, transientId: ReadMemory, body: ReadMemory, options: Array<out Options.Get>): Sized<M> {
         val r = body.asReadable()
 
         val typeId = r.readInt()
@@ -149,7 +165,7 @@ internal class ModelDBImpl(
 
         val size = r.remaining
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val model = ((classSerializers[realType] as? Serializer<Any>)?.deserialize(realType, transientId, r, *options)
             ?: defaultSerializer?.deserialize(realType, transientId, r, *options)
             ?: throw IllegalArgumentException("No serializer found for type $realType")) as M

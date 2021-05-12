@@ -134,7 +134,7 @@ class DataKeysTests_01_IndexKey {
             assertEquals("Symbols", getIndexKeyName(indexKey))
             assertEquals(1, getIndexKeyDocumentType(indexKey))
             assertBytesEquals(array("One"), getIndexDocumentId(indexKey, indexBody))
-            assertBytesEquals(array("Metadata"), getIndexBodyMetadata(indexBody)!!)
+            assertBytesEquals(array("Metadata"), getIndexBodyAssociatedData(indexBody)!!)
         }
     }
 
@@ -143,6 +143,6 @@ class DataKeysTests_01_IndexKey {
         val indexKey = array('i', 0, int(1), "Symbols", 0, "alpha", 0, "beta", 0, "one", 0).asMemory()
         val indexBody = array('o', 0, int(1), "one", 0).asMemory()
         assertBytesEquals(array("one"), getIndexDocumentId(indexKey, indexBody))
-        assertNull(getIndexBodyMetadata(indexBody))
+        assertNull(getIndexBodyAssociatedData(indexBody))
     }
 }
