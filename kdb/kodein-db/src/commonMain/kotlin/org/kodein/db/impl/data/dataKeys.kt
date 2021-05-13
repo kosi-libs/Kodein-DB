@@ -32,9 +32,9 @@ import org.kodein.memory.use
 */
 
 private object Prefix {
-    const val DOCUMENT = 'o'.toByte()
-    const val INDEX = 'i'.toByte()
-    const val REFERENCE = 'r'.toByte()
+    const val DOCUMENT = 'o'.code.toByte()
+    const val INDEX = 'i'.code.toByte()
+    const val REFERENCE = 'r'.code.toByte()
 }
 
 internal const val NULL = 0.toByte()

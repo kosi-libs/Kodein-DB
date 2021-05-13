@@ -22,6 +22,14 @@ public interface Options {
     public interface Deletes : DirectDelete, BatchDelete
     public interface Writes : DirectPut, DirectDelete, BatchWrite
     public interface Reads : Get, Find
+
+    // Deprecated since 0.8.0
+    @Deprecated("Use either or a combination of new Options")
+    public interface Read : Reads, NewSnapshot
+
+    // Deprecated since 0.8.0
+    @Deprecated("Use either or a combination of new Options")
+    public interface Write : Puts, Deletes, Writes
 }
 
 public inline operator fun <reified T : Options> Array<out Options>.invoke(): T? = firstOrNull { it is T } as T?

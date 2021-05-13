@@ -1,4 +1,24 @@
 
+#### 0.8.0 (Soon?)
+
+- API
+  * Support encryption (see documentation).
+  * `org.kodein.db.model.*Primitive` types are deprecated (you should create your won model).
+  * Support for multiple value in the same index (which is different from composite value - see documentation).
+  * Support for `associatedModel` in `IndexCursor` (see documentation).
+  * Operation options are now specialized for each operation (`Options.Read` and `Options.Write` are deprecated).
+  
+- CORE
+  * Kotlin 1.5
+  * Kodein Memory 0.10.0
+  * Kodein Log 0.11.0
+  * KotlinX Atomic Fu 0.16.1
+  * KotlinX Serialization 1.2.0
+  * Windows JNI DLL is now built with Visual Studio.
+  
+- INTERNALS
+  * New version of Index value & ref value storage. This is backward compatible, and previous version is handled correctly.
+
 #### 0.7.0 (08-01-2021)
 
 - API
@@ -6,6 +26,9 @@
   * A `Key` can now be serialized as a `Value`, and therefore be part of an index.
 
 #### 0.6.0 (08-01-2021)
+
+- API
+  * `Value.ofAscii` is replaced by `Value.of` which supporte UTF-8.
 
 - CORE
   * Kotlin `1.4.31`.

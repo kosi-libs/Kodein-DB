@@ -3,11 +3,12 @@ package org.kodein.db.leveldb.jvm
 import org.kodein.db.leveldb.LevelDBFactory
 import org.kodein.db.leveldb.jni.LevelDBJNI
 import java.lang.IllegalStateException
+import java.util.*
 
 
 public object LevelDBJvm : LevelDBFactory by LevelDBJNI.Factory {
     init {
-        val os = System.getProperty("os.name").toLowerCase().let {
+        val os = System.getProperty("os.name").lowercase().let {
             when  {
                 "windows" in it -> "windows"
                 "mac os x" in it || "darwin" in it || "osx" in it -> "macos"
@@ -17,7 +18,7 @@ public object LevelDBJvm : LevelDBFactory by LevelDBJNI.Factory {
         }
 
         val loader = try {
-            Class.forName("org.kodein.db.leveldb.jvm.LevelDBJvm${os.capitalize()}Loader")
+            Class.forName("org.kodein.db.leveldb.jvm.LevelDBJvm${os.replaceFirstChar { it.uppercase() }}Loader")
                     .getDeclaredConstructor()
                     .newInstance()
                     as AbstractLevelDBJvmLoader

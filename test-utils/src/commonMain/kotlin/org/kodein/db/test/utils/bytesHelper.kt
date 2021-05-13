@@ -3,6 +3,7 @@ package org.kodein.db.test.utils
 import org.kodein.memory.io.*
 import org.kodein.memory.text.arrayFromHex
 import org.kodein.memory.text.toHex
+import org.kodein.memory.text.writeChar
 import org.kodein.memory.text.writeString
 import kotlin.test.fail
 
@@ -16,7 +17,7 @@ private fun Writeable.writeValues(vararg values: Any) {
     for (value in values) {
         when (value) {
             is Number -> writeByte(value.toByte())
-            is Char -> writeByte(value.toByte())
+            is Char -> writeChar(value)
             is CharSequence -> writeString(value)
             is ReadMemory -> writeBytes(value)
             is ByteArray -> writeBytes(value)
@@ -53,7 +54,7 @@ fun ByteArray.description(): String {
             sb.append("\"")
         type = newType
         when (type) {
-            1 -> sb.append(b.toChar())
+            1 -> sb.append(b.toInt().toChar())
             2 -> sb.append(b.toUByte().toUInt().toString(16).padStart(2, '0'))
         }
     }
@@ -64,7 +65,7 @@ fun ByteArray.description(): String {
 }
 
 @OptIn(ExperimentalUnsignedTypes::class)
-fun ByteArray.hex(): String = joinToString { it.toUByte().toUInt().toString(16).toUpperCase().padStart(2, '0') }
+fun ByteArray.hex(): String = joinToString { it.toUByte().toUInt().toString(16).uppercase().padStart(2, '0') }
 
 fun assertBytesEquals(expected: ByteArray, actual: ByteArray, description: Boolean = true, prefix: String = "") {
     if (!expected.contentEquals(actual)) {

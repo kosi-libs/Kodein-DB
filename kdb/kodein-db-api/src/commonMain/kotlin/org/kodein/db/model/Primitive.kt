@@ -13,11 +13,11 @@ import org.kodein.memory.text.readString
 import kotlin.reflect.KClass
 
 
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public interface Primitive : Metadata
 
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public data class IntPrimitive(override val id: Any, val value: Int) : Primitive {
     public object S : Serializer<IntPrimitive> {
@@ -27,7 +27,7 @@ public data class IntPrimitive(override val id: Any, val value: Int) : Primitive
     }
 }
 
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public data class LongPrimitive(override val id: Any, val value: Long) : Primitive {
     public object S : Serializer<LongPrimitive> {
@@ -37,7 +37,7 @@ public data class LongPrimitive(override val id: Any, val value: Long) : Primiti
     }
 }
 
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public data class DoublePrimitive(override val id: Any, val value: Double) : Primitive {
     public object S : Serializer<DoublePrimitive> {
@@ -47,7 +47,7 @@ public data class DoublePrimitive(override val id: Any, val value: Double) : Pri
     }
 }
 
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public data class StringPrimitive(override val id: Any, val value: String) : Primitive {
     public object S : Serializer<StringPrimitive> {
@@ -57,7 +57,7 @@ public data class StringPrimitive(override val id: Any, val value: String) : Pri
     }
 }
 
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public data class BytesPrimitive(override val id: Any, val value: ByteArray) : Primitive {
     public object S : Serializer<BytesPrimitive> {
@@ -76,26 +76,26 @@ public data class BytesPrimitive(override val id: Any, val value: ByteArray) : P
 }
 
 @Suppress("FunctionName")
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public fun Primitive(id: Any, value: Int): IntPrimitive = IntPrimitive(id, value)
 
 @Suppress("FunctionName")
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public fun Primitive(id: Any, value: Long): LongPrimitive = LongPrimitive(id, value)
 
 @Suppress("FunctionName")
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public fun Primitive(id: Any, value: Double): DoublePrimitive = DoublePrimitive(id, value)
 
 @Suppress("FunctionName")
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public fun Primitive(id: Any, value: String): StringPrimitive = StringPrimitive(id, value)
 
 @Suppress("FunctionName")
-// Deprecated since version 0.7.0
+// Deprecated since version 0.8.0
 @Deprecated(message = "Primitives are disabled. You should create your own value classes.")
 public fun Primitive(id: Any, value: ByteArray): BytesPrimitive = BytesPrimitive(id, value)
