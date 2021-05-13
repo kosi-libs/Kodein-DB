@@ -104,7 +104,7 @@ val konanBuild = addHostTarget("konan-$osName") {
         currentOs.isLinux -> {
             "CMAKE_C_COMPILER:STRING" += "clang"
             "CMAKE_CXX_COMPILER:STRING" += "clang++"
-            val path = "${System.getenv("HOME")}/.konan/dependencies/target-gcc-toolchain-3-linux-x86-64"
+            val path = "${System.getenv("HOME")}/.konan/dependencies/x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
             "CMAKE_SYSROOT:PATH" += "$path/x86_64-unknown-linux-gnu/sysroot"
             val cFlags = "--gcc-toolchain=$path"
             "CMAKE_C_FLAGS:STRING" += cFlags
