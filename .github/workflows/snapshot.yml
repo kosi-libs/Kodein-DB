@@ -88,7 +88,7 @@ jobs:
       - name: Check (ubuntu)
         if: matrix.os == 'ubuntu-latest'
         shell: bash
-        run: ./gradlew check
+        run: ./gradlew linuxX64Test
       - name: Upload (ubuntu)
         if: matrix.os == 'ubuntu-latest'
         shell: bash

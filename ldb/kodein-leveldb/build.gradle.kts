@@ -64,34 +64,32 @@ kodein {
                 })
 
                 if (currentOs.isLinux) {
-                    includeDirs(Action {
-                        headerFilterOnly("/usr/include")
-                    })
+                    includeDirs(Action { headerFilterOnly("/usr/include") })
                 }
-            }
 
-            val dep = if (useFat) {
-                // https://github.com/JetBrains/kotlin-native/issues/2314
-                mainCompilation.kotlinOptions.freeCompilerArgs = listOf(
-                    "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libfatleveldb.a"
-                )
-                "archiveFatLeveldb"
-            } else {
-                // https://github.com/JetBrains/kotlin-native/issues/2314
-                mainCompilation.kotlinOptions.freeCompilerArgs = listOf(
-                        "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libcrc32c.a",
-                        "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libsnappy.a",
-                        "-include-binary", "${project(":ldb:lib").buildDir}/out/$compilation/lib/libleveldb.a"
-                )
-                "buildLeveldb"
-            }
+                val dep = if (useFat) {
+                    extraOpts(
+                        "-staticLibrary", "libfatleveldb.a",
+                        "-libraryPath", "${project(":ldb:lib").buildDir}/out/$compilation/lib"
+                    )
+                    "archiveFatLeveldb"
+                } else {
+                    extraOpts(
+                        "-staticLibrary", "libleveldb.a",
+                        "-staticLibrary", "libcrc32c.a",
+                        "-staticLibrary", "libsnappy.a",
+                        "-libraryPath", "${project(":ldb:lib").buildDir}/out/$compilation/lib"
+                    )
+                    "buildLeveldb"
+                }
 
-            tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(":ldb:lib:$dep-$compilation")
-            tasks[mainCompilation.compileAllTaskName].dependsOn(":ldb:lib:$dep-$compilation")
+                tasks[mainCompilation.cinterops["libleveldb"].interopProcessingTaskName].dependsOn(":ldb:lib:$dep-$compilation")
+                tasks[mainCompilation.compileAllTaskName].dependsOn(":ldb:lib:$dep-$compilation")
+            }
         }
 
         add(kodeinTargets.native.linuxX64) {
-            if (currentOs.isLinux) configureCInterop("konan-linux")
+            if (currentOs.isLinux) configureCInterop("konan-linux", useFat = true)
         }
 
         add(kodeinTargets.native.macosX64) {

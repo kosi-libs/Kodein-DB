@@ -84,8 +84,6 @@ fun addHostTarget(target: String, specificOptions: CMakeOptions.() -> Unit) = ad
             "CMAKE_C_FLAGS:STRING" += "-mmacosx-version-min=10.11"
             "CMAKE_CXX_FLAGS:STRING" += "-mmacosx-version-min=10.11"
         }
-        currentOs.isWindows -> {
-        }
     }
     specificOptions()
 }
@@ -102,11 +100,13 @@ addHostTarget(osName) {
 val konanBuild = addHostTarget("konan-$osName") {
     when {
         currentOs.isLinux -> {
-            "CMAKE_C_COMPILER:STRING" += "clang"
-            "CMAKE_CXX_COMPILER:STRING" += "clang++"
-            val path = "${System.getenv("HOME")}/.konan/dependencies/x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
-            "CMAKE_SYSROOT:PATH" += "$path/x86_64-unknown-linux-gnu/sysroot"
-            val cFlags = "--gcc-toolchain=$path"
+            val dependenciesPath = "${System.getenv("HOME")}/.konan/dependencies"
+            val llvmBinPath = "$dependenciesPath/clang-llvm-8.0.0-linux-x86-64/bin"
+            "CMAKE_C_COMPILER:STRING" += "$llvmBinPath/clang"
+            "CMAKE_CXX_COMPILER:STRING" += "$llvmBinPath/clang++"
+            val toochainPath = "$dependenciesPath/x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
+            val cFlags = "--gcc-toolchain=$toochainPath"
+            "CMAKE_SYSROOT:PATH" += "$toochainPath/x86_64-unknown-linux-gnu/sysroot"
             "CMAKE_C_FLAGS:STRING" += cFlags
             "CMAKE_CXX_FLAGS:STRING" += cFlags
         }
@@ -128,11 +128,11 @@ val konanBuild = addHostTarget("konan-$osName") {
     }
 }
 
-if (currentOs.isWindows) {
-    val konanArchiveFat = tasks.create<Exec>("archiveFatLeveldb-konan-windows") {
+if (currentOs.isWindows || currentOs.isLinux) {
+    tasks.create<Exec>("archiveFatLeveldb-konan-$osName") {
         group = "build"
         dependsOn(konanBuild)
-        workingDir("$buildDir/out/konan-windows/lib")
+        workingDir("$buildDir/out/konan-$osName/lib")
         outputs.file("$workingDir/libfatleveldb.a")
         inputs.files(
             "$workingDir/libcrc32c.a",
