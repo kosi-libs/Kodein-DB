@@ -83,7 +83,7 @@ jobs:
       - name: Upload (macos / windows)
         if: matrix.os != 'ubuntu-latest'
         shell: bash
-        run: ./gradlew hostOnlyPublish -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
+        run: ./gradlew hostOnlyPublish -PgitRef=${{ github.ref }} -Psnapshot=true --stacktrace
         # Publish all on Ubuntu
       - name: Check (ubuntu)
         if: matrix.os == 'ubuntu-latest'
@@ -92,4 +92,4 @@ jobs:
       - name: Upload (ubuntu)
         if: matrix.os == 'ubuntu-latest'
         shell: bash
-        run: ./gradlew publishAllPublicationsToOssrhStagingRepository -PsnapshotNumber=${{ github.run_number }} -PgitRef=${{ github.ref }} --stacktrace
+        run: ./gradlew publishAllPublicationsToOssrhStagingRepository -PgitRef=${{ github.ref }} -Psnapshot=true --stacktrace
