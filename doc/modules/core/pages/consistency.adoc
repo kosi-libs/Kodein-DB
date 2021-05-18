@@ -5,7 +5,7 @@
 == Batch
 
 A batch enables you to apply multiple write operations at once.
-With a batch, you can ensure that neither a xref:operations.adoc#getting-cursor[cursor] nor a xref:snapshot[snapshot] can reflect part of the operations of a batch.
+With a batch, you can ensure that neither a xref:iteration.adoc#getting-cursor[cursor] nor a xref:snapshot[snapshot] can reflect part of the operations of a batch.
 
 IMPORTANT: Batches are `Closeable`! You need to either close them after use, or to call `use` on them.
 

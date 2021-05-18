@@ -70,7 +70,13 @@ fun ByteArray.hex(): String = joinToString { it.toUByte().toUInt().toString(16).
 fun assertBytesEquals(expected: ByteArray, actual: ByteArray, description: Boolean = true, prefix: String = "") {
     if (!expected.contentEquals(actual)) {
         if (description)
-            fail("${prefix}Bytes are not equal:\nExpected: ${expected.description()}\nActual:   ${actual.description()}")
+            fail("${prefix}Bytes are not equal:\n" +
+                    "Description:\n" +
+                    "  Expected: ${expected.description()}\n" +
+                    "  Actual:   ${actual.description()}\n" +
+                    "Hex:\n" +
+                    "  Expected: ${expected.toHex()}\n" +
+                    "  Actual:   ${actual.toHex()}\n")
         else
             fail("${prefix}Bytes are not equal:\nExpected: ${expected.hex()}\nActual:   ${actual.hex()}")    }
 }

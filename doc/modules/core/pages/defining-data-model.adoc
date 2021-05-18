@@ -4,13 +4,13 @@
 
 === Metadata
 
-IMPORTANT: *xref:immutability.adoc*
+IMPORTANT: *Please read xref:immutability.adoc[] first!*
 
 ==== ID and Indexes
 
-A model *may* have *one or more* named indexes, to allow you to _search and/or order_ by a specific value.
+A model *may* have *one or more* named indexes, to allow you to _search_ and/or _order_ by a specific value.
 
-A model *must* have *one* _unique_ ID, which can be of any type.
+A model *must* have *one* _unique_ ID, which can be of any type as long as it is <<values, usable as Value>>.
 This ID defines the default ordering of the models inside the collections.
 In essence, the ID works exactly like an index, except that it is unnamed.
 You can use `UUID.randomUUID()` if your model does not have a unique value.
@@ -86,17 +86,14 @@ data class User(
 
 ==== With an extractor
 
-If you don't own the models, or if you don't want to mark them for Kodein-DB, you can use register a `MetadataExtractor` when you open the database:
+If you don't own the models, or if you don't want to mark them for Kodein-DB, you can register a `MetadataExtractor` when you open the database:
 
 [source,kotlin]
 .Registering a metadata extractor
 ----
 val db = DB.open("path/to/db",
-    MetadataExtractor {
-        when (it) {
-            is User -> Metadata(it.id, "lastName" to listOf(it.lastName, it.firstName))
-            else -> error("Unknown model $it")
-        }
+    MetadataExtractor.forClass<User> {
+        Metadata(it.id, "lastName" to listOf(it.lastName, it.firstName))
     }
 )
 ----
@@ -131,7 +128,7 @@ CAUTION: While using a composite ID can be very useful, it makes the xref:operat
 === Key & References
 
 If a model contains another model, it will be serialized into the same _document_.
-If you need to reference another document, then you need to store a `Key`:
+If you need to reference another document, then you need to store either the ID of this other document, or a `Key` (which is the ID of this other document serialized):
 
 [source,kotlin]
 .A model with a reference to another model
@@ -180,6 +177,62 @@ val db = DB.default.open("path/to/db",
 )
 
 ----
+
+NOTE: A ValueConverter just needs to know how to serialize a type to a `Value`. Values are never deserialized.
+
+=== Multiple index values
+
+`IndexValues` is a special type.
+If an index has a value of type `IndexValues`, then each of its containing value will be considered a separate value for this index.
+With it, you can define multiple value for the same index.
+
+[TIP]
+====
+Multiple values are not the same as composite values!
+In fact, if an index has multiple value, each of them may be composite.
+====
+
+Defining the same value for multiple index has the following effects:
+
+* The model will appear for different search using the same index
+* The model may appear multiple times when performing a search that hits multiple values of the same index.
+
+Let's say we define a simple book model:
+
+[source,kotlin]
+.A simple book data class:
+----
+data class Book(
+    val name: String,
+    val author: String,
+    val keywords: List<String>
+)
+----
+
+Here `keywords` is a list of keyword a user might search for when searching for this book.
+
+Let's make this a model for our database:
+
+[source,kotlin]
+.A simple book model:
+----
+data class Book(
+    override val id: UUID,
+    val name: String,
+    val author: String,
+    val keywords: List<String>
+) : Metadata {
+    override fun indexes() = mapOf(
+        "keywords" to IndexValues(keywords)
+    )
+}
+----
+
+Now you can search by index "lastName" with any keyword, and the book will appear in the `Cursor` if it contains the keyword.
+
+WARNING: When using multiple index, the model may appear multiple times when using `find<Type>().byIndex(name)` or `find<Type>().byIndex(name, value, isOpen = true)`. +
+In the previous example, a cursor created with `find<Book>().byIndex("keywords")` will return the same book as many times as it has keywords.
+
 
 
 [[polymorphism]]

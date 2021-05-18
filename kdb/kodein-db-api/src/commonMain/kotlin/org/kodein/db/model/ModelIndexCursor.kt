@@ -1,13 +1,12 @@
 package org.kodein.db.model
 
 import org.kodein.db.Options
+import org.kodein.memory.io.ReadMemory
 import kotlin.reflect.KClass
 
 
 public interface ModelIndexCursor<M : Any> : ModelCursor<M> {
 
-    public fun <T : Any> associatedObject(type: KClass<T>, vararg options: Options.Get): T?
+    public fun transientAssociatedData(): ReadMemory?
 
 }
-
-public inline fun <reified T : Any> ModelIndexCursor<*>.associatedObject(vararg options: Options.Get): T? = associatedObject(T::class, *options)

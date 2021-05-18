@@ -30,7 +30,7 @@ If you are targeting JVM only, then Kodein-DB will find the serializer by itself
 *However, when targeting Multiplatform, you need to define the KotlinX serializer and the serialized classes manually:*
 
 [source,kotlin]
-.Opening an existing database
+.Opening a database with KotlinX serializer
 ----
 val db = DB.open("path/to/db",
     KotlinxSerializer { //<1>

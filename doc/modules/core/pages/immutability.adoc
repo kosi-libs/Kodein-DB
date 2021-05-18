@@ -17,7 +17,8 @@ Kodein-DB works the same way: each of your object model must be immutable, and y
 .A simple example
 ----
 val john = db[johnKey] ?: error("No John!")
-db.put(john.copy(phone = "0605040302"))
+val newJohn = john.copy(phone = "0605040302")
+db.put(newJohn)
 ----
 
 IMPORTANT: There is no way (yet?) in Kotlin to ensure immutability.

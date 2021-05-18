@@ -23,7 +23,7 @@ internal interface DBReadModule : DBRead {
             CursorImpl(if (id.isEmpty()) mdb.findAllByType(type, *options) else mdb.findById(type, id, isOpen, *options))
 
         override fun byIndex(index: String, vararg value: Any, isOpen: Boolean): Cursor<M> =
-                CursorImpl(if (value.isEmpty()) mdb.findAllByIndex(type, index, *options) else mdb.findByIndex(type, index, value, isOpen, *options))
+            CursorImpl(if (value.isEmpty()) mdb.findAllByIndex(type, index, *options) else mdb.findByIndex(type, index, value, isOpen, *options))
 
     }
 

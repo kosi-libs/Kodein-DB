@@ -14,6 +14,7 @@ Kodein-DB updates the cache:
 
 This enhances performances as deserialization is one of the most expensive operations.
 
+
 === Configuring at open
 
 Kodein-DB allows you to pass multiple configuration values that modify cache behaviour when opening a database.
@@ -59,6 +60,7 @@ val db = DB.open(
 )
 ----
 
+
 === Model skip & refresh
 
 There are times when you may want to bypass the cache for a specific operation:
@@ -82,28 +84,14 @@ val m2 = db.get(model, ModelCache.Refresh) //<2>
 <1> Skips the cache (and removes any cached value).
 <2> Forces the cache to refresh from the serialized model in DB.
 
-[[using-primitives]]
-== Using primitives
-
-If you want a simple key-value collection, Kodein-DB provides optimized primitives for `Int`, `Long`, `Double` and `String`.
-This can be useful for configuration-like values.
-
-[source,kotlin]
-.Using a primitive:
-----
-db.put(Primitive(id = "name", value = "John Doe"))
-/*...*/
-val name = db.getById<StringPrimitive>("name")?.value
-----
-
 
 [[locking-check]]
 == Locking checks and reactions
 
-Both `Anticipate` and `React` can allow you to run the provided callback in a locked database (through the `needsLock` optional parameter).
+Both `AnticipateInLock` and `ReactInLock` allow you to run the provided callback in a locked database.
 Using this means that the database will be completely write-locked for the duration of the callback execution.
 
-CAUTION: This can be very useful for things like transactions but can lead to dead locks and/or performance degradations.
+CAUTION: This can be very useful for things like transactions but can lead to deadlocks and/or performance degradations.
 Be extra-careful when using this feature !
 
 
@@ -137,6 +125,7 @@ val db = DB.open("path/to/db",
 <1> You can use xref:reactive.adoc#context[context] or specific options with the array of `Options.Write` options.
 <2> Don't forget to *register the listener* when opening the database!
 
+
 [[leveldb-options]]
 == LevelDB Options
 
@@ -152,6 +141,7 @@ val db = DB.open(
 ----
 
 Have a look at the `org.kodein.db.ldb.LevelDBOptions` sealed class for an overview of all available options.
+
 
 [[middleware]]
 == Embedding your logic

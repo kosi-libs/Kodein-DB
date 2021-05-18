@@ -4,6 +4,7 @@ import org.kodein.db.*
 import org.kodein.db.data.DataIndexMap
 import org.kodein.db.data.DataWrite
 import org.kodein.db.impl.data.writeDocumentKey
+import org.kodein.db.model.ModelIndexData
 import org.kodein.db.model.ModelWrite
 import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.io.ReadMemory
@@ -37,18 +38,9 @@ internal interface ModelWriteModule<D : DataWrite> : ModelKeyMakerModule, ModelW
         val key = getKey(rootTypeName, metadata)
         val indexMap = metadata.indexes().mapValues { (_, data) ->
             when (data) {
-                is IndexData -> {
-                    data.values.map { (value, meta) ->
-                        if (meta != null) {
-                            val metaTypeName = mdb.typeTable.getTypeName(meta::class)
-                            valueOf(value) to Body { body ->
-                                val typeId = mdb.getTypeId(metaTypeName)
-                                body.writeInt(typeId)
-                                mdb.serialize(meta, body, *putsOptions)
-                            }
-                        } else {
-                            valueOf(value) to null
-                        }
+                is ModelIndexData -> {
+                    data.values.map { (value, associatedData) ->
+                        valueOf(value) to associatedData
                     }
                 }
                 else -> listOf<Pair<Value, Body?>>(valueOf(data) to null)

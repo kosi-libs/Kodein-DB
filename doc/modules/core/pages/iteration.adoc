@@ -9,33 +9,6 @@ IMPORTANT: Cursors are `Closeable`! You need to either close them after use, or 
 
 You can iterate:
 
-- Over all models of a collection, ordered by ID:
-+
-[source,kotlin]
-----
-val cursor = db.find<User>().all()
-----
-+
-- Over all models of a collection whose composite ID begins with a specific value, ordered by id:
-+
-[source,kotlin]
-----
-val cursor = db.find<User>().byId("Doe")
-----
-+
-- Over all models of a collection, ordered by an index:
-+
-[source,kotlin]
-----
-val cursor = db.find<User>().byIndex("lastName")
-----
-- Over all models of a collection with the specific index (composite or not) value, ordered by that index:
-+
-[source,kotlin]
-----
-val cursor = db.find<User>().byIndex("lastName", "Doe")
-----
-+
 - Over all models of the database:
 +
 [source,kotlin]
@@ -44,6 +17,42 @@ val cursor = db.findAll()
 ----
 +
 CAUTION: When using `findAll()` on multiplatform projects, you *must* define a xref:defining-data-model.adoc#type-table[type table] that defines all model classes!
+- Over all models of a collection, ordered by ID:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().all()
+----
+- Over all models of a collection whose composite ID begins with a specific value, ordered by id:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byId("Doe")
+----
+- Over all models of a collection, ordered by an index:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byIndex("lastName")
+----
+- Over all models of a collection with a specific index value, ordered by that index:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byIndex("lastName", "Doe")
+----
+- Over all models of a collection with an index composite value starting with a given value, ordered by that index:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byIndex("name", "Doe")
+----
+- Over all models of a collection with an index composite value starting with a given prefix, ordered by that index:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byIndex("name", "D", isOpen = true)
+----
 
 IMPORTANT: Cursors are working on a xref:consistency.adoc#snapshot[snapshot] of the database.
 This means that once an iterator is created, subsequent writes to the database won't be reflected in the result of the iteration.

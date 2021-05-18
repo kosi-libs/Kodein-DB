@@ -10,8 +10,7 @@ public sealed class EncryptOptions {
     public class Encrypt(
         internal val key: ReadMemory,
         internal val hashDocumentID: Boolean = true,
-        internal val hashIndexValues: Indexes = Indexes.All,
-        internal val encryptIndexMetadata: Indexes = Indexes.All
+        internal val hashIndexValues: Indexes = Indexes.All
     ) : EncryptOptions()
 
     public object KeepPlain : EncryptOptions()

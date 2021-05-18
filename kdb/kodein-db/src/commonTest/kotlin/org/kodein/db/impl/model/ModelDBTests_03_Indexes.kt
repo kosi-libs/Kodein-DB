@@ -1,9 +1,10 @@
 package org.kodein.db.impl.model
 
 import kotlinx.serialization.Serializable
-import org.kodein.db.*
+import org.kodein.db.Key
+import org.kodein.db.Value
 import org.kodein.db.encryption.DBFeatureDisabledError
-import org.kodein.db.model.associatedObject
+import org.kodein.db.keyById
 import org.kodein.db.model.findAllByIndex
 import org.kodein.db.model.findByIndex
 import org.kodein.db.model.orm.Metadata
@@ -171,10 +172,10 @@ abstract class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.findByIndex<Text>("tokens", "enfant").use { cursor ->
             assertCursorIs(cursor) {
                 vh2 {
-                    assertEquals(37, it.associatedObject())
+                    assertEquals(37, it.transientAssociatedData()?.getInt(0))
                 }
                 vh3 {
-                    assertEquals(7, it.associatedObject())
+                    assertEquals(7, it.transientAssociatedData()?.getInt(0))
                 }
             }
         }
@@ -182,10 +183,10 @@ abstract class ModelDBTests_03_Indexes : ModelDBTests() {
         mdb.findByIndex<Text>("tokens", "rire").use { cursor ->
             assertCursorIs(cursor) {
                 vh2 {
-                    assertEquals(27, it.associatedObject())
+                    assertEquals(27, it.transientAssociatedData()?.getInt(0))
                 }
                 vh7 {
-                    assertEquals(11, it.associatedObject())
+                    assertEquals(11, it.transientAssociatedData()?.getInt(0))
                 }
             }
         }

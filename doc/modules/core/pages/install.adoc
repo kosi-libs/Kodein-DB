@@ -3,9 +3,6 @@
 [[install-kmp]]
 == Kotlin/Multiplatform
 
-NOTE: Kodein-DB supports the following targets: +
-iosArm32, iosArm64, iosX64, linuxX64, macosX64, mingwX64
-
 Kodein-DB uses the new gradle native dependency model featured in Gradle 5.3 and later.
 
 In your `build.gradle.kts` file, add the repository:

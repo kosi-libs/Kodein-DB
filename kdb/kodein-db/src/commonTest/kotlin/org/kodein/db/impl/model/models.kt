@@ -4,6 +4,7 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.kodein.db.*
 import org.kodein.db.model.ModelDB
+import org.kodein.db.model.ModelIndexData
 import org.kodein.db.model.get
 import org.kodein.db.model.orm.HasMetadata
 import org.kodein.db.model.orm.Metadata
@@ -63,6 +64,6 @@ data class Text(
     val tokens: List<Pair<String, Int>>
 ) : Metadata {
     override fun indexes() = mapOf(
-        "tokens" to IndexData.multipleWithAO(tokens)
+        "tokens" to ModelIndexData(tokens.map { it.first to Value.of(it.second) })
     )
 }

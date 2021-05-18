@@ -1,0 +1,210 @@
+= Using encryption
+
+== Configuring encryption
+
+Encryption is enabled with the `Encryption` middleware, and configured with `EncryptOptions`.
+
+[source,kotlin]
+.Opening a database with encryption
+----
+// Create an array backed memory space
+val key = Memory.array("My-key", Charset.UTF8)
+
+val db = DB.open("path/to/db",
+    Encryption(
+        defaultOptions = EncryptOptions.Encrypt(key)
+    )
+)
+----
+
+You can add `EncryptOptions` for specific model types:
+
+[source,kotlin]
+.Specifying specific encryption options for specific types:
+----
+// Create an array backed memory space
+val key = Memory.array("My-key", Charset.UTF8)
+
+val db = DB.open("path/to/db",
+    Encryption(
+        defaultOptions = EncryptOptions.Encrypt(key),
+        byType = mapOf(
+            Book::class to EncryptOptions.Encrypt(key, hashDocumentID = false),
+            Extract::class to EncryptOptions.Encrypt(key,
+                hashIndexValues = EncryptOptions.indexes.AllBut("tokens")
+            )
+        )
+    )
+)
+----
+
+
+[[impact]]
+== Features impact
+
+[%header,cols="1a,1a,3a"]
+|====
+| Encryption option | Possible values | Database feature impact
+
+| `hashDocumentID`
+|
+* `true` _default_
+* `false`
+|
+* Ordering becomes random with `find<T>().all()` _(instead of by ID)_.
+* Disables search by ID _(Exception thrown when using `find<T>().byId()`)_
+
+| `hashIndexValues`
+|
+* `All` _default_
+* `AllBut(names)`
+* `Only(names)`
+* `None`
+|
+* Ordering becomes random with `find<T>().byIndex()` _(instead of by Index value)_.
+* Disables search by Index with open value _(Exception thrown when using `find<T>().byIndex(name, value, isOpen = true)`)_.
+* Composite value only work with exact match (search with incomplete composite value returns empty cursor).
+
+|====
+
+
+== Data strategy
+
+=== Adapting your models
+
+Let's say you defined the following `Contact` model:
+
+[source,kotlin]
+.A simple contact model
+----
+data class Contact(
+    val firstName: String,
+    val lastName: String,
+    val phoneNumber: String,
+    val address: List<String> // Country, City, Street
+): Metadata {
+    override val id = listOf(lastName, firstName)
+    override val indexes = mapOf(
+        "firstName" to firstName,
+        "phoneNumber" to phoneNumber,
+        "address" to address // Composite value!
+    )
+}
+----
+
+By enabling encryption and full hashing, you forfeit the ability to:
+
+* search by ID (you therefore cannot search contacts by last name)
+* search by composite index value (you therefore cannot search contacts by country)
+
+With encryption enabled, if you need these searches, you need to create extra indexes:
+
+[source,kotlin]
+.The contact model adapted for encryption
+----
+data class Contact(
+    val firstName: String,
+    val lastName: String,
+    val phoneNumber: String,
+    val address: List<String> // Country, City, Street
+): Metadata {
+    override val id = listOf(lastName, firstName)
+    override val indexes = mapOf(
+        "firstName" to firstName,
+        "lastName" to lastName,
+        "phoneNumber" to phoneNumber,
+        "address-country" to address[0],
+        "address-country&city" to address.subList(0, 2) //<1>
+    )
+}
+----
+<1> As encryption disables incomplete composite value search,
+    if we want to search by [country, city], we need an index containing exactly that tuple.
+
+
+=== Index metadata & relationships
+
+Before enabling encryption in Kodein-DB, you need to understand what is encrypted, what is hashed, and what is left clear.
+
+* *ENCRYPTED*:
+** Document body (= serialized models)
+* *HASHED*:
+** Document ID
+** Index values
+* *LEFT CLEAR*:
+** Index names
+** Document list of index
+
+Let's say you have 3 `Contact` models (as defined earlier) in your encrypted database.
+The contacts are a maried couple linving in Paris Jean Dupont & Jeanne Dupont, as well as a friend living in Lyon Pierre Bidule.
+
+Without the key for the `Contact` type, an attacker accessing the raw database would be able to know:
+
+* that there are three models of type `Contact` in this database
+* that each of them have index values for `firstName`, `lastName`, `phoneNumber`, `address-country`, and `address-country&city`.
+* that all three contacts have the same `address-country` value.
+* That two contacts share the same `lastName` and `address-country&city` values.
+
+The content of each contact model is ciphered, while the ID & index values are hashed, so the attacker cannot get the content & values.
+However, in some cases, accessing metadata & relationships can be sufficient for a motivated attacker to create an attack vector (especially using social engineering).
+
+CAUTION: You can obfuscate the index names by naming them `A`, `B`, `C`, `D` & `E`.
+         This is discouraged because it would be quite easy for an attacker to decompile your code and find out the actual name matching.
+         Even without name matching, an attacker would see, for example, that two models share `B`, `D` & `E`, so he would easily deduct it.
+
+You should remember this: *the more a model has indexes, the more you expose metadata & relationships to an attacker*. +
+If you want a truly opaque model, make it without any index.
+
+
+== Algorithm specifications
+
+_In these specs, the `typeKey` is the variable-length key provided by the user for the specific type of document being processed. It may be the default key, or a type-specific key._
+
+_These specs use pseudo-Kotlin. This is not the real code_.
+
+*Document body encryption*: +
+[source,kotlin]
+----
+val aesKey = PBKDF2(
+    algorithm = HMAC_SHA256,
+    password = typeKey,
+    salt = document.key,
+    rounds = 1024,
+    derivedKeyLength = 32
+)
+val iv = secureRandomBytes(length = 16)
+val cipherText = AES.encrypt(
+    mode = CBC,
+    padding = PKCS7,
+    key = aesKey,
+    initializationVector = iv,
+    clearText = document.body
+)
+return iv + cipherText
+----
+
+*Document ID hashing*:
+[source,kotlin]
+----
+val hmacKey = PBKDF2(
+    algorithm = HMAC_SHA256,
+    password = typeKey,
+    salt = "DocumentID",
+    rounds = 1024,
+    derivedKeyLength = 32
+)
+return HMAC_SHA256(key = hmacKey, clearText = document.id)
+----
+
+*Index value hashing*:
+[source,kotlin]
+----
+val hmacKey = PBKDF2(
+    algorithm = HMAC_SHA256,
+    password = typeKey,
+    salt = "Index",
+    rounds = 1024,
+    derivedKeyLength = 32
+)
+return HMAC_SHA256(key = hmacKey, clearText = value)
+----

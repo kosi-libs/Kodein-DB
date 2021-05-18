@@ -6,6 +6,7 @@ import org.kodein.db.kv.KeyValueDB
 import org.kodein.memory.crypto.*
 import org.kodein.memory.io.*
 import org.kodein.memory.text.array
+import org.kodein.memory.text.readString
 import org.kodein.memory.use
 import org.kodein.memory.util.secure
 import kotlin.random.Random
@@ -29,9 +30,9 @@ internal class EncryptedDataDB(override val data: DataDB, private val defaultOpt
 
     internal fun encrypt(key: ReadMemory, body: Body, indexes: DataIndexMap, docKeyOption: EncryptedDocumentKey?, ivOption: ReadMemory?): Triple<Body, DataIndexMap, Memory?> {
         val options = encryptOptions(keyType(key)) ?: return Triple(body, indexes, null)
-        val docKey = docKeyOption?.key ?: options.key
+        val encryptKey = docKeyOption?.key ?: options.key
 
-        val aesKey = Pbkdf2.withHmac(DigestAlgorithm.SHA256, docKey, key, 1024, 16).asMemory()
+        val aesKey = Pbkdf2.withHmac(DigestAlgorithm.SHA256, encryptKey, key, 1024, 32).asMemory()
 
         val newBody = Body {
             val aesIV = ivOption ?: Random.secure().nextBytes(16).asMemory()
@@ -48,7 +49,7 @@ internal class EncryptedDataDB(override val data: DataDB, private val defaultOpt
                 DigestWriteable.newHmacInstance(DigestAlgorithm.SHA256, macKey!!.asMemory())
             }
             val newIndexes = indexes.map { (name, values) ->
-                val newValues = values.map { (value, metadata) ->
+                val newValues = values.map { (value, associatedData) ->
                     val newValue = when {
                         name in options.hashIndexValues -> {
                             hmacDigest.reset()
@@ -57,20 +58,19 @@ internal class EncryptedDataDB(override val data: DataDB, private val defaultOpt
                         }
                         else -> value
                     }
-                    val newMetadata = when {
-                        metadata == null -> null
-                        name in options.encryptIndexMetadata -> {
+                    val newAssociatedData = when {
+                        associatedData == null -> null
+                        else -> {
                             Body {
                                 val aesIV = ivOption ?: Random.secure().nextBytes(16).asMemory()
                                 it.writeBytes(aesIV)
                                 AES128.encrypt(CipherMode.CBC(aesIV), aesKey, it) {
-                                    metadata.writeInto(this)
+                                    associatedData.writeInto(this)
                                 }
                             }
                         }
-                        else -> metadata
                     }
-                    newValue to newMetadata
+                    newValue to newAssociatedData
                 }
                 name to newValues
             }.toMap()
@@ -82,9 +82,9 @@ internal class EncryptedDataDB(override val data: DataDB, private val defaultOpt
 
     internal fun decrypt(key: ReadMemory, value: ReadAllocation, docKeyOption: EncryptedDocumentKey?): ReadAllocation {
         val options = encryptOptions(keyType(key)) ?: return value
-        val docKey = docKeyOption?.key ?: options.key
+        val encryptKey = docKeyOption?.key ?: options.key
 
-        val aesKey = Pbkdf2.withHmac(DigestAlgorithm.SHA256, docKey, key, 1024, 16).asMemory()
+        val aesKey = Pbkdf2.withHmac(DigestAlgorithm.SHA256, encryptKey, key, 1024, 32).asMemory()
 
         val cipherText = value.asReadable()
         val iv = cipherText.readBytes(16).asMemory()

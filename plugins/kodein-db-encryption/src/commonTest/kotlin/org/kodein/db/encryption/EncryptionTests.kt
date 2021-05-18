@@ -20,8 +20,8 @@ abstract class EncryptionTests {
         _ddb = EncryptedDataDB(DataDB.inMemory.open("testdb"), EncryptOptions.Encrypt(Memory.array("Master-Key"))) {
             when (it) {
                 2 -> EncryptOptions.KeepPlain
-                3 -> EncryptOptions.Encrypt(Memory.array("Key3"), false, EncryptOptions.Indexes.None, EncryptOptions.Indexes.None)
-                4 -> EncryptOptions.Encrypt(Memory.array("Key4"), true, EncryptOptions.Indexes.Only("Numbers"), EncryptOptions.Indexes.Only("Numbers"))
+                3 -> EncryptOptions.Encrypt(Memory.array("Key3"), false, EncryptOptions.Indexes.None)
+                4 -> EncryptOptions.Encrypt(Memory.array("Key4"), true, EncryptOptions.Indexes.Only("Numbers"))
                 else -> null
             }
         }
