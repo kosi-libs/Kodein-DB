@@ -1,11 +1,10 @@
 
-#### 0.8.0 (Soon?)
+#### 0.8.0 (19-05-2021)
 
 - API
   * Support encryption (see documentation).
   * `org.kodein.db.model.*Primitive` types are deprecated (you should create your won model).
   * Support for multiple value in the same index (which is different from composite value - see documentation).
-  * Support for `associatedModel` in `IndexCursor` (see documentation).
   * Operation options are now specialized for each operation (`Options.Read` and `Options.Write` are deprecated).
   
 - CORE
