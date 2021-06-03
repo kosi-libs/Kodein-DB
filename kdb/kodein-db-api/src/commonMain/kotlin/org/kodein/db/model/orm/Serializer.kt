@@ -10,7 +10,7 @@ public interface Serializer<M : Any> {
     public fun serialize(model: M, output: Writeable, vararg options: Options.Puts)
 
     // Deprecated since version 0.8.0
-    @Deprecated("Accessing IDs in deserialization", replaceWith = ReplaceWith("deserialize(type, input, *options)"))
+    @Deprecated("Accessing IDs in deserialization", replaceWith = ReplaceWith("deserialize(type, input, *options)"), level = DeprecationLevel.ERROR)
     public fun deserialize(type: KClass<out M>, transientId: ReadMemory, input: CursorReadable, vararg options: Options.Get): M = deserialize(type, input, *options)
     public fun deserialize(type: KClass<out M>, input: CursorReadable, vararg options: Options.Get): M
 }

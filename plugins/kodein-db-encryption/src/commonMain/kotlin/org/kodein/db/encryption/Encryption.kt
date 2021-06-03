@@ -35,7 +35,7 @@ public class Encryption(private val defaultOptions: EncryptOptions, private val 
         //TODO: remove this once primitives are removed
         mdb.register(object : DBListener<Any> {
             override fun willPut(model: Any, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Puts>) {
-                @Suppress("DEPRECATION")
+                @Suppress("DEPRECATION_ERROR")
                 if (model is org.kodein.db.model.Primitive) {
                     throw DBFeatureDisabledError("Primitives are deprecated and not supported with encryption.")
                 }

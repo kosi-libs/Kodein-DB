@@ -1,4 +1,4 @@
-@file:Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION", "OverridingDeprecatedMember")
+@file:Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION", "DEPRECATION_ERROR", "OverridingDeprecatedMember")
 
 package org.kodein.db.model
 
@@ -14,11 +14,11 @@ import kotlin.reflect.KClass
 
 
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public interface Primitive : Metadata
 
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public data class IntPrimitive(override val id: Any, val value: Int) : Primitive {
     public object S : Serializer<IntPrimitive> {
         override fun serialize(model: IntPrimitive, output: Writeable, vararg options: Options.Puts) { output.writeInt(model.value) }
@@ -28,7 +28,7 @@ public data class IntPrimitive(override val id: Any, val value: Int) : Primitive
 }
 
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public data class LongPrimitive(override val id: Any, val value: Long) : Primitive {
     public object S : Serializer<LongPrimitive> {
         override fun serialize(model: LongPrimitive, output: Writeable, vararg options: Options.Puts) { output.writeLong(model.value) }
@@ -38,7 +38,7 @@ public data class LongPrimitive(override val id: Any, val value: Long) : Primiti
 }
 
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public data class DoublePrimitive(override val id: Any, val value: Double) : Primitive {
     public object S : Serializer<DoublePrimitive> {
         override fun serialize(model: DoublePrimitive, output: Writeable, vararg options: Options.Puts) { output.writeDouble(model.value) }
@@ -48,7 +48,7 @@ public data class DoublePrimitive(override val id: Any, val value: Double) : Pri
 }
 
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public data class StringPrimitive(override val id: Any, val value: String) : Primitive {
     public object S : Serializer<StringPrimitive> {
         override fun serialize(model: StringPrimitive, output: Writeable, vararg options: Options.Puts) { output.writeString(model.value, charset = Charset.UTF8) }
@@ -58,7 +58,7 @@ public data class StringPrimitive(override val id: Any, val value: String) : Pri
 }
 
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public data class BytesPrimitive(override val id: Any, val value: ByteArray) : Primitive {
     public object S : Serializer<BytesPrimitive> {
         override fun serialize(model: BytesPrimitive, output: Writeable, vararg options: Options.Puts) { output.writeBytes(model.value) }
@@ -77,25 +77,25 @@ public data class BytesPrimitive(override val id: Any, val value: ByteArray) : P
 
 @Suppress("FunctionName")
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public fun Primitive(id: Any, value: Int): IntPrimitive = IntPrimitive(id, value)
 
 @Suppress("FunctionName")
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public fun Primitive(id: Any, value: Long): LongPrimitive = LongPrimitive(id, value)
 
 @Suppress("FunctionName")
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public fun Primitive(id: Any, value: Double): DoublePrimitive = DoublePrimitive(id, value)
 
 @Suppress("FunctionName")
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public fun Primitive(id: Any, value: String): StringPrimitive = StringPrimitive(id, value)
 
 @Suppress("FunctionName")
 // Deprecated since version 0.8.0
-@Deprecated(message = "Primitives are disabled. You should create your own value classes.")
+@Deprecated(message = "Primitives are disabled. You should create your own value classes.", level = DeprecationLevel.ERROR)
 public fun Primitive(id: Any, value: ByteArray): BytesPrimitive = BytesPrimitive(id, value)

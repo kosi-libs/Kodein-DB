@@ -39,15 +39,15 @@ internal class ModelDBImpl(
     private val classSerializers = buildMap<KClass<*>, Serializer<*>> {
         putAll(userClassSerializers)
 
-        @Suppress("DEPRECATION")
+        @Suppress("DEPRECATION_ERROR")
         put(IntPrimitive::class, IntPrimitive.S)
-        @Suppress("DEPRECATION")
+        @Suppress("DEPRECATION_ERROR")
         put(LongPrimitive::class, LongPrimitive.S)
-        @Suppress("DEPRECATION")
+        @Suppress("DEPRECATION_ERROR")
         put(DoublePrimitive::class, DoublePrimitive.S)
-        @Suppress("DEPRECATION")
+        @Suppress("DEPRECATION_ERROR")
         put(StringPrimitive::class, StringPrimitive.S)
-        @Suppress("DEPRECATION")
+        @Suppress("DEPRECATION_ERROR")
         put(BytesPrimitive::class, BytesPrimitive.S)
     }
 
@@ -165,7 +165,7 @@ internal class ModelDBImpl(
 
         val size = r.remaining
 
-        @Suppress("UNCHECKED_CAST", "DEPRECATION")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION_ERROR")
         val model = ((classSerializers[realType] as? Serializer<Any>)?.deserialize(realType, transientId, r, *options)
             ?: defaultSerializer?.deserialize(realType, transientId, r, *options)
             ?: throw IllegalArgumentException("No serializer found for type $realType")) as M

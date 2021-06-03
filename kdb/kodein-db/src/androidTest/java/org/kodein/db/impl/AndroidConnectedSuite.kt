@@ -76,8 +76,6 @@ import org.kodein.memory.file.FileSystem
     ModelDBTests_07_React.IM::class,
     ModelDBTests_07_React.Encrypted.LDB::class,
     ModelDBTests_07_React.Encrypted.IM::class,
-    ModelDBTests_08_Primitives.LDB::class,
-    ModelDBTests_08_Primitives.IM::class,
     ModelDBTests_09_Checks.LDB::class,
     ModelDBTests_09_Checks.IM::class,
     ModelDBTests_09_Checks.Encrypted.LDB::class,

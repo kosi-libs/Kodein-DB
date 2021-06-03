@@ -24,11 +24,11 @@ public interface Options {
     public interface Reads : Get, Find
 
     // Deprecated since 0.8.0
-    @Deprecated("Use either or a combination of new Options")
+    @Deprecated("Use either or a combination of new Options", level = DeprecationLevel.ERROR)
     public interface Read : Reads, NewSnapshot
 
     // Deprecated since 0.8.0
-    @Deprecated("Use either or a combination of new Options")
+    @Deprecated("Use either or a combination of new Options", level = DeprecationLevel.ERROR)
     public interface Write : Puts, Deletes, Writes
 }
 

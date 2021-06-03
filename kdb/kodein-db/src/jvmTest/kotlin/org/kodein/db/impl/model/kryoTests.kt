@@ -79,14 +79,6 @@ abstract class ModelDBTests_07_React_Kryo : ModelDBTests_07_React() {
     class IM : ModelDBTests_07_React_Kryo() { override val factory = ModelDB.inMemory }
 }
 
-abstract class ModelDBTests_08_Primitives_Kryo : ModelDBTests_08_Primitives() {
-    override fun testSerializer(): DefaultSerializer = KryoSerializer()
-    override fun testTypeTable() = TypeTable.withFullName()
-
-    class LDB : ModelDBTests_08_Primitives_Kryo() { override val factory = ModelDB.default.inDir(FileSystem.tempDirectory.path) }
-    class IM : ModelDBTests_08_Primitives_Kryo() { override val factory = ModelDB.inMemory }
-}
-
 abstract class ModelDBTests_09_Checks_Kryo : ModelDBTests_09_Checks() {
     override fun testSerializer(): DefaultSerializer = KryoSerializer()
     override fun testTypeTable() = TypeTable.withFullName()
