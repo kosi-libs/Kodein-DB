@@ -30,6 +30,8 @@ public interface Options {
     // Deprecated since 0.8.0
     @Deprecated("Use either or a combination of new Options", level = DeprecationLevel.ERROR)
     public interface Write : Puts, Deletes, Writes
+
+    public interface User : Writes
 }
 
 public inline operator fun <reified T : Options> Array<out Options>.invoke(): T? = firstOrNull { it is T } as T?
@@ -44,3 +46,7 @@ public inline operator fun <reified T : Options> Array<out T>.plus(add: T): Arra
             else -> error("This should never happen")
         }
     }
+
+public interface UserOptions : Options {
+    public interface Put : UserOptions, Options.Puts
+}

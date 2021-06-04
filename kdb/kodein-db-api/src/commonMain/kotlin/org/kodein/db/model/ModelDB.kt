@@ -21,7 +21,7 @@ public interface ModelDB : ModelWrite, ModelRead, ModelTypeMatcher, Closeable {
 
     public fun newSnapshot(vararg options: Options.NewSnapshot): ModelSnapshot
 
-    public fun register(listener: DBListener<Any>): Closeable
+    public fun register(listener: ModelDBListener<Any>): Closeable
 
     public fun <T: Any> getExtension(key: ExtensionKey<T>): T?
 

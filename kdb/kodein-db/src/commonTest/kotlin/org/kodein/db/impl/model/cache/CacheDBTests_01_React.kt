@@ -9,6 +9,7 @@ import org.kodein.db.impl.model.default
 import org.kodein.db.inDir
 import org.kodein.db.inmemory.inMemory
 import org.kodein.db.model.ModelDB
+import org.kodein.db.model.ModelDBListener
 import org.kodein.db.model.delete
 import org.kodein.db.model.get
 import org.kodein.db.model.orm.Metadata
@@ -28,7 +29,7 @@ abstract class CacheDBTests_01_React : CacheDBTests() {
 
     @Test
     fun test00_ReactDidPutException() {
-        val listener = object : DBListener<Any> {
+        val listener = object : ModelDBListener<Any> {
             override fun didPut(model: Any, key: Key<*>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Puts>) = throw IllegalStateException()
         }
 
@@ -45,7 +46,7 @@ abstract class CacheDBTests_01_React : CacheDBTests() {
 
     @Test
     fun test01_ReactDidDeleteException() {
-        val listener = object : DBListener<Any> {
+        val listener = object : ModelDBListener<Any> {
             override fun didDelete(key: Key<*>, model: Any?, typeName: ReadMemory, options: Array<out Options.Deletes>) = throw IllegalStateException()
         }
 

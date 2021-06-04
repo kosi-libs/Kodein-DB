@@ -26,7 +26,7 @@ internal class ModelDBImpl(
 ) : ModelDB, ModelReadModule, ModelWriteModule<DataDB>, Closeable by data {
 
     private val listenersLock = newRWLock()
-    private val listeners = LinkedHashSet<DBListener<Any>>()
+    private val listeners = LinkedHashSet<ModelDBListener<Any>>()
 
     private val typeLock = newLock()
     private var nextTypeId: Int? = null
@@ -59,11 +59,11 @@ internal class ModelDBImpl(
 
     internal fun getListeners() = listenersLock.readLock().withLock { listeners.toList() }
 
-    private fun <T> writeOnListeners(action: MutableSet<DBListener<Any>>.() -> T) = listenersLock.writeLock().withLock { listeners.action() }
+    private fun <T> writeOnListeners(action: MutableSet<ModelDBListener<Any>>.() -> T) = listenersLock.writeLock().withLock { listeners.action() }
 
-    override fun willAction(action: DBListener<Any>.() -> Unit) = getListeners().forEach(action)
+    override fun willAction(action: ModelDBListener<Any>.() -> Unit) = getListeners().forEach(action)
 
-    override fun didAction(action: DBListener<Any>.() -> Unit) = getListeners().forEachResilient(action)
+    override fun didAction(action: ModelDBListener<Any>.() -> Unit) = getListeners().forEachResilient(action)
 
     internal fun getMetadata(model: Any, options: Array<out Options.Puts>): Metadata {
         (model as? HasMetadata)?.getMetadata(this, *options)?.let { return it }
@@ -91,7 +91,7 @@ internal class ModelDBImpl(
 
     override fun newSnapshot(vararg options: Options.NewSnapshot): ModelSnapshot = ModelSnapshotImpl(this, data.newSnapshot(*options))
 
-    override fun register(listener: DBListener<Any>): Closeable {
+    override fun register(listener: ModelDBListener<Any>): Closeable {
         val subscription = Closeable { writeOnListeners { remove(listener) } }
         if (writeOnListeners { add(listener) }) listener.setSubscription(subscription)
         return subscription

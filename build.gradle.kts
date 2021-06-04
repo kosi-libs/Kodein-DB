@@ -20,6 +20,7 @@ allprojects {
 
 val kotlinxAtomicFuVer by extra { "0.16.1" } // CAUTION: also change in buildscript!
 val kotlinxSerializationVer by extra { "1.2.0" }
+val kotlinxCoroutinesVer by extra { "1.5.0" }
 val kodeinLogVer by extra { "0.11.1" }
 val kodeinMemoryVer by extra { "0.10.2" }
 

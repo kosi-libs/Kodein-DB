@@ -1,10 +1,12 @@
 package org.kodein.db.encryption
 
 import org.kodein.db.DBListener
+import org.kodein.db.Key
 import org.kodein.db.Middleware
 import org.kodein.db.Options
 import org.kodein.db.data.DataDB
 import org.kodein.db.model.ModelDB
+import org.kodein.db.model.ModelDBListener
 import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.io.ReadMemory
 import kotlin.reflect.KClass
@@ -33,8 +35,8 @@ public class Encryption(private val defaultOptions: EncryptOptions, private val 
         modelDB = mdb
 
         //TODO: remove this once primitives are removed
-        mdb.register(object : DBListener<Any> {
-            override fun willPut(model: Any, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Puts>) {
+        mdb.register(object : ModelDBListener<Any> {
+            override fun willPut(model: Any, key: Key<Any>, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Puts>) {
                 @Suppress("DEPRECATION_ERROR")
                 if (model is org.kodein.db.model.Primitive) {
                     throw DBFeatureDisabledError("Primitives are deprecated and not supported with encryption.")

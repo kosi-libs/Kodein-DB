@@ -1,5 +1,9 @@
 package org.kodein.db.impl
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.*
 import org.kodein.db.*
 import org.kodein.db.impl.utils.kIsInstance
 import org.kodein.db.model.ModelDB
@@ -27,4 +31,13 @@ internal class DBImpl(override val mdb: ModelDB) : DB, DBReadModule, KeyMaker by
 
     override fun <M : Any> on(type: KClass<M>): DB.RegisterDsl<M> = RegisterDslImpl(mdb, listOf<(M) -> Boolean>({ type.kIsInstance(it) }))
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun <M : Any> flowOf(type: KClass<M>, key: Key<M>, init: Boolean): Flow<M?> = callbackFlow {
+        val subscription = on(type).register(object : DBListener<M> {
+            override fun didDelete(operation: Operation.Delete<M>) { trySend(null) }
+            override fun didPut(operation: Operation.Put<M>) { trySend(operation.model) }
+        })
+        if (init) trySend(get(type, key))
+        awaitClose { subscription.close() }
+    }
 }

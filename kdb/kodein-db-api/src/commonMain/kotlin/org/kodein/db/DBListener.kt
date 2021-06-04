@@ -1,59 +1,57 @@
 package org.kodein.db
 
-import org.kodein.db.model.orm.Metadata
 import org.kodein.memory.Closeable
-import org.kodein.memory.io.ReadMemory
 
-public interface DBListener<in M : Any> {
+public interface DBListener<M : Any> {
 
     public fun setSubscription(subscription: Closeable) {}
 
-    public fun willPut(model: M, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Puts>) {}
+    public fun willPut(operation: Operation.Put<M>) {}
 
-    public fun didPut(model: M, key: Key<M>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Puts>) {}
+    public fun didPut(operation: Operation.Put<M>) {}
 
-    public fun willDelete(key: Key<M>, getModel: () -> M?, typeName: ReadMemory, options: Array<out Options.Deletes>) {}
+    public fun willDelete(operation: Operation.Delete<M>) {}
 
-    public fun didDelete(key: Key<M>, model: M?, typeName: ReadMemory, options: Array<out Options.Deletes>) {}
+    public fun didDelete(operation: Operation.Delete<M>) {}
 
     public class Builder<M : Any> {
-        public class WillPut(public val typeName: ReadMemory, public val options: Array<out Options.Puts>, public val subscription: Closeable)
+        public interface Receiver<M : Any, O : Operation<M>> {
+            public val operation: O
+            public val subscription: Closeable
+        }
 
-        public class DidPut<M : Any>(public val key: Key<M>, public val typeName: ReadMemory, public val options: Array<out Options.Puts>, public val subscription: Closeable)
+        public class Put<M : Any>(override val operation: Operation.Put<M>, override val subscription: Closeable) : Receiver<M, Operation.Put<M>>
+        public class Delete<M : Any>(override val operation: Operation.Delete<M>, override val subscription: Closeable) : Receiver<M, Operation.Delete<M>>
 
-        public class WillDelete<M : Any>(public val key: Key<M>, public val typeName: ReadMemory, public val options: Array<out Options.Deletes>, public val subscription: Closeable)
+        private var willPut: (Put<M>.(M) -> Unit)? = null
+        private var didPut: (Put<M>.(M) -> Unit)? = null
 
-        public class DidDelete<M : Any>(public val key: Key<M>, public val typeName: ReadMemory, public val options: Array<out Options.Deletes>, public val subscription: Closeable)
-
-        private var willPut: (WillPut.(M) -> Unit)? = null
-        private var didPut: (DidPut<M>.(M) -> Unit)? = null
-
-        private var willDelete: (WillDelete<M>.(() -> M?) -> Unit)? = null
-        private var didDelete: (DidDelete<M>.(M?) -> Unit)? = null
+        private var willDelete: (Delete<M>.(() -> M?) -> Unit)? = null
+        private var didDelete: (Delete<M>.(M?) -> Unit)? = null
 
         private var didDeleteNeedsModel = false
 
-        public fun willPut(block: WillPut.(M) -> Unit) {
+        public fun willPut(block: Put<M>.(M) -> Unit) {
             willPut = block
         }
 
-        public fun didPut(block: DidPut<M>.(M) -> Unit) {
+        public fun didPut(block: Put<M>.(M) -> Unit) {
             didPut = block
         }
 
-        public fun willDelete(block: WillDelete<M>.() -> Unit) {
+        public fun willDelete(block: Delete<M>.() -> Unit) {
             willDelete = { block() }
         }
 
-        public fun willDeleteIt(block: WillDelete<M>.(M) -> Unit) {
+        public fun willDeleteIt(block: Delete<M>.(M) -> Unit) {
             willDelete = { it()?.let { block(it) } }
         }
 
-        public fun didDelete(block: DidDelete<M>.() -> Unit) {
+        public fun didDelete(block: Delete<M>.() -> Unit) {
             didDelete = { block() }
         }
 
-        public fun didDeleteIt(block: DidDelete<M>.(M) -> Unit) {
+        public fun didDeleteIt(block: Delete<M>.(M) -> Unit) {
             didDeleteNeedsModel = true
             didDelete = { it?.let { block(it) } }
         }
@@ -65,22 +63,22 @@ public interface DBListener<in M : Any> {
                 this.subscription = subscription
             }
 
-            override fun willPut(model: M, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Puts>) {
-                willPut?.invoke(WillPut(typeName, options, subscription), model)
+            override fun willPut(operation: Operation.Put<M>) {
+                willPut?.invoke(Put(operation, subscription), operation.model)
             }
 
-            override fun didPut(model: M, key: Key<M>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Puts>) {
-                didPut?.invoke(DidPut<M>(key, typeName, options, subscription), model)
+            override fun didPut(operation: Operation.Put<M>) {
+                didPut?.invoke(Put(operation, subscription), operation.model)
             }
 
-            override fun willDelete(key: Key<M>, getModel: () -> M?, typeName: ReadMemory, options: Array<out Options.Deletes>) {
+            override fun willDelete(operation: Operation.Delete<M>) {
                 if (didDeleteNeedsModel)
-                    getModel()
-                willDelete?.invoke(WillDelete(key, typeName, options, subscription), getModel)
+                    operation.model()
+                willDelete?.invoke(Delete(operation, subscription), operation::model)
             }
 
-            override fun didDelete(key: Key<M>, model: M?, typeName: ReadMemory, options: Array<out Options.Deletes>) {
-                didDelete?.invoke(DidDelete(key, typeName, options, subscription), model)
+            override fun didDelete(operation: Operation.Delete<M>) {
+                didDelete?.invoke(Delete(operation, subscription), operation.model())
             }
         }
 

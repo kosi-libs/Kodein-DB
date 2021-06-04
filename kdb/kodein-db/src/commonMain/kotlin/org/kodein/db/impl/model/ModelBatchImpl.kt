@@ -6,6 +6,7 @@ import org.kodein.db.KeyAndSize
 import org.kodein.db.Options
 import org.kodein.db.data.DataBatch
 import org.kodein.db.model.ModelBatch
+import org.kodein.db.model.ModelDBListener
 import org.kodein.memory.Closeable
 import org.kodein.memory.util.MaybeThrowable
 import org.kodein.memory.util.forEachCatchTo
@@ -14,11 +15,11 @@ import kotlin.reflect.KClass
 
 internal class ModelBatchImpl(override val mdb: ModelDBImpl, override val data: DataBatch) : ModelWriteModule<DataBatch>, ModelBatch, Closeable by data {
 
-    private val didActions = ArrayList<DBListener<Any>.() -> Unit>()
+    private val didActions = ArrayList<ModelDBListener<Any>.() -> Unit>()
 
-    override fun willAction(action: DBListener<Any>.() -> Unit) = mdb.getListeners().forEach(action)
+    override fun willAction(action: ModelDBListener<Any>.() -> Unit) = mdb.getListeners().forEach(action)
 
-    override fun didAction(action: DBListener<Any>.() -> Unit) { didActions.add(action) }
+    override fun didAction(action: ModelDBListener<Any>.() -> Unit) { didActions.add(action) }
 
     override fun <M : Any> put(model: M, vararg options: Options.BatchPut): KeyAndSize<M> =
         put(model, options, DataBatch::put)

@@ -2,10 +2,7 @@ package org.kodein.db.impl.model.cache
 
 import org.kodein.db.*
 import org.kodein.db.data.DataDB
-import org.kodein.db.model.ModelBatch
-import org.kodein.db.model.ModelDB
-import org.kodein.db.model.ModelSnapshot
-import org.kodein.db.model.ModelTypeMatcher
+import org.kodein.db.model.*
 import org.kodein.db.model.cache.ModelCache
 import org.kodein.memory.Closeable
 import kotlin.reflect.KClass
@@ -36,7 +33,7 @@ internal class CachedModelDB(override val mdb: ModelDB, override val cache: Mode
         return mdb.delete(type, key, *(options + ReactInLock { didDelete(key, options) }))
     }
 
-    override fun register(listener: DBListener<Any>): Closeable = mdb.register(listener)
+    override fun register(listener: ModelDBListener<Any>): Closeable = mdb.register(listener)
 
     override fun newBatch(vararg options: Options.NewBatch): ModelBatch = CachedModelBatch(this, mdb.newBatch(*options))
 

@@ -28,7 +28,6 @@ abstract class DBTests_03_Listeners : DBTests() {
             var wCounter = 0
             var dCounter = 0
             willPut {
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -43,7 +42,6 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             willDelete { fail() }
             didPut {
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(1, wCounter)
@@ -71,7 +69,6 @@ abstract class DBTests_03_Listeners : DBTests() {
             var dCounter = 0
             willPut { fail() }
             willDelete {
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -84,7 +81,6 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didPut { fail() }
             didDelete {
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(1, wCounter)
@@ -110,7 +106,6 @@ abstract class DBTests_03_Listeners : DBTests() {
             var dCounter = 0
             willPut { fail() }
             willDeleteIt {
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -125,7 +120,6 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didPut { fail() }
             didDeleteIt {
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(1, wCounter)
@@ -153,7 +147,6 @@ abstract class DBTests_03_Listeners : DBTests() {
             var wCounter = 0
             var dCounter = 0
             willPut {
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     0 -> {
                         assertEquals(0, dCounter)
@@ -167,7 +160,6 @@ abstract class DBTests_03_Listeners : DBTests() {
                 }
             }
             willDeleteIt {
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (wCounter++) {
                     2 -> {
                         assertEquals(2, dCounter)
@@ -182,7 +174,6 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didPut {
                 assertTrue(pBatchApplied)
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     0 -> {
                         assertEquals(2, wCounter)
@@ -197,7 +188,6 @@ abstract class DBTests_03_Listeners : DBTests() {
             }
             didDeleteIt {
                 assertTrue(dBatchApplied)
-                assertBytesEquals(Memory.array("Adult"), typeName)
                 when (dCounter++) {
                     2 -> {
                         assertEquals(4, wCounter)

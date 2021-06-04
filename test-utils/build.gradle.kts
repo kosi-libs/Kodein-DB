@@ -4,6 +4,7 @@ plugins {
 
 val kodeinLogVer: String by rootProject.extra
 val kodeinMemoryVer: String by rootProject.extra
+val kotlinxCoroutinesVer: String by rootProject.extra
 
 repositories {
     mavenLocal()
@@ -19,6 +20,7 @@ kodein {
             api("org.kodein.log:kodein-log:$kodeinLogVer")
             api("org.kodein.memory:kodein-memory:$kodeinMemoryVer")
             api("org.kodein.memory:kodein-memory-files:$kodeinMemoryVer")
+            api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVer")
             api(project(":ldb:kodein-leveldb-api"))
 
             api("org.jetbrains.kotlin:kotlin-test-common")

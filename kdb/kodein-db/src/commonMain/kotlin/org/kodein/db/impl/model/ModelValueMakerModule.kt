@@ -24,7 +24,7 @@ internal interface ModelValueMakerModule : ValueMaker {
                 mdb.valueConverters.forEach {
                     it.toValue(this)?.let { return it }
                 }
-                throw IllegalArgumentException("invalid value: $this")
+                throw IllegalArgumentException("Unsupported value of type ${this::class.qualifiedName} ($this)")
             }
         }
     }

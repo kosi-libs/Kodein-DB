@@ -4,6 +4,7 @@ import org.kodein.db.*
 import org.kodein.db.data.DataIndexMap
 import org.kodein.db.data.DataWrite
 import org.kodein.db.impl.data.writeDocumentKey
+import org.kodein.db.model.ModelDBListener
 import org.kodein.db.model.ModelIndexData
 import org.kodein.db.model.ModelWrite
 import org.kodein.db.model.orm.Metadata
@@ -20,22 +21,22 @@ internal interface ModelWriteModule<D : DataWrite> : ModelKeyMakerModule, ModelW
 
     override val data: D
 
-    fun willAction(action: DBListener<Any>.() -> Unit)
+    fun willAction(action: ModelDBListener<Any>.() -> Unit)
 
-    fun didAction(action: DBListener<Any>.() -> Unit)
+    fun didAction(action: ModelDBListener<Any>.() -> Unit)
 
     private fun <M: Any, O: Options> put(model: M, options: Array<out O>, dataPut: DataPut<D, O>, getKey: (ReadMemory, Metadata) -> Key<M>): KeyAndSize<M> {
         val putsOptions = options.filterIsInstance<Options.Puts>().toTypedArray()
         val metadata = mdb.getMetadata(model, putsOptions)
         val typeName = mdb.typeTable.getTypeName(model::class)
         val rootTypeName = mdb.typeTable.getTypeName(mdb.typeTable.getRootOf(model::class) ?: model::class)
-        willAction { willPut(model, rootTypeName, metadata, putsOptions) }
+        val key = getKey(rootTypeName, metadata)
+        willAction { willPut(model, key, rootTypeName, metadata, putsOptions) }
         val body = Body { body ->
             val typeId = mdb.getTypeId(typeName)
             body.writeInt(typeId)
             mdb.serialize(model, body, *putsOptions)
         }
-        val key = getKey(rootTypeName, metadata)
         val indexMap = metadata.indexes().mapValues { (_, data) ->
             when (data) {
                 is ModelIndexData -> {
