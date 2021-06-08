@@ -10,12 +10,13 @@ public interface ModelCache : BaseModelCache {
     public data class CopyMaxSize(val maxSize: Long) : Options.Open, Options.Find, Options.NewSnapshot
     public object Skip : Options.Reads, Options.Puts
     public object Refresh : Options.Reads
+    public object NoHashCodeImmutabilityChecks : Options.Open
 
     public sealed class Entry<M : Any> {
         public abstract val model: M?
         public abstract val size: Int
 
-        public data class Cached<M : Any>(override val model: M, override val size: Int) : Entry<M>(), Sized<M>
+        public data class Cached<M : Any>(override val model: M, override val size: Int, val originalHashcode: Int) : Entry<M>(), Sized<M>
         public object Deleted : Entry<Nothing>() { override val model: Nothing? = null ; override val size: Int = 8 }
         public object NotInCache : Entry<Nothing>() { override val model: Nothing? = null ; override val size: Int = 0 }
     }
@@ -30,6 +31,8 @@ public interface ModelCache : BaseModelCache {
     public val putCount: Int
     public val deleteCount: Int
     public val evictionCount: Int
+
+    public val hashCodeImmutabilityChecks: Boolean
 
     public fun newCopy(copyMaxSize: Long): ModelCache
 

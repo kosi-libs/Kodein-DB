@@ -14,8 +14,9 @@ public abstract class AbstractDBFactory : DBFactory<DB> {
     override fun open(path: String, vararg options: Options.Open): DB {
         val mdbOptions = if (options<ModelCache.Disable>() == null) {
             val middleware = ModelCache.middleware(
-                    maxSize = options<ModelCache.MaxSize>()?.maxSize ?: defaultCacheSize,
-                    copyMaxSize =  options<ModelCache.CopyMaxSize>()?.maxSize ?: defaultCacheCopyMaxSize()
+                maxSize = options<ModelCache.MaxSize>()?.maxSize ?: defaultCacheSize,
+                copyMaxSize =  options<ModelCache.CopyMaxSize>()?.maxSize ?: defaultCacheCopyMaxSize(),
+                hashCodeImmutabilityChecks = options<ModelCache.NoHashCodeImmutabilityChecks>() == null
             )
             arrayOf<Options.Open>(Middleware.Model(middleware)) + options
         } else {

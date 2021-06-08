@@ -9,9 +9,9 @@ import org.kodein.db.model.cache.BaseModelCache
 import org.kodein.db.model.cache.ModelCache
 import kotlin.jvm.Volatile
 
-internal class ModelCacheImpl private constructor(private var internals: Internals, private val instanceMaxSize: Long) : ModelCache {
+internal class ModelCacheImpl private constructor(private var internals: Internals, private val instanceMaxSize: Long, override val hashCodeImmutabilityChecks: Boolean = true) : ModelCache {
 
-    constructor(maxSize: Long) : this(Internals(maxSize), maxSize)
+    constructor(maxSize: Long, hashCodeImmutabilityChecks: Boolean = true) : this(Internals(maxSize), maxSize, hashCodeImmutabilityChecks)
 
     @Volatile
     private var internalsVersion = 0
@@ -109,6 +109,7 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
         val entry = internals.map[key]
         if (entry != null) internals.atomicHitCount.incrementAndGet()
         else internals.atomicMissCount.incrementAndGet()
+        if (hashCodeImmutabilityChecks && entry is ModelCache.Entry.Cached<*> && entry.model.hashCode() != entry.originalHashcode) throw ModelMutatedException(entry.model)
         @Suppress("UNCHECKED_CAST")
         return (entry ?: ModelCache.Entry.NotInCache) as ModelCache.Entry<M>
     }
@@ -129,7 +130,7 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
                 val sized = retrieve()
 
                 @Suppress("UNCHECKED_CAST")
-                val newEntry = if (sized != null) ModelCache.Entry.Cached(sized.model, sized.size) else ModelCache.Entry.Deleted as ModelCache.Entry<M>
+                val newEntry = if (sized != null) ModelCache.Entry.Cached(sized.model, sized.size, sized.model.hashCode()) else ModelCache.Entry.Deleted as ModelCache.Entry<M>
 
                 internals.map[key] = newEntry
                 ++internals.retrieveCount
@@ -161,7 +162,7 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
     private fun <M : Any> unsafePut(key: Key<M>, value: M, size: Int) {
         copyIfNeeded()
 
-        val entry = ModelCache.Entry.Cached(value, size + 8)
+        val entry = ModelCache.Entry.Cached(value, size + 8, value.hashCode())
         val previous = internals.map.put(key, entry)
 
         if (previous != null) {
@@ -261,7 +262,7 @@ internal class ModelCacheImpl private constructor(private var internals: Interna
     override fun newCopy(copyMaxSize: Long): ModelCache {
         lockWrite {
             internals.refCount.incrementAndGet()
-            return ModelCacheImpl(internals, copyMaxSize)
+            return ModelCacheImpl(internals, copyMaxSize, hashCodeImmutabilityChecks)
         }
     }
 

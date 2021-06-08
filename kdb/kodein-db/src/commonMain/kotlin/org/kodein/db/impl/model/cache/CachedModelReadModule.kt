@@ -56,7 +56,7 @@ internal interface CachedModelReadModule : ModelRead {
     private fun <M : Any> wrapCursor(cursor: ModelCursor<M>, options: Array<out Options.Find>): ModelCursor<M> {
         return when {
             ModelCache.Skip in options -> cursor
-            ModelCache.Refresh in options -> CachedModelCursor(cursor, ModelCacheImpl(maxSize(options)))
+            ModelCache.Refresh in options -> CachedModelCursor(cursor, ModelCacheImpl(maxSize(options), cache.hashCodeImmutabilityChecks))
             else -> CachedModelCursor(cursor, cache.newCopy(maxSize(options)))
         }
     }
@@ -64,7 +64,7 @@ internal interface CachedModelReadModule : ModelRead {
     private fun <M : Any> wrapIndexCursor(cursor: ModelIndexCursor<M>, options: Array<out Options.Find>): ModelIndexCursor<M> {
         return when {
             ModelCache.Skip in options -> cursor
-            ModelCache.Refresh in options -> CachedModelIndexCursor(cursor, ModelCacheImpl(maxSize(options)))
+            ModelCache.Refresh in options -> CachedModelIndexCursor(cursor, ModelCacheImpl(maxSize(options), cache.hashCodeImmutabilityChecks))
             else -> CachedModelIndexCursor(cursor, cache.newCopy(maxSize(options)))
         }
     }

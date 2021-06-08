@@ -97,6 +97,8 @@ import org.kodein.memory.file.FileSystem
     CacheDBTests_03_Cursor.IM::class,
     CacheDBTests_04_Options.LDB::class,
     CacheDBTests_04_Options.IM::class,
+    CacheDBTests_05_Mutation.LDB::class,
+    CacheDBTests_05_Mutation.IM::class,
 
     ModelCacheTests::class,
 
