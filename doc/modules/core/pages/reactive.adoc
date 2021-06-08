@@ -1,27 +1,36 @@
 = Being reactive
 
-== Listeners and subscriptions
-
 Kodein-DB supports the reactive pattern.
 You can use Kodein-DB as a data event hub, so that you can react to the addition or suppression of documents.
 
-A listener is responsible for reacting to an operation. +
-Once you have registered it, you can get a subscription `Closeable`, which will stop the listener from being called if you `close` it.
+Kodein-DB supports various APIs to anticipate or react to Database writes:
+
+- A `Listener` can anticipate or react to any write event.
+- A KotlinX Coroutines `Flow` can be used to react to any write event.
+- A KotlinX Coroutines `StateFlow` can be used to always get the latest version of a model.
 
 
-=== Using the DSL
+== Listeners
+
+A listener is responsible for anticipating and/or reacting to an operation. +
+
+
+=== Subscription
+
+
+==== Using the DSL
 
 You can easily register a listener using the ad-hoc DSL:
 
 [source,kotlin]
 .DSL listeners
 ----
-db.on<User>().register { //<1>
+val cSub = db.on<Contact>().register { //<1>
 }
-db.onAll().register { //<2>
+val aSub = db.onAll().register { //<2>
 }
 ----
-<1> Registers a listener on the `User` collection.
+<1> Registers a listener on the `Contact` collection.
 <2> Registers a global listener to the entire database.
 
 A DSL listener can access its own subscription (this can be useful if you want the listener to cancel its own subscription after reacting to a certain event) in the context of the callbacks:
@@ -29,28 +38,28 @@ A DSL listener can access its own subscription (this can be useful if you want t
 [source,kotlin]
 .Accessing the subscription
 ----
-db.on<User>().register {
-    didPut { user ->
+val cSub = db.on<Contact>().register {
+    didPut { contact ->
         if (whatever) this.subscription.close()
     }
 }
 ----
 
 
-=== Using the `DBListener` interface
+==== Using the `DBListener` interface
 
 You can have one of your classes implement the `DBListener` interface and then register it:
 
 [source,kotlin]
 .Class listeners
 ----
-class UserListener : DBListener<User> {}
+class ContactListener : DBListener<Contact> {}
 class GlobalListener : DBListener<Any> {}
 
-val uSub = db.on<User>().register(UserListener()) //<1>
+val cSub = db.on<Contact>().register(ContactListener()) //<1>
 val aSub = db.onAll().register(GlobalListener()) //<2>
 ----
-<1> Registers a listener on the `User` collection.
+<1> Registers a listener on the `Contact` collection.
 <2> Registers a global listener to the entire database.
 
 A class listener receives its own subscription (this can be useful if you want the listener to cancel its own subscription after reacting to a certain event) just after registration:
@@ -58,7 +67,7 @@ A class listener receives its own subscription (this can be useful if you want t
 [source,kotlin]
 .Receiving the subscription
 ----
-class UserListener : DBListener<User> {
+class ContactListener : DBListener<Contact> {
     lateinit var subscription: Closeable
     override fun setSubscription(subscription: Closeable) {
         this.subscription = subscription
@@ -67,9 +76,18 @@ class UserListener : DBListener<User> {
 ----
 
 
-== Before an operation
+==== Unsubscribe
 
-=== simple check
+Once you have registered a listener, you can use its subscription to unregister it:
+
+[source,kotlin]
+.Unsubscribing a listener
+----
+sub.close()
+----
+
+
+=== Anticipate & check before an operation
 
 You can use the event system to act _before_ an operation.
 
@@ -80,150 +98,181 @@ Reacting before an operation can be useful to ensure that the operation satisfie
 [source,kotlin]
 .A DSL check
 ----
-db.on<User>().register {
-    willPut { user ->
-        check(user.name.isNotBlank()) { "User firstName and lastName must not be blank" }
+db.on<Contact>().register {
+    willPut { contact ->
+        check(contact.name.isNotBlank()) { "Contact firstName and lastName must not be blank" }
     }
     willDelete {
-        val pictureCount = db.find<Picture>().byIndex("userKey", key).entries().count()
-        check(pictureCount == 0) { "User has pictures, delete them first" }
+        val pictureCount = db.find<Picture>().byIndex("contactKey", key).entries().count()
+        check(pictureCount == 0) { "Contact has pictures, delete them first" }
     }
 }
 ----
+
+Note that if you need the actual model in a `willDelete` callback, you need to use `willDeleteIt`:
 
 [source,kotlin]
-.A class check
+.A DSL delete check with model
 ----
-class UserListener : DBListener<User> {
-    override fun willPut(model: User, typeName: ReadMemory, metadata: Metadata, options: Array<out Options.Write>) {
-        check(model.name.isNotBlank()) { "User firstName and lastName must not be blank" }
-    }
-    override fun willDelete(key: Key<User>, getModel: () -> User?, typeName: ReadMemory, options: Array<out Options.Write>) {
-        val pictureCount = db.find<Picture>().byIndex("userKey", key).entries().count()
-        check(pictureCount == 0) { "User has pictures, delete them first" }
+db.on<Contact>().register {
+    willDeleteIt { contact ->
+        val pictureCount = db.find<Picture>().byIndex("contactId", contact.id).entries().count()
+        check(pictureCount == 0) { "Contact has pictures, delete them first" }
     }
 }
 ----
 
-=== Accessing the deleted model
+The same example with a Listener object:
 
-You may have noticed in the preceding example that the `willDelete` callback do not access the deleted model.
-That's because it is not given to the `willDelete` DSL callback. +
-Because the deletion of a document uses its key, and not its model, you need to instruct the system to get the document before deleting it.
-
-- Using the DSL, use the `willDeleteIt` method:
-+
 [source,kotlin]
-.DSL delete check with model
+.A Listener object check
 ----
-db.on<User>().register {
-    willDeleteIt { user ->
-        val pictureCount = db.find<Picture>().byIndex("userId", user.id).entries().count()
-        check(pictureCount == 0) { "User has pictures, delete them first" }
+class ContactListener : DBListener<Contact> {
+    override fun willPut(operation: Operation.Put<Model>) {
+        check(operation.model.name.isNotBlank()) { "Contact firstName and lastName must not be blank" }
     }
-}
-----
-+
-- Using the class method, call the `getModel` function argument:
-+
-[source,kotlin]
-.DSL delete check with model
-----
-class UserListener : DBListener<User> {
-    override fun willDelete(key: Key<User>, getModel: () -> User?, typeName: ReadMemory, options: Array<out Options.Write>) {
-        val user = getModel()
-        val pictureCount = db.find<Picture>().byIndex("userId", user.id).entries().count()
-        check(pictureCount == 0) { "User has pictures, delete them first" }
+    override fun willDelete(operation: Operation.Delete<Model>) {
+        val pictureCount = db.find<Picture>().byIndex("contactKey", operation.key).entries().count()
+        check(pictureCount == 0) { "Contact has pictures, delete them first" }
     }
 }
 ----
 
-
-== After an operation
 
 [[reaction]]
-=== simple reaction
+=== React after an operation
 
 You can react after an operation, this can be useful:
 
-- Locally if you want to keep or a local state (such as a UI) up to date:
+- Locally if you want to keep a local state (such as a UI) up to date:
 - Globally if you want to keep a global state (such as the database itself) up to date.
 
 NOTE: Any exception thrown from a `did*` callback will *not* prevent other listeners to be called.
-Kodein-DB ensures that all `did*` listeners are called when an operation has suceeded.
+Kodein-DB ensures that all `did*` callbacks are called when an operation has suceeded.
 
 [source,kotlin]
 .A DSL reaction
 ----
-db.on<User>().register {
-    didPut { user -> ui.add(user) }
+db.on<Contact>().register {
+    didPut { contact -> ui.add(contact) }
     didDelete { ui.reload() }
 }
 ----
 
+Note that if you need the actual model in a `didDelete` callback, you need to use `didDeleteIt`:
+
+[source,kotlin]
+.A DSL reaction check with model
+----
+db.on<Contact>().register {
+    didDeleteIt { contact ->
+        showDeletedConfirmation(contact.name)
+    }
+}
+----
+
+The same example with a Listener object:
+
 [source,kotlin]
 .A class reaction
 ----
-class UserListener : DBListener<User> {
-    override fun didPut(model: User, key: Key<User>, typeName: ReadMemory, metadata: Metadata, size: Int, options: Array<out Options.Write>) {
-        ui.add(model)
+class ContactListener : DBListener<Contact> {
+    override fun didPut(operation: Operation.Put<Contact>) {
+        ui.add(operation.model)
     }
-    override fun didDelete(key: Key<User>, model: User?, typeName: ReadMemory, options: Array<out Options.Write>) {
+    override fun didDelete(operation: Operation.Delete<Contact>) {
         ui.reload()
     }
 }
 ----
 
-Note that all arguments of the listener's methods are available in the DSL in the `this` context.
-
-[TIP]
+[IMPORTANT]
 ====
-You can use `didDelete` to simulate cascading in a global listener:
+The `operation.model()` function in `didDelete` only returns a nullable model and will return `null` by default.
+If you need to access the model in the `didDelete` callback, you need to instruct the system to get it before it is deleted:
 
 [source,kotlin]
 .DSL delete reaction with model
 ----
-db.on<User>().register {
-    didDelete {
-        db.find<Picture>().byIndex("userKey", key).entries().forEach {
-            db.delete(it.key)
+class ContactListener : DBListener<Contact> {
+    override fun willDelete(operation: Operation.Delete<Contact>) {
+        operation.model() // Instructs to get the model before it is deleted
+    }
+    override fun didDelete(operation: Operation.Delete<Contact>) {
+        ui.remove(operation.model())
+    }
+}
+----
+====
+
+
+== KotlinX Coroutines: Flows & StateFlows
+
+Kodein-DB offers APIs using KotlinX Coroutines https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-flow/[Flow] & https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-state-flow/[StateFlow].
+
+NOTE: Flows allow you to *react* _after_ a change. +
+      To anticipate and/or check _before_ a change, you must use listeners.
+
+
+=== Flows
+
+You can use KotlinX Coroutines https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-flow/[`Flow`]s to watch a collection for changes:
+
+[source,kotlin]
+.DB Flows
+----
+val puts: Flow<Operation.Put<Contact>> = db.on<Contact>().putFlow()
+val deletes: Flow<Operation.Delete<Contact>> = db.on<Contact>().deleteFlow()
+val operations: Flow<Operation<Contact>> = db.on<Contact>().operationFlow()
+----
+
+With flows, you can simply react to a change in the entire collection, or just a subset:
+
+[source,kotlin]
+.Reacting to a subset
+----
+launch {
+    db.on<Contact>().putFlow()
+        .filter { it.model.lastName == "Doe" }
+        .collect {
+            println("Added a new member to the Doe family: ${it.model}")
         }
-    }
 }
 ----
-====
 
+You can also react to any change in the database, whatever the collection:
 
-=== Accessing the deleted model
-
-You may have noticed in the preceding example that the `didDelete` callback do not access the deleted model.
-That's because it is not given to the `didDelete` DSL callback, and will probably be null in the `didDelete` class method. +
-Because the deletion of a document uses its key, and not its model, you need to instruct the system to get the document before deleting it.
-
-- Using the DSL, simply use the `didDeleteIt` method:
-+
 [source,kotlin]
-.DSL delete reaction with model
+.Reacting to everything!
 ----
-db.on<User>().register {
-    didDeleteIt { user -> ui.remove(user) }
+launch {
+    db.onAll().operationFlow()
+        .collect {
+            when (it) {
+                is Operation.Put -> println("Added ${it.model}")
+                is Operation.Delete -> println("Removed ${it.model()}")
+            }
+
+        }
 }
 ----
-+
-- Using the class method, call the `getModel` function argument in `willDelete`:
-+
+
+
+=== StateFlows
+
+You can use KotlinX Coroutines https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-state-flow/[`StateFlow`]s to always stay up to date to a model:
+
 [source,kotlin]
-.DSL delete reaction with model
+.Getting a StateFlow
 ----
-class UserListener : DBListener<User> {
-    override fun willDelete(key: Key<User>, getModel: () -> User?, typeName: ReadMemory, options: Array<out Options.Write>) {
-        getModel()
-    }
-    override fun didDelete(key: Key<User>, model: User?, typeName: ReadMemory, options: Array<out Options.Write>) {
-        ui.remove(model)
-    }
+launch {
+    val stateFlow = db.stateFlowOfId<Contact>(this, "f9d01ffa-7cc4-4291-aeea-4bd31014fd63")
 }
 ----
+
+You can also obtain a `StateFlow` from a key with `stateFlowOf` and from a model with `stateFlowFrom`.
+
+TIP: In Android, `StateFlow` are the new https://medium.com/androiddevelopers/migrating-from-livedata-to-kotlins-flow-379292f419fb[recommended solution], and link:++https://developer.android.com/reference/kotlin/androidx/lifecycle/package-summary#(kotlinx.coroutines.flow.Flow).asLiveData(kotlin.coroutines.CoroutineContext,%20kotlin.Long)++[compatible] with LiveData.
 
 
 [[context]]
@@ -233,42 +282,60 @@ Sometimes, you need to pass some context to the listener(s).
 Things like "Where is the operation coming from?" or "Why is this operation happening?".
 In short, you may need to inform your listeners about _context_.
 
-For example, you may want to know if you are creating a new `User`, or updating one.
+For example, you may want to know if you are creating a new `Contact`, or updating one.
 
 Doing so is easy.
-First, create a class that will hold the context and have it implement `Options.Write`:
+First, create a class that will hold the context and have it implement `Options.Listeners`:
 
 [source,kotlin]
 .A context class
 ----
-enum class UserContext : Options.Write {
+enum class ContactContext : Options.Listeners {
     NEW, UPDATE
 }
 ----
 
-Next, recover it from your listener:
+Next, recover it...
 
+- ...from your listener:
++
 [source,kotlin]
 .Reading context in a listener
 ----
-db.on<User>().register {
+db.on<Contact>().register {
     didPut {
-        val context = options.filterIsInstance<UserContext>().firstOrNull()
+        val context = options.filterIsInstance<ContactContext>().firstOrNull()
         when (context) {
-            UserContext.NEW -> { /* insertion */ }
-            UserContext.UPDATE -> { /* update */ }
+            ContactContext.NEW -> { /* insertion */ }
+            ContactContext.UPDATE -> { /* update */ }
             null -> { /* unknown */ }
         }
     }
 }
 ----
+- ...from your flow:
++
+[source,kotlin]
+.Reading context in a flow
+----
+db.on<Contact>().putFlow().collect {
+        val context = it.options.filterIsInstance<ContactContext>().firstOrNull()
+        when (context) {
+            ContactContext.NEW -> { /* insertion */ }
+            ContactContext.UPDATE -> { /* update */ }
+            null -> { /* Wasn't provided */ }
+        }
+    }
+}
+----
+
 
 Finally, don't forget to add the context option when you perform the operation:
 
 [source,kotlin]
 .Adding context to a put.
 ----
-db.put(newUser, UserContext.NEW)
+db.put(newContact, ContactContext.NEW)
 ----
 
 
@@ -277,21 +344,18 @@ db.put(newUser, UserContext.NEW)
 You may need to attach a callback to a specific operation or batch of operation.
 For that, Kodein-DB provides the `Anticipate` and `React` options.
 
-
-=== Regular
-
 You can easily add a check that will run before an operation is performed (this is especially usefull for a batch):
 
 [source,kotlin]
 .Adding context to a put.
 ----
-db.put(newUser,
-        Anticipate { println("Will put a user!") },
-        React { println("Did put a user!") }
+db.put(newContact,
+        Anticipate { println("Will put a contact!") },
+        React { println("Did put a contact!") }
 )
 
 db.newBatch().use { batch ->
-    batch.addOptions(
+    batch.write(
             Anticipate { println("Will write batch!") },
             React { println("Did write batch!") }
     )

@@ -31,7 +31,7 @@ public interface Options {
     @Deprecated("Use either or a combination of new Options", level = DeprecationLevel.ERROR)
     public interface Write : Puts, Deletes, Writes
 
-    public interface User : Writes
+    public interface Listeners : Puts, Deletes
 }
 
 public inline operator fun <reified T : Options> Array<out Options>.invoke(): T? = firstOrNull { it is T } as T?

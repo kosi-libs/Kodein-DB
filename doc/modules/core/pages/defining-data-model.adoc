@@ -102,7 +102,7 @@ val db = DB.open("path/to/db",
 [[id-index]]
 ==== Using ID as an index
 
-If we consider the `User` model we have just defined, we have defined the ID to be a UUID, meaning that the order in which they will be stored and retrieved is completely random. +
+If we consider the `Listeners` model we have just defined, we have defined the ID to be a UUID, meaning that the order in which they will be stored and retrieved is completely random. +
 Because the ID must be unique, we cannot use the name to be the ID.
 However, we can create a composite ID.
 Consider this updated model:

@@ -19,7 +19,7 @@ You can as delete a model with its key:
 [source,kotlin]
 .Deleting a model by key
 ----
-db.delete(key)
+db.delete(userKey)
 ----
 
 ...or with its type and id
@@ -30,7 +30,15 @@ db.delete(key)
 val user = db.deleteById<User>(userId)
 ----
 
-You can get a model with its key key:
+...or with its model
+
+[source,kotlin]
+.Deleting a model by model
+----
+val user = db.deleteFrom(user)
+----
+
+You can get a model with its key:
 
 [source,kotlin]
 .Getting a model by key
