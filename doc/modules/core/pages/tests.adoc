@@ -21,6 +21,8 @@ dependencies {
 
 == Use
 
+=== Opening
+
 To create an in-memory database, use the `DB.inMemory` factory:
 
 [source,kotlin]
@@ -51,3 +53,26 @@ fun createDatabase(val factory: DBFactory<DB>, dir: String): DB =
 val realDb = createDatabase(DB.default, getApplicationDirectory())
 val testDb = createDatabase(DB.inMemory, "fake")
 ----
+
+
+=== Persistence
+
+In memory Kodein-DB does not persist across processes (Duh!) but it does persist when closing an in-memory db and re-opening one with the same name.
+This is why, in your tests, you need to destroy any existing in-memory database with the same name:
+
+[source,kotlin]
+.Test hooks
+----
+@BeforeTest
+fun setUp() {
+    DB.inMemory.destroy("fake")
+    db = createDatabase(DB.inMemory, "fake")
+}
+
+@AfterTest
+fun tearDown() {
+    db.close()
+}
+----
+
+NOTE: Calling `destroy` on a nonexistent database is safe and has no effect.
