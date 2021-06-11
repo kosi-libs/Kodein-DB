@@ -2,6 +2,16 @@
 
 == Configuring encryption
 
+First, add the Kodein-DB-Encryption plugin to your dependencies:
+
+[source,kotlin,subs=attributes+]
+.build.gradle.kts
+----
+dependencies {
+    implementation("org.kodein.db:kodein-db-encryption:{version}")
+}
+----
+
 Encryption is enabled with the `Encryption` middleware, and configured with `EncryptOptions`.
 
 [source,kotlin]
