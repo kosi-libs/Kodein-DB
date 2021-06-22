@@ -94,7 +94,7 @@ data class Contact(
     val address: List<String> // Country, City, Street
 ): Metadata {
     override val id = listOf(lastName, firstName)
-    override val indexes = mapOf(
+    override fun indexes() = mapOf(
         "firstName" to firstName,
         "phoneNumber" to phoneNumber,
         "address" to address // Composite value!
@@ -119,7 +119,7 @@ data class Contact(
     val address: List<String> // Country, City, Street
 ): Metadata {
     override val id = listOf(lastName, firstName)
-    override val indexes = mapOf(
+    override fun indexes() = mapOf(
         "firstName" to firstName,
         "lastName" to lastName,
         "phoneNumber" to phoneNumber,
