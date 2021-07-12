@@ -1,4 +1,4 @@
-package org.kodein.db.model.index
+package org.kodein.db.index
 
 import org.kodein.db.Cursor
 import org.kodein.db.DBRead
