@@ -154,7 +154,7 @@ NOTE: A `Value` is a serializable entity where the serialized bytes define the o
 
 === Types usable as Value
 
-By default, the Kodein-DB understands the following types to be used as values: `ByteArray`, `ReadBuffer`, `Boolean`, `Short`, `Int`, `Long`, `Char`, `CharSequence` (such as `String`), Kodein-Memory `UUID` (*not* `java.util.UUID`, `Key`).
+By default, the Kodein-DB understands the following types to be used as values: `ByteArray`, `ReadBuffer`, `Boolean`, `Short`, `Int`, `Long`, `Char`, `CharSequence` (such as `String`), Kodein-Memory `UUID` (*not* `java.util.UUID`) and `Key`.
 
 [IMPORTANT]
 ====
