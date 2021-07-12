@@ -1,12 +1,21 @@
 package org.kodein.db.model.index
 
-import org.kodein.db.Cursor
-import org.kodein.db.DBRead
-import org.kodein.db.find
+import org.kodein.db.*
 import kotlin.reflect.KProperty1
 
 public abstract class Filter<M : Any> {
+    /**
+     * Returns a [Cursor] with all elements in the given database matching
+     * this filter.
+     */
     public abstract fun find(db: DBRead): Cursor<M>
+}
+
+/**
+ * Deletes all elements in the given database matching this filter.
+ */
+public inline fun <reified M : Any> Filter<M>.delete(db: DB) {
+    db.deleteAll(find(db))
 }
 
 /**
