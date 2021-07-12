@@ -32,7 +32,7 @@ When targeting *only the JVM*, you can simply use annotations:
 data class User(
     @Id val uid: String,
     val firstName: String,
-    @Index("lastName") val lastName: String
+    @Indexed("lastName") val lastName: String
 )
 ----
 
@@ -47,7 +47,7 @@ data class User(
     val firstName: String,
     val lastName: String
 ) {
-    @Index("name") fun nameIndex() = listOf(lastName, firstName)
+    @Indexed("name") fun nameIndex() = listOf(lastName, firstName)
 }
 ----
 
