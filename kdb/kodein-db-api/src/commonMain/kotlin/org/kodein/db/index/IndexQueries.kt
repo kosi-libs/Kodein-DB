@@ -20,6 +20,15 @@ public fun <M : Any> DBRead.find(filter: Filter<M>): Cursor<M> = filter.find(thi
 public fun DBRead.any(filter: Filter<*>): Boolean = filter.find(this).use { it.isValid() }
 
 /**
+ * Checks if no element in the database matches the given
+ * filter.
+ *
+ * @return true, if no element matches the [filter] or if there
+ * are no elements in the database
+ */
+public fun DBRead.none(filter: Filter<*>): Boolean = filter.find(this).use { !it.isValid() }
+
+/**
  * Returns a [List] containing all elements in the database
  * matching the given [filter].
  */
