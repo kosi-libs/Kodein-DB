@@ -24,7 +24,7 @@ A composite index allows you to:
 
 ==== With annotations
 
-When targeting *only the JVM*, you can simply use annotations:
+When targeting *only the JVM* (and not inheriting from `Metadata`), you can simply use annotations:
 
 [source,kotlin]
 .A simple model
