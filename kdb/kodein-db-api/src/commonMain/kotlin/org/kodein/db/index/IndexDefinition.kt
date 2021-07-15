@@ -1,8 +1,15 @@
 package org.kodein.db.index
 
+import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
-public abstract class ModelIndex<M>(public val model: M) {
+public abstract class ModelIndex<M> {
+    public abstract val model: M
+
+    @PublishedApi
+    internal val indexes: ArrayList<IndexDefinition> = ArrayList()
+
     /**
      * Creates a new single index. (Index over one property)
      *
@@ -13,23 +20,10 @@ public abstract class ModelIndex<M>(public val model: M) {
      * val nameIndex by index(name)
      * ```
      */
-    public inline fun <T : Any> index(crossinline valueProvider: M.() -> T): ReadOnlyProperty<Any, IndexSingleDefinition<T>> =
-        ReadOnlyProperty { _, property -> IndexSingleDefinition(property.name, valueProvider.invoke(model)) }
-
-    /**
-     * Creates a new pair index. (Index over two related properties)
-     *
-     * The name of the index is the name of its property.
-     *
-     * Usage:
-     * ```kt
-     * val nameIndex by index(firstName, lastName)
-     * ```
-     */
-    public inline fun <A : Any, B : Any> indexPair(crossinline valueProvider: M.() -> Pair<A, B>): ReadOnlyProperty<Any, IndexPairDefinition<A, B>> =
-        ReadOnlyProperty { _, property ->
-            val pair = valueProvider.invoke(model)
-            IndexPairDefinition(property.name, pair.first, pair.second)
+    public inline fun <T : Any> index(crossinline valueProvider: M.() -> T): PropertyDelegateProvider<Any, IndexSingleDefinition<T>> =
+        PropertyDelegateProvider { _, property ->
+            IndexSingleDefinition(property.name, valueProvider.invoke(model))
+                .apply { indexes += this }
         }
 
     /**
@@ -42,10 +36,28 @@ public abstract class ModelIndex<M>(public val model: M) {
      * val nameIndex by index(firstName, lastName)
      * ```
      */
-    public inline fun <A : Any, B : Any, C : Any> indexTriple(crossinline valueProvider: M.() -> Triple<A, B, C>): ReadOnlyProperty<Any, IndexTripleDefinition<A, B, C>> =
-        ReadOnlyProperty { _, property ->
+    public inline fun <A : Any, B : Any> indexPair(crossinline valueProvider: M.() -> Pair<A, B>): PropertyDelegateProvider<Any, IndexPairDefinition<A, B>> =
+        PropertyDelegateProvider { _, property ->
+            val pair = valueProvider.invoke(model)
+            IndexPairDefinition(property.name, pair.first, pair.second)
+                .apply { indexes += this }
+        }
+
+    /**
+     * Creates a new pair index. (Index over two related properties)
+     *
+     * The name of the index is the name of its property.
+     *
+     * Usage:
+     * ```kt
+     * val nameIndex by index(firstName, lastName)
+     * ```
+     */
+    public inline fun <A : Any, B : Any, C : Any> indexTriple(crossinline valueProvider: M.() -> Triple<A, B, C>): PropertyDelegateProvider<Any, IndexTripleDefinition<A, B, C>> =
+        PropertyDelegateProvider { _, property ->
             val triple = valueProvider.invoke(model)
             IndexTripleDefinition(property.name, triple.first, triple.second, triple.third)
+                .apply { indexes += this }
         }
 
     /**
@@ -58,12 +70,17 @@ public abstract class ModelIndex<M>(public val model: M) {
      * val nameIndex by index(firstName, middleName, thirdName, lastName)
      * ```
      */
-    public inline fun <T : Any> indexComposite(crossinline valueProvider: M.() -> Array<T>): ReadOnlyProperty<Any, IndexCompositeDefinition> =
-        ReadOnlyProperty { _, property -> IndexCompositeDefinition(property.name, valueProvider.invoke(model)) }
+    public inline fun <T : Any> indexComposite(crossinline valueProvider: M.() -> Array<T>): PropertyDelegateProvider<Any, IndexCompositeDefinition> =
+        PropertyDelegateProvider { _, property ->
+            IndexCompositeDefinition(property.name, valueProvider.invoke(model))
+                .apply { indexes += this }
+        }
 }
 
-public interface IndexDefinition {
+public interface IndexDefinition : ReadOnlyProperty<Any, IndexDefinition> {
     public val pair: Pair<String, Any>
+
+    override fun getValue(thisRef: Any, property: KProperty<*>): IndexDefinition = this
 }
 
 public class IndexSingleDefinition<T : Any>(name: String, value: T) : IndexDefinition {
@@ -81,14 +98,3 @@ public class IndexTripleDefinition<A : Any, B : Any, C : Any>(name: String, firs
 public class IndexCompositeDefinition(name: String, values: Array<out Any>) : IndexDefinition {
     override val pair: Pair<String, Array<out Any>> = name to values
 }
-
-/**
- * Creates a map which can be used as a result to the overridden
- * `indexes()` function of [org.kodein.db.model.orm.Metadata].
- *
- * Usage:
- * ```kt
- * override fun indexes() = indexMapOf(nameIndex, ageIndex)
- * ```
- */
-public fun indexMapOf(vararg indexes: IndexDefinition): Map<String, Any> = indexes.associate { it.pair }
