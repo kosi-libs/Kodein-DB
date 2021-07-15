@@ -3,6 +3,11 @@ package org.kodein.db.index
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
 
+/**
+ * Classes which inherit from this abstract class can be used to define indexes
+ * for model.
+ * These classes should be defined inside the other class.
+ */
 public abstract class ModelIndex<M> {
     public abstract val model: M
 
