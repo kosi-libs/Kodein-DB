@@ -48,8 +48,8 @@ println(does.joinToString()) // Jane, John
 
 Contributions are very welcome and greatly appreciated! The great majority of pull requests are eventually merged.
 
-To contribute, simply fork [the project on Github](https://github.com/Kodein-Framework/Kodein-DB), fix whatever is iching you, and submit a pull request!
+To contribute, simply fork [the project on Github](https://github.com/Kodein-Framework/Kodein-DB), fix whatever is itching you, and submit a pull request!
 
-We are sure that this documentation contains typos, inaccuracies and languages error.
+We are sure that this documentation contains typos, inaccuracies and language mistakes.
 If you feel like enhancing this document, you can propose a pull request that modifies [the documentation documents](https://github.com/Kodein-Framework/Kodein-DB/tree/master/doc).
 (Documentation is auto-generated from those).

@@ -9,6 +9,8 @@ IMPORTANT: Cursors are `Closeable`! You need to either close them after use, or 
 
 You can iterate:
 
+=== Over all elements
+
 - Over all models of the database:
 +
 [source,kotlin]
@@ -23,12 +25,19 @@ CAUTION: When using `findAll()` on multiplatform projects, you *must* define a x
 ----
 val cursor = db.find<User>().all()
 ----
+
+=== By id
+
 - Over all models of a collection whose composite ID begins with a specific value, ordered by id:
 +
 [source,kotlin]
 ----
 val cursor = db.find<User>().byId("Doe")
 ----
+
+=== Over an index
+
+==== Specific index
 - Over all models of a collection, ordered by an index:
 +
 [source,kotlin]
@@ -41,12 +50,22 @@ val cursor = db.find<User>().byIndex("lastName")
 ----
 val cursor = db.find<User>().byIndex("lastName", "Doe")
 ----
+
+==== Composite index
 - Over all models of a collection with an index composite value starting with a given value, ordered by that index:
 +
 [source,kotlin]
 ----
 val cursor = db.find<User>().byIndex("name", "Doe")
 ----
+- Over all models of a collection with an index composite value exactly matching the given values, ordered by that index:
++
+[source,kotlin]
+----
+val cursor = db.find<User>().byIndex("name", "Doe", "John")
+----
+
+==== Using isOpen
 - Over all models of a collection with an index composite value starting with a given prefix, ordered by that index:
 +
 [source,kotlin]

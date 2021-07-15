@@ -24,7 +24,7 @@ A composite index allows you to:
 
 ==== With annotations
 
-When targeting *only the JVM*, you can simply use annotations:
+When targeting *only the JVM* (and not inheriting from `Metadata`), you can simply use annotations:
 
 [source,kotlin]
 .A simple model
@@ -32,7 +32,7 @@ When targeting *only the JVM*, you can simply use annotations:
 data class User(
     @Id val uid: String,
     val firstName: String,
-    @Index("lastName") val lastName: String
+    @Indexed("lastName") val lastName: String
 )
 ----
 
@@ -47,7 +47,7 @@ data class User(
     val firstName: String,
     val lastName: String
 ) {
-    @Index("name") fun nameIndex() = listOf(lastName, firstName)
+    @Indexed("name") fun nameIndex() = listOf(lastName, firstName)
 }
 ----
 
@@ -154,7 +154,7 @@ NOTE: A `Value` is a serializable entity where the serialized bytes define the o
 
 === Types usable as Value
 
-By default, the Kodein-DB understands the following types to be used as values: `ByteArray`, `ReadBuffer`, `Boolean`, `Short`, `Int`, `Long`, `Char`, `CharSequence` (such as `String`), Kodein-Memory `UUID` (*not* `java.util.UUID`, `Key`).
+By default, the Kodein-DB understands the following types to be used as values: `ByteArray`, `ReadBuffer`, `Boolean`, `Short`, `Int`, `Long`, `Char`, `CharSequence` (such as `String`), Kodein-Memory `UUID` (*not* `java.util.UUID`) and `Key`.
 
 [IMPORTANT]
 ====
