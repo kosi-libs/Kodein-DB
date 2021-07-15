@@ -2,6 +2,66 @@ package org.kodein.db.index
 
 import kotlin.properties.ReadOnlyProperty
 
+public abstract class ModelIndex<M>(public val model: M) {
+    /**
+     * Creates a new single index. (Index over one property)
+     *
+     * The name of the index is the name of its property.
+     *
+     * Usage:
+     * ```kt
+     * val nameIndex by index(name)
+     * ```
+     */
+    public inline fun <T : Any> index(crossinline valueProvider: M.() -> T): ReadOnlyProperty<Any, IndexSingleDefinition<T>> =
+        ReadOnlyProperty { _, property -> IndexSingleDefinition(property.name, valueProvider.invoke(model)) }
+
+    /**
+     * Creates a new pair index. (Index over two related properties)
+     *
+     * The name of the index is the name of its property.
+     *
+     * Usage:
+     * ```kt
+     * val nameIndex by index(firstName, lastName)
+     * ```
+     */
+    public inline fun <A : Any, B : Any> indexPair(crossinline valueProvider: M.() -> Pair<A, B>): ReadOnlyProperty<Any, IndexPairDefinition<A, B>> =
+        ReadOnlyProperty { _, property ->
+            val pair = valueProvider.invoke(model)
+            IndexPairDefinition(property.name, pair.first, pair.second)
+        }
+
+    /**
+     * Creates a new pair index. (Index over two related properties)
+     *
+     * The name of the index is the name of its property.
+     *
+     * Usage:
+     * ```kt
+     * val nameIndex by index(firstName, lastName)
+     * ```
+     */
+    public inline fun <A : Any, B : Any, C : Any> indexTriple(crossinline valueProvider: M.() -> Triple<A, B, C>): ReadOnlyProperty<Any, IndexTripleDefinition<A, B, C>> =
+        ReadOnlyProperty { _, property ->
+            val triple = valueProvider.invoke(model)
+            IndexTripleDefinition(property.name, triple.first, triple.second, triple.third)
+        }
+
+    /**
+     * Creates a new composite index.
+     *
+     * The name of the index is the name of its property.
+     *
+     * Usage:
+     * ```kt
+     * val nameIndex by index(firstName, middleName, thirdName, lastName)
+     * ```
+     */
+    public inline fun <T : Any> indexComposite(crossinline valueProvider: M.() -> Array<T>): ReadOnlyProperty<Any, IndexCompositeDefinition> =
+        ReadOnlyProperty { _, property -> IndexCompositeDefinition(property.name, valueProvider.invoke(model)) }
+}
+
 public interface IndexDefinition {
     public val pair: Pair<String, Any>
 }
@@ -21,58 +81,6 @@ public class IndexTripleDefinition<A : Any, B : Any, C : Any>(name: String, firs
 public class IndexCompositeDefinition(name: String, values: Array<out Any>) : IndexDefinition {
     override val pair: Pair<String, Array<out Any>> = name to values
 }
-
-/**
- * Creates a new single index. (Index over one property)
- *
- * The name of the index is the name of its property.
- *
- * Usage:
- * ```kt
- * val nameIndex by index(name)
- * ```
- */
-public fun <T : Any> index(value: T): ReadOnlyProperty<Any, IndexSingleDefinition<T>> =
-    ReadOnlyProperty { _, property -> IndexSingleDefinition(property.name, value) }
-
-/**
- * Creates a new pair index. (Index over two related properties)
- *
- * The name of the index is the name of its property.
- *
- * Usage:
- * ```kt
- * val nameIndex by index(firstName, lastName)
- * ```
- */
-public fun <A : Any, B : Any> index(first: A, second: B): ReadOnlyProperty<Any, IndexPairDefinition<A, B>> =
-    ReadOnlyProperty { _, property -> IndexPairDefinition(property.name, first, second) }
-
-/**
- * Creates a new pair index. (Index over two related properties)
- *
- * The name of the index is the name of its property.
- *
- * Usage:
- * ```kt
- * val nameIndex by index(firstName, lastName)
- * ```
- */
-public fun <A : Any, B : Any, C : Any> index(first: A, second: B, third: C): ReadOnlyProperty<Any, IndexTripleDefinition<A, B, C>> =
-    ReadOnlyProperty { _, property -> IndexTripleDefinition(property.name, first, second, third) }
-
-/**
- * Creates a new composite index.
- *
- * The name of the index is the name of its property.
- *
- * Usage:
- * ```kt
- * val nameIndex by index(firstName, middleName, thirdName, lastName)
- * ```
- */
-public fun <T : Any> index(vararg values: T): ReadOnlyProperty<Any, IndexCompositeDefinition> =
-    ReadOnlyProperty { _, property -> IndexCompositeDefinition(property.name, values) }
 
 /**
  * Creates a map which can be used as a result to the overridden
