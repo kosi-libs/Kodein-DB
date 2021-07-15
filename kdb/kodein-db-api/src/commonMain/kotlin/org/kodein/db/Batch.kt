@@ -19,7 +19,7 @@ public interface Batch : DBWrite, Closeable {
 
 public inline fun <reified M : Any> Batch.delete(key: Key<M>, vararg options: Options.BatchDelete): Unit = delete(M::class, key, *options)
 
-public inline fun <reified M : Any> Batch.deleteById(vararg id: Any, options: Array<out Options.BatchDelete> = emptyArray()): Unit = delete(keyById(*id), *options)
+public inline fun <reified M : Any> Batch.deleteById(vararg id: Any, options: Array<out Options.BatchDelete> = emptyArray()): Unit = delete(keyById<M>(*id), *options)
 
 public inline fun <reified M : Any> Batch.deleteAll(cursor: Cursor<M>, vararg options: Options.BatchDelete) {
     cursor.useKeys { seq -> seq.forEach { delete(it, *options) } }

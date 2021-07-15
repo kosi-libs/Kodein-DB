@@ -17,7 +17,7 @@ public inline fun <reified M : Any> DBWrite.delete(key: Key<M>): Unit = delete(k
 public inline fun <reified M : Any> DBWrite.delete(key: Key<M>, vararg options: Options.Deletes): Unit = delete(M::class, key, *options)
 
 public inline fun <reified M : Any> DBWrite.deleteById(vararg id: Any): Unit = deleteById<M>(*id, options = emptyArray())
-public inline fun <reified M : Any> DBWrite.deleteById(vararg id: Any, options: Array<out Options.Deletes> = emptyArray()): Unit = delete(keyById(*id), *options)
+public inline fun <reified M : Any> DBWrite.deleteById(vararg id: Any, options: Array<out Options.Deletes> = emptyArray()): Unit = delete(keyById<M>(*id), *options)
 
 public inline fun <reified M : Any> DBWrite.deleteFrom(model: M): Unit = delete(keyFrom(model), options = emptyArray())
 public inline fun <reified M : Any> DBWrite.deleteFrom(model: M, vararg options: Options.Deletes): Unit =
