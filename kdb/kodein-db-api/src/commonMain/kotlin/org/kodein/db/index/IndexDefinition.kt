@@ -18,7 +18,7 @@ public class IndexTripleDefinition<A : Any, B : Any, C : Any>(name: String, firs
     override val pair: Pair<String, Array<Any>> = name to arrayOf(first, second, third)
 }
 
-public class IndexCompositeDefinition(name: String, values: Array<out Any>): IndexDefinition {
+public class IndexCompositeDefinition(name: String, values: Array<out Any>) : IndexDefinition {
     override val pair: Pair<String, Array<out Any>> = name to values
 }
 
