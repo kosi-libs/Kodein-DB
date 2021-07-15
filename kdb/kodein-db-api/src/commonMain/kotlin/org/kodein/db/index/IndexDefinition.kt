@@ -16,7 +16,7 @@ public abstract class ModelIndex<M> {
      *
      * Usage:
      * ```kt
-     * val nameIndex by index(name)
+     * val name by index { name }
      * ```
      */
     public inline fun <T : Any> index(
@@ -35,7 +35,7 @@ public abstract class ModelIndex<M> {
      *
      * Usage:
      * ```kt
-     * val nameIndex by index(firstName, lastName)
+     * val name by indexPair { firstName to lastName }
      * ```
      */
     public inline fun <A : Any, B : Any> indexPair(
@@ -49,13 +49,13 @@ public abstract class ModelIndex<M> {
         }
 
     /**
-     * Creates a new pair index. (Index over two related properties)
+     * Creates a new triple index. (Index over three related properties)
      *
      * The name of the index is the name of its property.
      *
      * Usage:
      * ```kt
-     * val nameIndex by index(firstName, lastName)
+     * val name by indexTriple { Triple(firstName, secondName, lastName) }
      * ```
      */
     public inline fun <A : Any, B : Any, C : Any> indexTriple(
@@ -75,7 +75,7 @@ public abstract class ModelIndex<M> {
      *
      * Usage:
      * ```kt
-     * val nameIndex by index(firstName, middleName, thirdName, lastName)
+     * val name by indexComposite { arrayOf(firstName, middleName, thirdName, lastName) }
      * ```
      */
     public inline fun <T : Any> indexComposite(
