@@ -15,21 +15,21 @@ abstract class IndexDBTests_00_Find : IndexDBTests() {
     fun test00_anyAndNoneFilter() {
         db.inflateIndexDB()
 
-        assertTrue(db.any(IndexCity::nameIndex eq "Berlin"))
-        assertTrue(db.none(IndexCity::nameIndex eq "Kopenhagen"))
+        assertTrue(db.any(IndexCity.Index::name eq "Berlin"))
+        assertTrue(db.none(IndexCity.Index::name eq "Kopenhagen"))
     }
 
     @Test
     fun test01_findModelListFilter() {
         db.inflateIndexDB()
 
-        assertEquals(db.findModelList(IndexCity::countryIndex eq "Germany"), listOf(IndexModels.berlin, IndexModels.dresden))
+        assertEquals(db.findModelList(IndexCity.Index::country eq "Germany"), listOf(IndexModels.berlin, IndexModels.dresden))
     }
 
     @Test
     fun test02_findFilter_overTriple() {
         db.inflateIndexDB()
 
-        assertEquals(db.findOneOrNull(IndexCity::nameCountryPostalCodeIndex eq Triple("Paris", "France", 75000)), IndexModels.paris)
+        assertEquals(db.findOneOrNull(IndexCity.Index::nameCountryPostalCode eq Triple("Paris", "France", 75000)), IndexModels.paris)
     }
 }
