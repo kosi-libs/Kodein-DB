@@ -22,7 +22,7 @@ public inline fun <reified M : Any> Filter<M>.delete(db: DB) {
  * Creates a new filter matching all elements where the
  * content of the index equals the given [value].
  */
-public inline infix fun <reified M : Any, T : Any> KProperty1<M, IndexSingleDefinition<T>>.eq(value: T): Filter<M> =
+public inline infix fun <reified M : Any, T : Any> KProperty1<*, IndexSingleDefinition<M, T>>.eq(value: T): Filter<M> =
     object : Filter<M>() {
         override fun find(db: DBRead) = db.find<M>().byIndex(this@eq.name, value)
     }
@@ -31,7 +31,7 @@ public inline infix fun <reified M : Any, T : Any> KProperty1<M, IndexSingleDefi
  * Creates a new filter matching all elements where the content
  * of the index equals the given [pair] of values.
  */
-public inline infix fun <reified M : Any, A : Any, B : Any> KProperty1<M, IndexPairDefinition<A, B>>.eq(pair: Pair<A, B>): Filter<M> =
+public inline infix fun <reified M : Any, A : Any, B : Any> KProperty1<*, IndexPairDefinition<M, A, B>>.eq(pair: Pair<A, B>): Filter<M> =
     object : Filter<M>() {
         override fun find(db: DBRead) = db.find<M>().byIndex(this@eq.name, pair.first, pair.second)
     }
@@ -40,7 +40,7 @@ public inline infix fun <reified M : Any, A : Any, B : Any> KProperty1<M, IndexP
  * Creates a new filter matching all elements where the content
  * of the index equals the given [triple] of values.
  */
-public inline infix fun <reified M : Any, A : Any, B : Any, C : Any> KProperty1<M, IndexTripleDefinition<A, B, C>>.eq(triple: Triple<A, B, C>): Filter<M> =
+public inline infix fun <reified M : Any, A : Any, B : Any, C : Any> KProperty1<*, IndexTripleDefinition<M, A, B, C>>.eq(triple: Triple<A, B, C>): Filter<M> =
     object : Filter<M>() {
         override fun find(db: DBRead) = db.find<M>().byIndex(this@eq.name, triple.first, triple.second, triple.third)
     }
@@ -56,7 +56,7 @@ public inline infix fun <reified M : Any, A : Any, B : Any, C : Any> KProperty1<
  * the given types are valid (the same as the types of the properties of the
  * composite index)
  */
-public inline infix fun <reified M : Any> KProperty1<M, IndexCompositeDefinition>.eq(values: Array<Any>): Filter<M> =
+public inline infix fun <reified M : Any> KProperty1<*, IndexCompositeDefinition<M>>.eq(values: Array<Any>): Filter<M> =
     object : Filter<M>() {
         override fun find(db: DBRead) = db.find<M>().byIndex(this@eq.name, *values)
     }
