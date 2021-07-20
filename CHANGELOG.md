@@ -1,4 +1,13 @@
 
+#### 0.9.0
+
+- API
+  * Better event bus API with Kotlinx Coroutines Flow support.
+  
+- CORE
+  * The Model Cache now checks for mutations between insertion & retrieval (with hashcode). 
+    This is far from foolproof, but it's something!
+
 #### 0.8.0 (19-05-2021)
 
 - API
