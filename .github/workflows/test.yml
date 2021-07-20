@@ -62,12 +62,12 @@ jobs:
       - name: Check
         shell: bash
         run: ./gradlew check
-      - name: Check Android
-        if: matrix.os == 'macos-latest'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          arch: x86_64
-          ndk: 21.3.6528147
-          cmake: 3.10.2.4988404
-          script: ./gradlew connectedCheck
+#      - name: Check Android
+#        if: matrix.os == 'macos-latest'
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: 29
+#          arch: x86_64
+#          ndk: 21.3.6528147
+#          cmake: 3.10.2.4988404
+#          script: ./gradlew connectedCheck
