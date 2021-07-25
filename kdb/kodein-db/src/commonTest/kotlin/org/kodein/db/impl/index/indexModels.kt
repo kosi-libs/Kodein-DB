@@ -1,16 +1,16 @@
 package org.kodein.db.impl.index
 
 import kotlinx.serialization.Serializable
-import org.kodein.db.index.IndexMetadata
-import org.kodein.db.index.ModelIndex
+import org.kodein.db.index.ModelIndexes
+import org.kodein.db.model.orm.Metadata
 
 @Serializable
-data class IndexCity(val name: String, val country: String, val postalCode: Int) : IndexMetadata() {
+data class IndexCity(val name: String, val country: String, val postalCode: Int) : Metadata {
     override val id get() = postalCode
 
-    override fun modelIndex() = Index(this)
+    override fun indexes() = Indexes.of(this)
 
-    class Index(override val model: IndexCity) : ModelIndex<IndexCity>() {
+    object Indexes : ModelIndexes<IndexCity>() {
         val name by index { name }
         val country by index { country }
 
