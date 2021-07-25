@@ -24,3 +24,7 @@ db.put(newJohn)
 IMPORTANT: There is no way (yet?) in Kotlin to ensure immutability.
 While we cannot force you to use immutable models, we highly recommend that you do.
 Using mutable models will eventually lead to data races, and very hard to find bugs.
+
+The Object Cache will check for mutability in its cached models.
+It uses hashcode for this, which is far from foolproof, and throws a `ModelMutatedException` when it detects one.
+This behaviour can be disabled by passing the `ModelCache.NoHashCodeImmutabilityChecks` option when opening the database.

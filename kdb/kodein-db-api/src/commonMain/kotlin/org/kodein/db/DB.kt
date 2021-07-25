@@ -45,7 +45,7 @@ public interface DB : DBRead, DBWrite, Closeable {
 
 public inline fun <reified M : Any> DB.delete(key: Key<M>, vararg options: Options.DirectDelete): Unit = delete(M::class, key, *options)
 
-public inline fun <reified M : Any> DB.deleteById(vararg id: Any, options: Array<out Options.DirectDelete> = emptyArray()): Unit = delete(keyById(*id), *options)
+public inline fun <reified M : Any> DB.deleteById(vararg id: Any, options: Array<out Options.DirectDelete> = emptyArray()): Unit = delete(keyById<M>(*id), *options)
 
 public inline fun <reified M : Any> DB.deleteAll(cursor: Cursor<M>, vararg options: Options.DirectDelete) {
     cursor.useKeys { seq -> seq.forEach { delete(it, *options) } }
