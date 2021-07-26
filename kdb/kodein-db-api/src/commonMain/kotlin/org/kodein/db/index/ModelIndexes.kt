@@ -8,7 +8,7 @@ import kotlin.properties.ReadOnlyProperty
  * for model.
  * These classes should be defined inside the other class.
  */
-public abstract class ModelIndexes<M> {
+public abstract class ModelIndexes<M : Any> {
 
     private val indexes: ArrayList<IndexDefinition<M>> = ArrayList()
 
@@ -96,27 +96,27 @@ public abstract class ModelIndexes<M> {
         indexes.associate { it.name to it.valueProvider.invoke(model) }
 }
 
-public interface IndexDefinition<M> {
+public interface IndexDefinition<M : Any> {
     public val name: String
     public val valueProvider: M.() -> Any
 }
 
-public class IndexSingleDefinition<M, T : Any>(
+public class IndexSingleDefinition<M : Any, T : Any>(
     override val name: String,
     override val valueProvider: M.() -> T
 ) : IndexDefinition<M>
 
-public class IndexPairDefinition<M, T1 : Any, T2 : Any>(
+public class IndexPairDefinition<M : Any, T1 : Any, T2 : Any>(
     override val name: String,
     override val valueProvider: M.() -> Pair<T1, T2>
 ) : IndexDefinition<M>
 
-public class IndexTripleDefinition<M, T1 : Any, T2 : Any, T3 : Any>(
+public class IndexTripleDefinition<M : Any, T1 : Any, T2 : Any, T3 : Any>(
     override val name: String,
     override val valueProvider: M.() -> Triple<T1, T2, T3>
 ) : IndexDefinition<M>
 
-public class IndexCompositeDefinition<M>(
+public class IndexCompositeDefinition<M : Any>(
     override val name: String,
     override val valueProvider: M.() -> Array<out Any>
 ) : IndexDefinition<M>
