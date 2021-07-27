@@ -43,3 +43,55 @@ public fun <M : Any> Cursor<M>.asEntrySequence(reverse: Boolean = false, seekToS
 
 public fun <M : Any, R> Cursor<M>.useEntries(reverse: Boolean = false, seekToStart: Boolean = true, vararg options: Options.Get, block: (Sequence<Entry<M>>) -> R): R =
         use { block(asEntrySequence(reverse, seekToStart, *options)) }
+
+
+/**
+ * Consumes the cursor and returns whether it contains any entry.
+ *
+ * @return true, if there's one entry in the cursor
+ */
+public fun <M : Any> Cursor<M>.any(): Boolean = use { it.isValid() }
+
+/**
+ * Consumes the cursor and returns whether it is empty.
+ *
+ * @return true, if there's no entry in the cursor
+ */
+public fun <M : Any> Cursor<M>.none(): Boolean = use { !it.isValid() }
+
+/**
+ * Consumes the cursor and returns a [List] containing
+ * all elements in the database from this cursor.
+ */
+public fun <M : Any> Cursor<M>.toModelList(): List<M> = useModels { it.toList() }
+
+/**
+ * Consumes the cursor and returns a [List] containing
+ * all elements in the database from this cursor.
+ */
+public fun <M : Any> Cursor<M>.toKeyList(): List<Key<M>> = useKeys { it.toList() }
+
+/**
+ * Consumes the cursor and returns a [List] containing
+ * all elements in the database from this cursor.
+ */
+public fun <M : Any> Cursor<M>.toEntryList(): List<Entry<M>> = useEntries { it.toList() }
+
+/**
+ * Consumes the cursor and returns the current element of this cursor.
+ *
+ * @throws NoSuchElementException if the cursor is empty.
+ */
+public fun <M : Any> Cursor<M>.first(): M = use {
+    if (!it.isValid()) throw NoSuchElementException()
+    it.model()
+}
+
+/**
+ * Consumes the cursor and returns the current element of this cursor
+ * or null if the cursor is empty.
+ */
+public fun <M : Any> Cursor<M>.firstOrNull(): M? = use {
+    if (!it.isValid()) null
+    else it.model()
+}

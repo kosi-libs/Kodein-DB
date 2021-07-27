@@ -37,6 +37,8 @@ internal interface ModelValueMakerModule : ValueMaker {
         is Array<*> ->
             if (value.size == 1) (value as Array<Any?>).requireNoNulls().first().toValue()
             else valueOfAll(*(value as Array<Any?>).requireNoNulls())
+        is Pair<*, *> -> valueOfAll(*arrayOf(value.first, value.second).requireNoNulls())
+        is Triple<*, *, *> -> valueOfAll(*arrayOf(value.first, value.second, value.third).requireNoNulls())
         else -> value.toValue()
     }
 
