@@ -2,23 +2,25 @@ package org.kodein.db.orm.kotlinx
 
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.cbor.CborBuilder
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.SerializersModuleBuilder
 import kotlinx.serialization.modules.serializersModuleOf
 import org.kodein.db.Options
 import org.kodein.db.model.orm.DefaultSerializer
 import org.kodein.db.simpleTypeNameOf
-import org.kodein.memory.io.*
+import org.kodein.memory.io.CursorReadable
+import org.kodein.memory.io.Writeable
+import org.kodein.memory.io.readBytes
+import org.kodein.memory.io.writeBytes
 import org.kodein.memory.util.UUID
 import kotlin.collections.set
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
-import kotlin.reflect.typeOf
 
 public object UUIDSerializer : KSerializer<UUID> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
@@ -38,8 +40,12 @@ public object UUIDSerializer : KSerializer<UUID> {
 public class KotlinxSerializer @JvmOverloads constructor(module: SerializersModule? = null, block: Builder.() -> Unit = {}) : DefaultSerializer {
     private val serializers = HashMap<KClass<*>, KSerializer<*>>()
 
+    private val builder = Builder().apply(block)
+
     @ExperimentalSerializationApi
     private val cbor = Cbor {
+        builder.cborConfigurations.forEach { it(this) }
+
         serializersModule = SerializersModule {
             include(serializersModuleOf(UUIDSerializer))
             if (module != null) include(module)
@@ -52,10 +58,14 @@ public class KotlinxSerializer @JvmOverloads constructor(module: SerializersModu
         public inline operator fun <reified T : Any> KSerializer<T>.unaryPlus() {
             register(T::class, this)
         }
-    }
 
-    init {
-        Builder().block()
+        @ExperimentalSerializationApi
+        internal val cborConfigurations = ArrayList<CborBuilder.() -> Unit>()
+
+        @ExperimentalSerializationApi
+        public fun configure(block: CborBuilder.() -> Unit) {
+            cborConfigurations += block
+        }
     }
 
     @InternalSerializationApi
