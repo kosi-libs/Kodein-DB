@@ -7,14 +7,14 @@ It is suited for client or mobile applications.
 CAUTION: Under no circumstances should it be used in a server!
 
 ._**Kodein-DB**_ allows you to:
-- Easily store, retrieve and query kotlin objects.
-- Stop carrying about schema definitions.
-- Easily set up a new project.
+- easily store, retrieve and query kotlin objects
+- stop caring about schema definitions
+- easily set up a new project
 
 ._**Kodein-DB**_ is a good choice because it:
-- proposes a very simple and readable DSL.
-- integrates nicely with Android and iOS.
-- offers very good performances.
+- proposes a very simple and readable DSL
+- integrates nicely with Android and iOS
+- offers very good performances
 - is just Kotlin!
 
 [IMPORTANT]
@@ -49,7 +49,7 @@ println(does.joinToString()) // Jane, John
 
 Contributions are very welcome and greatly appreciated! The great majority of pull requests are eventually merged.
 
-To contribute, simply fork https://github.com/Kodein-Framework/Kodein-DB[the project on Github], fix whatever is iching you, and submit a pull request!
+To contribute, simply fork https://github.com/Kodein-Framework/Kodein-DB[the project on Github], fix whatever is itching you, and submit a pull request!
 
 I am sure that this documentation contains typos, inaccuracies and languages error (English is not my mother tongue).
 If you feel like enhancing this document, you can propose a pull request that modifies https://github.com/Kodein-Framework/Kodein-DB/tree/master/doc[the documentation documents].
