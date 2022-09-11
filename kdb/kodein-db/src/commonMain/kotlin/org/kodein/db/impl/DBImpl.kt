@@ -34,8 +34,8 @@ internal class DBImpl(override val mdb: ModelDB) : DB, DBReadModule, KeyMaker by
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun <M : Any> flowOf(type: KClass<M>, key: Key<M>, init: Boolean): Flow<M?> = callbackFlow {
         val subscription = on(type).register(object : DBListener<M> {
-            override fun didDelete(operation: Operation.Delete<M>) { trySend(null) }
-            override fun didPut(operation: Operation.Put<M>) { trySend(operation.model) }
+            override fun didDelete(operation: Operation.Delete<M>) { if (operation.key == key) trySend(null) }
+            override fun didPut(operation: Operation.Put<M>) { if (operation.key == key) trySend(operation.model) }
         })
         if (init) trySend(get(type, key))
         awaitClose { subscription.close() }
